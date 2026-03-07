@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Spatie\Permission\Traits\HasRoles;
@@ -24,6 +25,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'profile_photo_path',
     ];
 
     /**
@@ -62,4 +64,22 @@ class User extends Authenticatable
             ->map(fn ($word) => Str::substr($word, 0, 1))
             ->implode('');
     }
+
+    public function profilePhotoUrl(): ?string
+    {
+        return $this->profile_photo_path
+            ? Storage::url($this->profile_photo_path)
+            : null;
+    }
+
+    // Comment for now with make this like a status online, offline, away, etc. in the future
+    // public function statusBadgeColor(): string
+    // {
+    //     return match ($this->status) {
+    //         'Active' => 'green',
+    //         'On Leave' => 'amber',
+    //         'Inactive' => 'red',
+    //         default => 'zinc',
+    //     };
+    // }
 }

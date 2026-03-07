@@ -12,14 +12,69 @@
             </flux:sidebar.header>
 
             <flux:sidebar.nav>
-                <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>Dashboard</flux:sidebar.item>
+                <flux:sidebar.item icon="home"
+                    :href="route('dashboard')"
+                    :current="request()->routeIs('dashboard')"
+                    wire:navigate>
+                    Dashboard
+                </flux:sidebar.item>
+
+                <flux:sidebar.group expandable icon="users" heading="User Management">
+                    <flux:sidebar.item href="#">Users Management</flux:sidebar.item>
+                    <flux:sidebar.item href="#">Students OJT Management</flux:sidebar.item>
+                    <flux:sidebar.item href="#">Company & Partner Management</flux:sidebar.item>
+                </flux:sidebar.group>
+
+                <flux:sidebar.group expandable icon="computer-desktop" heading="Monitoring">
+                    <flux:sidebar.item icon="computer-desktop" href="#">
+                        Attendance Monitoring
+                    </flux:sidebar.item>
+
+                    <flux:sidebar.item icon="calendar-date-range" href="#">
+                        Duty Hours Tracking
+                    </flux:sidebar.item>
+
+                    <flux:sidebar.item icon="chart-bar-square" href="#">
+                        Productivity Monitoring
+                    </flux:sidebar.item>
+                </flux:sidebar.group>
+
+                <flux:sidebar.group expandable icon="document-text" heading="Reports & Evaluation">
+                    <flux:sidebar.item icon="document-arrow-up" href="#">
+                        Report Generation
+                    </flux:sidebar.item>
+
+                    <flux:sidebar.item icon="document-magnifying-glass" href="#">
+                        Evaluation Monitoring
+                    </flux:sidebar.item>
+                </flux:sidebar.group>
+
+                <flux:sidebar.group expandable icon="cog-6-tooth" heading="System Management">
+                    <flux:sidebar.item icon="megaphone" href="#">
+                        System Announcements
+                    </flux:sidebar.item>
+
+                    <flux:sidebar.item icon="chart-pie" href="#">
+                        System Analytics
+                    </flux:sidebar.item>
+
+                    <flux:sidebar.item icon="clipboard-document-list" href="#">
+                        Audit Logs
+                    </flux:sidebar.item>
+
+                    <flux:sidebar.item icon="cog" href="#">
+                        System Settings
+                    </flux:sidebar.item>
+                </flux:sidebar.group>
             </flux:sidebar.nav>
 
             <flux:spacer />
 
             <flux:sidebar.nav>
-                <flux:sidebar.item icon="document-check" href="https://github.com/laravel/livewire-starter-kit" target="_blank">
-                    {{ __('DutyTrack') }} <flux:badge rounded icon="check-badge" size="sm" color="emerald">V0.1.0</flux:badge>
+                <flux:sidebar.item href="https://github.com/laravel/livewire-starter-kit" target="_blank">
+                    <div class="flex items-center gap-2">
+                        Duty Track <flux:badge rounded icon="check-badge" size="sm" color="emerald">V0.1.0</flux:badge>
+                    </div>
                 </flux:sidebar.item>
             </flux:sidebar.nav>
 
@@ -33,10 +88,14 @@
             <flux:spacer />
 
             <flux:dropdown position="top" align="end">
-                <flux:profile
-                    :initials="auth()->user()->initials()"
-                    icon-trailing="chevron-down"
-                />
+                {{-- <flux:sidebar.profile :name="auth()->user()->name"
+                    :avatar="auth()->user()->profile_photo_path ? auth()->user()->profilePhotoUrl() : null"
+                    :initials="!auth()->user()->profile_photo_path ? auth()->user()->initials() : null" badge
+                    :badge-color="auth()->user()->statusBadgeColor()" icon:trailing="chevrons-up-down" /> --}}
+                <flux:sidebar.profile :name="auth()->user()->name"
+                    :avatar="auth()->user()->profile_photo_path ? auth()->user()->profilePhotoUrl() : null"
+                    :initials="!auth()->user()->profile_photo_path ? auth()->user()->initials() : null"
+                    icon:trailing="chevrons-up-down" />
 
                 <flux:menu>
                     <flux:menu.radio.group>

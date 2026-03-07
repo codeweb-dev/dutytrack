@@ -16,6 +16,7 @@ class AdminSeeder extends Seeder
     {
         $email = config('admin.email');
         $name = config('admin.name');
+
         $password = config('admin.password');
 
         $admin = User::firstOrCreate(
@@ -23,6 +24,7 @@ class AdminSeeder extends Seeder
             [
                 'name' => $name,
                 'password' => Hash::make($password),
+                'profile_photo_path' => 'profile/ecc_logo.jpeg',
             ]
         );
 

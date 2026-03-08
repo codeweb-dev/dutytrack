@@ -1,5 +1,6 @@
-@import 'tailwindcss';
-@import '../../vendor/livewire/flux/dist/flux.css';
+@import "tailwindcss";
+@import "../../vendor/livewire/flux/dist/flux.css";
+@import "tailwindcss-intersect";
 
 @source '../views';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
@@ -9,7 +10,9 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-    --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans:
+        "Poppins", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+        "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 
     --color-zinc-50: #fafafa;
     --color-zinc-100: #f5f5f5;
@@ -43,7 +46,6 @@
 }
 
 @layer base {
-
     *,
     ::after,
     ::before,
@@ -58,7 +60,7 @@
 }
 
 [data-flux-label] {
-    @apply  !mb-0 !leading-tight;
+    @apply !mb-0 !leading-tight;
 }
 
 input:focus[data-flux-control],
@@ -70,3 +72,213 @@ select:focus[data-flux-control] {
 /* \[:where(&)\]:size-4 {
     @apply size-4;
 } */
+
+@keyframes floatY {
+    0%,
+    100% {
+        transform: translateY(0px) rotate(var(--rot, 0deg));
+    }
+
+    50% {
+        transform: translateY(-10px) rotate(var(--rot, 0deg));
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-32px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(24px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-60px) rotate(var(--rot, 0deg));
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0) rotate(var(--rot, 0deg));
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(60px) rotate(var(--rot, 0deg));
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0) rotate(var(--rot, 0deg));
+    }
+}
+
+@keyframes scaleFade {
+    from {
+        opacity: 0;
+        transform: scale(0.88);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes wordReveal {
+    from {
+        opacity: 0;
+        transform: translateY(20px) skewY(3deg);
+        filter: blur(4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) skewY(0deg);
+        filter: blur(0);
+    }
+}
+
+@keyframes drawLine {
+    from {
+        stroke-dashoffset: 300;
+    }
+
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes pulseRing {
+    0% {
+        transform: scale(1);
+        opacity: 0.6;
+    }
+
+    100% {
+        transform: scale(1.55);
+        opacity: 0;
+    }
+}
+
+.anim-nav {
+    opacity: 0;
+    animation: slideDown 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation-delay: 0.05s;
+}
+
+.anim-badge {
+    opacity: 0;
+    animation: fadeUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation-delay: 0.35s;
+}
+
+.anim-word {
+    display: inline-block;
+    opacity: 0;
+    animation: wordReveal 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.anim-word:nth-child(1) {
+    animation-delay: 0.55s;
+}
+
+.anim-word:nth-child(2) {
+    animation-delay: 0.68s;
+}
+
+.anim-word:nth-child(3) {
+    animation-delay: 0.81s;
+}
+
+.anim-word:nth-child(4) {
+    animation-delay: 0.94s;
+}
+
+.anim-word:nth-child(5) {
+    animation-delay: 1.07s;
+}
+
+.anim-word:nth-child(6) {
+    animation-delay: 1.2s;
+}
+
+.anim-underline {
+    stroke-dasharray: 300;
+    stroke-dashoffset: 300;
+    animation: drawLine 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation-delay: 1.35s;
+}
+
+.anim-sub {
+    opacity: 0;
+    animation: fadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation-delay: 1.45s;
+}
+
+.anim-cta {
+    opacity: 0;
+    animation: scaleFade 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation-delay: 1.6s;
+}
+
+.anim-from-left-1 {
+    --rot: -12deg;
+    opacity: 0;
+    animation:
+        slideInLeft 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+        floatY 4s ease-in-out infinite;
+    animation-delay: 0.7s, 1.4s;
+}
+
+.anim-from-left-2 {
+    --rot: -12deg;
+    opacity: 0;
+    animation:
+        slideInLeft 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+        floatY 4s ease-in-out infinite;
+    animation-delay: 0.9s, 1.6s;
+}
+
+.anim-from-right-1 {
+    --rot: 12deg;
+    opacity: 0;
+    animation:
+        slideInRight 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+        floatY 4s ease-in-out infinite;
+    animation-delay: 0.7s, 1.4s;
+}
+
+.anim-from-right-2 {
+    --rot: 12deg;
+    opacity: 0;
+    animation:
+        slideInRight 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+        floatY 4s ease-in-out infinite;
+    animation-delay: 0.9s, 1.6s;
+}
+
+.anim-dashboard {
+    opacity: 0;
+    animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation-delay: 1.75s;
+}

@@ -1,4 +1,4 @@
-<section class="py-24 px-6 bg-gray-100 dark:bg-zinc-950">
+<section class="py-24 px-6 bg-gray-100 dark:bg-zinc-950" id="benefits">
     <div class="max-w-5xl mx-auto">
         <div class="text-center mb-16">
             <div

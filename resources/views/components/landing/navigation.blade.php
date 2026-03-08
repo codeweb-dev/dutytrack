@@ -8,6 +8,29 @@
             Duty Track
         </div>
 
+        <div class="hidden md:flex items-center gap-6">
+            <a href="#home"
+                class="text-gray-700 dark:text-zinc-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+                Home
+            </a>
+            <a href="#benefits"
+                class="text-gray-700 dark:text-zinc-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+                Benefits
+            </a>
+            <a href="#comparison"
+                class="text-gray-700 dark:text-zinc-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+                Comparison
+            </a>
+            <a href="#faq"
+                class="text-gray-700 dark:text-zinc-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+                FAQ
+            </a>
+            <a href="#teams"
+                class="text-gray-700 dark:text-zinc-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+                Teams
+            </a>
+        </div>
+
         <div class="flex items-center gap-3">
             <flux:dropdown x-data align="end">
                 <flux:button variant="subtle" square class="group" aria-label="Preferred color scheme">
@@ -47,5 +70,5 @@
                 </a>
             @endif
         </div>
-    </nav>
+    </div>
 </nav>

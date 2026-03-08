@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark scroll-smooth">
 
 <head>
     @include('partials.head')
@@ -11,6 +11,9 @@
     <x-landing.hero />
     <x-landing.dashboard-preview />
     <x-landing.benefits />
+    <x-landing.comparison />
+    <x-landing.faq />
+    <x-landing.report-bug />
     <x-landing.footer />
 
     @fluxScripts

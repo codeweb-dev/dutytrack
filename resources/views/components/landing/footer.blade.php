@@ -24,7 +24,6 @@
             </div>
 
             <div class="flex flex-wrap gap-12">
-
                 <div
                     class="opacity-0 translate-y-6
                     intersect:opacity-100 intersect:translate-y-0
@@ -32,9 +31,9 @@
                     intersect-once">
                     <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-4">Sections</h4>
                     <ul class="space-y-2.5">
-                        @foreach (['Features', 'Benefits', 'Attendance', 'Duty Hours', 'Reports'] as $item)
+                        @foreach (['Home', 'Benefits', 'Comparison', 'FAQ', 'Teams'] as $item)
                             <li>
-                                <a href="#"
+                                <a href="#{{ strtolower($item) }}"
                                     class="text-sm text-gray-500 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-white transition-colors no-underline">
                                     {{ $item }}
                                 </a>

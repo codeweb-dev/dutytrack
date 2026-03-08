@@ -222,11 +222,15 @@ select:focus[data-flux-control] {
     animation-delay: 1.2s;
 }
 
+.anim-word:nth-child(7) {
+    animation-delay: 1.33s;
+}
+
 .anim-underline {
     stroke-dasharray: 300;
     stroke-dashoffset: 300;
     animation: drawLine 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    animation-delay: 1.35s;
+    animation-delay: 1.8s;
 }
 
 .anim-sub {
@@ -281,4 +285,35 @@ select:focus[data-flux-control] {
     opacity: 0;
     animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
     animation-delay: 1.75s;
+}
+
+@keyframes envelopeFloatLeft {
+    0%,
+    100% {
+        transform: translateY(-50%) translateY(0px) rotate(-5deg);
+    }
+    25% {
+        transform: translateY(-50%) translateY(-12px) rotate(-2deg);
+    }
+    50% {
+        transform: translateY(-50%) translateY(-18px) rotate(-6deg);
+    }
+    75% {
+        transform: translateY(-50%) translateY(-8px) rotate(-3deg);
+    }
+}
+@keyframes envelopeFloatRight {
+    0%,
+    100% {
+        transform: translateY(-50%) translateY(0px) rotate(5deg);
+    }
+    25% {
+        transform: translateY(-50%) translateY(-10px) rotate(3deg);
+    }
+    50% {
+        transform: translateY(-50%) translateY(-16px) rotate(7deg);
+    }
+    75% {
+        transform: translateY(-50%) translateY(-6px) rotate(4deg);
+    }
 }

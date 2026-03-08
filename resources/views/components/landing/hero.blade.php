@@ -1,4 +1,4 @@
-<section class="relative text-center pt-16 pb-0 px-6">
+<section class="relative text-center pt-16 pb-0 px-6" id="home">
     <div class="absolute inset-x-0 top-16 pointer-events-none hidden lg:block">
         <div class="anim-from-left-1 absolute left-[24%] top-8 w-20 h-20 bg-white dark:bg-zinc-800 rounded-2xl shadow-lg dark:shadow-zinc-900 flex items-center justify-center"
             style="--rot:-12deg;">

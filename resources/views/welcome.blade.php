@@ -14,6 +14,7 @@
     <x-landing.comparison />
     <x-landing.faq />
     <x-landing.report-bug />
+    <x-landing.teams />
     <x-landing.footer />
 
     @fluxScripts

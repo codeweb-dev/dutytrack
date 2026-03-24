@@ -317,3 +317,70 @@ select:focus[data-flux-control] {
         transform: translateY(-50%) translateY(-6px) rotate(4deg);
     }
 }
+
+@keyframes floatCustom {
+    0%, 100% {
+        transform: translateY(0px) translateX(0px) rotate(var(--rot));
+    }
+    25% {
+        transform: translateY(var(--y1)) translateX(var(--x1)) rotate(var(--r1));
+    }
+    50% {
+        transform: translateY(var(--y2)) translateX(var(--x2)) rotate(var(--r2));
+    }
+    75% {
+        transform: translateY(var(--y3)) translateX(var(--x3)) rotate(var(--r3));
+    }
+}
+
+.anim-icon {
+    opacity: 0;
+}
+
+.anim-from-left-1 {
+    --rot: -12deg;
+    --y1: -8px;  --x1: -2px; --r1: -10deg;
+    --y2: -14px; --x2: 2px;  --r2: -14deg;
+    --y3: -6px;  --x3: -1px; --r3: -11deg;
+
+    animation:
+        slideInLeft 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+        floatCustom 4.2s ease-in-out infinite;
+    animation-delay: 0.7s, 1.4s;
+}
+
+.anim-from-left-2 {
+    --rot: -12deg;
+    --y1: -12px; --x1: 3px;  --r1: -9deg;
+    --y2: -18px; --x2: -2px; --r2: -15deg;
+    --y3: -7px;  --x3: 1px;  --r3: -11deg;
+
+    animation:
+        slideInLeft 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+        floatCustom 5s ease-in-out infinite;
+    animation-delay: 0.9s, 1.6s;
+}
+
+.anim-from-right-1 {
+    --rot: 12deg;
+    --y1: -9px;  --x1: 2px;  --r1: 10deg;
+    --y2: -15px; --x2: -2px; --r2: 14deg;
+    --y3: -6px;  --x3: 1px;  --r3: 11deg;
+
+    animation:
+        slideInRight 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+        floatCustom 4.6s ease-in-out infinite;
+    animation-delay: 0.7s, 1.4s;
+}
+
+.anim-from-right-2 {
+    --rot: 12deg;
+    --y1: -7px;  --x1: -3px; --r1: 9deg;
+    --y2: -13px; --x2: 2px;  --r2: 15deg;
+    --y3: -5px;  --x3: -1px; --r3: 11deg;
+
+    animation:
+        slideInRight 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+        floatCustom 5.4s ease-in-out infinite;
+    animation-delay: 0.9s, 1.6s;
+}

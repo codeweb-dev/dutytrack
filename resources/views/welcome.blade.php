@@ -13,8 +13,8 @@
     <x-landing.benefits />
     <x-landing.comparison />
     <x-landing.faq />
-    <x-landing.report-bug />
     <x-landing.teams />
+    <x-landing.report-bug />
     <x-landing.footer />
 
     @fluxScripts

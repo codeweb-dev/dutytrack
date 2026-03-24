@@ -1,27 +1,27 @@
 <section class="relative text-center pt-16 pb-0 px-6" id="home">
     <div class="absolute inset-x-0 top-16 pointer-events-none hidden lg:block">
-        <div class="anim-from-left-1 absolute left-[24%] top-8 w-20 h-20 bg-white dark:bg-zinc-800 rounded-2xl shadow-lg dark:shadow-zinc-900 flex items-center justify-center"
+        <div class="anim-icon anim-from-left-1 absolute left-[18%] top-8 w-20 h-20 bg-white dark:bg-zinc-800 rounded-2xl shadow-lg dark:shadow-zinc-900 flex items-center justify-center"
             style="--rot:-12deg;">
             <div class="bg-gray-100 dark:bg-zinc-700 w-16 h-16 rounded-md flex items-center justify-center">
                 <flux:icon.user class="size-10 text-red-600 dark:text-red-400" />
             </div>
         </div>
 
-        <div class="anim-from-left-2 absolute left-[22%] top-60 w-20 h-20 bg-white dark:bg-zinc-800 rounded-2xl shadow-lg dark:shadow-zinc-900 flex items-center justify-center"
+        <div class="anim-icon anim-from-left-2 absolute left-[22%] top-60 w-20 h-20 bg-white dark:bg-zinc-800 rounded-2xl shadow-lg dark:shadow-zinc-900 flex items-center justify-center"
             style="--rot:-12deg;">
             <div class="bg-gray-100 dark:bg-zinc-700 w-16 h-16 rounded-md flex items-center justify-center">
                 <flux:icon.circle-stack class="size-10 text-red-600 dark:text-red-400" />
             </div>
         </div>
 
-        <div class="anim-from-right-1 absolute right-[24%] top-6 w-20 h-20 bg-white dark:bg-zinc-800 rounded-2xl shadow-lg dark:shadow-zinc-900 flex items-center justify-center"
+        <div class="anim-icon anim-from-right-1 absolute right-[18%] top-6 w-20 h-20 bg-white dark:bg-zinc-800 rounded-2xl shadow-lg dark:shadow-zinc-900 flex items-center justify-center"
             style="--rot:12deg;">
             <div class="bg-gray-100 dark:bg-zinc-700 w-16 h-16 rounded-md flex items-center justify-center">
                 <flux:icon.calendar-date-range class="size-10 text-red-600 dark:text-red-400" />
             </div>
         </div>
 
-        <div class="anim-from-right-2 absolute right-[22%] top-60 w-20 h-20 bg-white dark:bg-zinc-800 rounded-2xl shadow-lg dark:shadow-zinc-900 flex items-center justify-center"
+        <div class="anim-icon anim-from-right-2 absolute right-[22%] top-60 w-20 h-20 bg-white dark:bg-zinc-800 rounded-2xl shadow-lg dark:shadow-zinc-900 flex items-center justify-center"
             style="--rot:12deg;">
             <div class="bg-gray-100 dark:bg-zinc-700 w-16 h-16 rounded-md flex items-center justify-center">
                 <flux:icon.clock class="size-10 text-red-600 dark:text-red-400" />
@@ -34,7 +34,7 @@
     </div>
 
     <h1
-        class="text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.15] max-w-2xl mx-auto mb-2 text-gray-900 dark:text-white">
+        class="text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.15] max-w-4xl mx-auto mb-2 text-gray-900 dark:text-white">
         <span class="anim-word">Track</span>&#32;<span class="anim-word">OJT</span>&#32;<span
             class="anim-word">Attendance,</span>
         <br>

@@ -3,15 +3,13 @@
         <div class="flex flex-col lg:flex-row gap-12 lg:gap-0 justify-between">
             <div
                 class="max-w-xs
-                opacity-0 translate-x-[-24px]
+                opacity-0 -translate-x-6
                 intersect:opacity-100 intersect:translate-x-0
                 transition-all duration-600 ease-out
                 intersect-once">
-                <div class="flex items-center gap-2.5 mb-4">
-                    <div class="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <flux:icon.clock class="size-4 text-white" />
-                    </div>
-                    <span class="text-base font-bold text-gray-900 dark:text-white">DutyTrack</span>
+                <div class="flex items-center gap-2 font-bold text-lg text-gray-900 dark:text-white mb-4">
+                    <img src="{{ asset('logo.png') }}" alt="Duty Track Logo" width="32" height="32" />
+                    <div>Duty Track</div>
                 </div>
                 <p class="text-sm text-gray-500 dark:text-zinc-400 leading-relaxed mb-6">
                     A centralized platform for administrators, supervisors, and students to monitor OJT attendance, duty

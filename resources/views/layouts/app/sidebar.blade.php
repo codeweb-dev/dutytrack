@@ -70,14 +70,6 @@
 
             <flux:spacer />
 
-            <flux:sidebar.nav>
-                <flux:sidebar.item href="https://github.com/laravel/livewire-starter-kit" target="_blank">
-                    <div class="flex items-center gap-2">
-                        Duty Track <flux:badge rounded icon="check-badge" size="sm" color="emerald">V0.1.0</flux:badge>
-                    </div>
-                </flux:sidebar.item>
-            </flux:sidebar.nav>
-
             <x-desktop-user-menu class="hidden lg:block" :name="auth()->user()->name" />
         </flux:sidebar>
 

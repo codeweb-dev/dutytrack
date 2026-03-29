@@ -4,11 +4,8 @@
     <div class="max-w-6xl mx-auto w-full">
         <div class="flex items-center justify-between px-12 py-2 w-full rounded-b-xl">
             <div class="flex items-center gap-2 font-bold text-lg text-gray-900 dark:text-white">
-                <div
-                    class="bg-red-600 hover:bg-red-700 text-white p-1 rounded-lg text-sm font-semibold transition-all shadow-md shadow-red-200 dark:shadow-red-900/40">
-                    <flux:icon.clock />
-                </div>
-                Duty Track
+                <img src="{{ asset('logo.png') }}" alt="Duty Track Logo" width="32" height="32" />
+                <div>Duty Track</div>
             </div>
 
             <div class="hidden md:flex items-center text-sm gap-6">

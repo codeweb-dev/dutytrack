@@ -10,7 +10,7 @@
         <div class="anim-icon anim-from-left-2 absolute left-[22%] top-60 w-20 h-20 bg-white dark:bg-zinc-800 rounded-2xl shadow-lg dark:shadow-zinc-900 flex items-center justify-center"
             style="--rot:-12deg;">
             <div class="bg-gray-100 dark:bg-zinc-700 w-16 h-16 rounded-md flex items-center justify-center">
-                <flux:icon.circle-stack class="size-10 text-red-600 dark:text-red-400" />
+                <flux:icon.computer-desktop class="size-10 text-red-600 dark:text-red-400" />
             </div>
         </div>
 

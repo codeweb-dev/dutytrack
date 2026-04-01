@@ -88,7 +88,7 @@
             transition-all duration-500 delay-100 ease-out
             intersect-once">
             <span class="text-xs flex items-center text-gray-400 dark:text-zinc-500">
-                Built by Allen Labrague with
+                Built by the DutyTrack team with
                 <flux:icon.heart variant="micro" class="ml-1" />
             </span>
             <span class="text-xs text-gray-400 dark:text-zinc-500">

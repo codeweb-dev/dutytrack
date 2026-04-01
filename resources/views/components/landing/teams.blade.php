@@ -33,7 +33,7 @@
                 </div>
 
                 <div class="flex-1 text-center lg:text-left">
-                    <h3 class="text-2xl font-extrabold text-gray-900 dark:text-white mb-1">Allen Labrague</h3>
+                    <h3 class="text-2xl font-extrabold text-gray-900 dark:text-white mb-1">Allen I. Labrague</h3>
                     <p class="text-sm text-red-600 dark:text-red-400 uppercase mb-4">Leader & Solo Developer</p>
                     <p class="text-sm text-gray-500 dark:text-zinc-400 leading-relaxed max-w-lg mb-6">
                         Built DutyTrack from the ground up — from the database architecture to the last pixel of the UI.
@@ -88,11 +88,11 @@
                     'shadow'   => 'shadow-blue-200 dark:shadow-blue-950/40',
                     'delay'    => '0',
                     'image'    => 'drexel.jpeg',
-                    'tags'     => ['Documentation', 'Testing'],
+                    'tags'     => ['Reference Manager', 'Diagram Designer'],
                 ],
                 [
                     'initials' => 'KN',
-                    'name'     => 'Khian B. Nixon',
+                    'name'     => 'Khian Nixon L. Banatlao',
                     'role'     => 'Member',
                     'gender'   => 'male',
                     'from'     => 'from-emerald-500',
@@ -100,7 +100,7 @@
                     'shadow'   => 'shadow-emerald-200 dark:shadow-emerald-950/40',
                     'delay'    => '75',
                     'image'    => 'khian.jpeg',
-                    'tags'     => ['Research', 'Presentation'],
+                    'tags'     => ['Data Analyst', 'Tester'],
                 ],
                 [
                     'initials' => 'SF',
@@ -112,11 +112,11 @@
                     'shadow'   => 'shadow-pink-200 dark:shadow-pink-950/40',
                     'delay'    => '150',
                     'image'    => 'shanley.jpeg',
-                    'tags'     => ['Quality Assurance', 'Reports'],
+                    'tags'     => ['Data Collector', 'RRL Writer'],
                 ],
                 [
                     'initials' => 'AE',
-                    'name'     => 'Althea T. Entona',
+                    'name'     => 'Althea P. Entona',
                     'role'     => 'Member',
                     'gender'   => 'female',
                     'from'     => 'from-violet-500',
@@ -124,7 +124,7 @@
                     'shadow'   => 'shadow-violet-200 dark:shadow-violet-950/40',
                     'delay'    => '225',
                     'image'    => 'althea.jpeg',
-                    'tags'     => ['Analysis', 'Support'],
+                    'tags'     => ['Citation Specialist', 'Literature Reviewer'],
                 ],
             ] as $m)
                 <div

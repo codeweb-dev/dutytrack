@@ -44,10 +44,10 @@
             <div
                 class="bg-white dark:bg-zinc-900 rounded-2xl p-8 border-3 border-red-500 shadow-lg shadow-red-100 dark:shadow-red-950/30">
                 <div class="flex items-center gap-3 mb-7">
-                    <div class="w-9 h-9 bg-red-600 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <flux:icon.clock class="size-5 text-white" />
+                    <div class="flex items-center gap-2 font-bold text-lg text-gray-900 dark:text-white">
+                        <img src="{{ asset('logo.png') }}" alt="Duty Track Logo" width="32" height="32" />
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white">DutyTrack</h3>
                     </div>
-                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white">DutyTrack</h3>
                 </div>
                 <ul class="space-y-4">
                     @foreach (['All your OJT data in one platform', 'Duty hours calculated automatically', 'Real-time dashboard for supervisors', 'Reports generated instantly', 'Clear view of every student\'s progress'] as $item)

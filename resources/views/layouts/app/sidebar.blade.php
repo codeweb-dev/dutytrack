@@ -19,50 +19,46 @@
                     Dashboard
                 </flux:sidebar.item>
 
-                <flux:sidebar.group expandable icon="users" heading="User Management">
-                    <flux:sidebar.item href="#">Users Management</flux:sidebar.item>
-                    <flux:sidebar.item href="#">Students OJT Management</flux:sidebar.item>
-                    <flux:sidebar.item href="#">Company & Partner Management</flux:sidebar.item>
+                <flux:sidebar.group expandable icon="users" heading="Users Management">
+                    <flux:sidebar.item href="{{ route('admin.students') }}" :current="request()->routeIs('admin.students')" wire:navigate>Students OJT Management</flux:sidebar.item>
+                    <flux:sidebar.item href="{{ route('admin.supervisors') }}" :current="request()->routeIs('admin.supervisors')" wire:navigate>Supervisors Management</flux:sidebar.item>
+                    <flux:sidebar.item href="{{ route('admin.partners') }}" :current="request()->routeIs('admin.partners')" wire:navigate>Company & Partner Management</flux:sidebar.item>
                 </flux:sidebar.group>
 
                 <flux:sidebar.group expandable icon="computer-desktop" heading="Monitoring">
-                    <flux:sidebar.item icon="computer-desktop" href="#">
+                    <flux:sidebar.item icon="computer-desktop" href="{{ route('admin.attendance') }}" :current="request()->routeIs('admin.attendance')" wire:navigate>
                         Attendance Monitoring
                     </flux:sidebar.item>
 
-                    <flux:sidebar.item icon="calendar-date-range" href="#">
+                    <flux:sidebar.item icon="calendar-date-range" href="{{ route('admin.duty-hours') }}" :current="request()->routeIs('admin.duty-hours')" wire:navigate>
                         Duty Hours Tracking
                     </flux:sidebar.item>
 
-                    <flux:sidebar.item icon="chart-bar-square" href="#">
+                    <flux:sidebar.item icon="chart-bar-square" href="{{ route('admin.productivity') }}" :current="request()->routeIs('admin.productivity')" wire:navigate>
                         Productivity Monitoring
                     </flux:sidebar.item>
                 </flux:sidebar.group>
 
                 <flux:sidebar.group expandable icon="document-text" heading="Reports & Evaluation">
-                    <flux:sidebar.item icon="document-arrow-up" href="#">
+                    <flux:sidebar.item icon="document-arrow-up" href="{{ route('admin.reports') }}" :current="request()->routeIs('admin.reports')" wire:navigate>
                         Report Generation
                     </flux:sidebar.item>
 
-                    <flux:sidebar.item icon="document-magnifying-glass" href="#">
+                    <flux:sidebar.item icon="document-magnifying-glass" href="{{ route('admin.evaluation') }}" :current="request()->routeIs('admin.evaluation')" wire:navigate>
                         Evaluation Monitoring
                     </flux:sidebar.item>
                 </flux:sidebar.group>
 
                 <flux:sidebar.group expandable icon="cog-6-tooth" heading="System Management">
-                    <flux:sidebar.item icon="megaphone" href="#">
+                    <flux:sidebar.item icon="megaphone" href="{{ route('admin.announcements') }}" :current="request()->routeIs('admin.announcements')" wire:navigate>
                         System Announcements
                     </flux:sidebar.item>
 
-                    <flux:sidebar.item icon="chart-pie" href="#">
-                        System Analytics
-                    </flux:sidebar.item>
-
-                    <flux:sidebar.item icon="clipboard-document-list" href="#">
+                    <flux:sidebar.item icon="clipboard-document-list" href="{{ route('admin.audit-logs') }}" :current="request()->routeIs('admin.audit-logs')" wire:navigate>
                         Audit Logs
                     </flux:sidebar.item>
 
-                    <flux:sidebar.item icon="cog" href="#">
+                    <flux:sidebar.item icon="cog" href="{{ route('admin.settings') }}" :current="request()->routeIs('admin.settings')" wire:navigate>
                         System Settings
                     </flux:sidebar.item>
                 </flux:sidebar.group>
@@ -73,17 +69,40 @@
             <x-desktop-user-menu class="hidden lg:block" :name="auth()->user()->name" />
         </flux:sidebar>
 
+        <flux:header class="block! bg-white lg:bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700">
+            <flux:navbar class="lg:hidden w-full">
+                <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
+
+                <flux:spacer />
+
+                <flux:dropdown position="top" align="start">
+                    <flux:profile avatar="https://fluxui.dev/img/demo/user.png" />
+                    <flux:menu>
+                        <flux:menu.radio.group>
+                            <flux:menu.radio checked>Olivia Martin</flux:menu.radio>
+                            <flux:menu.radio>Truly Delta</flux:menu.radio>
+                        </flux:menu.radio.group>
+                        <flux:menu.separator />
+                        <flux:menu.item icon="arrow-right-start-on-rectangle">Logout</flux:menu.item>
+                    </flux:menu>
+                </flux:dropdown>
+            </flux:navbar>
+
+            <flux:navbar scrollable>
+                <flux:navbar.item href="#" current>Dashboard</flux:navbar.item>
+                <flux:navbar.item badge="32" href="#">Students</flux:navbar.item>
+                <flux:navbar.item href="#">Catalog</flux:navbar.item>
+                <flux:navbar.item href="#">Configuration</flux:navbar.item>
+            </flux:navbar>
+        </flux:header>
+
         <!-- Mobile User Menu -->
-        <flux:header class="lg:hidden">
+        {{-- <flux:header class="lg:hidden">
             <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
 
             <flux:spacer />
 
             <flux:dropdown position="top" align="end">
-                {{-- <flux:sidebar.profile :name="auth()->user()->name"
-                    :avatar="auth()->user()->profile_photo_path ? auth()->user()->profilePhotoUrl() : null"
-                    :initials="!auth()->user()->profile_photo_path ? auth()->user()->initials() : null" badge
-                    :badge-color="auth()->user()->statusBadgeColor()" icon:trailing="chevrons-up-down" /> --}}
                 <flux:sidebar.profile :name="auth()->user()->name"
                     :avatar="auth()->user()->profile_photo_path ? auth()->user()->profilePhotoUrl() : null"
                     :initials="!auth()->user()->profile_photo_path ? auth()->user()->initials() : null"
@@ -130,7 +149,7 @@
                     </form>
                 </flux:menu>
             </flux:dropdown>
-        </flux:header>
+        </flux:header> --}}
 
         {{ $slot }}
 

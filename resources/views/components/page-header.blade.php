@@ -1,4 +1,4 @@
-<div class="flex flex-col gap-6">
+<div class="flex flex-col gap-4">
     @if(count($breadcrumbs))
         <flux:breadcrumbs>
             @foreach($breadcrumbs as $breadcrumb)
@@ -16,10 +16,10 @@
     @endif
 
     <div>
-        <h1 class="text-2xl font-bold">{{ $title }}</h1>
+        <h1 class="text-3xl font-bold">{{ $title }}</h1>
 
         @if($description)
-            <flux:text class="mt-1 text-sm">
+            <flux:text class="mt-2">
                 {{ $description }}
             </flux:text>
         @endif

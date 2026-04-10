@@ -71,16 +71,18 @@
 
         <flux:header class="block! bg-white lg:bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700">
             <div class="flex items-center justify-between mt-1">
-                <div class="max-w-xs w-full hidden md:block">
-                    <flux:input as="button" placeholder="Search..." icon="magnifying-glass" kbd="⌘K" class="w-full" />
-                </div>
+                <flux:spacer class="hidden md:block" />
 
                 <flux:sidebar.toggle class="md:hidden" icon="bars-2" inset="left" />
 
                 <div class="flex items-center gap-3">
-                    <flux:button icon="megaphone" variant="ghost" />
+                    <flux:modal.trigger name="announcement">
+                        <flux:button icon="megaphone" variant="subtle" />
+                    </flux:modal.trigger>
 
-                    <flux:button x-data x-on:click="$flux.dark = ! $flux.dark" icon="moon" variant="ghost" aria-label="Toggle dark mode" />
+                    <flux:button x-data x-on:click="$flux.dark = ! $flux.dark" icon="moon" variant="subtle" aria-label="Toggle dark mode" />
+                    
+                    <flux:button icon="cog-6-tooth" variant="subtle" :href="route('profile.edit')" />
 
                     <flux:separator vertical class="my-5" />
 
@@ -137,6 +139,10 @@
                 </div>
             </div>
         </flux:header>
+
+        <flux:modal name="announcement" class="md:max-w-3xl">
+            <livewire:announcement />
+        </flux:modal>
 
         {{ $slot }}
 

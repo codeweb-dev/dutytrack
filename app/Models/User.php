@@ -23,6 +23,10 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'first_name',
+        'middle_name',
+        'last_name',
+        'contact_number',
         'email',
         'password',
         'profile_photo_path',
@@ -61,7 +65,7 @@ class User extends Authenticatable
         return Str::of($this->name)
             ->explode(' ')
             ->take(2)
-            ->map(fn ($word) => Str::substr($word, 0, 1))
+            ->map(fn($word) => Str::substr($word, 0, 1))
             ->implode('');
     }
 
@@ -70,6 +74,11 @@ class User extends Authenticatable
         return $this->profile_photo_path
             ? Storage::url($this->profile_photo_path)
             : null;
+    }
+
+    public function studentProfile()
+    {
+        return $this->hasOne(StudentProfile::class);
     }
 
     // Comment for now with make this like a status online, offline, away, etc. in the future

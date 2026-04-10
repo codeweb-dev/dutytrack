@@ -1,4 +1,3 @@
-
-<div>
-    {{-- It is never too late to be what you might have been. - George Eliot --}}
+<div class="flex flex-col gap-6">
+    <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 </div>

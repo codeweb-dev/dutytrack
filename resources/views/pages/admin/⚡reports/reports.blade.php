@@ -1,4 +1,3 @@
-
-<div>
-    {{-- The biggest battle is the war against ignorance. - Mustafa Kemal Atatürk --}}
+<div class="flex flex-col gap-6">
+    <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 </div>

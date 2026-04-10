@@ -1,4 +1,3 @@
-
-<div>
-    {{-- We must ship. - Taylor Otwell --}}
+<div class="flex flex-col gap-6">
+    <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 </div>

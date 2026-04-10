@@ -1,5 +1,6 @@
 <?php
 
+use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Computed;
@@ -7,7 +8,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 
-new class extends Component
+new #[Title('Students OJT Management')] class extends Component
 {
     use WithPagination;
 

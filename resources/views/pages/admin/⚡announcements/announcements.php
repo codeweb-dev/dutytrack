@@ -1,8 +1,9 @@
 <?php
 
+use Livewire\Attributes\Title;
 use Livewire\Component;
 
-new class extends Component
+new #[Title('System Announcements')] class extends Component
 {
     public array $breadcrumbs = [
         ['logo' => 'logo.png', 'href' => '/dashboard'],

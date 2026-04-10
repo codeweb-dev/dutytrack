@@ -1,12 +1,13 @@
 <?php
 
+use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Computed;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 
-new class extends Component {
+new #[Title('Supervisors Management')] class extends Component {
     use WithPagination;
 
     public array $breadcrumbs = [['logo' => 'logo.png', 'href' => '/dashboard'], ['label' => 'Users Management', 'href' => '#'], ['label' => 'Supervisors Management']];

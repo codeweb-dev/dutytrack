@@ -129,7 +129,8 @@ new class extends Component {
                 </h3>
 
                 <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                    Try changing your search or filter to see more results.
+                    Try changing your search or filter to see more results. <br />
+                    Or check back later for new announcements!
                 </p>
             </div>
         @endforelse

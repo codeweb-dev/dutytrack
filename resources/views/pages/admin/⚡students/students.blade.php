@@ -9,7 +9,8 @@
             </h2>
 
             <div class="flex items-center gap-3">
-                <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass" placeholder="Search students..." clearable />
+                <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
+                    placeholder="Search students..." clearable />
 
                 <livewire:admin.students.create />
             </div>
@@ -96,7 +97,9 @@
 
                                     <flux:menu.separator />
 
-                                    <flux:menu.item variant="danger" icon="trash">Delete</flux:menu.item>
+                                    <flux:modal.trigger :name="'delete-student-'.$student->id">
+                                        <flux:menu.item variant="danger" icon="trash">Delete</flux:menu.item>
+                                    </flux:modal.trigger>
                                 </flux:menu>
                             </flux:dropdown>
 
@@ -108,6 +111,10 @@
                             <flux:modal :name="'edit-student-'.$student->id" flyout variant="floating"
                                 class="md:w-2xl">
                                 <livewire:admin.students.edit :student="$student" :key="'edit-student-' . $student->id" />
+                            </flux:modal>
+
+                            <flux:modal :name="'delete-student-'.$student->id" class="min-w-[22rem]">
+                                <livewire:admin.students.delete :student="$student" :key="'delete-student-' . $student->id" />
                             </flux:modal>
                         </flux:table.cell>
                     </flux:table.row>

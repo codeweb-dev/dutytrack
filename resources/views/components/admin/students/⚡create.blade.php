@@ -126,9 +126,8 @@ new class extends Component {
                 </div>
             </flux:fieldset>
 
-            <div class="flex">
-                <flux:spacer />
-                <flux:button type="submit" variant="primary">Create Student</flux:button>
+            <div class="w-full">
+                <flux:button type="submit" variant="primary" class="w-full">Create Student</flux:button>
             </div>
         </form>
     </flux:modal>

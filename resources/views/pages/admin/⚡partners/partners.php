@@ -1,28 +1,28 @@
-
-
 <?php
 
+use App\Enums\Role as EnumsRole;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Livewire\Attributes\Computed;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Pagination\Paginator;
 
-new #[Title('Company & Partners Management')] class extends Component
-{
+new #[Title('Professor & Coordinators Management')] class extends Component {
     use WithPagination;
 
     public array $breadcrumbs = [
         ['logo' => 'logo.png', 'href' => '/dashboard'],
         ['label' => 'Users Management', 'href' => '#'],
-        ['label' => 'Company & Partners Management'],
+        ['label' => 'Professor & Coordinators Management'],
     ];
 
-    public string $title = 'Company & Partners Management';
-    public string $description = 'Manage company and partner records, monitor affiliations, and oversee student deployment.';
+    public string $title = 'Professor & Coordinators Management';
+    public string $description = 'Manage professor and coordinator records, contact details, and assigned positions.';
 
-    public string $sortBy = 'industry';
+    public string $sortBy = 'name';
     public string $sortDirection = 'asc';
     public string $search = '';
 
@@ -36,121 +36,73 @@ new #[Title('Company & Partners Management')] class extends Component
         }
 
         $this->resetPage();
+        unset($this->professors);
     }
 
     public function updatedSearch(): void
     {
         $this->resetPage();
+        unset($this->professors);
+    }
+
+    #[On('professor-saved')]
+    public function refreshProfessors(): void
+    {
+        $this->resetPage();
+        unset($this->professors);
     }
 
     #[Computed]
-    public function companies(): LengthAwarePaginator
+    public function professors(): LengthAwarePaginator
     {
-        $companies = collect([
-            [
-                'id' => 1,
-                'name' => 'Accenture Philippines',
-                'contact_person' => 'Maria Santos',
-                'logo' => 'https://ui-avatars.com/api/?name=Accenture',
-                'industry' => 'Information Technology',
-                'status' => 'Active',
-                'status_color' => 'green',
-                'students_assigned' => 18,
-            ],
-            [
-                'id' => 2,
-                'name' => 'Globe Telecom',
-                'contact_person' => 'John Reyes',
-                'logo' => 'https://ui-avatars.com/api/?name=Globe',
-                'industry' => 'Telecommunications',
-                'status' => 'Active',
-                'status_color' => 'green',
-                'students_assigned' => 12,
-            ],
-            [
-                'id' => 3,
-                'name' => 'Ayala Corporation',
-                'contact_person' => 'Angela Cruz',
-                'logo' => 'https://ui-avatars.com/api/?name=Ayala',
-                'industry' => 'Conglomerate',
-                'status' => 'Pending',
-                'status_color' => 'amber',
-                'students_assigned' => 6,
-            ],
-            [
-                'id' => 4,
-                'name' => 'PLDT Inc.',
-                'contact_person' => 'Carlos Bautista',
-                'logo' => 'https://ui-avatars.com/api/?name=PLDT',
-                'industry' => 'Telecommunications',
-                'status' => 'Active',
-                'status_color' => 'green',
-                'students_assigned' => 10,
-            ],
-            [
-                'id' => 5,
-                'name' => 'IBM Philippines',
-                'contact_person' => 'Patricia Gomez',
-                'logo' => 'https://ui-avatars.com/api/?name=IBM',
-                'industry' => 'Technology Consulting',
-                'status' => 'Inactive',
-                'status_color' => 'red',
-                'students_assigned' => 0,
-            ],
-            [
-                'id' => 6,
-                'name' => 'Shopee PH',
-                'contact_person' => 'Mark Villanueva',
-                'logo' => 'https://ui-avatars.com/api/?name=Shopee',
-                'industry' => 'E-commerce',
-                'status' => 'Active',
-                'status_color' => 'green',
-                'students_assigned' => 14,
-            ],
-        ]);
+        $query = User::query()
+            ->with('professorProfile')
+            ->where(function (Builder $query) {
+                $query->whereHas('roles', function (Builder $roleQuery) {
+                    $roleQuery->where('name', EnumsRole::OJTCOORDINATOR->value);
+                })->orWhereHas('roles', function (Builder $roleQuery) {
+                    $roleQuery->where('name', 'professor');
+                });
+            })
+            ->leftJoin('professor_profiles', 'users.id', '=', 'professor_profiles.user_id')
+            ->select('users.*');
 
         if ($this->search !== '') {
-            $search = str($this->search)->lower()->value();
+            $search = '%' . $this->search . '%';
 
-            $companies = $companies->filter(function ($company) use ($search) {
-                return str($company['name'])->lower()->contains($search)
-                    || str($company['contact_person'])->lower()->contains($search)
-                    || str($company['industry'])->lower()->contains($search)
-                    || str($company['status'])->lower()->contains($search);
+            $query->where(function (Builder $query) use ($search) {
+                $query->where('users.name', 'like', $search)
+                    ->orWhere('users.first_name', 'like', $search)
+                    ->orWhere('users.last_name', 'like', $search)
+                    ->orWhere('users.email', 'like', $search)
+                    ->orWhere('users.contact_number', 'like', $search)
+                    ->orWhere('professor_profiles.employee_id', 'like', $search)
+                    ->orWhere('professor_profiles.department', 'like', $search)
+                    ->orWhere('professor_profiles.position', 'like', $search);
             });
         }
 
-        $companies = match ($this->sortBy) {
-            'students_assigned' => $this->sortDirection === 'asc'
-                ? $companies->sortBy('students_assigned')
-                : $companies->sortByDesc('students_assigned'),
+        $allowedSorts = [
+            'name' => 'users.name',
+            'employee_id' => 'professor_profiles.employee_id',
+            'department' => 'professor_profiles.department',
+            'position' => 'professor_profiles.position',
+        ];
 
-            'status' => $this->sortDirection === 'asc'
-                ? $companies->sortBy('status')
-                : $companies->sortByDesc('status'),
+        $sortColumn = $allowedSorts[$this->sortBy] ?? 'users.name';
+        $sortDirection = $this->sortDirection === 'desc' ? 'desc' : 'asc';
 
-            'industry' => $this->sortDirection === 'asc'
-                ? $companies->sortBy('industry')
-                : $companies->sortByDesc('industry'),
+        $query->orderBy($sortColumn, $sortDirection);
 
-            default => $companies,
+        return $query->paginate(5);
+    }
+
+    public function badgeColor(string $position): string
+    {
+        return match ($position) {
+            'OJT Coordinator' => 'sky',
+            'Instructor' => 'lime',
+            default => 'zinc',
         };
-
-        $companies = $companies->values();
-
-        $perPage = 5;
-        $page = Paginator::resolveCurrentPage() ?: 1;
-        $items = $companies->slice(($page - 1) * $perPage, $perPage)->values();
-
-        return new LengthAwarePaginator(
-            $items,
-            $companies->count(),
-            $perPage,
-            $page,
-            [
-                'path' => Paginator::resolveCurrentPath(),
-                'pageName' => 'page',
-            ]
-        );
     }
 };

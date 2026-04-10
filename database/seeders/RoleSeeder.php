@@ -19,6 +19,7 @@ class RoleSeeder extends Seeder
             EnumsRole::OJTCOORDINATOR->value,
             EnumsRole::COMPANYSUPERVISOR->value,
             EnumsRole::STUDENT->value,
+            EnumsRole::PROFESSOR->value,
         ];
 
         foreach ($roles as $role) {

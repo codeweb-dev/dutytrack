@@ -22,7 +22,7 @@
                 <flux:sidebar.group expandable icon="users" heading="Users Management">
                     <flux:sidebar.item href="{{ route('admin.students') }}" :current="request()->routeIs('admin.students')" wire:navigate>Students OJT Management</flux:sidebar.item>
                     <flux:sidebar.item href="{{ route('admin.supervisors') }}" :current="request()->routeIs('admin.supervisors')" wire:navigate>Supervisors Management</flux:sidebar.item>
-                    <flux:sidebar.item href="{{ route('admin.partners') }}" :current="request()->routeIs('admin.partners')" wire:navigate>Company & Partner Management</flux:sidebar.item>
+                    <flux:sidebar.item href="{{ route('admin.partners') }}" :current="request()->routeIs('admin.partners')" wire:navigate>Professor & Coordinators</flux:sidebar.item>
                 </flux:sidebar.group>
 
                 <flux:sidebar.group expandable icon="computer-desktop" heading="Monitoring">
@@ -34,9 +34,9 @@
                         Duty Hours Tracking
                     </flux:sidebar.item>
 
-                    <flux:sidebar.item icon="chart-bar-square" href="{{ route('admin.productivity') }}" :current="request()->routeIs('admin.productivity')" wire:navigate>
+                    {{-- <flux:sidebar.item icon="chart-bar-square" href="{{ route('admin.productivity') }}" :current="request()->routeIs('admin.productivity')" wire:navigate>
                         Productivity Monitoring
-                    </flux:sidebar.item>
+                    </flux:sidebar.item> --}}
                 </flux:sidebar.group>
 
                 <flux:sidebar.group expandable icon="document-text" heading="Reports & Evaluation">

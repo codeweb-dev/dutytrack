@@ -1,6 +1,8 @@
-@blaze(fold: true, safe: ['value'])
+@blaze(fold: true, safe: [
+    'filterable', 'indicator', 'loading',
+])
 
-@aware([ 'variant' ])
+@aware([ 'variant', 'indicator' ])
 
 @props([
     'variant' => 'default',

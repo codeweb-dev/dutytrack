@@ -10,12 +10,12 @@
 
             <div class="flex items-center gap-3">
                 <flux:input wire:model.live="search" icon="magnifying-glass" placeholder="Search students..." />
-                <flux:button icon="funnel">Filter</flux:button>
 
                 <flux:modal.trigger name="create-student">
-                    <flux:button icon="plus">Add Student</flux:button>
+                    <flux:button icon="plus">Add Student
+                    </flux:button>
                 </flux:modal.trigger>
-                
+
                 <flux:modal name="create-student" flyout variant="floating" class="md:w-lg">
                     <div class="space-y-6">
                         <flux:heading size="lg">Create Student</flux:heading>

@@ -88,6 +88,11 @@ class User extends Authenticatable
         return $this->hasOne(StudentProfile::class);
     }
 
+    public function supervisorProfile()
+    {
+        return $this->hasOne(SupervisorProfile::class);
+    }
+
     // Comment for now with make this like a status online, offline, away, etc. in the future
     // public function statusBadgeColor(): string
     // {

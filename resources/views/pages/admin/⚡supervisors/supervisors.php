@@ -1,11 +1,14 @@
 <?php
 
+use App\Enums\Role as EnumsRole;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Livewire\Attributes\Computed;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Pagination\Paginator;
 
 new #[Title('Supervisors Management')] class extends Component {
     use WithPagination;
@@ -15,7 +18,7 @@ new #[Title('Supervisors Management')] class extends Component {
     public string $title = 'Supervisors Management';
     public string $description = 'Manage supervisor records, monitor assigned students, and oversee department coordination.';
 
-    public string $sortBy = 'department';
+    public string $sortBy = 'name';
     public string $sortDirection = 'asc';
     public string $search = '';
 
@@ -29,106 +32,52 @@ new #[Title('Supervisors Management')] class extends Component {
         }
 
         $this->resetPage();
+        unset($this->supervisors);
     }
 
     public function updatedSearch(): void
     {
         $this->resetPage();
+        unset($this->supervisors);
+    }
+
+    #[On('supervisor-saved')]
+    public function refreshSupervisors(): void
+    {
+        $this->resetPage();
+        unset($this->supervisors);
     }
 
     #[Computed]
     public function supervisors(): LengthAwarePaginator
     {
-        $supervisors = collect([
-            [
-                'id' => 1,
-                'name' => 'Maria Santos',
-                'email' => 'maria.santos@dutytrack.test',
-                'avatar' => 'https://i.pravatar.cc/100?img=11',
-                'department' => 'Computer Science',
-                'status' => 'Active',
-                'status_color' => 'green',
-                'students_count' => 12,
-            ],
-            [
-                'id' => 2,
-                'name' => 'John Reyes',
-                'email' => 'john.reyes@dutytrack.test',
-                'avatar' => 'https://i.pravatar.cc/100?img=12',
-                'department' => 'Information Technology',
-                'status' => 'Active',
-                'status_color' => 'green',
-                'students_count' => 9,
-            ],
-            [
-                'id' => 3,
-                'name' => 'Angela Cruz',
-                'email' => 'angela.cruz@dutytrack.test',
-                'avatar' => 'https://i.pravatar.cc/100?img=13',
-                'department' => 'Business Administration',
-                'status' => 'On Leave',
-                'status_color' => 'amber',
-                'students_count' => 6,
-            ],
-            [
-                'id' => 4,
-                'name' => 'Mark Villanueva',
-                'email' => 'mark.villanueva@dutytrack.test',
-                'avatar' => 'https://i.pravatar.cc/100?img=14',
-                'department' => 'Hospitality Management',
-                'status' => 'Active',
-                'status_color' => 'green',
-                'students_count' => 15,
-            ],
-            [
-                'id' => 5,
-                'name' => 'Patricia Gomez',
-                'email' => 'patricia.gomez@dutytrack.test',
-                'avatar' => 'https://i.pravatar.cc/100?img=15',
-                'department' => 'Engineering',
-                'status' => 'Inactive',
-                'status_color' => 'red',
-                'students_count' => 0,
-            ],
-            [
-                'id' => 6,
-                'name' => 'Carlos Bautista',
-                'email' => 'carlos.bautista@dutytrack.test',
-                'avatar' => 'https://i.pravatar.cc/100?img=16',
-                'department' => 'Information Systems',
-                'status' => 'Active',
-                'status_color' => 'green',
-                'students_count' => 7,
-            ],
-        ]);
+        $query = User::query()
+            ->with('supervisorProfile')
+            ->whereHas('roles', function (Builder $query) {
+                $query->where('name', EnumsRole::COMPANYSUPERVISOR->value);
+            })
+            ->leftJoin('supervisor_profiles', 'users.id', '=', 'supervisor_profiles.user_id')
+            ->select('users.*');
 
         if ($this->search !== '') {
-            $search = str($this->search)->lower()->value();
+            $search = '%' . $this->search . '%';
 
-            $supervisors = $supervisors->filter(function ($supervisor) use ($search) {
-                return str($supervisor['name'])->lower()->contains($search) || str($supervisor['email'])->lower()->contains($search) || str($supervisor['department'])->lower()->contains($search) || str($supervisor['status'])->lower()->contains($search);
+            $query->where(function (Builder $query) use ($search) {
+                $query->where('users.name', 'like', $search)->orWhere('users.email', 'like', $search)->orWhere('users.contact_number', 'like', $search)->orWhere('supervisor_profiles.supervisor_id', 'like', $search)->orWhere('supervisor_profiles.company_name', 'like', $search)->orWhere('supervisor_profiles.company_address', 'like', $search);
             });
         }
 
-        $supervisors = match ($this->sortBy) {
-            'students_count' => $this->sortDirection === 'asc' ? $supervisors->sortBy('students_count') : $supervisors->sortByDesc('students_count'),
+        $allowedSorts = [
+            'name' => 'users.name',
+            'supervisor_id' => 'supervisor_profiles.supervisor_id',
+            'company_name' => 'supervisor_profiles.company_name',
+        ];
 
-            'status' => $this->sortDirection === 'asc' ? $supervisors->sortBy('status') : $supervisors->sortByDesc('status'),
+        $sortColumn = $allowedSorts[$this->sortBy] ?? 'users.name';
+        $sortDirection = $this->sortDirection === 'desc' ? 'desc' : 'asc';
 
-            'department' => $this->sortDirection === 'asc' ? $supervisors->sortBy('department') : $supervisors->sortByDesc('department'),
+        $query->orderBy($sortColumn, $sortDirection);
 
-            default => $supervisors,
-        };
-
-        $supervisors = $supervisors->values();
-
-        $perPage = 5;
-        $page = Paginator::resolveCurrentPage() ?: 1;
-        $items = $supervisors->slice(($page - 1) * $perPage, $perPage)->values();
-
-        return new LengthAwarePaginator($items, $supervisors->count(), $perPage, $page, [
-            'path' => Paginator::resolveCurrentPath(),
-            'pageName' => 'page',
-        ]);
+        return $query->paginate(5);
     }
 };

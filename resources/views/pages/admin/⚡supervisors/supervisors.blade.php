@@ -5,67 +5,113 @@
         <div class="flex items-center justify-between">
             <h2 class="text-xl font-semibold">
                 All Supervisors
-                <flux:badge color="lime" inset="top bottom">{{ $this->supervisors->total() }}</flux:badge>
+                <flux:badge color="red" inset="top bottom">{{ $this->supervisors->total() }}</flux:badge>
             </h2>
 
             <div class="flex items-center gap-3">
-                <flux:input wire:model.live="search" icon="magnifying-glass" placeholder="Search supervisors..." />
-                <flux:button icon="funnel">Filter</flux:button>
-                <flux:button icon="plus">Add Supervisor</flux:button>
+                <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
+                    placeholder="Search supervisors..." clearable />
+
+                <livewire:admin.supervisors.create />
             </div>
         </div>
 
         <flux:table :paginate="$this->supervisors">
             <flux:table.columns>
-                <flux:table.column>Supervisor</flux:table.column>
-
-                <flux:table.column sortable :sorted="$sortBy === 'department'" :direction="$sortDirection"
-                    wire:click="sort('department')">
-                    Department
+                <flux:table.column sortable :sorted="$sortBy === 'name'" :direction="$sortDirection"
+                    wire:click="sort('name')">
+                    Supervisor
                 </flux:table.column>
 
-                <flux:table.column sortable :sorted="$sortBy === 'status'" :direction="$sortDirection"
-                    wire:click="sort('status')">
-                    Status
+                <flux:table.column sortable :sorted="$sortBy === 'supervisor_id'" :direction="$sortDirection"
+                    wire:click="sort('supervisor_id')">
+                    Supervisor ID
                 </flux:table.column>
 
-                <flux:table.column sortable :sorted="$sortBy === 'students_count'" :direction="$sortDirection"
-                    wire:click="sort('students_count')">
-                    Students
+                <flux:table.column sortable :sorted="$sortBy === 'company_name'" :direction="$sortDirection"
+                    wire:click="sort('company_name')">
+                    Company
                 </flux:table.column>
+
+                <flux:table.column>Contact</flux:table.column>
+
+                <flux:table.column>Actions</flux:table.column>
             </flux:table.columns>
 
             <flux:table.rows>
-                @foreach ($this->supervisors as $supervisor)
-                    <flux:table.row :key="$supervisor['id']">
+                @forelse ($this->supervisors as $supervisor)
+                    <flux:table.row :key="$supervisor->id">
                         <flux:table.cell class="flex items-center gap-3">
-                            <flux:avatar size="xs" :src="$supervisor['avatar']" />
+                            <flux:avatar size="md" :src="$supervisor->profile_photo_url"
+                                :name="$supervisor->name" />
 
                             <div class="flex flex-col">
-                                <span>{{ $supervisor['name'] }}</span>
-                                <span class="text-xs text-zinc-400">{{ $supervisor['email'] }}</span>
+                                <span class="font-medium">{{ $supervisor->name }}</span>
+                                <span class="text-xs text-zinc-500">{{ $supervisor->email }}</span>
                             </div>
                         </flux:table.cell>
 
-                        <flux:table.cell class="whitespace-nowrap">
-                            {{ $supervisor['department'] }}
+                        <flux:table.cell class="whitespace-nowrap font-medium">
+                            {{ $supervisor->supervisorProfile?->supervisor_id ?? '—' }}
                         </flux:table.cell>
 
                         <flux:table.cell>
-                            <flux:badge size="sm" :color="$supervisor['status_color']" inset="top bottom">
-                                {{ $supervisor['status'] }}
-                            </flux:badge>
-                        </flux:table.cell>
-
-                        <flux:table.cell variant="strong">
-                            {{ $supervisor['students_count'] }}
+                            <div class="flex flex-col">
+                                <span>{{ $supervisor->supervisorProfile?->company_name ?? '—' }}</span>
+                                <span class="text-xs text-zinc-500 line-clamp-1">
+                                    {{ $supervisor->supervisorProfile?->company_address ?? 'No address provided' }}
+                                </span>
+                            </div>
                         </flux:table.cell>
 
                         <flux:table.cell>
-                            <flux:button variant="ghost" size="sm" icon="ellipsis-horizontal" inset="top bottom" />
+                            {{ $supervisor->contact_number ? '+63 ' . $supervisor->contact_number : 'No contact number' }}
+                        </flux:table.cell>
+
+                        <flux:table.cell>
+                            <flux:dropdown>
+                                <flux:button variant="ghost" size="sm" icon="ellipsis-horizontal"
+                                    inset="top bottom" />
+
+                                <flux:menu>
+                                    <flux:modal.trigger :name="'view-supervisor-'.$supervisor->id">
+                                        <flux:menu.item icon="eye">View</flux:menu.item>
+                                    </flux:modal.trigger>
+
+                                    <flux:modal.trigger :name="'edit-supervisor-'.$supervisor->id">
+                                        <flux:menu.item icon="pencil-square">Edit</flux:menu.item>
+                                    </flux:modal.trigger>
+
+                                    <flux:menu.separator />
+
+                                    <flux:modal.trigger :name="'delete-supervisor-'.$supervisor->id">
+                                        <flux:menu.item variant="danger" icon="trash">Delete</flux:menu.item>
+                                    </flux:modal.trigger>
+                                </flux:menu>
+                            </flux:dropdown>
+
+                            <flux:modal :name="'view-supervisor-'.$supervisor->id" flyout variant="floating"
+                                class="md:w-2xl">
+                                <livewire:admin.supervisors.view :supervisor="$supervisor" :key="'view-supervisor-' . $supervisor->id" />
+                            </flux:modal>
+
+                            <flux:modal :name="'edit-supervisor-'.$supervisor->id" flyout variant="floating"
+                                class="md:w-2xl">
+                                <livewire:admin.supervisors.edit :supervisor="$supervisor" :key="'edit-supervisor-' . $supervisor->id" />
+                            </flux:modal>
+
+                            <flux:modal :name="'delete-supervisor-'.$supervisor->id" class="md:w-xl">
+                                <livewire:admin.supervisors.delete :supervisor="$supervisor" :key="'delete-supervisor-' . $supervisor->id" />
+                            </flux:modal>
                         </flux:table.cell>
                     </flux:table.row>
-                @endforeach
+                @empty
+                    <flux:table.row>
+                        <flux:table.cell colspan="5" class="py-6 text-center text-zinc-500">
+                            No supervisors found.
+                        </flux:table.cell>
+                    </flux:table.row>
+                @endforelse
             </flux:table.rows>
         </flux:table>
     </div>

@@ -1,13 +1,80 @@
 <?php
 
 use Livewire\Component;
+use Livewire\WithFileUploads;
+use App\Livewire\Forms\SupervisorForm;
 
-new class extends Component
-{
-    //
+new class extends Component {
+    use WithFileUploads;
+
+    public SupervisorForm $form;
+
+    public function save()
+    {
+        $this->form->store();
+        $this->dispatch('supervisor-saved');
+    }
 };
 ?>
 
 <div>
-    {{-- I have not failed. I've just found 10,000 ways that won't work. - Thomas Edison --}}
+    <flux:modal.trigger name="create-supervisor">
+        <flux:button icon="plus">Add Supervisor</flux:button>
+    </flux:modal.trigger>
+
+    <flux:modal name="create-supervisor" flyout variant="floating" class="md:w-2xl">
+        <form wire:submit="save" class="space-y-6">
+            <flux:heading size="lg">Create Supervisor</flux:heading>
+            <flux:subheading>Fill in the details to add a new supervisor.</flux:subheading>
+
+            <flux:fieldset>
+                <flux:legend>Supervisor Information</flux:legend>
+
+                <div class="space-y-6">
+                    <div class="w-full">
+                        <x-custom-file-upload model="form.photo" label="Upload supervisor photo" accept="image/*" />
+                    </div>
+
+                    <flux:input wire:model="form.supervisor_id" label="Supervisor ID" placeholder="SUP-0001"
+                        description:trailing="Supervisor ID can be found on the supervisor record." />
+
+                    <flux:input wire:model="form.full_name" label="Full Name" placeholder="Juan Dela Cruz" />
+
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-6">
+                        <flux:input wire:model="form.email" type="email" label="Email"
+                            placeholder="juan@example.com" />
+
+                        <flux:field>
+                            <flux:label>Contact Number</flux:label>
+
+                            <flux:input.group>
+                                <flux:input.group.prefix>+63</flux:input.group.prefix>
+                                <flux:input wire:model="form.contact_number" placeholder="123-456-7890" />
+                            </flux:input.group>
+
+                            <flux:error name="form.contact_number" />
+                        </flux:field>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-6">
+                        <flux:input wire:model="form.password" type="password" label="Password"
+                            placeholder="Enter password" viewable />
+                        <flux:input wire:model="form.password_confirmation" type="password" label="Confirm Password"
+                            placeholder="Confirm password" viewable />
+                    </div>
+
+                    <flux:input wire:model="form.company_name" label="Company Name" placeholder="ABC Corporation" />
+
+                    <flux:textarea wire:model="form.company_address" label="Company Address"
+                        placeholder="Enter company address" rows="4" />
+                </div>
+            </flux:fieldset>
+
+            <div class="w-full">
+                <flux:button type="submit" variant="primary" class="w-full">
+                    Create Supervisor
+                </flux:button>
+            </div>
+        </form>
+    </flux:modal>
 </div>

@@ -1,12 +1,13 @@
 <?php
 
+use App\Enums\Role as EnumsRole;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Livewire\Attributes\Computed;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Pagination\Paginator;
-use Illuminate\Support\Collection;
 
 new #[Title('Students OJT Management')] class extends Component
 {
@@ -21,8 +22,8 @@ new #[Title('Students OJT Management')] class extends Component
     public string $title = 'Students OJT Management';
     public string $description = 'Manage student records, monitor progress, and generate reports.';
 
-    public string $sortBy = 'start_date';
-    public string $sortDirection = 'desc';
+    public string $sortBy = 'name';
+    public string $sortDirection = 'asc';
     public string $search = '';
 
     public function sort(string $column): void
@@ -45,110 +46,43 @@ new #[Title('Students OJT Management')] class extends Component
     #[Computed]
     public function students(): LengthAwarePaginator
     {
-        $students = collect([
-            [
-                'id' => 1,
-                'name' => 'Juan Dela Cruz',
-                'company' => 'Accenture',
-                'avatar' => 'https://i.pravatar.cc/100?img=1',
-                'start_date' => '2026-07-01',
-                'status' => 'Active',
-                'status_color' => 'green',
-                'hours_rendered' => 320,
-            ],
-            [
-                'id' => 2,
-                'name' => 'Maria Santos',
-                'company' => 'Globe Telecom',
-                'avatar' => 'https://i.pravatar.cc/100?img=2',
-                'start_date' => '2026-06-20',
-                'status' => 'Completed',
-                'status_color' => 'sky',
-                'hours_rendered' => 486,
-            ],
-            [
-                'id' => 3,
-                'name' => 'Carlos Reyes',
-                'company' => 'PLDT',
-                'avatar' => 'https://i.pravatar.cc/100?img=3',
-                'start_date' => '2026-07-10',
-                'status' => 'Incomplete',
-                'status_color' => 'amber',
-                'hours_rendered' => 150,
-            ],
-            [
-                'id' => 4,
-                'name' => 'Angela Bautista',
-                'company' => 'Shopee PH',
-                'avatar' => 'https://i.pravatar.cc/100?img=4',
-                'start_date' => '2026-07-05',
-                'status' => 'Active',
-                'status_color' => 'green',
-                'hours_rendered' => 210,
-            ],
-            [
-                'id' => 5,
-                'name' => 'Mark Villanueva',
-                'company' => 'Ayala Corp',
-                'avatar' => 'https://i.pravatar.cc/100?img=5',
-                'start_date' => '2026-06-15',
-                'status' => 'Dropped',
-                'status_color' => 'red',
-                'hours_rendered' => 80,
-            ],
-            [
-                'id' => 6,
-                'name' => 'Patricia Gomez',
-                'company' => 'IBM',
-                'avatar' => 'https://i.pravatar.cc/100?img=6',
-                'start_date' => '2026-07-03',
-                'status' => 'Active',
-                'status_color' => 'green',
-                'hours_rendered' => 260,
-            ],
-        ]);
+        $query = User::query()
+            ->with('studentProfile')
+            ->whereHas('roles', function (Builder $query) {
+                $query->where('name', EnumsRole::STUDENT->value);
+            })
+            ->leftJoin('student_profiles', 'users.id', '=', 'student_profiles.user_id')
+            ->select('users.*');
 
         if ($this->search !== '') {
-            $search = str($this->search)->lower()->value();
+            $search = '%' . $this->search . '%';
 
-            $students = $students->filter(function ($student) use ($search) {
-                return str($student['name'])->lower()->contains($search)
-                    || str($student['company'])->lower()->contains($search)
-                    || str($student['status'])->lower()->contains($search);
+            $query->where(function (Builder $query) use ($search) {
+                $query->where('users.name', 'like', $search)
+                    ->orWhere('users.first_name', 'like', $search)
+                    ->orWhere('users.last_name', 'like', $search)
+                    ->orWhere('users.email', 'like', $search)
+                    ->orWhere('users.contact_number', 'like', $search)
+                    ->orWhere('student_profiles.student_id', 'like', $search)
+                    ->orWhere('student_profiles.course', 'like', $search)
+                    ->orWhere('student_profiles.year_level', 'like', $search)
+                    ->orWhere('student_profiles.section', 'like', $search)
+                    ->orWhere('student_profiles.ojt_required_hours', 'like', $search);
             });
         }
 
-        $students = match ($this->sortBy) {
-            'hours_rendered' => $this->sortDirection === 'asc'
-                ? $students->sortBy('hours_rendered')
-                : $students->sortByDesc('hours_rendered'),
+        $allowedSorts = [
+            'name' => 'users.name',
+            'student_id' => 'student_profiles.student_id',
+            'course' => 'student_profiles.course',
+            'ojt_required_hours' => 'student_profiles.ojt_required_hours',
+        ];
 
-            'status' => $this->sortDirection === 'asc'
-                ? $students->sortBy('status')
-                : $students->sortByDesc('status'),
+        $sortColumn = $allowedSorts[$this->sortBy] ?? 'users.name';
+        $sortDirection = $this->sortDirection === 'desc' ? 'desc' : 'asc';
 
-            'start_date' => $this->sortDirection === 'asc'
-                ? $students->sortBy('start_date')
-                : $students->sortByDesc('start_date'),
+        $query->orderBy($sortColumn, $sortDirection);
 
-            default => $students,
-        };
-
-        $students = $students->values();
-
-        $perPage = 5;
-        $page = Paginator::resolveCurrentPage() ?: 1;
-        $items = $students->slice(($page - 1) * $perPage, $perPage)->values();
-
-        return new LengthAwarePaginator(
-            $items,
-            $students->count(),
-            $perPage,
-            $page,
-            [
-                'path' => Paginator::resolveCurrentPath(),
-                'pageName' => 'page',
-            ]
-        );
+        return $query->paginate(5);
     }
 };

@@ -76,6 +76,13 @@ class User extends Authenticatable
             : null;
     }
 
+    public function getProfilePhotoUrlAttribute(): ?string
+    {
+        return $this->profile_photo_path
+            ? Storage::url($this->profile_photo_path)
+            : null;
+    }
+
     public function studentProfile()
     {
         return $this->hasOne(StudentProfile::class);

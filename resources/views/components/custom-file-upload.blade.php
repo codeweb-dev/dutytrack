@@ -3,6 +3,7 @@
     'label' => 'Upload file',
     'accept' => 'image/*',
     'preview' => true,
+    'existing' => null,
 ])
 
 @php
@@ -41,6 +42,20 @@
                 <div>
                     <p class="text-sm font-medium text-zinc-900 dark:text-white">
                         {{ $file->getClientOriginalName() }}
+                    </p>
+                    <p class="text-xs text-zinc-500 dark:text-zinc-400">
+                        Click to replace
+                    </p>
+                </div>
+            </div>
+        @elseif ($preview && $existing)
+            <div class="flex flex-col items-center gap-4">
+                <img src="{{ $existing }}" alt="Current image"
+                    class="h-24 w-24 rounded-full object-cover ring-4 ring-white shadow dark:ring-zinc-800" />
+
+                <div>
+                    <p class="text-sm font-medium text-zinc-900 dark:text-white">
+                        Current photo
                     </p>
                     <p class="text-xs text-zinc-500 dark:text-zinc-400">
                         Click to replace

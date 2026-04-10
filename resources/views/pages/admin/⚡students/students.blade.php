@@ -9,7 +9,7 @@
             </h2>
 
             <div class="flex items-center gap-3">
-                <flux:input wire:model.live="search" icon="magnifying-glass" placeholder="Search students..." />
+                <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass" placeholder="Search students..." clearable />
 
                 <livewire:admin.students.create />
             </div>

@@ -23,15 +23,15 @@ class StudentForm extends Form
 
     public string $student_id = '';
     public string $first_name = '';
-    public ?string $middle_name = '';
     public string $last_name = '';
     public string $email = '';
-    public ?string $contact_number = '';
     public string $password = '';
     public string $password_confirmation = '';
     public string $course = '';
     public string $year_level = '';
     public ?string $section = '';
+    public ?string $contact_number = '';
+    public ?string $middle_name = '';
     public int $ojt_required_hours = 0;
 
     public function rules(): array

@@ -70,86 +70,73 @@
         </flux:sidebar>
 
         <flux:header class="block! bg-white lg:bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700">
-            <flux:navbar class="lg:hidden w-full">
-                <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
+            <div class="flex items-center justify-between mt-1">
+                <div class="max-w-xs w-full hidden md:block">
+                    <flux:input as="button" placeholder="Search..." icon="magnifying-glass" kbd="⌘K" class="w-full" />
+                </div>
 
-                <flux:spacer />
+                <flux:sidebar.toggle class="md:hidden" icon="bars-2" inset="left" />
 
-                <flux:dropdown position="top" align="start">
-                    <flux:profile avatar="https://fluxui.dev/img/demo/user.png" />
-                    <flux:menu>
-                        <flux:menu.radio.group>
-                            <flux:menu.radio checked>Olivia Martin</flux:menu.radio>
-                            <flux:menu.radio>Truly Delta</flux:menu.radio>
-                        </flux:menu.radio.group>
-                        <flux:menu.separator />
-                        <flux:menu.item icon="arrow-right-start-on-rectangle">Logout</flux:menu.item>
-                    </flux:menu>
-                </flux:dropdown>
-            </flux:navbar>
+                <div class="flex items-center gap-3">
+                    <flux:button icon="megaphone" variant="ghost" />
 
-            <flux:navbar scrollable>
-                <flux:navbar.item href="#" current>Dashboard</flux:navbar.item>
-                <flux:navbar.item badge="32" href="#">Students</flux:navbar.item>
-                <flux:navbar.item href="#">Catalog</flux:navbar.item>
-                <flux:navbar.item href="#">Configuration</flux:navbar.item>
-            </flux:navbar>
+                    <flux:button x-data x-on:click="$flux.dark = ! $flux.dark" icon="moon" variant="ghost" aria-label="Toggle dark mode" />
+
+                    <flux:separator vertical class="my-5" />
+
+                    <flux:navbar>
+                        <flux:spacer />
+
+                        <flux:dropdown position="top" align="start">
+                            <flux:profile 
+                                :avatar="auth()->user()->profile_photo_path ? auth()->user()->profilePhotoUrl() : null" 
+                                :initials="!auth()->user()->profile_photo_path ? auth()->user()->initials() : null" />
+
+                            <flux:menu>
+                                <flux:menu.radio.group>
+                                    <div class="p-0 text-sm font-normal">
+                                        <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
+                                            <flux:avatar
+                                                :name="auth()->user()->name"
+                                                :initials="auth()->user()->initials()"
+                                            />
+
+                                            <div class="grid flex-1 text-start text-sm leading-tight">
+                                                <flux:heading class="truncate">{{ auth()->user()->name }}</flux:heading>
+                                                <flux:text class="truncate">{{ auth()->user()->email }}</flux:text>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </flux:menu.radio.group>
+
+                                <flux:menu.separator />
+
+                                <flux:menu.radio.group>
+                                    <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>
+                                        {{ __('Settings') }}
+                                    </flux:menu.item>
+                                </flux:menu.radio.group>
+
+                                <flux:menu.separator />
+
+                                <form method="POST" action="{{ route('logout') }}" class="w-full">
+                                    @csrf
+                                    <flux:menu.item
+                                        as="button"
+                                        type="submit"
+                                        icon="arrow-right-start-on-rectangle"
+                                        class="w-full cursor-pointer"
+                                        data-test="logout-button"
+                                    >
+                                        {{ __('Log out') }}
+                                    </flux:menu.item>
+                                </form>
+                            </flux:menu>
+                        </flux:dropdown>
+                    </flux:navbar>
+                </div>
+            </div>
         </flux:header>
-
-        <!-- Mobile User Menu -->
-        {{-- <flux:header class="lg:hidden">
-            <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
-
-            <flux:spacer />
-
-            <flux:dropdown position="top" align="end">
-                <flux:sidebar.profile :name="auth()->user()->name"
-                    :avatar="auth()->user()->profile_photo_path ? auth()->user()->profilePhotoUrl() : null"
-                    :initials="!auth()->user()->profile_photo_path ? auth()->user()->initials() : null"
-                    icon:trailing="chevrons-up-down" />
-
-                <flux:menu>
-                    <flux:menu.radio.group>
-                        <div class="p-0 text-sm font-normal">
-                            <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
-                                <flux:avatar
-                                    :name="auth()->user()->name"
-                                    :initials="auth()->user()->initials()"
-                                />
-
-                                <div class="grid flex-1 text-start text-sm leading-tight">
-                                    <flux:heading class="truncate">{{ auth()->user()->name }}</flux:heading>
-                                    <flux:text class="truncate">{{ auth()->user()->email }}</flux:text>
-                                </div>
-                            </div>
-                        </div>
-                    </flux:menu.radio.group>
-
-                    <flux:menu.separator />
-
-                    <flux:menu.radio.group>
-                        <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>
-                            {{ __('Settings') }}
-                        </flux:menu.item>
-                    </flux:menu.radio.group>
-
-                    <flux:menu.separator />
-
-                    <form method="POST" action="{{ route('logout') }}" class="w-full">
-                        @csrf
-                        <flux:menu.item
-                            as="button"
-                            type="submit"
-                            icon="arrow-right-start-on-rectangle"
-                            class="w-full cursor-pointer"
-                            data-test="logout-button"
-                        >
-                            {{ __('Log out') }}
-                        </flux:menu.item>
-                    </form>
-                </flux:menu>
-            </flux:dropdown>
-        </flux:header> --}}
 
         {{ $slot }}
 

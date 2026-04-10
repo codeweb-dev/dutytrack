@@ -5,6 +5,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -36,11 +37,20 @@ new #[Title('Students OJT Management')] class extends Component
         }
 
         $this->resetPage();
+        unset($this->students);
     }
 
     public function updatedSearch(): void
     {
         $this->resetPage();
+        unset($this->students);
+    }
+
+    #[On('student-saved')]
+    public function refreshStudents(): void
+    {
+        $this->resetPage();
+        unset($this->students);
     }
 
     #[Computed]

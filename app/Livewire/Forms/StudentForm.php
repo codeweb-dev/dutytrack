@@ -180,11 +180,6 @@ class StudentForm extends Form
                 $photoPath = $newPhotoPath;
             }
 
-            $this->existing_photo_path = $photoPath;
-            $this->existing_photo_url = $photoPath
-                ? Storage::url($photoPath)
-                : null;
-
             $fullName = trim(collect([
                 $this->first_name,
                 $this->middle_name,
@@ -216,6 +211,9 @@ class StudentForm extends Form
             ]);
         });
 
+        $this->student = $this->student->fresh(['studentProfile']);
+        $this->setStudent($this->student);
+
         Flux::toast(
             variant: 'success',
             heading: 'Student updated.',
@@ -223,8 +221,6 @@ class StudentForm extends Form
         );
 
         Flux::modal('edit-student-' . $this->student->id)->close();
-
-        $this->resetForm();
     }
 
     public function resetForm(): void

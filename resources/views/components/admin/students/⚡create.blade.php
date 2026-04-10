@@ -12,6 +12,7 @@ new class extends Component {
     public function save()
     {
         $this->form->store();
+        $this->dispatch('student-saved');
     }
 
     public function incrementHours(): void

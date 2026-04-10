@@ -17,9 +17,16 @@ new class extends Component {
         $this->form->setStudent($student);
     }
 
+    public function loadStudent(): void
+    {
+        $this->student = $this->student->fresh(['studentProfile']);
+        $this->form->setStudent($this->student);
+    }
+
     public function save(): void
     {
         $this->form->update();
+        $this->dispatch('student-saved');
     }
 
     public function incrementHours(): void

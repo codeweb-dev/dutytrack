@@ -84,8 +84,15 @@ new class extends Component {
                     <div class="grid grid-cols-3 gap-x-4 gap-y-6">
                         <flux:select wire:model="form.course" label="Course">
                             <option value="">Select course</option>
+                            <option value="BINDTECH">BINDTECH</option>
+                            <option value="BSBA">BSBA</option>
+                            <option value="BSCRIM">BSCRIM</option>
                             <option value="BSCS">BSCS</option>
+                            <option value="BSHM">BSHM</option>
                             <option value="BSIT">BSIT</option>
+                            <option value="BSOA">BSOA</option>
+                            <option value="BSP">BSP</option>
+                            <option value="BTLED">BTLED</option>
                         </flux:select>
 
                         <flux:input wire:model="form.year_level" label="Year Level" placeholder="4" />

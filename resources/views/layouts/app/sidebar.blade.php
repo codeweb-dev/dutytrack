@@ -34,9 +34,9 @@
                         Duty Hours Tracking
                     </flux:sidebar.item>
 
-                    {{-- <flux:sidebar.item icon="chart-bar-square" href="{{ route('admin.productivity') }}" :current="request()->routeIs('admin.productivity')" wire:navigate>
+                    <flux:sidebar.item icon="chart-bar-square" href="{{ route('admin.productivity') }}" :current="request()->routeIs('admin.productivity')" wire:navigate>
                         Productivity Monitoring
-                    </flux:sidebar.item> --}}
+                    </flux:sidebar.item>
                 </flux:sidebar.group>
 
                 <flux:sidebar.group expandable icon="document-text" heading="Reports & Evaluation">

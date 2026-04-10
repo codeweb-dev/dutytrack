@@ -27,7 +27,7 @@
 
                         <div>
                             {{-- Heading --}}
-                            <div class="font-medium text-sm text-zinc-800 dark:text-white [&:not(:empty)+div]:font-normal [&:not(:empty)+div]:text-zinc-500 [&:not(:empty)+div]:dark:text-zinc-300 [&:not(:empty)]:pb-2"><slot name="heading"></slot></div>
+                            <div class="font-medium text-sm text-zinc-800 dark:text-white [&:not(:empty)+div]:font-normal [&:not(:empty)+div]:text-zinc-500 [&:not(:empty)+div]:dark:text-zinc-300 not-empty:pb-2"><slot name="heading"></slot></div>
 
                             {{-- Text --}}
                             <div class="font-medium text-sm text-zinc-800 dark:text-white"><slot name="text"></slot></div>

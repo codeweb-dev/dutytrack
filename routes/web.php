@@ -15,15 +15,10 @@ Route::group(['middleware' => ['role:admin']], function () {
     Route::livewire('/admin/professors', 'pages::admin.professors')->name('admin.professors');
     Route::livewire('/admin/supervisors', 'pages::admin.supervisors')->name('admin.supervisors');
 
-    // Monitoring
+    // Monitoring & reports
     Route::livewire('/admin/attendance', 'pages::admin.attendance')->name('admin.attendance');
     Route::livewire('/admin/duty-hours', 'pages::admin.duty-hours')->name('admin.duty-hours');
     Route::livewire('/admin/ojt-assignments', 'pages::admin.ojt-assignments')->name('admin.ojt-assignments');
-
-    // Reports
-    Route::livewire('/admin/attendance-reports', 'pages::admin.attendance-reports')->name('admin.attendance-reports');
-    Route::livewire('/admin/duty-hours-reports', 'pages::admin.duty-hours-reports')->name('admin.duty-hours-reports');
-    Route::livewire('/admin/deployment-reports', 'pages::admin.deployment-reports')->name('admin.deployment-reports');
     Route::livewire('/admin/evaluation-reports', 'pages::admin.evaluation-reports')->name('admin.evaluation-reports');
 
     // System Management

@@ -130,24 +130,9 @@ new class extends Component {
     </flux:sidebar.group>
 
     <flux:sidebar.group expandable icon="document-text" heading="Reports">
-        <flux:sidebar.item href="{{ route('admin.attendance-reports') }}"
-            :current="request()->routeIs('admin.attendance-reports')" wire:navigate>
-            Attendance Reports
-        </flux:sidebar.item>
-
-        <flux:sidebar.item href="{{ route('admin.duty-hours-reports') }}"
-            :current="request()->routeIs('admin.duty-hours-reports')" wire:navigate>
-            Duty Hours Reports
-        </flux:sidebar.item>
-
-        <flux:sidebar.item href="{{ route('admin.deployment-reports') }}"
-            :current="request()->routeIs('admin.deployment-reports')" wire:navigate>
-            Deployment Reports
-        </flux:sidebar.item>
-
         <flux:sidebar.item href="{{ route('admin.evaluation-reports') }}"
             :current="request()->routeIs('admin.evaluation-reports')" wire:navigate>
-            Evaluation Reports
+            Evaluation Reports (will be move soon in monitoring)
         </flux:sidebar.item>
     </flux:sidebar.group>
 

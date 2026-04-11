@@ -38,6 +38,14 @@
             <div class="flex items-center gap-3">
                 <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
                     placeholder="Search student..." clearable />
+                <flux:button icon="arrow-down-tray"
+                    x-on:click="$flux.toast({
+                        heading: 'In Progress',
+                        text: 'This export report is still not yer working.',
+                        variant: 'warning',
+                    })">
+                    Export Report
+                </flux:button>
                 <flux:modal.trigger name="filter">
                     <flux:button icon="funnel">Filter</flux:button>
                 </flux:modal.trigger>
@@ -82,7 +90,8 @@
                 </div>
 
                 <div class="w-full">
-                    <flux:button type="submit" variant="primary" wire:click="clearFilters" icon="trash" class="w-full">Clear Filter</flux:button>
+                    <flux:button type="submit" variant="primary" wire:click="clearFilters" icon="trash"
+                        class="w-full">Clear Filter</flux:button>
                 </div>
             </div>
         </flux:modal>

@@ -11,7 +11,7 @@ use Illuminate\Validation\Rule;
 use Livewire\Form;
 use Livewire\WithFileUploads;
 
-class ProfessorCoordinatorForm extends Form
+class ProfessorForm extends Form
 {
     use WithFileUploads;
 
@@ -30,7 +30,6 @@ class ProfessorCoordinatorForm extends Form
     public string $password = '';
     public string $password_confirmation = '';
     public string $department = '';
-    public string $position = '';
 
     public function rules(): array
     {
@@ -58,7 +57,6 @@ class ProfessorCoordinatorForm extends Form
             'contact_number' => ['nullable', 'string', 'max:20'],
             'password' => [$this->professor ? 'nullable' : 'required', 'string', 'min:8', 'confirmed'],
             'department' => ['required', 'string', 'max:255'],
-            'position' => ['required', 'string', 'in:OJT Coordinator,Professor'],
         ];
     }
 
@@ -71,7 +69,6 @@ class ProfessorCoordinatorForm extends Form
             'last_name' => 'last name',
             'contact_number' => 'contact number',
             'department' => 'department',
-            'position' => 'position',
         ];
     }
 
@@ -92,7 +89,6 @@ class ProfessorCoordinatorForm extends Form
         $this->email = $professor->email ?? '';
         $this->contact_number = $professor->contact_number ?? '';
         $this->department = $professor->professorProfile?->department ?? '';
-        $this->position = $professor->professorProfile?->position ?? '';
 
         $this->password = '';
         $this->password_confirmation = '';
@@ -128,16 +124,12 @@ class ProfessorCoordinatorForm extends Form
                 'status' => 'active',
             ]);
 
-            if ($this->position === 'OJT Coordinator') {
-                $user->assignRole(EnumsRole::OJTCOORDINATOR->value);
-            } else {
-                $user->assignRole(EnumsRole::PROFESSOR->value);
-            }
+            $user->assignRole(EnumsRole::PROFESSOR->value);
 
             $user->professorProfile()->create([
                 'employee_id' => $this->employee_id,
                 'department' => $this->department,
-                'position' => $this->position,
+                'position' => 'Professor',
             ]);
         });
 
@@ -145,8 +137,8 @@ class ProfessorCoordinatorForm extends Form
 
         Flux::toast(
             variant: 'success',
-            heading: 'Professor or coordinator created.',
-            text: 'The record has been added successfully.'
+            heading: 'Professor created.',
+            text: 'The professor record has been added successfully.'
         );
 
         Flux::modal('create-professor')->close();
@@ -200,17 +192,12 @@ class ProfessorCoordinatorForm extends Form
                 ]);
             }
 
-            $user->syncRoles([]);
-            if ($this->position === 'OJT Coordinator') {
-                $user->assignRole(EnumsRole::OJTCOORDINATOR->value);
-            } else {
-                $user->assignRole('professor');
-            }
+            $user->syncRoles([EnumsRole::PROFESSOR->value]);
 
             $user->professorProfile()->update([
                 'employee_id' => $this->employee_id,
                 'department' => $this->department,
-                'position' => $this->position,
+                'position' => 'Professor',
             ]);
         });
 
@@ -219,8 +206,8 @@ class ProfessorCoordinatorForm extends Form
 
         Flux::toast(
             variant: 'success',
-            heading: 'Professor or coordinator updated.',
-            text: 'The record has been updated successfully.'
+            heading: 'Professor updated.',
+            text: 'The professor record has been updated successfully.'
         );
 
         Flux::modal('edit-professor-' . $this->professor->id)->close();
@@ -241,7 +228,6 @@ class ProfessorCoordinatorForm extends Form
         $this->password = '';
         $this->password_confirmation = '';
         $this->department = '';
-        $this->position = '';
 
         $this->resetValidation();
     }

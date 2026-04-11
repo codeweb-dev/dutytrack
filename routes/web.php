@@ -30,9 +30,6 @@ Route::group(['middleware' => ['role:admin']], function () {
     Route::livewire('/admin/announcements', 'pages::admin.announcements')->name('admin.announcements');
     Route::livewire('/admin/audit-logs', 'pages::admin.audit-logs')->name('admin.audit-logs');
     Route::livewire('/admin/settings', 'pages::admin.settings')->name('admin.settings');
-
-    // Route::livewire('/admin/partners', 'pages::admin.partners')->name('admin.partners'); 
-    // -- IGNORED, REPLACED WITH COORDINATORS AND REMOVE THE PROFESSORS ROUTE AND SEPARATE THE COORDINATORS AND PROFESSORS ROUTES
 });
 
 require __DIR__.'/settings.php';

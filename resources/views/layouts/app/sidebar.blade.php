@@ -11,65 +11,7 @@
                 <flux:sidebar.collapse class="in-data-flux-sidebar-on-desktop:not-in-data-flux-sidebar-collapsed-desktop:-mr-2" />
             </flux:sidebar.header>
 
-            <flux:sidebar.nav>
-                <flux:sidebar.item icon="home"
-                    :href="route('dashboard')"
-                    :current="request()->routeIs('dashboard')"
-                    wire:navigate>
-                    Dashboard
-                </flux:sidebar.item>
-
-                <flux:sidebar.group expandable icon="users" heading="User Management">
-                    <flux:sidebar.item href="{{ route('admin.students') }}" :current="request()->routeIs('admin.students')" wire:navigate>
-                        Students
-                    </flux:sidebar.item>
-                    <flux:sidebar.item href="{{ route('admin.coordinators') }}" :current="request()->routeIs('admin.coordinators')" wire:navigate>
-                        OJT Coordinators
-                    </flux:sidebar.item>
-                    <flux:sidebar.item href="{{ route('admin.professors') }}" :current="request()->routeIs('admin.professors')" wire:navigate>
-                        Professors
-                    </flux:sidebar.item>
-                    <flux:sidebar.item href="{{ route('admin.supervisors') }}" :current="request()->routeIs('admin.supervisors')" wire:navigate>
-                        Company Supervisors
-                    </flux:sidebar.item>
-                </flux:sidebar.group>
-
-                <flux:sidebar.group expandable icon="computer-desktop" heading="Monitoring">
-                    <flux:sidebar.item href="{{ route('admin.attendance') }}" :current="request()->routeIs('admin.attendance')" wire:navigate>
-                        Attendance
-                    </flux:sidebar.item>
-                    <flux:sidebar.item href="{{ route('admin.duty-hours') }}" :current="request()->routeIs('admin.duty-hours')" wire:navigate>
-                        Duty Hours
-                    </flux:sidebar.item>
-                    <flux:sidebar.item href="{{ route('admin.ojt-assignments') }}" :current="request()->routeIs('admin.ojt-assignments')" wire:navigate>
-                        OJT Assignments
-                    </flux:sidebar.item>
-                </flux:sidebar.group>
-
-                <flux:sidebar.group expandable icon="document-text" heading="Reports">
-                    <flux:sidebar.item href="{{ route('admin.attendance-reports') }}" :current="request()->routeIs('admin.attendance-reports')" wire:navigate>
-                        Attendance Reports
-                    </flux:sidebar.item>
-                    <flux:sidebar.item href="{{ route('admin.duty-hours-reports') }}" :current="request()->routeIs('admin.duty-hours-reports')" wire:navigate>
-                        Duty Hours Reports
-                    </flux:sidebar.item>
-                    <flux:sidebar.item href="{{ route('admin.deployment-reports') }}" :current="request()->routeIs('admin.deployment-reports')" wire:navigate>
-                        Deployment Reports
-                    </flux:sidebar.item>
-                    <flux:sidebar.item href="{{ route('admin.evaluation-reports') }}" :current="request()->routeIs('admin.evaluation-reports')" wire:navigate>
-                        Evaluation Reports
-                    </flux:sidebar.item>
-                </flux:sidebar.group>
-
-                <flux:sidebar.group expandable icon="cog-6-tooth" heading="System Management">
-                    <flux:sidebar.item href="{{ route('admin.announcements') }}" :current="request()->routeIs('admin.announcements')" wire:navigate>
-                        Announcements
-                    </flux:sidebar.item>
-                    <flux:sidebar.item href="{{ route('admin.audit-logs') }}" :current="request()->routeIs('admin.audit-logs')" wire:navigate>
-                        Audit Logs
-                    </flux:sidebar.item>
-                </flux:sidebar.group>
-            </flux:sidebar.nav>
+            <livewire:admin.sidebar />
 
             <flux:spacer />
 

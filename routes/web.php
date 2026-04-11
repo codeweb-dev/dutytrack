@@ -29,7 +29,6 @@ Route::group(['middleware' => ['role:admin']], function () {
     // System Management
     Route::livewire('/admin/announcements', 'pages::admin.announcements')->name('admin.announcements');
     Route::livewire('/admin/audit-logs', 'pages::admin.audit-logs')->name('admin.audit-logs');
-    Route::livewire('/admin/settings', 'pages::admin.settings')->name('admin.settings');
 });
 
 require __DIR__.'/settings.php';

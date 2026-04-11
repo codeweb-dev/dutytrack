@@ -68,9 +68,6 @@
                     <flux:sidebar.item href="{{ route('admin.audit-logs') }}" :current="request()->routeIs('admin.audit-logs')" wire:navigate>
                         Audit Logs
                     </flux:sidebar.item>
-                    <flux:sidebar.item href="{{ route('admin.settings') }}" :current="request()->routeIs('admin.settings')" wire:navigate>
-                        Settings
-                    </flux:sidebar.item>
                 </flux:sidebar.group>
             </flux:sidebar.nav>
 

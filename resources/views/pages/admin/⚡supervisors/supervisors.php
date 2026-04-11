@@ -10,12 +10,12 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-new #[Title('Supervisors Management')] class extends Component {
+new #[Title('Company Supervisors')] class extends Component {
     use WithPagination;
 
-    public array $breadcrumbs = [['logo' => 'logo.png', 'href' => '/dashboard'], ['label' => 'Users Management', 'href' => '#'], ['label' => 'Supervisors Management']];
+    public array $breadcrumbs = [['logo' => 'logo.png', 'href' => '/dashboard'], ['label' => 'User Management', 'href' => '#'], ['label' => 'Company Supervisors']];
 
-    public string $title = 'Supervisors Management';
+    public string $title = 'Company Supervisors';
     public string $description = 'Manage supervisor records, monitor assigned students, and oversee department coordination.';
 
     public string $sortBy = 'name';

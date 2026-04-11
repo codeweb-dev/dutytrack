@@ -10,17 +10,17 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-new #[Title('Students OJT Management')] class extends Component
+new #[Title('Students')] class extends Component
 {
     use WithPagination;
 
     public array $breadcrumbs = [
         ['logo' => 'logo.png', 'href' => '/dashboard'],
-        ['label' => 'Users Management', 'href' => '#'],
-        ['label' => 'Students OJT Management'],
+        ['label' => 'User Management', 'href' => '#'],
+        ['label' => 'Students'],
     ];
 
-    public string $title = 'Students OJT Management';
+    public string $title = 'Students';
     public string $description = 'Manage student records, monitor progress, and generate reports.';
 
     public string $sortBy = 'name';

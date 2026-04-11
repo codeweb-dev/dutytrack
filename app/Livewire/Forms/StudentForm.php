@@ -4,6 +4,7 @@ namespace App\Livewire\Forms;
 
 use App\Enums\Role as EnumsRole;
 use App\Models\User;
+use App\Support\AuditLogger;
 use Flux\Flux;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -79,6 +80,26 @@ class StudentForm extends Form
         ];
     }
 
+    protected function studentAuditData(?User $user = null): array
+    {
+        $user ??= $this->student?->load('studentProfile');
+
+        return [
+            'name' => $user?->name,
+            'first_name' => $user?->first_name,
+            'middle_name' => $user?->middle_name,
+            'last_name' => $user?->last_name,
+            'email' => $user?->email,
+            'contact_number' => $user?->contact_number,
+            'status' => $user?->status,
+            'student_id' => $user?->studentProfile?->student_id,
+            'course' => $user?->studentProfile?->course,
+            'year_level' => $user?->studentProfile?->year_level,
+            'section' => $user?->studentProfile?->section,
+            'ojt_required_hours' => $user?->studentProfile?->ojt_required_hours,
+        ];
+    }
+
     public function setStudent(User $student): void
     {
         $student->load('studentProfile');
@@ -144,6 +165,17 @@ class StudentForm extends Form
                 'section' => $this->section ?: null,
                 'ojt_required_hours' => $this->ojt_required_hours ?: 0,
             ]);
+
+            $user = $user->fresh('studentProfile');
+
+            AuditLogger::log(
+                module: 'Students',
+                action: 'created',
+                target: $user,
+                targetLabel: $user->name,
+                description: 'Created a Student account.',
+                newValues: $this->studentAuditData($user),
+            );
         });
 
         $this->resetForm();
@@ -168,6 +200,8 @@ class StudentForm extends Form
         DB::transaction(function () {
             $user = $this->student->load('studentProfile');
 
+            $oldValues = $this->studentAuditData($user);
+
             $photoPath = $user->profile_photo_path;
 
             if ($this->photo) {
@@ -179,6 +213,9 @@ class StudentForm extends Form
 
                 $photoPath = $newPhotoPath;
             }
+
+            $this->existing_photo_path = $photoPath;
+            $this->existing_photo_url = $photoPath ? Storage::url($photoPath) : null;
 
             $fullName = trim(collect([
                 $this->first_name,
@@ -209,6 +246,22 @@ class StudentForm extends Form
                 'section' => $this->section ?: null,
                 'ojt_required_hours' => $this->ojt_required_hours ?: 0,
             ]);
+
+            $user = $user->fresh('studentProfile');
+
+            AuditLogger::log(
+                module: 'Students',
+                action: 'updated',
+                target: $user,
+                targetLabel: $user->name,
+                description: 'Updated a Student account.',
+                oldValues: $oldValues,
+                newValues: $this->studentAuditData($user),
+                meta: [
+                    'password_changed' => filled($this->password),
+                    'photo_changed' => $this->photo !== null,
+                ],
+            );
         });
 
         $this->student = $this->student->fresh(['studentProfile']);

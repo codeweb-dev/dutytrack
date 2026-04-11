@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Livewire\Form;
 use Livewire\WithFileUploads;
+use App\Support\AuditLogger;
 
 class CoordinatorForm extends Form
 {
@@ -57,6 +58,24 @@ class CoordinatorForm extends Form
             'contact_number' => ['nullable', 'string', 'max:20'],
             'password' => [$this->coordinator ? 'nullable' : 'required', 'string', 'min:8', 'confirmed'],
             'department' => ['required', 'string', 'max:255'],
+        ];
+    }
+
+    protected function coordinatorAuditData(?User $user = null): array
+    {
+        $user ??= $this->coordinator?->load('professorProfile');
+
+        return [
+            'name' => $user?->name,
+            'first_name' => $user?->first_name,
+            'middle_name' => $user?->middle_name,
+            'last_name' => $user?->last_name,
+            'email' => $user?->email,
+            'contact_number' => $user?->contact_number,
+            'status' => $user?->status,
+            'employee_id' => $user?->professorProfile?->employee_id,
+            'department' => $user?->professorProfile?->department,
+            'position' => $user?->professorProfile?->position,
         ];
     }
 
@@ -131,6 +150,17 @@ class CoordinatorForm extends Form
                 'department' => $this->department,
                 'position' => 'OJT Coordinator',
             ]);
+
+            $user = $user->fresh('professorProfile');
+
+            AuditLogger::log(
+                module: 'OJT Coordinators',
+                action: 'created',
+                target: $user,
+                targetLabel: $user->name,
+                description: 'Created an OJT Coordinator account.',
+                newValues: $this->coordinatorAuditData($user),
+            );
         });
 
         $this->resetForm();
@@ -154,6 +184,8 @@ class CoordinatorForm extends Form
 
         DB::transaction(function () {
             $user = $this->coordinator->load('professorProfile');
+
+            $oldValues = $this->coordinatorAuditData($user);
 
             $photoPath = $user->profile_photo_path;
 
@@ -199,6 +231,22 @@ class CoordinatorForm extends Form
                 'department' => $this->department,
                 'position' => 'OJT Coordinator',
             ]);
+
+            $user = $user->fresh('professorProfile');
+
+            AuditLogger::log(
+                module: 'OJT Coordinators',
+                action: 'updated',
+                target: $user,
+                targetLabel: $user->name,
+                description: 'Updated an OJT Coordinator account.',
+                oldValues: $oldValues,
+                newValues: $this->coordinatorAuditData($user),
+                meta: [
+                    'password_changed' => filled($this->password),
+                    'photo_changed' => $this->photo !== null,
+                ],
+            );
         });
 
         $this->coordinator = $this->coordinator->fresh(['professorProfile']);

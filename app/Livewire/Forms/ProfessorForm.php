@@ -4,6 +4,7 @@ namespace App\Livewire\Forms;
 
 use App\Enums\Role as EnumsRole;
 use App\Models\User;
+use App\Support\AuditLogger;
 use Flux\Flux;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -72,6 +73,24 @@ class ProfessorForm extends Form
         ];
     }
 
+    protected function professorAuditData(?User $user = null): array
+    {
+        $user ??= $this->professor?->load('professorProfile');
+
+        return [
+            'name' => $user?->name,
+            'first_name' => $user?->first_name,
+            'middle_name' => $user?->middle_name,
+            'last_name' => $user?->last_name,
+            'email' => $user?->email,
+            'contact_number' => $user?->contact_number,
+            'status' => $user?->status,
+            'employee_id' => $user?->professorProfile?->employee_id,
+            'department' => $user?->professorProfile?->department,
+            'position' => $user?->professorProfile?->position,
+        ];
+    }
+
     public function setProfessor(User $professor): void
     {
         $professor->load('professorProfile');
@@ -131,6 +150,17 @@ class ProfessorForm extends Form
                 'department' => $this->department,
                 'position' => 'Professor',
             ]);
+
+            $user = $user->fresh('professorProfile');
+
+            AuditLogger::log(
+                module: 'Professors',
+                action: 'created',
+                target: $user,
+                targetLabel: $user->name,
+                description: 'Created a Professor account.',
+                newValues: $this->professorAuditData($user),
+            );
         });
 
         $this->resetForm();
@@ -154,6 +184,8 @@ class ProfessorForm extends Form
 
         DB::transaction(function () {
             $user = $this->professor->load('professorProfile');
+
+            $oldValues = $this->professorAuditData($user);
 
             $photoPath = $user->profile_photo_path;
 
@@ -199,6 +231,22 @@ class ProfessorForm extends Form
                 'department' => $this->department,
                 'position' => 'Professor',
             ]);
+
+            $user = $user->fresh('professorProfile');
+
+            AuditLogger::log(
+                module: 'Professors',
+                action: 'updated',
+                target: $user,
+                targetLabel: $user->name,
+                description: 'Updated a Professor account.',
+                oldValues: $oldValues,
+                newValues: $this->professorAuditData($user),
+                meta: [
+                    'password_changed' => filled($this->password),
+                    'photo_changed' => $this->photo !== null,
+                ],
+            );
         });
 
         $this->professor = $this->professor->fresh(['professorProfile']);

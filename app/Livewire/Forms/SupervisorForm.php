@@ -4,6 +4,7 @@ namespace App\Livewire\Forms;
 
 use App\Enums\Role as EnumsRole;
 use App\Models\User;
+use App\Support\AuditLogger;
 use Flux\Flux;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -69,6 +70,24 @@ class SupervisorForm extends Form
         ];
     }
 
+    protected function supervisorAuditData(?User $user = null): array
+    {
+        $user ??= $this->supervisor?->load('supervisorProfile');
+
+        return [
+            'name' => $user?->name,
+            'first_name' => $user?->first_name,
+            'middle_name' => $user?->middle_name,
+            'last_name' => $user?->last_name,
+            'email' => $user?->email,
+            'contact_number' => $user?->contact_number,
+            'status' => $user?->status,
+            'supervisor_id' => $user?->supervisorProfile?->supervisor_id,
+            'company_name' => $user?->supervisorProfile?->company_name,
+            'company_address' => $user?->supervisorProfile?->company_address,
+        ];
+    }
+
     public function setSupervisor(User $supervisor): void
     {
         $supervisor->load('supervisorProfile');
@@ -121,6 +140,17 @@ class SupervisorForm extends Form
                 'company_name' => $this->company_name,
                 'company_address' => $this->company_address ?: null,
             ]);
+
+            $user = $user->fresh('supervisorProfile');
+
+            AuditLogger::log(
+                module: 'Company Supervisors',
+                action: 'created',
+                target: $user,
+                targetLabel: $user->name,
+                description: 'Created a Company Supervisor account.',
+                newValues: $this->supervisorAuditData($user),
+            );
         });
 
         $this->resetForm();
@@ -144,6 +174,8 @@ class SupervisorForm extends Form
 
         DB::transaction(function () {
             $user = $this->supervisor->load('supervisorProfile');
+
+            $oldValues = $this->supervisorAuditData($user);
 
             $photoPath = $user->profile_photo_path;
 
@@ -174,11 +206,29 @@ class SupervisorForm extends Form
                 ]);
             }
 
+            $user->syncRoles([EnumsRole::COMPANYSUPERVISOR->value]);
+
             $user->supervisorProfile()->update([
                 'supervisor_id' => $this->supervisor_id,
                 'company_name' => $this->company_name,
                 'company_address' => $this->company_address ?: null,
             ]);
+
+            $user = $user->fresh('supervisorProfile');
+
+            AuditLogger::log(
+                module: 'Company Supervisors',
+                action: 'updated',
+                target: $user,
+                targetLabel: $user->name,
+                description: 'Updated a Company Supervisor account.',
+                oldValues: $oldValues,
+                newValues: $this->supervisorAuditData($user),
+                meta: [
+                    'password_changed' => filled($this->password),
+                    'photo_changed' => $this->photo !== null,
+                ],
+            );
         });
 
         $this->supervisor = $this->supervisor->fresh(['supervisorProfile']);

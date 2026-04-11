@@ -3,6 +3,7 @@
 namespace App\Livewire\Forms;
 
 use App\Models\Announcement;
+use App\Support\AuditLogger;
 use Flux\Flux;
 use Livewire\Form;
 
@@ -32,6 +33,17 @@ class AnnouncementForm extends Form
         ];
     }
 
+    protected function announcementAuditData(?Announcement $announcement = null): array
+    {
+        $announcement ??= $this->announcement;
+
+        return [
+            'title' => $announcement?->title,
+            'message' => $announcement?->message,
+            'type' => $announcement?->type,
+        ];
+    }
+
     public function setAnnouncement(Announcement $announcement): void
     {
         $this->announcement = $announcement;
@@ -46,11 +58,20 @@ class AnnouncementForm extends Form
     {
         $this->validate();
 
-        Announcement::create([
+        $announcement = Announcement::create([
             'title' => $this->title,
             'message' => $this->message,
             'type' => $this->type,
         ]);
+
+        AuditLogger::log(
+            module: 'Announcements',
+            action: 'created',
+            target: $announcement,
+            targetLabel: $announcement->title,
+            description: 'Created a new announcement.',
+            newValues: $this->announcementAuditData($announcement),
+        );
 
         $this->resetForm();
 
@@ -71,6 +92,8 @@ class AnnouncementForm extends Form
 
         $this->validate();
 
+        $oldValues = $this->announcementAuditData($this->announcement);
+
         $this->announcement->update([
             'title' => $this->title,
             'message' => $this->message,
@@ -79,6 +102,16 @@ class AnnouncementForm extends Form
 
         $this->announcement = $this->announcement->fresh();
         $this->setAnnouncement($this->announcement);
+
+        AuditLogger::log(
+            module: 'Announcements',
+            action: 'updated',
+            target: $this->announcement,
+            targetLabel: $this->announcement->title,
+            description: 'Updated an announcement.',
+            oldValues: $oldValues,
+            newValues: $this->announcementAuditData($this->announcement),
+        );
 
         Flux::toast(
             variant: 'success',

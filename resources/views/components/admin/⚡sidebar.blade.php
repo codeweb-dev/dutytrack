@@ -9,6 +9,7 @@ use Livewire\Attributes\Computed;
 use Livewire\Component;
 use App\Models\AttendanceLog;
 use App\Models\DutyHourLog;
+use App\Models\Evaluation;
 use App\Models\OjtAssignment;
 
 new class extends Component {
@@ -81,6 +82,12 @@ new class extends Component {
     {
         return OjtAssignment::query()->count();
     }
+
+    #[Computed]
+    public function evaluationsCount(): int
+    {
+        return Evaluation::query()->count();
+    }
 };
 ?>
 
@@ -127,12 +134,10 @@ new class extends Component {
             :current="request()->routeIs('admin.ojt-assignments')" wire:navigate>
             OJT Assignments
         </flux:sidebar.item>
-    </flux:sidebar.group>
 
-    <flux:sidebar.group expandable icon="document-text" heading="Reports">
-        <flux:sidebar.item href="{{ route('admin.evaluation-reports') }}"
-            :current="request()->routeIs('admin.evaluation-reports')" wire:navigate>
-            Evaluation Reports (will be move soon in monitoring)
+        <flux:sidebar.item href="{{ route('admin.evaluations') }}" :badge="$this->evaluationsCount"
+            :current="request()->routeIs('admin.evaluations')" wire:navigate>
+            Evaluation
         </flux:sidebar.item>
     </flux:sidebar.group>
 

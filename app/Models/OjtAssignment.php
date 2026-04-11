@@ -23,6 +23,11 @@ class OjtAssignment extends Model
         'end_date' => 'date',
     ];
 
+    public function evaluations()
+    {
+        return $this->hasMany(Evaluation::class, 'ojt_assignment_id');
+    }
+
     public function student()
     {
         return $this->belongsTo(User::class, 'student_id');

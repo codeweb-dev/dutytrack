@@ -69,12 +69,19 @@ new class extends Component {
                     placeholder="Confirm new password" viewable />
             </div>
 
-            <flux:input wire:model="form.department" label="Department" placeholder="Computer Science" />
+            <flux:select wire:model="form.department" label="Department" placeholder="Select department">
+                <option value="">Select department</option>
 
-            <flux:field>
-                <flux:label>Position</flux:label>
-                <flux:input value="Professor" disabled />
-            </flux:field>
+                <option value="Industrial Technology">Industrial Technology</option>
+                <option value="Business Administration">Business Administration</option>
+                <option value="Criminology">Criminology</option>
+                <option value="Computer Science">Computer Science</option>
+                <option value="Hospitality Management">Hospitality Management</option>
+                <option value="Information Technology">Information Technology</option>
+                <option value="Office Administration">Office Administration</option>
+                <option value="Psychology">Psychology</option>
+                <option value="Teacher Education">Teacher Education</option>
+            </flux:select>
         </div>
     </flux:fieldset>
 

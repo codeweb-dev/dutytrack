@@ -158,7 +158,6 @@ E. System Management
 - publish announcements
 - archive announcements
 - review audit logs
-- update system settings
 
 ADMIN FLOW:
 1. Login

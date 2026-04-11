@@ -7,6 +7,9 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
+use App\Models\AttendanceLog;
+use App\Models\DutyHourLog;
+use App\Models\OjtAssignment;
 
 new class extends Component {
     #[Computed]
@@ -60,6 +63,24 @@ new class extends Component {
     {
         return AuditLog::query()->count();
     }
+
+    #[Computed]
+    public function attendanceCount(): int
+    {
+        return AttendanceLog::query()->count();
+    }
+
+    #[Computed]
+    public function dutyHoursCount(): int
+    {
+        return DutyHourLog::query()->count();
+    }
+
+    #[Computed]
+    public function ojtAssignmentsCount(): int
+    {
+        return OjtAssignment::query()->count();
+    }
 };
 ?>
 
@@ -92,17 +113,17 @@ new class extends Component {
     </flux:sidebar.group>
 
     <flux:sidebar.group expandable icon="computer-desktop" heading="Monitoring">
-        <flux:sidebar.item href="{{ route('admin.attendance') }}" :current="request()->routeIs('admin.attendance')"
-            wire:navigate>
+        <flux:sidebar.item href="{{ route('admin.attendance') }}" :badge="$this->attendanceCount"
+            :current="request()->routeIs('admin.attendance')" wire:navigate>
             Attendance
         </flux:sidebar.item>
 
-        <flux:sidebar.item href="{{ route('admin.duty-hours') }}" :current="request()->routeIs('admin.duty-hours')"
-            wire:navigate>
+        <flux:sidebar.item href="{{ route('admin.duty-hours') }}" :badge="$this->dutyHoursCount"
+            :current="request()->routeIs('admin.duty-hours')" wire:navigate>
             Duty Hours
         </flux:sidebar.item>
 
-        <flux:sidebar.item href="{{ route('admin.ojt-assignments') }}"
+        <flux:sidebar.item href="{{ route('admin.ojt-assignments') }}" :badge="$this->ojtAssignmentsCount"
             :current="request()->routeIs('admin.ojt-assignments')" wire:navigate>
             OJT Assignments
         </flux:sidebar.item>

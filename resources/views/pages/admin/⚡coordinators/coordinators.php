@@ -16,10 +16,10 @@ new #[Title('OJT Coordinators Management')] class extends Component {
     public array $breadcrumbs = [
         ['logo' => 'logo.png', 'href' => '/dashboard'],
         ['label' => 'Users Management', 'href' => '#'],
-        ['label' => 'OJT Coordinators Management'],
+        ['label' => 'OJT Coordinators'],
     ];
 
-    public string $title = 'OJT Coordinators Management';
+    public string $title = 'OJT Coordinators';
     public string $description = 'Manage OJT coordinator records and department details.';
 
     public string $sortBy = 'name';

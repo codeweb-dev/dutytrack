@@ -16,10 +16,10 @@ new #[Title('Professors Management')] class extends Component {
     public array $breadcrumbs = [
         ['logo' => 'logo.png', 'href' => '/dashboard'],
         ['label' => 'Users Management', 'href' => '#'],
-        ['label' => 'Professors Management'],
+        ['label' => 'Professors'],
     ];
 
-    public string $title = 'Professors Management';
+    public string $title = 'Professors';
     public string $description = 'Manage professor records and department details.';
 
     public string $sortBy = 'name';

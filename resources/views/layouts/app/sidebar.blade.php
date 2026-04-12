@@ -11,7 +11,21 @@
                 <flux:sidebar.collapse class="in-data-flux-sidebar-on-desktop:not-in-data-flux-sidebar-collapsed-desktop:-mr-2" />
             </flux:sidebar.header>
 
-            <livewire:admin.sidebar />
+            @php
+                $user = auth()->user();
+            @endphp
+
+            @if($user->hasRole('admin'))
+                <livewire:admin.sidebar />
+            @elseif($user->hasRole('ojt_coordinator'))
+                <livewire:coordinator.sidebar />
+            @elseif($user->hasRole('professor'))
+                <livewire:professor.sidebar />
+            @elseif($user->hasRole('company_supervisor'))
+                <livewire:supervisor.sidebar />
+            @elseif($user->hasRole('student'))
+                <livewire:student.sidebar />
+            @endif
 
             <flux:spacer />
 

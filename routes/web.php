@@ -1,14 +1,28 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::view('dashboard', 'dashboard')->name('dashboard');
+    Route::get('/dashboard', function () {
+        $user = Auth::user();
+
+        return match (true) {
+            $user->hasRole('admin') => redirect()->route('admin.dashboard'),
+            $user->hasRole('ojt_coordinator') => redirect()->route('coordinator.dashboard'),
+            $user->hasRole('professor') => redirect()->route('professor.dashboard'),
+            $user->hasRole('company_supervisor') => redirect()->route('supervisor.dashboard'),
+            $user->hasRole('student') => redirect()->route('student.dashboard'),
+            default => abort(403),
+        };
+    })->name('dashboard');
 });
 
 Route::group(['middleware' => ['role:admin']], function () {
+    Route::livewire('/admin/dashboard', 'pages::admin.dashboard')->name('admin.dashboard');
+
     // User Management
     Route::livewire('/admin/students', 'pages::admin.students')->name('admin.students');
     Route::livewire('/admin/coordinators', 'pages::admin.coordinators')->name('admin.coordinators');
@@ -24,6 +38,22 @@ Route::group(['middleware' => ['role:admin']], function () {
     // System Management
     Route::livewire('/admin/announcements', 'pages::admin.announcements')->name('admin.announcements');
     Route::livewire('/admin/audit-logs', 'pages::admin.audit-logs')->name('admin.audit-logs');
+});
+
+Route::group(['middleware' => ['role:ojt_coordinator']], function () {
+    Route::livewire('/coordinator/dashboard', 'pages::coordinator.dashboard')->name('coordinator.dashboard');
+});
+
+Route::group(['middleware' => ['role:professor']], function () {
+    Route::livewire('/professor/dashboard', 'pages::professor.dashboard')->name('professor.dashboard');
+});
+
+Route::group(['middleware' => ['role:company_supervisor']], function () {
+    Route::livewire('/supervisor/dashboard', 'pages::supervisor.dashboard')->name('supervisor.dashboard');
+});
+
+Route::group(['middleware' => ['role:student']], function () {
+    Route::livewire('/student/dashboard', 'pages::student.dashboard')->name('student.dashboard');
 });
 
 require __DIR__ . '/settings.php';

@@ -55,6 +55,8 @@ Route::group(['middleware' => ['role:company_supervisor']], function () {
 Route::group(['middleware' => ['role:student']], function () {
     Route::livewire('/student/dashboard', 'pages::student.dashboard')->name('student.dashboard');
     Route::livewire('/student/kanban', 'pages::student.kanban')->name('student.kanban');
+    Route::livewire('/student/pomodoro', 'pages::student.pomodoro')->name('student.pomodoro');
+    Route::livewire('/student/pet', 'pages::student.pet-streak')->name('student.pet-streak');
 });
 
 require __DIR__ . '/settings.php';

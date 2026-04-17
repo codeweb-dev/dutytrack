@@ -2,8 +2,7 @@
 
 use Livewire\Component;
 
-new class extends Component
-{
+new class extends Component {
     //
 };
 ?>
@@ -27,14 +26,17 @@ new class extends Component
     </flux:sidebar.item>
 
     <flux:sidebar.item icon="clipboard-document-check" href="#">
-        Productivity
-    </flux:sidebar.item>
-
-    <flux:sidebar.item icon="clipboard-document-check" href="#">
         Reports / Submissions
     </flux:sidebar.item>
 
     <flux:sidebar.item icon="clipboard-document-check" href="#">
         Evaluation
     </flux:sidebar.item>
+
+    <flux:sidebar.group expandable icon="computer-desktop" heading="Productivity">
+        <flux:sidebar.item href="{{ route('student.kanban') }}" :current="request()->routeIs('student.kanban')"
+            wire:navigate>
+            Kanban Board
+        </flux:sidebar.item>
+    </flux:sidebar.group>
 </flux:sidebar.nav>

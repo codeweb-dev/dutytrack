@@ -14,14 +14,10 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-new #[Title('Admin Dashboard')] class extends Component
-{
+new #[Title('Admin Dashboard')] class extends Component {
     use WithPagination;
 
-    public array $breadcrumbs = [
-        ['logo' => 'logo.png', 'href' => '/dashboard'],
-        ['label' => 'Admin Dashboard']
-    ];
+    public array $breadcrumbs = [['logo' => 'logo.png', 'href' => '/dashboard'], ['label' => 'Admin Dashboard']];
 
     public string $title = 'Welcome back, Admin👋';
 
@@ -101,60 +97,31 @@ new #[Title('Admin Dashboard')] class extends Component
         }
 
         return [
-            'label' => ($positive ? '+' : '-').$percent.'%',
+            'label' => ($positive ? '+' : '-') . $percent . '%',
             'color' => $positive ? 'lime' : 'red',
-            'tone' => $positive
-                ? 'bg-lime-50 text-lime-700 ring-lime-200 dark:bg-lime-500/10 dark:text-lime-300 dark:ring-lime-500/20'
-                : 'bg-red-50 text-red-700 ring-red-200 dark:bg-red-500/10 dark:text-red-300 dark:ring-red-500/20',
+            'tone' => $positive ? 'bg-lime-50 text-lime-700 ring-lime-200 dark:bg-lime-500/10 dark:text-lime-300 dark:ring-lime-500/20' : 'bg-red-50 text-red-700 ring-red-200 dark:bg-red-500/10 dark:text-red-300 dark:ring-red-500/20',
         ];
     }
 
     protected function compactHours(float $value): string
     {
-        return number_format($value, $value >= 100 ? 0 : 1).'h';
+        return number_format($value, $value >= 100 ? 0 : 1) . 'h';
     }
 
     #[Computed]
     public function topCards(): array
     {
-        $studentCurrent = $this->monthlyCount(
-            User::class,
-            'created_at',
-            0,
-            fn (Builder $query) => $this->applyRoleFilter($query, EnumsRole::STUDENT->value)
-        );
-        $studentPrevious = $this->monthlyCount(
-            User::class,
-            'created_at',
-            1,
-            fn (Builder $query) => $this->applyRoleFilter($query, EnumsRole::STUDENT->value)
-        );
+        $studentCurrent = $this->monthlyCount(User::class, 'created_at', 0, fn(Builder $query) => $this->applyRoleFilter($query, EnumsRole::STUDENT->value));
+        $studentPrevious = $this->monthlyCount(User::class, 'created_at', 1, fn(Builder $query) => $this->applyRoleFilter($query, EnumsRole::STUDENT->value));
 
         $assignmentCurrent = $this->monthlyCount(OjtAssignment::class, 'created_at');
         $assignmentPrevious = $this->monthlyCount(OjtAssignment::class, 'created_at', 1);
 
         $reviewCurrent = Evaluation::query()->where('status', 'pending')->count();
-        $reviewPrevious = $this->monthlyCount(
-            Evaluation::class,
-            'created_at',
-            1,
-            fn (Builder $query) => $query->where('status', 'pending')
-        );
+        $reviewPrevious = $this->monthlyCount(Evaluation::class, 'created_at', 1, fn(Builder $query) => $query->where('status', 'pending'));
 
-        $hoursCurrent = $this->monthlySum(
-            DutyHourLog::class,
-            'approved_at',
-            'approved_hours',
-            0,
-            fn (Builder $query) => $query->where('status', 'approved')->whereNotNull('approved_at')
-        );
-        $hoursPrevious = $this->monthlySum(
-            DutyHourLog::class,
-            'approved_at',
-            'approved_hours',
-            1,
-            fn (Builder $query) => $query->where('status', 'approved')->whereNotNull('approved_at')
-        );
+        $hoursCurrent = $this->monthlySum(DutyHourLog::class, 'approved_at', 'approved_hours', 0, fn(Builder $query) => $query->where('status', 'approved')->whereNotNull('approved_at'));
+        $hoursPrevious = $this->monthlySum(DutyHourLog::class, 'approved_at', 'approved_hours', 1, fn(Builder $query) => $query->where('status', 'approved')->whereNotNull('approved_at'));
 
         return [
             [
@@ -162,28 +129,28 @@ new #[Title('Admin Dashboard')] class extends Component
                 'value' => number_format($this->roleCount(EnumsRole::STUDENT->value)),
                 'icon' => 'academic-cap',
                 'delta' => $this->deltaMeta($studentCurrent, $studentPrevious),
-                'footnote' => 'Last month: '.number_format($studentPrevious),
+                'footnote' => 'Last month: ' . number_format($studentPrevious),
             ],
             [
                 'title' => 'New Assignments',
                 'value' => number_format(OjtAssignment::query()->count()),
                 'icon' => 'briefcase',
                 'delta' => $this->deltaMeta($assignmentCurrent, $assignmentPrevious),
-                'footnote' => 'Last month: '.number_format($assignmentPrevious),
+                'footnote' => 'Last month: ' . number_format($assignmentPrevious),
             ],
             [
                 'title' => 'Pending Reviews',
                 'value' => number_format($reviewCurrent),
                 'icon' => 'clipboard-document-check',
                 'delta' => $this->deltaMeta($reviewCurrent, $reviewPrevious),
-                'footnote' => 'Last month: '.number_format($reviewPrevious),
+                'footnote' => 'Last month: ' . number_format($reviewPrevious),
             ],
             [
                 'title' => 'Approved Hours',
                 'value' => $this->compactHours((float) DutyHourLog::query()->where('status', 'approved')->sum('approved_hours')),
                 'icon' => 'clock',
                 'delta' => $this->deltaMeta($hoursCurrent, $hoursPrevious),
-                'footnote' => 'Last month: '.$this->compactHours($hoursPrevious),
+                'footnote' => 'Last month: ' . $this->compactHours($hoursPrevious),
             ],
         ];
     }
@@ -192,7 +159,7 @@ new #[Title('Admin Dashboard')] class extends Component
     public function weeklyActivity(): array
     {
         $days = collect(range(6, 0, -1))
-            ->map(fn (int $offset) => now()->subDays($offset)->startOfDay())
+            ->map(fn(int $offset) => now()->subDays($offset)->startOfDay())
             ->push(now()->startOfDay())
             ->values();
 
@@ -211,18 +178,20 @@ new #[Title('Admin Dashboard')] class extends Component
 
         $max = max(collect($items)->max('value'), 1);
 
-        return $items->map(function (array $item) use ($max) {
-            $item['height'] = max(($item['value'] / $max) * 100, $item['value'] > 0 ? 18 : 8);
+        return $items
+            ->map(function (array $item) use ($max) {
+                $item['height'] = max(($item['value'] / $max) * 100, $item['value'] > 0 ? 18 : 8);
 
-            return $item;
-        })->all();
+                return $item;
+            })
+            ->all();
     }
 
     #[Computed]
     public function monthlyAssignmentMix(): array
     {
         $months = collect(range(5, 0, -1))
-            ->map(fn (int $offset) => now()->subMonths($offset)->startOfMonth())
+            ->map(fn(int $offset) => now()->subMonths($offset)->startOfMonth())
             ->push(now()->startOfMonth())
             ->values();
 
@@ -247,42 +216,43 @@ new #[Title('Admin Dashboard')] class extends Component
 
         $max = max(collect($items)->max('total'), 1);
 
-        return $items->map(function (array $item) use ($max) {
-            $item['internal_height'] = $item['total'] > 0 ? (($item['internal'] / $max) * 100) : 0;
-            $item['external_height'] = $item['total'] > 0 ? (($item['external'] / $max) * 100) : 0;
+        return $items
+            ->map(function (array $item) use ($max) {
+                $item['internal_height'] = $item['total'] > 0 ? ($item['internal'] / $max) * 100 : 0;
+                $item['external_height'] = $item['total'] > 0 ? ($item['external'] / $max) * 100 : 0;
 
-            return $item;
-        })->all();
+                return $item;
+            })
+            ->all();
     }
 
     #[Computed]
     public function recentAssignments(): LengthAwarePaginator
     {
         return OjtAssignment::query()
-            ->with([
-                'student.studentProfile',
-                'student.coordinator',
-                'professor',
-                'companySupervisor',
-            ])
+            ->with(['student.studentProfile', 'student.coordinator', 'professor', 'companySupervisor'])
             ->when($this->search !== '', function (Builder $query) {
-                $search = '%'.$this->search.'%';
+                $search = '%' . $this->search . '%';
 
                 $query->where(function (Builder $nested) use ($search) {
-                    $nested->whereHas('student', function (Builder $studentQuery) use ($search) {
-                        $studentQuery->where('name', 'like', $search)
-                            ->orWhere('email', 'like', $search)
-                            ->orWhereHas('studentProfile', function (Builder $profileQuery) use ($search) {
-                                $profileQuery->where('student_id', 'like', $search);
-                            });
-                    })->orWhereHas('professor', function (Builder $professorQuery) use ($search) {
-                        $professorQuery->where('name', 'like', $search);
-                    })->orWhereHas('companySupervisor', function (Builder $supervisorQuery) use ($search) {
-                        $supervisorQuery->where('name', 'like', $search);
-                    });
+                    $nested
+                        ->whereHas('student', function (Builder $studentQuery) use ($search) {
+                            $studentQuery
+                                ->where('name', 'like', $search)
+                                ->orWhere('email', 'like', $search)
+                                ->orWhereHas('studentProfile', function (Builder $profileQuery) use ($search) {
+                                    $profileQuery->where('student_id', 'like', $search);
+                                });
+                        })
+                        ->orWhereHas('professor', function (Builder $professorQuery) use ($search) {
+                            $professorQuery->where('name', 'like', $search);
+                        })
+                        ->orWhereHas('companySupervisor', function (Builder $supervisorQuery) use ($search) {
+                            $supervisorQuery->where('name', 'like', $search);
+                        });
                 });
             })
-            ->when($this->status !== '', fn (Builder $query) => $query->where('status', $this->status))
+            ->when($this->status !== '', fn(Builder $query) => $query->where('status', $this->status))
             ->latest('created_at')
             ->paginate(5);
     }
@@ -300,7 +270,8 @@ new #[Title('Admin Dashboard')] class extends Component
                         {{ $card['title'] }}
                     </flux:heading>
 
-                    <div class="rounded-2xl bg-zinc-50 p-3 text-zinc-900 ring-1 ring-zinc-200 dark:bg-zinc-800 dark:text-white dark:ring-zinc-700">
+                    <div
+                        class="rounded-2xl bg-zinc-50 p-3 text-zinc-900 ring-1 ring-zinc-200 dark:bg-zinc-800 dark:text-white dark:ring-zinc-700">
                         <flux:icon :name="$card['icon']" class="h-5 w-5" />
                     </div>
                 </div>
@@ -330,6 +301,8 @@ new #[Title('Admin Dashboard')] class extends Component
                     <flux:text class="mt-2 text-zinc-500">
                         Attendance logs recorded this week across the platform.
                     </flux:text>
+
+                    <flux:badge color="red" inset="top bottom">This Week</flux:badge>
                 </div>
             </div>
 
@@ -470,13 +443,15 @@ new #[Title('Admin Dashboard')] class extends Component
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                <flux:badge :color="match ($assignment->status) {
-                                    'active' => 'lime',
-                                    'pending' => 'amber',
-                                    'completed' => 'sky',
-                                    'cancelled' => 'red',
-                                    default => 'zinc',
-                                }" inset="top bottom">
+                                <flux:badge
+                                    :color="match ($assignment->status) {
+                                                                        'active' => 'lime',
+                                                                        'pending' => 'amber',
+                                                                        'completed' => 'sky',
+                                                                        'cancelled' => 'red',
+                                                                        default => 'zinc',
+                                                                    }"
+                                    inset="top bottom">
                                     {{ ucfirst($assignment->status) }}
                                 </flux:badge>
                             </flux:table.cell>

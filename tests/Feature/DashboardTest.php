@@ -29,3 +29,16 @@ test('admins can view the admin dashboard', function () {
         ->assertSee('Weekly Activity')
         ->assertSee('Recent Assignments');
 });
+
+test('coordinators can view the coordinator dashboard', function () {
+    PermissionRole::findOrCreate(Role::OJTCOORDINATOR->value, 'web');
+
+    $coordinator = User::factory()->create();
+    $coordinator->assignRole(Role::OJTCOORDINATOR->value);
+
+    $this->actingAs($coordinator)
+        ->get(route('coordinator.dashboard'))
+        ->assertOk()
+        ->assertSee('Weekly Attendance')
+        ->assertSee('Recent Students');
+});

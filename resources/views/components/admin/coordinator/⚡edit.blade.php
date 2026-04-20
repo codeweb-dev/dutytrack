@@ -1,6 +1,6 @@
 <?php
 
-use App\Livewire\Forms\CoordinatorForm;
+use App\Livewire\Forms\Admin\CoordinatorForm;
 use App\Models\User;
 use Livewire\Component;
 use Livewire\WithFileUploads;

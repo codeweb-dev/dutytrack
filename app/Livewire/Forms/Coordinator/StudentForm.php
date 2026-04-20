@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Forms;
+namespace App\Livewire\Forms\Coordinator;
 
 use App\Enums\Role as EnumsRole;
 use App\Models\User;

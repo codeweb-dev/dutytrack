@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Forms;
+namespace App\Livewire\Forms\Admin;
 
 use App\Models\Announcement;
 use App\Support\AuditLogger;

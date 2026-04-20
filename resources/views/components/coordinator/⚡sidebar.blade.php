@@ -14,17 +14,12 @@ new class extends Component
         Dashboard
     </flux:sidebar.item>
 
-    <flux:sidebar.item icon="clipboard-document-check" href="#">
-        Student Assignments
+    <flux:sidebar.item icon="clipboard-document-check" :href="route('coordinator.student-management')" :current="request()->routeIs('coordinator.student-management')"
+        wire:navigate>
+        Student Management
     </flux:sidebar.item>
 
     <flux:sidebar.group expandable icon="computer-desktop" heading="Monitoring">
-        <flux:sidebar.item href="#">
-            Internal OJT
-        </flux:sidebar.item>
-        <flux:sidebar.item href="#">
-            External OJT
-        </flux:sidebar.item>
         <flux:sidebar.item href="#">
             Attendance
         </flux:sidebar.item>

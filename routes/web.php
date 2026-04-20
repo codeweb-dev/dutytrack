@@ -42,6 +42,8 @@ Route::group(['middleware' => ['role:admin']], function () {
 
 Route::group(['middleware' => ['role:ojt_coordinator']], function () {
     Route::livewire('/coordinator/dashboard', 'pages::coordinator.dashboard')->name('coordinator.dashboard');
+
+    Route::livewire('/coordinator/student-management', 'pages::coordinator.student-management')->name('coordinator.student-management');
 });
 
 Route::group(['middleware' => ['role:professor']], function () {

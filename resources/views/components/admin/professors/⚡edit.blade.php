@@ -1,6 +1,6 @@
 <?php
 
-use App\Livewire\Forms\ProfessorForm;
+use App\Livewire\Forms\Admin\ProfessorForm;
 use App\Models\User;
 use Livewire\Component;
 use Livewire\WithFileUploads;

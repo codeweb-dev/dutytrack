@@ -2,7 +2,7 @@
 
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use App\Livewire\Forms\StudentForm;
+use App\Livewire\Forms\Coordinator\StudentForm;
 
 new class extends Component {
     use WithFileUploads;

@@ -8,11 +8,9 @@
                 <flux:badge color="red" inset="top bottom">{{ $this->students->total() }}</flux:badge>
             </h2>
 
-            <div class="flex items-center gap-3">
+            <div>
                 <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
                     placeholder="Search students..." clearable />
-
-                <livewire:admin.students.create />
             </div>
         </div>
 
@@ -89,16 +87,6 @@
                                 <flux:menu>
                                     <flux:modal.trigger :name="'view-profile-'.$student->id">
                                         <flux:menu.item icon="eye">View</flux:menu.item>
-                                    </flux:modal.trigger>
-
-                                    <flux:modal.trigger :name="'edit-student-'.$student->id">
-                                        <flux:menu.item icon="pencil-square">Edit</flux:menu.item>
-                                    </flux:modal.trigger>
-
-                                    <flux:menu.separator />
-
-                                    <flux:modal.trigger :name="'delete-student-'.$student->id">
-                                        <flux:menu.item variant="danger" icon="trash">Delete</flux:menu.item>
                                     </flux:modal.trigger>
                                 </flux:menu>
                             </flux:dropdown>

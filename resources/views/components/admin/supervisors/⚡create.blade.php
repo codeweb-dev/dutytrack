@@ -2,7 +2,7 @@
 
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use App\Livewire\Forms\SupervisorForm;
+use App\Livewire\Forms\Admin\SupervisorForm;
 
 new class extends Component {
     use WithFileUploads;

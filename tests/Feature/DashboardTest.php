@@ -42,3 +42,16 @@ test('coordinators can view the coordinator dashboard', function () {
         ->assertSee('Weekly Attendance')
         ->assertSee('Recent Students');
 });
+
+test('professors can view the professor dashboard', function () {
+    PermissionRole::findOrCreate(Role::PROFESSOR->value, 'web');
+
+    $professor = User::factory()->create();
+    $professor->assignRole(Role::PROFESSOR->value);
+
+    $this->actingAs($professor)
+        ->get(route('professor.dashboard'))
+        ->assertOk()
+        ->assertSee('Weekly Attendance')
+        ->assertSee('Recent Advisees');
+});

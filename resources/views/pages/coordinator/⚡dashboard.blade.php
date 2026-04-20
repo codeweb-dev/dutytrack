@@ -344,7 +344,7 @@ new #[Title('Coordinator Dashboard')] class extends Component {
         <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
                 <flux:heading size="lg">Recent Students</flux:heading>
-                <flux:text class="mt-2 text-zinc-500">
+                <flux:text class="mt-2">
                     The latest students under your coordination, including their placement status.
                 </flux:text>
             </div>

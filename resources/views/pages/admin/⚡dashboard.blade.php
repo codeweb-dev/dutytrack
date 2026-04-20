@@ -286,9 +286,9 @@ new #[Title('Admin Dashboard')] class extends Component {
                     </flux:badge>
                 </div>
 
-                <div class="mt-6 text-sm text-zinc-500 dark:text-zinc-400">
+                <flux:text class="mt-6">
                     {{ $card['footnote'] }}
-                </div>
+                </flux:text>
             </flux:card>
         @endforeach
     </section>
@@ -298,16 +298,16 @@ new #[Title('Admin Dashboard')] class extends Component {
             <div class="flex items-start justify-between gap-4">
                 <div>
                     <flux:heading size="lg">Weekly Activity</flux:heading>
-                    <flux:text class="mt-2 text-zinc-500">
+                    <flux:text class="mt-2">
                         Attendance logs recorded this week across the platform.
                     </flux:text>
-
-                    <flux:badge color="red" inset="top bottom">This Week</flux:badge>
                 </div>
+
+                <flux:badge color="red" inset="top bottom">This Week</flux:badge>
             </div>
 
             <div class="mt-8">
-                <div class="flex h-92 items-end gap-6 rounded-2xl bg-zinc-50 px-6 pb-6 pt-8 dark:bg-zinc-900">
+                <flux:card class="flex h-92 items-end gap-6 px-6 pb-6 pt-8">
                     @foreach ($this->weeklyActivity as $item)
                         <div class="flex min-w-0 flex-1 flex-col items-center gap-3">
                             <div class="flex h-52 w-full items-end justify-center">
@@ -321,19 +321,19 @@ new #[Title('Admin Dashboard')] class extends Component {
                             </div>
                         </div>
                     @endforeach
-                </div>
+                </flux:card>
             </div>
         </flux:card>
 
         <flux:card>
             <div>
                 <flux:heading size="lg">Assignment Mix</flux:heading>
-                <flux:text class="mt-2 text-zinc-500">
+                <flux:text class="mt-2">
                     Internal and external assignment volume by month.
                 </flux:text>
             </div>
 
-            <div class="mt-6 rounded-2xl bg-zinc-50 p-5 dark:bg-zinc-900">
+            <flux:card class="mt-6">
                 <div class="flex items-center justify-between text-sm">
                     <div class="font-medium text-zinc-800 dark:text-zinc-200">Internal vs External</div>
 
@@ -367,7 +367,7 @@ new #[Title('Admin Dashboard')] class extends Component {
                         </div>
                     @endforeach
                 </div>
-            </div>
+            </flux:card>
         </flux:card>
     </section>
 
@@ -375,7 +375,7 @@ new #[Title('Admin Dashboard')] class extends Component {
         <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
                 <flux:heading size="lg">Recent Assignments</flux:heading>
-                <flux:text class="mt-2 text-zinc-500">
+                <flux:text class="mt-2">
                     Latest student deployments across coordinators, professors, and company supervisors.
                 </flux:text>
             </div>
@@ -417,8 +417,6 @@ new #[Title('Admin Dashboard')] class extends Component {
                         <flux:table.row :key="$assignment->id">
                             <flux:table.cell>
                                 <div class="flex items-center gap-3">
-                                    <flux:checkbox />
-
                                     <div>
                                         <div class="font-medium text-zinc-900 dark:text-white">
                                             {{ $assignment->student?->name ?? '—' }}
@@ -445,12 +443,12 @@ new #[Title('Admin Dashboard')] class extends Component {
                             <flux:table.cell>
                                 <flux:badge
                                     :color="match ($assignment->status) {
-                                                                        'active' => 'lime',
-                                                                        'pending' => 'amber',
-                                                                        'completed' => 'sky',
-                                                                        'cancelled' => 'red',
-                                                                        default => 'zinc',
-                                                                    }"
+                                                                                                            'active' => 'lime',
+                                                                                                            'pending' => 'amber',
+                                                                                                            'completed' => 'sky',
+                                                                                                            'cancelled' => 'red',
+                                                                                                            default => 'zinc',
+                                                                                                        }"
                                     inset="top bottom">
                                     {{ ucfirst($assignment->status) }}
                                 </flux:badge>

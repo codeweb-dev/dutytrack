@@ -55,3 +55,16 @@ test('professors can view the professor dashboard', function () {
         ->assertSee('Weekly Attendance')
         ->assertSee('Recent Advisees');
 });
+
+test('students can view the student dashboard', function () {
+    PermissionRole::findOrCreate(Role::STUDENT->value, 'web');
+
+    $student = User::factory()->create();
+    $student->assignRole(Role::STUDENT->value);
+
+    $this->actingAs($student)
+        ->get(route('student.dashboard'))
+        ->assertOk()
+        ->assertSee('Weekly Logged Hours')
+        ->assertSee('Recent Attendance');
+});

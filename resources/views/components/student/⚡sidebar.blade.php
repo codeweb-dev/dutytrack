@@ -1,10 +1,49 @@
 <?php
 
+use App\Models\AttendanceLog;
+use App\Models\DutyHourLog;
+use App\Models\Evaluation;
+use App\Models\OjtAssignment;
+use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Computed;
 use Livewire\Component;
 
 new class extends Component
 {
-    //
+    protected function studentId(): int
+    {
+        return (int) Auth::id();
+    }
+
+    #[Computed]
+    public function assignmentsCount(): int
+    {
+        return OjtAssignment::query()->where('student_id', $this->studentId())->count();
+    }
+
+    #[Computed]
+    public function attendanceCount(): int
+    {
+        return AttendanceLog::query()->where('student_id', $this->studentId())->count();
+    }
+
+    #[Computed]
+    public function dutyHoursCount(): int
+    {
+        return DutyHourLog::query()->where('student_id', $this->studentId())->count();
+    }
+
+    #[Computed]
+    public function submissionsCount(): int
+    {
+        return DutyHourLog::query()->where('student_id', $this->studentId())->where('status', 'pending')->count();
+    }
+
+    #[Computed]
+    public function evaluationsCount(): int
+    {
+        return Evaluation::query()->where('student_id', $this->studentId())->count();
+    }
 };
 ?>
 
@@ -14,23 +53,23 @@ new class extends Component
         Dashboard
     </flux:sidebar.item>
 
-    <flux:sidebar.item icon="briefcase" href="#">
+    <flux:sidebar.item icon="briefcase" :badge="$this->assignmentsCount" href="#">
         My Assignments
     </flux:sidebar.item>
 
-    <flux:sidebar.item icon="clipboard-document-list" href="#">
+    <flux:sidebar.item icon="clipboard-document-list" :badge="$this->attendanceCount" href="#">
         Attendance
     </flux:sidebar.item>
 
-    <flux:sidebar.item icon="clock" href="#">
+    <flux:sidebar.item icon="clock" :badge="$this->dutyHoursCount" href="#">
         Duty Hours
     </flux:sidebar.item>
 
-    <flux:sidebar.item icon="document-text" href="#">
+    <flux:sidebar.item icon="document-text" :badge="$this->submissionsCount" href="#">
         Reports / Submissions
     </flux:sidebar.item>
 
-    <flux:sidebar.item icon="check-badge" href="#">
+    <flux:sidebar.item icon="check-badge" :badge="$this->evaluationsCount" href="#">
         Evaluation
     </flux:sidebar.item>
 

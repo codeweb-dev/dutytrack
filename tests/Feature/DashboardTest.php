@@ -56,6 +56,19 @@ test('professors can view the professor dashboard', function () {
         ->assertSee('Recent Advisees');
 });
 
+test('company supervisors can view the supervisor dashboard', function () {
+    PermissionRole::findOrCreate(Role::COMPANYSUPERVISOR->value, 'web');
+
+    $supervisor = User::factory()->create();
+    $supervisor->assignRole(Role::COMPANYSUPERVISOR->value);
+
+    $this->actingAs($supervisor)
+        ->get(route('supervisor.dashboard'))
+        ->assertOk()
+        ->assertSee('Weekly Attendance')
+        ->assertSee('Recent Trainees');
+});
+
 test('students can view the student dashboard', function () {
     PermissionRole::findOrCreate(Role::STUDENT->value, 'web');
 

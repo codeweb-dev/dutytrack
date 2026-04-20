@@ -44,6 +44,7 @@ Route::group(['middleware' => ['role:ojt_coordinator']], function () {
     Route::livewire('/coordinator/dashboard', 'pages::coordinator.dashboard')->name('coordinator.dashboard');
 
     Route::livewire('/coordinator/student-management', 'pages::coordinator.student-management')->name('coordinator.student-management');
+    Route::livewire('/coordinator/ojt-assignments', 'pages::coordinator.ojt-assignments')->name('coordinator.ojt-assignments');
 });
 
 Route::group(['middleware' => ['role:professor']], function () {
@@ -61,4 +62,4 @@ Route::group(['middleware' => ['role:student']], function () {
     Route::livewire('/student/pet', 'pages::student.pet-streak')->name('student.pet-streak');
 });
 
-require __DIR__ . '/settings.php';
+require __DIR__.'/settings.php';

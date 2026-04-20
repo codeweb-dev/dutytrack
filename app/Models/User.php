@@ -90,6 +90,11 @@ class User extends Authenticatable
         return $this->hasOne(StudentProfile::class);
     }
 
+    public function ojtAssignment()
+    {
+        return $this->hasOne(OjtAssignment::class, 'student_id');
+    }
+
     public function coordinator()
     {
         return $this->belongsTo(User::class, 'coordinator_id');
@@ -108,6 +113,16 @@ class User extends Authenticatable
     public function professorProfile()
     {
         return $this->hasOne(ProfessorProfile::class);
+    }
+
+    public function professorAssignments()
+    {
+        return $this->hasMany(OjtAssignment::class, 'professor_id');
+    }
+
+    public function companySupervisorAssignments()
+    {
+        return $this->hasMany(OjtAssignment::class, 'company_supervisor_id');
     }
 
     // Comment for now with make this like a status online, offline, away, etc. in the future

@@ -19,6 +19,11 @@ new class extends Component
         Student Management
     </flux:sidebar.item>
 
+    <flux:sidebar.item icon="briefcase" :href="route('coordinator.ojt-assignments')" :current="request()->routeIs('coordinator.ojt-assignments')"
+        wire:navigate>
+        OJT Assignments
+    </flux:sidebar.item>
+
     <flux:sidebar.group expandable icon="computer-desktop" heading="Monitoring">
         <flux:sidebar.item href="#">
             Attendance

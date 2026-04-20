@@ -34,7 +34,7 @@
 
         @if ($user->hasRole('student'))
             <div class="in-data-flux-sidebar-collapsed-desktop:hidden">
-                <flux:callout icon="sparkles" color="red">
+                <flux:callout icon="fire" color="red">
                     <flux:callout.heading>Your pet is waiting 🐶</flux:callout.heading>
 
                     <flux:callout.text>

@@ -2,7 +2,8 @@
 
 use Livewire\Component;
 
-new class extends Component {
+new class extends Component
+{
     //
 };
 ?>
@@ -13,19 +14,19 @@ new class extends Component {
         Dashboard
     </flux:sidebar.item>
 
-    <flux:sidebar.item icon="clipboard-document-check" href="#">
+    <flux:sidebar.item icon="academic-cap" href="#">
         Assigned Students
     </flux:sidebar.item>
 
-    <flux:sidebar.item icon="clipboard-document-check" href="#">
+    <flux:sidebar.item icon="chart-bar-square" href="#">
         Productivity
     </flux:sidebar.item>
 
-    <flux:sidebar.item icon="clipboard-document-check" href="#">
+    <flux:sidebar.item icon="document-text" href="#">
         Reports / Submissions
     </flux:sidebar.item>
 
-    <flux:sidebar.item icon="clipboard-document-check" href="#">
+    <flux:sidebar.item icon="check-badge" href="#">
         Evaluation
     </flux:sidebar.item>
 </flux:sidebar.nav>

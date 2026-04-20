@@ -14,7 +14,7 @@ new class extends Component
         Dashboard
     </flux:sidebar.item>
 
-    <flux:sidebar.item icon="clipboard-document-check" :href="route('coordinator.student-management')" :current="request()->routeIs('coordinator.student-management')"
+    <flux:sidebar.item icon="academic-cap" :href="route('coordinator.student-management')" :current="request()->routeIs('coordinator.student-management')"
         wire:navigate>
         Student Management
     </flux:sidebar.item>
@@ -24,20 +24,20 @@ new class extends Component
         OJT Assignments
     </flux:sidebar.item>
 
-    <flux:sidebar.group expandable icon="computer-desktop" heading="Monitoring">
-        <flux:sidebar.item href="#">
+    <flux:sidebar.group expandable icon="chart-bar-square" heading="Monitoring">
+        <flux:sidebar.item icon="clipboard-document-list" href="#">
             Attendance
         </flux:sidebar.item>
-        <flux:sidebar.item href="#">
+        <flux:sidebar.item icon="clock" href="#">
             Duty Hours
         </flux:sidebar.item>
     </flux:sidebar.group>
 
-    <flux:sidebar.group expandable icon="sparkles" heading="Reviews">
-        <flux:sidebar.item href="#">
+    <flux:sidebar.group expandable icon="check-badge" heading="Reviews">
+        <flux:sidebar.item icon="hand-thumb-up" href="#">
             Exaltations
         </flux:sidebar.item>
-        <flux:sidebar.item href="#">
+        <flux:sidebar.item icon="document-text" href="#">
             Reports
         </flux:sidebar.item>
     </flux:sidebar.group>

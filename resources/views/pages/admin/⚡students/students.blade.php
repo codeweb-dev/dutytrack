@@ -47,13 +47,17 @@
 
                             <div class="flex flex-col">
                                 <span class="font-medium">{{ $student->name }}</span>
-                                <div>
-                                    <span class="text-xs text-zinc-500">{{ $student->email }}</span>
-                                    <span class="text-xs text-zinc-500">
-                                        •
+                                <div class="flex items-center gap-1">
+                                    <flux:text class="text-xs">{{ $student->email }}</flux:text>
+                                    <flux:text class="text-xs">•</flux:text>
+                                    <flux:text class="text-xs">
                                         {{ $student->contact_number ? '+63 ' . $student->contact_number : 'No contact number' }}
-                                    </span>
+                                    </flux:text>
                                 </div>
+                                <flux:text class="text-xs text-zinc-500">
+                                    Coordinator: {{ $student->coordinator?->name ?? 'Unassigned' }} |
+                                    {{ $student->coordinator?->professorProfile->department ?? '—' }}
+                                </flux:text>
                             </div>
                         </flux:table.cell>
 

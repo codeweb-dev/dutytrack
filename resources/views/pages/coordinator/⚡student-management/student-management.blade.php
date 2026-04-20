@@ -4,7 +4,7 @@
     <div class="mt-8 space-y-4">
         <div class="flex items-center justify-between">
             <h2 class="text-xl font-semibold">
-                All Students
+                My Students
                 <flux:badge color="red" inset="top bottom">{{ $this->students->total() }}</flux:badge>
             </h2>
 
@@ -12,19 +12,7 @@
                 <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
                     placeholder="Search students..." clearable />
 
-                <flux:dropdown>
-                    <flux:button icon="funnel">Filter</flux:button>
-
-                    <flux:menu>
-                        <flux:menu.radio.group wire:model="">
-                            <flux:menu.radio checked>All Students</flux:menu.radio>
-                            <flux:menu.radio>Internal Students</flux:menu.radio>
-                            <flux:menu.radio>External Students</flux:menu.radio>
-                        </flux:menu.radio.group>
-                    </flux:menu>
-                </flux:dropdown>
-
-                <livewire:admin.students.create />
+                <livewire:coordinator.student-management.create />
             </div>
         </div>
 
@@ -117,16 +105,16 @@
 
                             <flux:modal :name="'view-profile-'.$student->id" flyout variant="floating"
                                 class="md:w-2xl">
-                                <livewire:admin.students.view :student="$student" :key="'view-student-' . $student->id" />
+                                <livewire:coordinator.student-management.view :student="$student" :key="'view-student-' . $student->id" />
                             </flux:modal>
 
                             <flux:modal :name="'edit-student-'.$student->id" flyout variant="floating"
                                 class="md:w-2xl">
-                                <livewire:admin.students.edit :student="$student" :key="'edit-student-' . $student->id" />
+                                <livewire:coordinator.student-management.edit :student="$student" :key="'edit-student-' . $student->id" />
                             </flux:modal>
 
                             <flux:modal :name="'delete-student-'.$student->id" class="min-w-88">
-                                <livewire:admin.students.delete :student="$student" :key="'delete-student-' . $student->id" />
+                                <livewire:coordinator.student-management.delete :student="$student" :key="'delete-student-' . $student->id" />
                             </flux:modal>
                         </flux:table.cell>
                     </flux:table.row>

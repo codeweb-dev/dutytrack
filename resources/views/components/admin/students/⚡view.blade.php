@@ -1,9 +1,15 @@
 <?php
 
+use App\Models\User;
 use Livewire\Component;
 
 new class extends Component {
-    public $student;
+    public User $student;
+
+    public function mount(User $student): void
+    {
+        $this->student = $student->load('studentProfile', 'coordinator');
+    }
 };
 ?>
 
@@ -47,6 +53,15 @@ new class extends Component {
                             Contact Number</div>
                         <div class="mt-1 font-medium text-zinc-900 dark:text-white">
                             {{ $student->contact_number ? '+63 ' . $student->contact_number : 'No contact number' }}
+                        </div>
+                    </div>
+
+                    <div
+                        class="rounded-2xl bg-white/80 px-4 py-3 shadow-sm ring-1 ring-zinc-200 dark:bg-zinc-900/80 dark:ring-zinc-800 md:col-span-2">
+                        <div class="text-xs uppercase tracking-wide text-zinc-400">
+                            Assigned Coordinator</div>
+                        <div class="mt-1 font-medium text-zinc-900 dark:text-white">
+                            {{ $student->coordinator?->name ?? 'Unassigned' }} | {{ $student->coordinator?->professorProfile->department ?? '—' }}
                         </div>
                     </div>
                 </div>

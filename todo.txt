@@ -1,0 +1,2 @@
+GLOBAL:
+    make it if i created an account or anything should be the sidebar counting will update

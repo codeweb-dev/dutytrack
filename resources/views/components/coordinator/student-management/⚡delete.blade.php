@@ -3,16 +3,26 @@
 use App\Models\User;
 use Flux\Flux;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 
 new class extends Component {
     public User $student;
 
+    public function mount(User $student): void
+    {
+        abort_unless((int) $student->coordinator_id === (int) Auth::id(), 403);
+
+        $this->student = $student;
+    }
+
     public function delete(): void
     {
         DB::transaction(function () {
             $student = $this->student->load('studentProfile');
+
+            abort_unless((int) $student->coordinator_id === (int) Auth::id(), 403);
 
             if ($student->profile_photo_path) {
                 Storage::disk('public')->delete($student->profile_photo_path);

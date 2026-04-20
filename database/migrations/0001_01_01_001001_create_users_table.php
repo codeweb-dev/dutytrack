@@ -24,6 +24,10 @@ return new class extends Migration
             $table->string('profile_photo_path')->nullable();
             $table->string('status')->nullable();
             $table->string('password');
+            $table->foreignId('coordinator_id')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
             $table->rememberToken();
             $table->timestamps();
         });

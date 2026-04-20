@@ -2,6 +2,7 @@
 
 use App\Livewire\Forms\Coordinator\StudentForm;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -13,6 +14,8 @@ new class extends Component {
 
     public function mount(User $student): void
     {
+        abort_unless((int) $student->coordinator_id === (int) Auth::id(), 403);
+
         $this->student = $student;
         $this->form->setStudent($student);
     }
@@ -20,6 +23,7 @@ new class extends Component {
     public function loadStudent(): void
     {
         $this->student = $this->student->fresh(['studentProfile']);
+        abort_unless((int) $this->student->coordinator_id === (int) Auth::id(), 403);
         $this->form->setStudent($this->student);
     }
 

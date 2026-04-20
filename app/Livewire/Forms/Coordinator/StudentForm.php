@@ -6,6 +6,7 @@ use App\Enums\Role as EnumsRole;
 use App\Models\User;
 use App\Support\AuditLogger;
 use Flux\Flux;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -19,20 +20,33 @@ class StudentForm extends Form
     public ?User $student = null;
 
     public $photo = null;
+
     public ?string $existing_photo_path = null;
+
     public ?string $existing_photo_url = null;
 
     public string $student_id = '';
+
     public string $first_name = '';
+
     public string $last_name = '';
+
     public string $email = '';
+
     public string $password = '';
+
     public string $password_confirmation = '';
+
     public string $course = '';
+
     public string $year_level = '';
+
     public ?string $section = '';
+
     public ?string $contact_number = '';
+
     public ?string $middle_name = '';
+
     public int $ojt_required_hours = 0;
 
     public function rules(): array
@@ -82,7 +96,7 @@ class StudentForm extends Form
 
     protected function studentAuditData(?User $user = null): array
     {
-        $user ??= $this->student?->load('studentProfile');
+        $user ??= $this->student?->load('studentProfile', 'coordinator');
 
         return [
             'name' => $user?->name,
@@ -97,12 +111,39 @@ class StudentForm extends Form
             'year_level' => $user?->studentProfile?->year_level,
             'section' => $user?->studentProfile?->section,
             'ojt_required_hours' => $user?->studentProfile?->ojt_required_hours,
+            'coordinator_id' => $user?->coordinator_id,
+            'coordinator_name' => $user?->coordinator?->name,
         ];
+    }
+
+    protected function coordinator(): User
+    {
+        $coordinator = Auth::user();
+
+        abort_unless(
+            $coordinator instanceof User && $coordinator->hasRole(EnumsRole::OJTCOORDINATOR->value),
+            403
+        );
+
+        return $coordinator;
+    }
+
+    protected function ensureManagedByCurrentCoordinator(?User $student = null): void
+    {
+        $student ??= $this->student;
+
+        if (! $student) {
+            return;
+        }
+
+        abort_unless((int) $student->coordinator_id === (int) $this->coordinator()->id, 403);
     }
 
     public function setStudent(User $student): void
     {
-        $student->load('studentProfile');
+        $this->ensureManagedByCurrentCoordinator($student);
+
+        $student->load('studentProfile', 'coordinator');
 
         $this->student = $student;
         $this->existing_photo_path = $student->profile_photo_path;
@@ -131,9 +172,11 @@ class StudentForm extends Form
 
     public function store(): void
     {
+        $coordinator = $this->coordinator();
+
         $this->validate();
 
-        DB::transaction(function () {
+        DB::transaction(function () use ($coordinator) {
             $photoPath = $this->photo
                 ? $this->photo->store('students/photos', 'public')
                 : null;
@@ -145,6 +188,7 @@ class StudentForm extends Form
             ])->filter()->implode(' '));
 
             $user = User::create([
+                'coordinator_id' => $coordinator->id,
                 'name' => $fullName,
                 'first_name' => $this->first_name,
                 'middle_name' => $this->middle_name ?: null,
@@ -166,7 +210,7 @@ class StudentForm extends Form
                 'ojt_required_hours' => $this->ojt_required_hours ?: 0,
             ]);
 
-            $user = $user->fresh('studentProfile');
+            $user = $user->fresh(['studentProfile', 'coordinator']);
 
             AuditLogger::log(
                 module: 'Students',
@@ -195,10 +239,12 @@ class StudentForm extends Form
             return;
         }
 
+        $this->ensureManagedByCurrentCoordinator();
+
         $this->validate();
 
         DB::transaction(function () {
-            $user = $this->student->load('studentProfile');
+            $user = $this->student->load('studentProfile', 'coordinator');
 
             $oldValues = $this->studentAuditData($user);
 
@@ -247,7 +293,7 @@ class StudentForm extends Form
                 'ojt_required_hours' => $this->ojt_required_hours ?: 0,
             ]);
 
-            $user = $user->fresh('studentProfile');
+            $user = $user->fresh(['studentProfile', 'coordinator']);
 
             AuditLogger::log(
                 module: 'Students',
@@ -273,7 +319,7 @@ class StudentForm extends Form
             text: 'The student has been updated successfully.'
         );
 
-        Flux::modal('edit-student-' . $this->student->id)->close();
+        Flux::modal('edit-student-'.$this->student->id)->close();
     }
 
     public function resetForm(): void

@@ -4,6 +4,7 @@ use App\Enums\Role as EnumsRole;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
@@ -16,12 +17,12 @@ new #[Title('Students')] class extends Component
 
     public array $breadcrumbs = [
         ['logo' => 'logo.png', 'href' => '/dashboard'],
-        ['label' => 'User Management', 'href' => '#'],
-        ['label' => 'Students'],
+        ['label' => 'Coordinator Workspace', 'href' => '#'],
+        ['label' => 'Student Management'],
     ];
 
-    public string $title = 'Students';
-    public string $description = 'Manage student records, monitor progress, and generate reports.';
+    public string $title = 'Student Management';
+    public string $description = 'Create and manage only the students assigned to your coordinator account.';
 
     public string $sortBy = 'name';
     public string $sortDirection = 'asc';
@@ -57,10 +58,11 @@ new #[Title('Students')] class extends Component
     public function students(): LengthAwarePaginator
     {
         $query = User::query()
-            ->with('studentProfile')
+            ->with(['studentProfile', 'coordinator', 'professorProfile'])
             ->whereHas('roles', function (Builder $query) {
                 $query->where('name', EnumsRole::STUDENT->value);
             })
+            ->where('users.coordinator_id', Auth::id())
             ->leftJoin('student_profiles', 'users.id', '=', 'student_profiles.user_id')
             ->select('users.*');
 

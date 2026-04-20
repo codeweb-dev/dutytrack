@@ -95,15 +95,6 @@
                                 class="md:w-2xl">
                                 <livewire:admin.students.view :student="$student" :key="'view-student-' . $student->id" />
                             </flux:modal>
-
-                            <flux:modal :name="'edit-student-'.$student->id" flyout variant="floating"
-                                class="md:w-2xl">
-                                <livewire:admin.students.edit :student="$student" :key="'edit-student-' . $student->id" />
-                            </flux:modal>
-
-                            <flux:modal :name="'delete-student-'.$student->id" class="min-w-88">
-                                <livewire:admin.students.delete :student="$student" :key="'delete-student-' . $student->id" />
-                            </flux:modal>
                         </flux:table.cell>
                     </flux:table.row>
                 @empty

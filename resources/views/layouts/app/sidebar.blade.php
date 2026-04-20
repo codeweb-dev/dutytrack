@@ -53,9 +53,7 @@
                 <flux:sidebar.toggle class="md:hidden" icon="bars-2" inset="left" />
 
                 <div class="flex items-center gap-3">
-                    <flux:modal.trigger name="announcement">
-                        <flux:button icon="megaphone" variant="subtle" />
-                    </flux:modal.trigger>
+                    <flux:button icon="megaphone" variant="subtle" :href="route('announcements')" wire:navigate />
 
                     <flux:button x-data x-on:click="$flux.dark = ! $flux.dark" icon="moon" variant="subtle" aria-label="Toggle dark mode" />
                     
@@ -116,11 +114,6 @@
                 </div>
             </div>
         </flux:header>
-
-        <flux:modal name="announcement" class="md:max-w-3xl">
-            <livewire:announcement />
-        </flux:modal>
-
         {{ $slot }}
 
         @fluxScripts

@@ -18,6 +18,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
             default => abort(403),
         };
     })->name('dashboard');
+
+    Route::livewire('/announcements', 'pages::announcement')->name('announcements');
 });
 
 Route::group(['middleware' => ['role:admin']], function () {

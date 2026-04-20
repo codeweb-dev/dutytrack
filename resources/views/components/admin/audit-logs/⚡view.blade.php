@@ -169,7 +169,7 @@ new class extends Component {
                             </span>
 
                             <span
-                                class="max-w-[60%] text-sm font-medium text-right text-zinc-900 dark:text-white break-words">
+                                class="max-w-[60%] text-sm font-medium text-right text-zinc-900 dark:text-white wrap-break-word">
                                 @if (is_array($value))
                                     {{ json_encode($value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) }}
                                 @elseif ($value === null || $value === '')
@@ -205,7 +205,7 @@ new class extends Component {
                             </span>
 
                             <span
-                                class="max-w-[60%] text-sm font-medium text-right text-zinc-900 dark:text-white break-words">
+                                class="max-w-[60%] text-sm font-medium text-right text-zinc-900 dark:text-white wrap-break-word">
                                 @if (is_array($value))
                                     {{ json_encode($value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) }}
                                 @elseif ($value === null || $value === '')
@@ -242,7 +242,7 @@ new class extends Component {
                         </span>
 
                         <span
-                            class="max-w-[60%] text-sm font-medium text-right text-zinc-900 dark:text-white break-words">
+                            class="max-w-[60%] text-sm font-medium text-right text-zinc-900 dark:text-white wrap-break-word">
                             @if (is_array($value))
                                 {{ json_encode($value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) }}
                             @elseif ($value === null || $value === '')

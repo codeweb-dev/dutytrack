@@ -46,4 +46,5 @@ new class extends Component {
             wire:navigate>
             Pet Streak
         </flux:sidebar.item>
+    </flux:sidebar.group>
 </flux:sidebar.nav>

@@ -261,7 +261,7 @@ new #[Title('Announcements')] #[Layout('layouts::announcement')] class extends C
 
         @if ($this->announcements->hasPages())
             <div class="pt-2">
-                {{ $this->announcements->links() }}
+                <flux:pagination :paginator="$this->announcements" />
             </div>
         @endif
     </section>

@@ -16,7 +16,7 @@
             </div>
         </div>
 
-        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3 mb-12">
             @forelse ($this->announcements as $announcement)
                 <flux:card class="space-y-4 hover:shadow-md transition">
                     <div class="flex items-start justify-between gap-3">
@@ -98,7 +98,7 @@
         </div>
 
         <div>
-            {{ $this->announcements->links() }}
+            <flux:pagination :paginator="$this->announcements" />
         </div>
     </div>
 </div>

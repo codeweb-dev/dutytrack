@@ -87,7 +87,7 @@
                     'to'       => 'to-blue-700',
                     'shadow'   => 'shadow-blue-200 dark:shadow-blue-950/40',
                     'delay'    => '0',
-                    'image'    => 'drexel.jpeg',
+                    'image'    => 'drex.jpg',
                     'tags'     => ['Reference Manager', 'Diagram Designer'],
                 ],
                 [
@@ -99,7 +99,7 @@
                     'to'       => 'to-emerald-700',
                     'shadow'   => 'shadow-emerald-200 dark:shadow-emerald-950/40',
                     'delay'    => '75',
-                    'image'    => 'khian.jpeg',
+                    'image'    => 'khian.jpg',
                     'tags'     => ['Data Analyst', 'Tester'],
                 ],
                 [
@@ -111,7 +111,7 @@
                     'to'       => 'to-pink-700',
                     'shadow'   => 'shadow-pink-200 dark:shadow-pink-950/40',
                     'delay'    => '150',
-                    'image'    => 'shanley.jpeg',
+                    'image'    => 'shanley.jpg',
                     'tags'     => ['Data Collector', 'RRL Writer'],
                 ],
                 [
@@ -123,7 +123,7 @@
                     'to'       => 'to-violet-700',
                     'shadow'   => 'shadow-violet-200 dark:shadow-violet-950/40',
                     'delay'    => '225',
-                    'image'    => 'althea.jpeg',
+                    'image'    => 'entona.jpg',
                     'tags'     => ['Citation Specialist', 'Literature Reviewer'],
                 ],
             ] as $m)
@@ -137,15 +137,9 @@
                     {{-- Photo area --}}
                     <div class="relative h-52 bg-linear-to-br {{ $m['from'] }} {{ $m['to'] }} overflow-hidden">
                         <img
-                            src="{{ asset('images/team/' . $m['image']) }}"
+                            src="{{ asset('teams/' . $m['image']) }}"
                             alt="{{ $m['name'] }}"
-                            class="w-full h-full object-cover object-top"
-                            onerror="this.style.display='none'" />
-
-                        {{-- Fallback initials shown behind image --}}
-                        <div class="absolute inset-0 flex items-center justify-center">
-                            <span class="text-white text-5xl font-black opacity-30 select-none">{{ $m['initials'] }}</span>
-                        </div>
+                            class="w-full h-full object-cover object-top" />
 
                         {{-- Gender icon badge top-right --}}
                         <div class="absolute top-3 right-3 w-7 h-7 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/30">

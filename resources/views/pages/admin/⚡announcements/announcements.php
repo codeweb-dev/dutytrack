@@ -78,7 +78,7 @@ new #[Title('System Announcements')] class extends Component
 
         $query->orderBy($sortColumn, $sortDirection);
 
-        return $query->paginate(5);
+        return $query->paginate(9);
     }
 
     public function badgeColor(string $type): string

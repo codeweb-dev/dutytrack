@@ -88,6 +88,6 @@ new #[Title('OJT Coordinators Management')] class extends Component {
 
         $query->orderBy($sortColumn, $sortDirection);
 
-        return $query->paginate(5);
+        return $query->paginate(10);
     }
 };

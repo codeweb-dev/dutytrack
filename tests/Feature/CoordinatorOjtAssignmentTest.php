@@ -158,3 +158,25 @@ test('coordinator cannot assign another coordinators student', function () {
 
     expect(OjtAssignment::query()->where('student_id', $otherStudent->id)->exists())->toBeFalse();
 });
+
+test('coordinator cannot assign both a professor and a company supervisor to one student', function () {
+    $coordinator = createCoordinatorForAssignments();
+    $student = createManagedStudent($coordinator);
+    $professor = createProfessor();
+    $supervisor = createCompanySupervisor();
+
+    $this->actingAs($coordinator);
+
+    Livewire::test('coordinator.ojt-assignments.create')
+        ->set('form.student_id', $student->id)
+        ->set('form.ojt_type', 'internal')
+        ->set('form.professor_id', $professor->id)
+        ->set('form.company_supervisor_id', $supervisor->id)
+        ->set('form.start_date', '2026-04-20')
+        ->set('form.required_hours', 600)
+        ->set('form.status', 'active')
+        ->call('save')
+        ->assertHasErrors(['form.company_supervisor_id']);
+
+    expect(OjtAssignment::query()->where('student_id', $student->id)->exists())->toBeFalse();
+});

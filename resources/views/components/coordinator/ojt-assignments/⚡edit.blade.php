@@ -91,7 +91,7 @@ new class extends Component
 <form wire:submit="save" class="space-y-6">
     <div>
         <flux:heading size="lg">Edit OJT Assignment</flux:heading>
-        <flux:subheading class="mt-2">Update the assignee, schedule, and status for this student.</flux:subheading>
+        <flux:subheading class="mt-2">Update the assignment details, but keep only one assignee: professor or company supervisor.</flux:subheading>
     </div>
 
     <div class="grid gap-6">
@@ -110,6 +110,10 @@ new class extends Component
             <flux:radio value="external" icon="briefcase" label="External"
                 description="Assign to a company supervisor" />
         </flux:radio.group>
+
+        <flux:text>
+            A student can only have one assignee for an OJT assignment.
+        </flux:text>
 
         @if ($form->ojt_type === 'internal')
             <flux:select wire:model="form.professor_id" label="Professor">

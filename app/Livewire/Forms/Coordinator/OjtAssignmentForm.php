@@ -47,12 +47,14 @@ class OjtAssignmentForm extends Form
             'ojt_type' => ['required', Rule::in(['internal', 'external'])],
             'professor_id' => [
                 Rule::requiredIf($this->ojt_type === 'internal'),
+                Rule::prohibitedIf($this->ojt_type === 'external'),
                 'nullable',
                 'integer',
                 Rule::exists('users', 'id'),
             ],
             'company_supervisor_id' => [
                 Rule::requiredIf($this->ojt_type === 'external'),
+                Rule::prohibitedIf($this->ojt_type === 'internal'),
                 'nullable',
                 'integer',
                 Rule::exists('users', 'id'),
@@ -75,6 +77,14 @@ class OjtAssignmentForm extends Form
             'start_date' => 'start date',
             'end_date' => 'end date',
             'required_hours' => 'required hours',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'professor_id.prohibited' => 'A professor cannot be assigned when the OJT type is external.',
+            'company_supervisor_id.prohibited' => 'A company supervisor cannot be assigned when the OJT type is internal.',
         ];
     }
 

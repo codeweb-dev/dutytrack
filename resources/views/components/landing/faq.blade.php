@@ -66,7 +66,7 @@
                         <span
                             class="text-sm font-semibold text-gray-900 dark:text-white pr-4">{{ $faq['q'] }}</span>
                         <span
-                            class="flex-shrink-0 w-7 h-7 rounded-full border flex items-center justify-center transition-all duration-300"
+                            class="shrink-0 w-7 h-7 rounded-full border flex items-center justify-center transition-all duration-300"
                             :class="isOpen ? 'bg-red-600 border-red-600' :
                                 'bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-700'">
                             <svg class="size-3.5 transition-transform duration-300"

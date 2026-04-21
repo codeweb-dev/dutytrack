@@ -1,5 +1,4 @@
-<nav x-data="{ scrolled: false }" x-init="window.addEventListener('scroll', () => scrolled = window.scrollY > 10)"
-    :class="scrolled ? 'border-b border-zinc-200 dark:border-zinc-800' : ''"
+<nav x-data="{ scrolled: false }" 
     class="anim-nav sticky top-0 z-50 backdrop-blur-xs transition-all duration-300">
     <div class="max-w-6xl mx-auto w-full">
         <div class="flex items-center justify-between px-12 py-2 w-full rounded-b-xl">

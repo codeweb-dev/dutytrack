@@ -140,19 +140,6 @@
                             src="{{ asset('teams/' . $m['image']) }}"
                             alt="{{ $m['name'] }}"
                             class="w-full h-full object-cover object-top" />
-
-                        {{-- Gender icon badge top-right --}}
-                        <div class="absolute top-3 right-3 w-7 h-7 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/30">
-                            @if($m['gender'] === 'female')
-                                <svg class="size-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="8" r="6"/><path d="M12 14v7M9 18h6"/>
-                                </svg>
-                            @else
-                                <svg class="size-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="10" cy="14" r="6"/><path d="M21 3l-6 6M21 3h-5M21 3v5"/>
-                                </svg>
-                            @endif
-                        </div>
                     </div>
 
                     {{-- Info --}}

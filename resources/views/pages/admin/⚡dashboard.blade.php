@@ -130,6 +130,7 @@ new #[Title('Admin Dashboard')] class extends Component {
                 'icon' => 'academic-cap',
                 'delta' => $this->deltaMeta($studentCurrent, $studentPrevious),
                 'footnote' => 'Last month: ' . number_format($studentPrevious),
+                'link' => '/admin/students',
             ],
             [
                 'title' => 'New Assignments',
@@ -137,6 +138,7 @@ new #[Title('Admin Dashboard')] class extends Component {
                 'icon' => 'briefcase',
                 'delta' => $this->deltaMeta($assignmentCurrent, $assignmentPrevious),
                 'footnote' => 'Last month: ' . number_format($assignmentPrevious),
+                'link' => '/admin/ojt-assignments',
             ],
             [
                 'title' => 'Pending Reviews',
@@ -144,6 +146,7 @@ new #[Title('Admin Dashboard')] class extends Component {
                 'icon' => 'clipboard-document-check',
                 'delta' => $this->deltaMeta($reviewCurrent, $reviewPrevious),
                 'footnote' => 'Last month: ' . number_format($reviewPrevious),
+                'link' => '/admin/evaluations',
             ],
             [
                 'title' => 'Approved Hours',
@@ -151,6 +154,7 @@ new #[Title('Admin Dashboard')] class extends Component {
                 'icon' => 'clock',
                 'delta' => $this->deltaMeta($hoursCurrent, $hoursPrevious),
                 'footnote' => 'Last month: ' . $this->compactHours($hoursPrevious),
+                'link' => '/admin/duty-hours',
             ],
         ];
     }
@@ -286,9 +290,15 @@ new #[Title('Admin Dashboard')] class extends Component {
                     </flux:badge>
                 </div>
 
-                <flux:text class="mt-6">
-                    {{ $card['footnote'] }}
-                </flux:text>
+                <div class="flex items-center justify-between mt-6">
+                    <flux:text>
+                        {{ $card['footnote'] }}
+                    </flux:text>
+
+                    <flux:button href="{{ $card['link'] }}" size="xs" icon:trailing="arrow-up-right" wire:navigate>
+                        View Details
+                    </flux:button>
+                </div>
             </flux:card>
         @endforeach
     </section>
@@ -443,12 +453,12 @@ new #[Title('Admin Dashboard')] class extends Component {
                             <flux:table.cell>
                                 <flux:badge
                                     :color="match ($assignment->status) {
-                                                                                                            'active' => 'lime',
-                                                                                                            'pending' => 'amber',
-                                                                                                            'completed' => 'sky',
-                                                                                                            'cancelled' => 'red',
-                                                                                                            default => 'zinc',
-                                                                                                        }"
+                                                                                                                                                                                    'active' => 'lime',
+                                                                                                                                                                                    'pending' => 'amber',
+                                                                                                                                                                                    'completed' => 'sky',
+                                                                                                                                                                                    'cancelled' => 'red',
+                                                                                                                                                                                    default => 'zinc',
+                                                                                                                                                                                }"
                                     inset="top bottom">
                                     {{ ucfirst($assignment->status) }}
                                 </flux:badge>

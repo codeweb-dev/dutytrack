@@ -57,7 +57,8 @@ new class extends Component
         My Assignments
     </flux:sidebar.item>
 
-    <flux:sidebar.item icon="clipboard-document-list" :badge="$this->attendanceCount" href="#">
+    <flux:sidebar.item icon="clipboard-document-list" :badge="$this->attendanceCount" :href="route('student.attendance')" :current="request()->routeIs('student.attendance')"
+        wire:navigate>
         Attendance
     </flux:sidebar.item>
 

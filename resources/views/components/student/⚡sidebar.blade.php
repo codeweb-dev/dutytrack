@@ -79,7 +79,7 @@ new class extends Component
             wire:navigate>
             Tasks
         </flux:sidebar.item>
-        <flux:sidebar.item icon="bolt" href="{{ route('student.pomodoro') }}" :current="request()->routeIs('student.pomodoro')"
+        <flux:sidebar.item icon="clock" href="{{ route('student.pomodoro') }}" :current="request()->routeIs('student.pomodoro')"
             wire:navigate>
             Pomodoro Timer
         </flux:sidebar.item>

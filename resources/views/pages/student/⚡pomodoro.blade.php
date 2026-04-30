@@ -4,7 +4,10 @@ use Livewire\Component;
 
 new class extends Component
 {
-    //
+    public array $breadcrumbs = [['logo' => 'logo.png', 'href' => '/dashboard'], ['label' => 'Productivity', 'href' => '#'], ['label' => 'Pomodoro Timer']];
+
+    public string $title = 'Pomodoro Timer';
+    public string $description = 'Stay focused with a clean study timer built in the Flux style.';
 };
 ?>
 
@@ -13,25 +16,12 @@ new class extends Component
     x-init="init()"
     class="flex h-full w-full flex-1 flex-col gap-5"
 >
-    <div class="space-y-1">
-        <flux:heading size="xl">
-            Pomodoro Timer
-        </flux:heading>
+    <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
-        <flux:subheading size="lg">
-            Stay focused with a clean study timer built in the Flux style.
-        </flux:subheading>
-    </div>
-
-    <div class="grid flex-1 gap-5 xl:grid-cols-[minmax(0,1.55fr)_minmax(20rem,0.95fr)]">
-        <section
-            class="relative overflow-hidden rounded-[2rem] border border-zinc-200/70 bg-white p-5 shadow-[0_30px_80px_-45px_rgba(15,23,42,0.45)] dark:border-white/10 dark:bg-zinc-900"
+    <div>
+        <flux:card
+            class="relative overflow-hidden bg-white p-5 dark:bg-zinc-900"
         >
-            <div
-                aria-hidden="true"
-                class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(248,113,113,0.12),_transparent_32%),radial-gradient(circle_at_top_right,_rgba(59,130,246,0.12),_transparent_30%),radial-gradient(circle_at_bottom,_rgba(16,185,129,0.10),_transparent_38%)] dark:bg-[radial-gradient(circle_at_top_left,_rgba(248,113,113,0.16),_transparent_32%),radial-gradient(circle_at_top_right,_rgba(59,130,246,0.14),_transparent_30%),radial-gradient(circle_at_bottom,_rgba(16,185,129,0.14),_transparent_38%)]"
-            ></div>
-
             <div class="relative flex h-full flex-col gap-6">
                 <div class="flex flex-wrap items-start justify-between gap-4">
                     <div class="space-y-3">
@@ -55,43 +45,39 @@ new class extends Component
                         </div>
 
                         <div class="space-y-2">
-                            <p class="text-sm font-medium uppercase tracking-[0.24em] text-zinc-400 dark:text-zinc-500">
-                                Current Focus
-                            </p>
-
-                            <h2 class="text-3xl font-semibold tracking-tight text-zinc-950 dark:text-white sm:text-4xl">
+                            <flux:heading size="xl">
                                 <span x-text="activeLabel"></span>
-                            </h2>
+                            </flux:heading>
 
-                            <p class="max-w-2xl text-sm leading-7 text-zinc-600 dark:text-zinc-300">
+                            <flux:text class="max-w-2xl">
                                 Use focused work sessions and short recovery breaks to keep momentum through classwork,
                                 reports, or OJT documentation.
-                            </p>
+                            </flux:text>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                        <div class="rounded-2xl border border-zinc-200/70 bg-white/70 px-4 py-3 dark:border-white/10 dark:bg-white/5">
-                            <p class="text-xs uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Sessions</p>
-                            <p class="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white" x-text="completedSessions"></p>
-                        </div>
+                    <div class="grid grid-cols-3 gap-3">
+                        <flux:card class="px-4 py-3 dark:bg-white/5">
+                            <flux:text class="uppercase tracking-[0.2em] text-xs">Sessions</flux:text>
+                            <flux:heading size="xl" class="mt-2" x-text="completedSessions"></flux:heading>
+                        </flux:card>
 
-                        <div class="rounded-2xl border border-zinc-200/70 bg-white/70 px-4 py-3 dark:border-white/10 dark:bg-white/5">
-                            <p class="text-xs uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Focus Time</p>
-                            <p class="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white" x-text="focusMinutes + 'm'"></p>
-                        </div>
+                        <flux:card class="px-4 py-3 dark:bg-white/5">
+                            <flux:text class="uppercase tracking-[0.2em] text-xs">Focus Time</flux:text>
+                            <flux:heading size="xl" class="mt-2" x-text="focusMinutes + 'm'"></flux:heading>
+                        </flux:card>
 
-                        <div class="rounded-2xl border border-zinc-200/70 bg-white/70 px-4 py-3 dark:border-white/10 dark:bg-white/5 col-span-2 sm:col-span-1">
-                            <p class="text-xs uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Progress</p>
-                            <p class="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white" x-text="Math.round(progress * 100) + '%'"></p>
-                        </div>
+                        <flux:card class="px-4 py-3 dark:bg-white/5">
+                            <flux:text class="uppercase tracking-[0.2em] text-xs">Progress</flux:text>
+                            <flux:heading size="xl" class="mt-2" x-text="Math.round(progress * 100) + '%'"></flux:heading>
+                        </flux:card>
                     </div>
                 </div>
 
                 <div class="grid items-center gap-6 lg:grid-cols-[minmax(18rem,24rem)_minmax(0,1fr)]">
                     <div class="mx-auto flex w-full max-w-[24rem] justify-center">
                         <div class="relative">
-                            <svg class="h-[21rem] w-[21rem] -rotate-90 sm:h-[24rem] sm:w-[24rem]" viewBox="0 0 240 240" aria-hidden="true">
+                            <svg class="h-84 w-84 -rotate-90 sm:h-96 sm:w-96" viewBox="0 0 240 240" aria-hidden="true">
                                 <circle
                                     cx="120"
                                     cy="120"
@@ -135,7 +121,7 @@ new class extends Component
                     </div>
 
                     <div class="space-y-5">
-                        <div class="rounded-[1.75rem] border border-zinc-200/70 bg-white/75 p-5 backdrop-blur dark:border-white/10 dark:bg-white/5">
+                        <flux:card class="dark:bg-white/5">
                             <div class="flex flex-wrap gap-3">
                                 <flux:button x-on:click="toggleTimer()" color="red" variant="primary">
                                     <flux:icon icon="play" x-show="!isRunning" class="size-4" />
@@ -156,29 +142,29 @@ new class extends Component
                                 <button
                                     type="button"
                                     x-on:click="adjustTime(-60)"
-                                    class="rounded-2xl border border-zinc-200/80 bg-white px-4 py-3 text-left transition hover:border-zinc-300 hover:bg-zinc-50 dark:border-white/10 dark:bg-white/5 dark:hover:border-white/20 dark:hover:bg-white/10"
+                                    class="rounded-xl border border-zinc-200/80 bg-white px-4 py-3 text-left transition hover:border-zinc-300 hover:bg-zinc-50 dark:border-white/10 dark:bg-white/5 dark:hover:border-white/20 dark:hover:bg-white/10"
                                 >
-                                    <p class="text-xs uppercase tracking-[0.22em] text-zinc-400 dark:text-zinc-500">Adjust</p>
-                                    <p class="mt-2 text-lg font-semibold text-zinc-950 dark:text-white">-1 min</p>
+                                    <flux:text class="uppercase tracking-[0.22em]">Adjust</flux:text>
+                                    <flux:heading size="lg" class="mt-2">-1 min</flux:heading>
                                 </button>
 
                                 <button
                                     type="button"
                                     x-on:click="adjustTime(60)"
-                                    class="rounded-2xl border border-zinc-200/80 bg-white px-4 py-3 text-left transition hover:border-zinc-300 hover:bg-zinc-50 dark:border-white/10 dark:bg-white/5 dark:hover:border-white/20 dark:hover:bg-white/10"
+                                    class="rounded-xl border border-zinc-200/80 bg-white px-4 py-3 text-left transition hover:border-zinc-300 hover:bg-zinc-50 dark:border-white/10 dark:bg-white/5 dark:hover:border-white/20 dark:hover:bg-white/10"
                                 >
-                                    <p class="text-xs uppercase tracking-[0.22em] text-zinc-400 dark:text-zinc-500">Adjust</p>
-                                    <p class="mt-2 text-lg font-semibold text-zinc-950 dark:text-white">+1 min</p>
+                                    <flux:text class="uppercase tracking-[0.22em]">Adjust</flux:text>
+                                    <flux:heading size="lg" class="mt-2">+1 min</flux:heading>
                                 </button>
 
-                                <div class="rounded-2xl border border-zinc-200/80 bg-white px-4 py-3 dark:border-white/10 dark:bg-white/5">
-                                    <p class="text-xs uppercase tracking-[0.22em] text-zinc-400 dark:text-zinc-500">Cycle</p>
-                                    <p class="mt-2 text-lg font-semibold text-zinc-950 dark:text-white">
+                                <div class="rounded-xl border border-zinc-200/80 bg-white px-4 py-3 dark:border-white/10 dark:bg-white/5">
+                                    <flux:text class="uppercase tracking-[0.22em]">Cycle</flux:text>
+                                    <flux:heading size="lg" class="mt-2">
                                         <span x-text="cycleCount"></span> / 4
-                                    </p>
+                                    </flux:heading>
                                 </div>
                             </div>
-                        </div>
+                        </flux:card>
 
                         <div class="grid gap-3 sm:grid-cols-3">
                             <template x-for="preset in presets" :key="preset.key + '-panel'">
@@ -188,7 +174,7 @@ new class extends Component
                                     x-bind:class="mode === preset.key
                                         ? 'border-transparent bg-zinc-950 text-white shadow-lg shadow-zinc-950/15 dark:bg-white dark:text-zinc-950'
                                         : 'border-zinc-200/80 bg-white/80 text-zinc-700 hover:border-zinc-300 dark:border-white/10 dark:bg-white/5 dark:text-zinc-300 dark:hover:border-white/20'"
-                                    class="rounded-[1.35rem] border p-4 text-left transition"
+                                    class="rounded-xl border p-4 text-left transition"
                                 >
                                     <p class="text-xs uppercase tracking-[0.22em] opacity-60" x-text="preset.short"></p>
                                     <p class="mt-3 text-2xl font-semibold" x-text="preset.minutes + ' min'"></p>
@@ -199,10 +185,10 @@ new class extends Component
                     </div>
                 </div>
             </div>
-        </section>
+        </flux:card>
 
-        <aside class="grid gap-5">
-            <flux:card class="rounded-[1.75rem] border-zinc-200/70 bg-white/90 p-0 dark:border-white/10 dark:bg-zinc-900/90">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-5">
+            <flux:card class="p-0 dark:bg-zinc-900">
                 <div class="border-b border-zinc-200/70 px-5 py-4 dark:border-white/10">
                     <flux:heading size="lg">Session Plan</flux:heading>
                     <flux:subheading size="sm">A simple rhythm for focused student work.</flux:subheading>
@@ -233,7 +219,7 @@ new class extends Component
                 </div>
             </flux:card>
 
-            <flux:card class="rounded-[1.75rem] border-zinc-200/70 bg-white/90 p-0 dark:border-white/10 dark:bg-zinc-900/90">
+            <flux:card class="p-0 dark:bg-zinc-900">
                 <div class="border-b border-zinc-200/70 px-5 py-4 dark:border-white/10">
                     <flux:heading size="lg">Focus Tips</flux:heading>
                     <flux:subheading size="sm">Small habits that make the timer more effective.</flux:subheading>
@@ -262,7 +248,7 @@ new class extends Component
                     </div>
                 </div>
             </flux:card>
-        </aside>
+        </div>
     </div>
 
     <script>

@@ -13,52 +13,82 @@ new class extends Component {
 <div x-data="petStreakApp()" x-init="init()" class="flex h-full w-full flex-1 flex-col gap-5">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
-    <div class="">
-        <flux:card>
-            <div class="relative flex h-full flex-col gap-4">
+    <div>
+        <section
+            class="relative overflow-hidden rounded-[2rem] border border-zinc-200/70 bg-white p-5 shadow-[0_30px_80px_-45px_rgba(15,23,42,0.45)] dark:border-white/10 dark:bg-zinc-900">
+            <div aria-hidden="true"
+                class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(251,191,36,0.16),_transparent_28%),radial-gradient(circle_at_top_right,_rgba(96,165,250,0.16),_transparent_30%),radial-gradient(circle_at_bottom,_rgba(52,211,153,0.18),_transparent_38%)] dark:bg-[radial-gradient(circle_at_top_left,_rgba(251,191,36,0.14),_transparent_28%),radial-gradient(circle_at_top_right,_rgba(96,165,250,0.14),_transparent_30%),radial-gradient(circle_at_bottom,_rgba(52,211,153,0.16),_transparent_38%)]">
+            </div>
+
+            <div class="relative flex h-full flex-col gap-6">
                 <div class="flex flex-wrap items-start justify-between gap-4">
                     <div class="space-y-3">
+                        <div
+                            class="inline-flex items-center gap-2 rounded-full border border-amber-300/50 bg-amber-100/80 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-amber-700 dark:border-amber-400/20 dark:bg-amber-400/10 dark:text-amber-200">
+                            <span class="size-2 rounded-full bg-amber-500"></span>
+                            Study Companion Active
+                        </div>
+
                         <div class="space-y-2">
-                            <flux:heading size="xl">
+                            <h2 class="text-3xl font-semibold tracking-tight text-zinc-950 dark:text-white sm:text-4xl">
                                 <span x-text="pet.name"></span>
                                 is
                                 <span x-text="petMood"></span>
-                            </flux:heading>
+                            </h2>
 
-                            <flux:text>
+                            <p class="max-w-2xl text-sm leading-7 text-zinc-600 dark:text-zinc-300">
                                 Complete your focus sessions and daily work to keep your pet happy, energized, and on a
                                 growing streak.
-                            </flux:text>
+                            </p>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 w-full">
-                        <flux:card class="p-4 w-full">
-                            <flux:text>Current</flux:text>
-                            <flux:heading size="xl" x-text="pet.streak" class="mt-2"></flux:heading>
-                        </flux:card>
+                    <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                        <div
+                            class="rounded-2xl border border-zinc-200/70 bg-white/75 px-4 py-3 dark:border-white/10 dark:bg-white/5">
+                            <p class="text-xs uppercase tracking-[0.22em] text-zinc-400 dark:text-zinc-500">Current</p>
+                            <p class="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white" x-text="pet.streak">
+                            </p>
+                        </div>
 
-                        <flux:card class="p-4 w-full">
-                            <flux:text>Longest</flux:text>
-                            <flux:heading size="xl" x-text="pet.longestStreak" class="mt-2"></flux:heading>
-                        </flux:card>
+                        <div
+                            class="rounded-2xl border border-zinc-200/70 bg-white/75 px-4 py-3 dark:border-white/10 dark:bg-white/5">
+                            <p class="text-xs uppercase tracking-[0.22em] text-zinc-400 dark:text-zinc-500">Longest</p>
+                            <p class="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white"
+                                x-text="pet.longestStreak"></p>
+                        </div>
 
-                        <flux:card class="p-4 w-full">
-                            <flux:text>Level</flux:text>
-                            <flux:heading size="xl" x-text="pet.level" class="mt-2"></flux:heading>
-                        </flux:card>
+                        <div
+                            class="rounded-2xl border border-zinc-200/70 bg-white/75 px-4 py-3 dark:border-white/10 dark:bg-white/5">
+                            <p class="text-xs uppercase tracking-[0.22em] text-zinc-400 dark:text-zinc-500">Level</p>
+                            <p class="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white" x-text="pet.level"></p>
+                        </div>
 
-                        <flux:card class="p-4 w-full">
-                            <flux:text>Stars</flux:text>
-                            <flux:heading size="xl" x-text="pet.stars" class="mt-2"></flux:heading>
-                        </flux:card>
+                        <div
+                            class="rounded-2xl border border-zinc-200/70 bg-white/75 px-4 py-3 dark:border-white/10 dark:bg-white/5">
+                            <p class="text-xs uppercase tracking-[0.22em] text-zinc-400 dark:text-zinc-500">Stars</p>
+                            <p class="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white" x-text="pet.stars"></p>
+                        </div>
                     </div>
                 </div>
 
-                <div class="grid gap-3 grid-cols-1 lg:grid-cols-2">
-                    <div>
-                        <flux:card>
-                            <div class="relative transition duration-300 flex items-center justify-center" x-bind:class="petAnimation">
+                <div class="grid gap-6 lg:grid-cols-[minmax(18rem,24rem)_minmax(0,1fr)]">
+                    <div class="mx-auto flex w-full max-w-[24rem] flex-col items-center">
+                        <div
+                            class="relative flex h-[24rem] w-full items-end justify-center overflow-hidden rounded-[2rem] border border-zinc-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.95)_0%,rgba(244,244,245,0.95)_100%)] px-6 pb-6 pt-10 dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(39,39,42,0.95)_0%,rgba(24,24,27,0.98)_100%)]">
+                            <div
+                                class="absolute inset-x-0 bottom-0 h-20 bg-[radial-gradient(circle_at_center,_rgba(52,211,153,0.22),_transparent_68%)] dark:bg-[radial-gradient(circle_at_center,_rgba(52,211,153,0.18),_transparent_68%)]">
+                            </div>
+                            <div
+                                class="absolute right-5 top-5 rounded-full border border-white/70 bg-white/70 px-3 py-1 text-xs font-medium text-zinc-600 backdrop-blur dark:border-white/10 dark:bg-white/5 dark:text-zinc-300">
+                                <span x-text="pet.stage"></span>
+                            </div>
+
+                            <div class="relative transition duration-300" x-bind:class="petAnimation">
+                                <div
+                                    class="absolute left-1/2 top-8 h-8 w-28 -translate-x-1/2 rounded-full bg-black/10 blur-xl dark:bg-emerald-500/10">
+                                </div>
+
                                 <svg viewBox="0 0 280 260"
                                     class="h-[18rem] w-[18rem] drop-shadow-[0_20px_40px_rgba(15,23,42,0.18)]">
                                     <defs>
@@ -94,7 +124,8 @@ new class extends Component {
                                     <path x-show="pet.happiness < 55" d="M122 188 Q140 172 158 188" stroke="#18181b"
                                         stroke-width="8" fill="none" stroke-linecap="round"></path>
 
-                                    <circle cx="84" cy="166" r="10" fill="#fda4af" opacity="0.7"></circle>
+                                    <circle cx="84" cy="166" r="10" fill="#fda4af" opacity="0.7">
+                                    </circle>
                                     <circle cx="196" cy="166" r="10" fill="#fda4af" opacity="0.7">
                                     </circle>
 
@@ -108,7 +139,8 @@ new class extends Component {
 
                         <div class="mt-4 grid w-full grid-cols-2 gap-3">
                             <template x-for="stat in meters" :key="stat.key">
-                                <flux:card class="p-4 w-full">
+                                <div
+                                    class="rounded-2xl border border-zinc-200/70 bg-white/80 p-4 dark:border-white/10 dark:bg-white/5">
                                     <div class="flex items-center justify-between gap-3">
                                         <p class="text-sm font-medium text-zinc-700 dark:text-zinc-200"
                                             x-text="stat.label"></p>
@@ -121,60 +153,74 @@ new class extends Component {
                                             x-bind:class="stat.bar" x-bind:style="`width: ${pet[stat.key]}%`">
                                         </div>
                                     </div>
-                                </flux:card>
+                                </div>
                             </template>
                         </div>
                     </div>
 
-                    <div class="space-y-4">
-                        <flux:card>
-                            <div class="grid grid-cols-2 gap-3">
-                                <flux:button x-on:click="completeToday()" variant="primary" icon="check">
+                    <div class="space-y-5">
+                        <div
+                            class="rounded-[1.75rem] border border-zinc-200/70 bg-white/80 p-5 backdrop-blur dark:border-white/10 dark:bg-white/5">
+                            <div class="flex flex-wrap gap-3">
+                                <flux:button x-on:click="completeToday()" color="amber" variant="primary"
+                                    icon="check">
                                     Complete Today
                                 </flux:button>
 
-                                <flux:button x-on:click="care('fullness', 12, 3)" icon="gift">
+                                <flux:button x-on:click="care('fullness', 12, 3)" variant="outline" icon="gift">
                                     Feed
                                 </flux:button>
 
-                                <flux:button x-on:click="care('happiness', 14, 4)" icon="sparkles">
+                                <flux:button x-on:click="care('happiness', 14, 4)" variant="outline" icon="sparkles">
                                     Play
                                 </flux:button>
 
-                                <flux:button x-on:click="care('cleanliness', 16, 2)" icon="sun">
+                                <flux:button x-on:click="care('cleanliness', 16, 2)" variant="ghost" icon="sun">
                                     Clean
                                 </flux:button>
                             </div>
 
                             <div class="mt-5 grid gap-3 sm:grid-cols-3">
-                                <flux:card class="p-4">
-                                    <flux:text>
-                                        Daily Goal</flux:text>
-                                    <flux:heading class="mt-2" size="lg"
-                                        x-text="todayDone ? 'Completed' : 'Pending'"></flux:heading>
-                                </flux:card>
+                                <div
+                                    class="rounded-2xl border border-zinc-200/70 bg-zinc-50/80 px-4 py-3 dark:border-white/10 dark:bg-white/5">
+                                    <p class="text-xs uppercase tracking-[0.22em] text-zinc-400 dark:text-zinc-500">
+                                        Daily Goal</p>
+                                    <p class="mt-2 text-lg font-semibold text-zinc-950 dark:text-white"
+                                        x-text="todayDone ? 'Completed' : 'Pending'"></p>
+                                </div>
 
-                                <flux:card class="p-4">
-                                    <flux:text>
-                                        Next Reward</flux:text>
-                                    <flux:heading class="mt-2" size="lg" x-text="nextReward"></flux:heading>
-                                </flux:card>
+                                <div
+                                    class="rounded-2xl border border-zinc-200/70 bg-zinc-50/80 px-4 py-3 dark:border-white/10 dark:bg-white/5">
+                                    <p class="text-xs uppercase tracking-[0.22em] text-zinc-400 dark:text-zinc-500">
+                                        Next Reward</p>
+                                    <p class="mt-2 text-lg font-semibold text-zinc-950 dark:text-white"
+                                        x-text="nextReward"></p>
+                                </div>
 
-                                <flux:card class="p-4">
-                                    <flux:text>Pet Mood</flux:text>
-                                    <flux:heading class="mt-2" size="lg" x-text="petMood"></flux:heading>
-                                </flux:card>
+                                <div
+                                    class="rounded-2xl border border-zinc-200/70 bg-zinc-50/80 px-4 py-3 dark:border-white/10 dark:bg-white/5">
+                                    <p class="text-xs uppercase tracking-[0.22em] text-zinc-400 dark:text-zinc-500">Pet
+                                        Mood</p>
+                                    <p class="mt-2 text-lg font-semibold text-zinc-950 dark:text-white"
+                                        x-text="petMood"></p>
+                                </div>
                             </div>
-                        </flux:card>
+                        </div>
 
-                        <flux:card>
-                            <flux:heading>
-                                Weekly Consistency <flux:badge size="sm" color="red" inset="top bottom">7
-                                    days</flux:badge>
-                            </flux:heading>
-
-                            <flux:text class="mt-2">A quick look at how your
-                                streak has been moving this week.</flux:text>
+                        <div
+                            class="rounded-[1.75rem] border border-zinc-200/70 bg-white/80 p-5 backdrop-blur dark:border-white/10 dark:bg-white/5">
+                            <div class="flex items-center justify-between gap-3">
+                                <div>
+                                    <p class="text-base font-semibold text-zinc-950 dark:text-white">Weekly Consistency
+                                    </p>
+                                    <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-300">A quick look at how your
+                                        streak has been moving this week.</p>
+                                </div>
+                                <div
+                                    class="rounded-full bg-zinc-100 px-3 py-1 text-sm font-medium text-zinc-600 dark:bg-white/10 dark:text-zinc-300">
+                                    7 days
+                                </div>
+                            </div>
 
                             <div class="mt-5 grid grid-cols-7 gap-3">
                                 <template x-for="day in week" :key="day.label">
@@ -190,69 +236,65 @@ new class extends Component {
                                     </div>
                                 </template>
                             </div>
-                        </flux:card>
+                        </div>
                     </div>
                 </div>
             </div>
-        </flux:card>
+        </section>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 mt-5 gap-5">
-            <flux:card>
-                <div class="space-y-2">
-                    <flux:heading size="xl">
-                        Rewards Path
-                    </flux:heading>
-
-                    <flux:text>
-                        Little milestones to keep the streak feeling alive.
-                    </flux:text>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-5">
+            <flux:card
+                class="rounded-[1.75rem] border-zinc-200/70 bg-white/90 p-0 dark:border-white/10 dark:bg-zinc-900/90">
+                <div class="border-b border-zinc-200/70 px-5 py-4 dark:border-white/10">
+                    <flux:heading size="lg">Rewards Path</flux:heading>
+                    <flux:subheading size="sm">Little milestones to keep the streak feeling alive.
+                    </flux:subheading>
                 </div>
 
-                <flux:separator class="my-5" />
-
-                <div class="space-y-3">
+                <div class="space-y-3 p-5">
                     <template x-for="reward in rewards" :key="reward.days">
-                        <flux:card class="transition"
+                        <div class="rounded-2xl border p-4 transition"
                             x-bind:class="pet.streak >= reward.days ?
-                                'border-red-300 bg-red-50 dark:border-red-400/20 dark:bg-red-400/10' :
-                                ''">
+                                'border-emerald-300 bg-emerald-50 dark:border-emerald-400/20 dark:bg-emerald-400/10' :
+                                'border-zinc-200/70 bg-zinc-50/80 dark:border-white/10 dark:bg-white/5'">
                             <div class="flex items-start justify-between gap-3">
                                 <div>
-                                    <flux:heading x-text="reward.title"></flux:heading>
-                                    <flux:text x-text="reward.description" class="mt-2"></flux:text>
+                                    <p class="text-sm font-semibold text-zinc-950 dark:text-white"
+                                        x-text="reward.title"></p>
+                                    <p class="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-300"
+                                        x-text="reward.description"></p>
                                 </div>
-
-                                <flux:badge color="red" variant="outline" size="sm"
-                                    x-text="reward.days + 'd'" />
+                                <div class="rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em]"
+                                    x-bind:class="pet.streak >= reward.days ?
+                                        'bg-emerald-100 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-200' :
+                                        'bg-zinc-200 text-zinc-600 dark:bg-white/10 dark:text-zinc-300'"
+                                    x-text="reward.days + 'd'"></div>
                             </div>
-                        </flux:card>
+                        </div>
                     </template>
                 </div>
             </flux:card>
 
-            <flux:card>
-                <div class="space-y-2">
-                    <flux:heading size="xl">
-                        Care Log
-                    </flux:heading>
-
-                    <flux:text>
-                        Recent interactions with your streak pet.
-                    </flux:text>
+            <flux:card
+                class="rounded-[1.75rem] border-zinc-200/70 bg-white/90 p-0 dark:border-white/10 dark:bg-zinc-900/90">
+                <div class="border-b border-zinc-200/70 px-5 py-4 dark:border-white/10">
+                    <flux:heading size="lg">Care Log</flux:heading>
+                    <flux:subheading size="sm">Recent interactions with your streak pet.</flux:subheading>
                 </div>
 
-                <flux:separator class="my-5" />
-
-                <div class="space-y-3">
+                <div class="space-y-3 p-5">
                     <template x-for="entry in log" :key="entry.id">
-                        <flux:card>
+                        <div
+                            class="rounded-2xl border border-zinc-200/70 bg-zinc-50/80 p-4 dark:border-white/10 dark:bg-white/5">
                             <div class="flex items-center justify-between gap-3">
-                                <flux:heading x-text="entry.title">
-                                </flux:heading>
-                                <flux:badge color="red" x-text="entry.time" />
+                                <p class="text-sm font-semibold text-zinc-950 dark:text-white" x-text="entry.title">
+                                </p>
+                                <span class="text-xs uppercase tracking-[0.22em] text-zinc-400 dark:text-zinc-500"
+                                    x-text="entry.time"></span>
                             </div>
-                            <flux:text class="mt-2" x-text="entry.description"></flux:text>
-                        </flux:card>
+                            <p class="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-300"
+                                x-text="entry.description"></p>
+                        </div>
                     </template>
                 </div>
             </flux:card>

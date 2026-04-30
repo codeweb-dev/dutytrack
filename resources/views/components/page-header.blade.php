@@ -16,10 +16,10 @@
     @endif
 
     <div>
-        <h1 class="text-3xl font-bold">{{ $title }}</h1>
+        <flux:heading size="xl">{{ $title }}</flux:heading>
 
         @if($description)
-            <flux:text class="mt-2">
+            <flux:text class="mt-1">
                 {{ $description }}
             </flux:text>
         @endif

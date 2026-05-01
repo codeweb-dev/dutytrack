@@ -46,7 +46,8 @@
             <div class="space-y-6">
                 <div>
                     <flux:heading size="lg">Filter Assignments</flux:heading>
-                    <flux:text class="mt-2">Filter your assigned students by OJT type and assignment status.</flux:text>
+                    <flux:text class="mt-2">Filter your assigned students by OJT type and assignment status.
+                    </flux:text>
                 </div>
 
                 <flux:select wire:model.live="ojt_type" label="OJT Type">
@@ -69,113 +70,118 @@
             </div>
         </flux:modal>
 
-        <flux:table :paginate="$this->assignments">
-            <flux:table.columns>
-                <flux:table.column>Student</flux:table.column>
-                <flux:table.column>Student ID</flux:table.column>
-                <flux:table.column>Type</flux:table.column>
-                <flux:table.column>Assigned To</flux:table.column>
-                <flux:table.column>Dates</flux:table.column>
-                <flux:table.column>Hours</flux:table.column>
-                <flux:table.column>Status</flux:table.column>
-                <flux:table.column>Actions</flux:table.column>
-            </flux:table.columns>
+        @if ($this->assignments->isEmpty())
+            <flux:card class="flex flex-col items-center gap-4 py-24">
+                <flux:icon name="briefcase" class="size-12" />
+                <div class="text-center">
+                    <flux:heading size="xl">No assignments found</flux:heading>
+                    <flux:text class="mt-2">Try adjusting your search or filter to find what you're looking
+                        for.</flux:text>
+                </div>
+            </flux:card>
+        @else
+            <flux:table :paginate="$this->assignments">
+                <flux:table.columns>
+                    <flux:table.column>Student</flux:table.column>
+                    <flux:table.column>Student ID</flux:table.column>
+                    <flux:table.column>Type</flux:table.column>
+                    <flux:table.column>Assigned To</flux:table.column>
+                    <flux:table.column>Dates</flux:table.column>
+                    <flux:table.column>Hours</flux:table.column>
+                    <flux:table.column>Status</flux:table.column>
+                    <flux:table.column>Actions</flux:table.column>
+                </flux:table.columns>
 
-            <flux:table.rows>
-                @forelse ($this->assignments as $assignment)
-                    @php
-                        $assignee =
-                            $assignment->ojt_type === 'internal'
-                                ? $assignment->professor
-                                : $assignment->companySupervisor;
-                    @endphp
+                <flux:table.rows>
+                    @foreach ($this->assignments as $assignment)
+                        @php
+                            $assignee =
+                                $assignment->ojt_type === 'internal'
+                                    ? $assignment->professor
+                                    : $assignment->companySupervisor;
+                        @endphp
 
-                    <flux:table.row :key="$assignment->id">
-                        <flux:table.cell class="flex items-center gap-3">
-                            <flux:avatar size="md" :src="$assignment->student?->profile_photo_url"
-                                :name="$assignment->student?->name" />
+                        <flux:table.row :key="$assignment->id">
+                            <flux:table.cell class="flex items-center gap-3">
+                                <flux:avatar size="md" :src="$assignment->student?->profile_photo_url"
+                                    :name="$assignment->student?->name" />
 
-                            <div class="flex flex-col">
-                                <span class="font-medium">{{ $assignment->student?->name ?? '—' }}</span>
-                                <span class="text-xs text-zinc-500">{{ $assignment->student?->email ?? '—' }}</span>
-                            </div>
-                        </flux:table.cell>
+                                <div class="flex flex-col">
+                                    <span class="font-medium">{{ $assignment->student?->name ?? '—' }}</span>
+                                    <span class="text-xs text-zinc-500">{{ $assignment->student?->email ?? '—' }}</span>
+                                </div>
+                            </flux:table.cell>
 
-                        <flux:table.cell class="whitespace-nowrap font-medium">
-                            {{ $assignment->student?->studentProfile?->student_id ?? '—' }}
-                        </flux:table.cell>
+                            <flux:table.cell class="whitespace-nowrap font-medium">
+                                {{ $assignment->student?->studentProfile?->student_id ?? '—' }}
+                            </flux:table.cell>
 
-                        <flux:table.cell>
-                            <flux:badge size="sm" color="sky" inset="top bottom">
-                                {{ ucfirst($assignment->ojt_type) }}
-                            </flux:badge>
-                        </flux:table.cell>
+                            <flux:table.cell>
+                                <flux:badge size="sm" color="sky" inset="top bottom">
+                                    {{ ucfirst($assignment->ojt_type) }}
+                                </flux:badge>
+                            </flux:table.cell>
 
-                        <flux:table.cell>
-                            <div class="flex flex-col">
-                                <span>{{ $assignee?->name ?? '—' }}</span>
-                                <span class="text-xs text-zinc-500">
-                                    {{ $assignment->ojt_type === 'internal' ? 'Professor' : 'Company Supervisor' }}
-                                </span>
-                            </div>
-                        </flux:table.cell>
+                            <flux:table.cell>
+                                <div class="flex flex-col">
+                                    <span>{{ $assignee?->name ?? '—' }}</span>
+                                    <span class="text-xs text-zinc-500">
+                                        {{ $assignment->ojt_type === 'internal' ? 'Professor' : 'Company Supervisor' }}
+                                    </span>
+                                </div>
+                            </flux:table.cell>
 
-                        <flux:table.cell>
-                            <div class="flex flex-col text-sm">
-                                <span>{{ $assignment->start_date?->format('M d, Y') ?? '—' }}</span>
-                                <span class="text-xs text-zinc-500">
-                                    Until {{ $assignment->end_date?->format('M d, Y') ?? 'Open-ended' }}
-                                </span>
-                            </div>
-                        </flux:table.cell>
+                            <flux:table.cell>
+                                <div class="flex flex-col text-sm">
+                                    <span>{{ $assignment->start_date?->format('M d, Y') ?? '—' }}</span>
+                                    <span class="text-xs text-zinc-500">
+                                        Until {{ $assignment->end_date?->format('M d, Y') ?? 'Open-ended' }}
+                                    </span>
+                                </div>
+                            </flux:table.cell>
 
-                        <flux:table.cell>
-                            {{ $assignment->required_hours }}
-                        </flux:table.cell>
+                            <flux:table.cell>
+                                {{ $assignment->required_hours }}
+                            </flux:table.cell>
 
-                        <flux:table.cell>
-                            <flux:badge size="sm" :color="$this->badgeColor($assignment->status)" inset="top bottom">
-                                {{ ucfirst($assignment->status) }}
-                            </flux:badge>
-                        </flux:table.cell>
+                            <flux:table.cell>
+                                <flux:badge size="sm" :color="$this->badgeColor($assignment->status)"
+                                    inset="top bottom">
+                                    {{ ucfirst($assignment->status) }}
+                                </flux:badge>
+                            </flux:table.cell>
 
-                        <flux:table.cell>
-                            <flux:dropdown>
-                                <flux:button variant="ghost" size="sm" icon="ellipsis-horizontal" inset="top bottom" />
+                            <flux:table.cell>
+                                <flux:dropdown>
+                                    <flux:button variant="ghost" size="sm" icon="ellipsis-horizontal"
+                                        inset="top bottom" />
 
-                                <flux:menu>
-                                    <flux:modal.trigger :name="'edit-ojt-assignment-'.$assignment->id">
-                                        <flux:menu.item icon="pencil-square">Edit</flux:menu.item>
-                                    </flux:modal.trigger>
+                                    <flux:menu>
+                                        <flux:modal.trigger :name="'edit-ojt-assignment-'.$assignment->id">
+                                            <flux:menu.item icon="pencil-square">Edit</flux:menu.item>
+                                        </flux:modal.trigger>
 
-                                    <flux:menu.separator />
+                                        <flux:menu.separator />
 
-                                    <flux:modal.trigger :name="'delete-ojt-assignment-'.$assignment->id">
-                                        <flux:menu.item variant="danger" icon="trash">Delete</flux:menu.item>
-                                    </flux:modal.trigger>
-                                </flux:menu>
-                            </flux:dropdown>
+                                        <flux:modal.trigger :name="'delete-ojt-assignment-'.$assignment->id">
+                                            <flux:menu.item variant="danger" icon="trash">Delete</flux:menu.item>
+                                        </flux:modal.trigger>
+                                    </flux:menu>
+                                </flux:dropdown>
 
-                            <flux:modal :name="'edit-ojt-assignment-'.$assignment->id" flyout variant="floating"
-                                class="md:w-2xl">
-                                <livewire:coordinator.ojt-assignments.edit :assignment="$assignment"
-                                    :key="'edit-ojt-assignment-' . $assignment->id" />
-                            </flux:modal>
+                                <flux:modal :name="'edit-ojt-assignment-'.$assignment->id" flyout variant="floating"
+                                    class="md:w-2xl">
+                                    <livewire:coordinator.ojt-assignments.edit :assignment="$assignment" :key="'edit-ojt-assignment-' . $assignment->id" />
+                                </flux:modal>
 
-                            <flux:modal :name="'delete-ojt-assignment-'.$assignment->id" class="min-w-88">
-                                <livewire:coordinator.ojt-assignments.delete :assignment="$assignment"
-                                    :key="'delete-ojt-assignment-' . $assignment->id" />
-                            </flux:modal>
-                        </flux:table.cell>
-                    </flux:table.row>
-                @empty
-                    <flux:table.row>
-                        <flux:table.cell colspan="8" class="py-6 text-center text-zinc-500">
-                            No assignments found for your students.
-                        </flux:table.cell>
-                    </flux:table.row>
-                @endforelse
-            </flux:table.rows>
-        </flux:table>
+                                <flux:modal :name="'delete-ojt-assignment-'.$assignment->id" class="min-w-88">
+                                    <livewire:coordinator.ojt-assignments.delete :assignment="$assignment" :key="'delete-ojt-assignment-' . $assignment->id" />
+                                </flux:modal>
+                            </flux:table.cell>
+                        </flux:table.row>
+                    @endforeach
+                </flux:table.rows>
+            </flux:table>
+        @endif
     </div>
 </div>

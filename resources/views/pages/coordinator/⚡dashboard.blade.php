@@ -360,83 +360,88 @@ new #[Title('Coordinator Dashboard')] class extends Component {
         </div>
 
         <div class="mt-6">
-            <flux:table :paginate="$this->recentStudents">
-                <flux:table.columns>
-                    <flux:table.column>Student</flux:table.column>
-                    <flux:table.column>Course</flux:table.column>
-                    <flux:table.column>Assignment</flux:table.column>
-                    <flux:table.column>Status</flux:table.column>
-                    <flux:table.column>Hours</flux:table.column>
-                </flux:table.columns>
+            @if ($this->recentStudents->isEmpty())
+                <flux:card class="flex flex-col items-center gap-4 py-24">
+                    <flux:icon name="academic-cap" class="size-12" />
+                    <div class="text-center">
+                        <flux:heading size="xl">No students found</flux:heading>
+                        <flux:text class="mt-2">Try adjusting your search or filter to find what you're looking
+                            for.</flux:text>
+                    </div>
+                </flux:card>
+            @else
+                <flux:table :paginate="$this->recentStudents">
+                    <flux:table.columns>
+                        <flux:table.column>Student</flux:table.column>
+                        <flux:table.column>Course</flux:table.column>
+                        <flux:table.column>Assignment</flux:table.column>
+                        <flux:table.column>Status</flux:table.column>
+                        <flux:table.column>Hours</flux:table.column>
+                    </flux:table.columns>
 
-                <flux:table.rows>
-                    @forelse ($this->recentStudents as $student)
-                        @php
-                            $assignment = $student->ojtAssignment;
-                            $assignee =
-                                $assignment?->ojt_type === 'internal'
-                                    ? $assignment?->professor?->name
-                                    : $assignment?->companySupervisor?->name;
-                        @endphp
+                    <flux:table.rows>
+                        @foreach ($this->recentStudents as $student)
+                            @php
+                                $assignment = $student->ojtAssignment;
+                                $assignee =
+                                    $assignment?->ojt_type === 'internal'
+                                        ? $assignment?->professor?->name
+                                        : $assignment?->companySupervisor?->name;
+                            @endphp
 
-                        <flux:table.row :key="$student->id">
-                            <flux:table.cell>
-                                <div>
-                                    <div class="font-medium text-zinc-900 dark:text-white">
-                                        {{ $student->name }}
+                            <flux:table.row :key="$student->id">
+                                <flux:table.cell>
+                                    <div>
+                                        <div class="font-medium text-zinc-900 dark:text-white">
+                                            {{ $student->name }}
+                                        </div>
+                                        <div class="text-sm text-zinc-500">
+                                            {{ $student->studentProfile?->student_id ?? 'No student ID' }}
+                                        </div>
                                     </div>
-                                    <div class="text-sm text-zinc-500">
-                                        {{ $student->studentProfile?->student_id ?? 'No student ID' }}
+                                </flux:table.cell>
+
+                                <flux:table.cell>
+                                    <div class="text-sm text-zinc-900 dark:text-white">
+                                        {{ $student->studentProfile?->course ?? '—' }}
                                     </div>
-                                </div>
-                            </flux:table.cell>
+                                    <div class="text-xs text-zinc-500">
+                                        Year {{ $student->studentProfile?->year_level ?? '—' }}
+                                    </div>
+                                </flux:table.cell>
 
-                            <flux:table.cell>
-                                <div class="text-sm text-zinc-900 dark:text-white">
-                                    {{ $student->studentProfile?->course ?? '—' }}
-                                </div>
-                                <div class="text-xs text-zinc-500">
-                                    Year {{ $student->studentProfile?->year_level ?? '—' }}
-                                </div>
-                            </flux:table.cell>
+                                <flux:table.cell>
+                                    {{ $assignee ?? 'Not assigned yet' }}
+                                </flux:table.cell>
 
-                            <flux:table.cell>
-                                {{ $assignee ?? 'Not assigned yet' }}
-                            </flux:table.cell>
+                                <flux:table.cell>
+                                    @if ($assignment)
+                                        <flux:badge
+                                            :color="match ($assignment->status) {
+                                                                                                                                                                                                                        'active' => 'lime',
+                                                                                                                                                                                                                        'pending' => 'amber',
+                                                                                                                                                                                                                        'completed' => 'sky',
+                                                                                                                                                                                                                        'cancelled' => 'red',
+                                                                                                                                                                                                                        default => 'zinc',
+                                                                                                                                                                                                                    }"
+                                            inset="top bottom">
+                                            {{ ucfirst($assignment->status) }}
+                                        </flux:badge>
+                                    @else
+                                        <flux:badge color="zinc" inset="top bottom">
+                                            Unassigned
+                                        </flux:badge>
+                                    @endif
+                                </flux:table.cell>
 
-                            <flux:table.cell>
-                                @if ($assignment)
-                                    <flux:badge
-                                        :color="match ($assignment->status) {
-                                                                                    'active' => 'lime',
-                                                                                    'pending' => 'amber',
-                                                                                    'completed' => 'sky',
-                                                                                    'cancelled' => 'red',
-                                                                                    default => 'zinc',
-                                                                                }"
-                                        inset="top bottom">
-                                        {{ ucfirst($assignment->status) }}
-                                    </flux:badge>
-                                @else
-                                    <flux:badge color="zinc" inset="top bottom">
-                                        Unassigned
-                                    </flux:badge>
-                                @endif
-                            </flux:table.cell>
-
-                            <flux:table.cell>
-                                {{ number_format($student->studentProfile?->ojt_required_hours ?? 0) }} hrs
-                            </flux:table.cell>
-                        </flux:table.row>
-                    @empty
-                        <flux:table.row>
-                            <flux:table.cell colspan="5" class="py-8 text-center text-zinc-500">
-                                No students found.
-                            </flux:table.cell>
-                        </flux:table.row>
-                    @endforelse
-                </flux:table.rows>
-            </flux:table>
+                                <flux:table.cell>
+                                    {{ number_format($student->studentProfile?->ojt_required_hours ?? 0) }} hrs
+                                </flux:table.cell>
+                            </flux:table.row>
+                        @endforeach
+                    </flux:table.rows>
+                </flux:table>
+            @endif
         </div>
     </flux:card>
 </div>

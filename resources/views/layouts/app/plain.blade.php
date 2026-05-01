@@ -1,97 +1,99 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
-    <head>
-        @include('partials.head')
-    </head>
-    <body class="min-h-screen bg-white dark:bg-zinc-800">
-        <flux:header class="block! bg-white lg:bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700">
-            <div class="flex items-center justify-between mt-1">
-                <div class="md:flex items-center gap-3 hidden">
-                    <div class="hidden md:block">
-                        <flux:heading class="hidden md:block" size="sm">
-                            {{ auth()->user()->name }}
-                        </flux:heading>
 
-                        <flux:text class="hidden md:block" size="xs">
-                            {{ auth()->user()->email }}
-                        </flux:text>
-                    </div>
+<head>
+    @include('partials.head')
+</head>
 
-                    <flux:separator vertical class="my-2 mx-3" />
-                    
-                    <livewire:temperature />
+<body class="min-h-screen bg-white dark:bg-zinc-800">
+    <flux:header class="block! bg-white lg:bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700">
+        <div class="flex items-center justify-between mt-1">
+            <div class="md:flex items-center gap-3 hidden">
+                <div class="flex items-center gap-2 mr-6 text-sm text-gray-900 dark:text-white">
+                    <img src="{{ asset('logo.png') }}" alt="Duty Track Logo" width="32" height="32" />
+                    <div>Duty Track</div>
                 </div>
 
-                <flux:sidebar.toggle class="md:hidden" icon="bars-2" inset="left" />
+                <div class="hidden md:block">
+                    <flux:heading class="hidden md:block" size="sm">
+                        {{ auth()->user()->name }}
+                    </flux:heading>
 
-                <div class="flex items-center gap-3">
-                    <flux:button icon="megaphone" variant="subtle" :href="route('announcements')" wire:navigate />
+                    <flux:text class="hidden md:block" size="xs">
+                        {{ auth()->user()->email }}
+                    </flux:text>
+                </div>
 
-                    <flux:button x-data x-on:click="$flux.dark = ! $flux.dark" icon="moon" variant="subtle" aria-label="Toggle dark mode" />
-                    
-                    <flux:button icon="cog-6-tooth" variant="subtle" :href="route('profile.edit')" />
+                <flux:separator vertical class="my-2 mx-3" />
 
-                    <flux:separator vertical class="my-5" />
+                <livewire:temperature />
+            </div>
 
-                    <flux:navbar>
-                        <flux:spacer />
+            <flux:sidebar.toggle class="md:hidden" icon="bars-2" inset="left" />
 
-                        <flux:dropdown position="top" align="start">
-                            <flux:profile 
-                                :avatar="auth()->user()->profile_photo_path ? auth()->user()->profilePhotoUrl() : null" 
-                                :initials="!auth()->user()->profile_photo_path ? auth()->user()->initials() : null" />
+            <div class="flex items-center gap-3">
+                <flux:button icon="megaphone" variant="subtle" :href="route('announcements')" wire:navigate />
 
-                            <flux:menu>
-                                <flux:menu.radio.group>
-                                    <div class="p-0 text-sm font-normal">
-                                        <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
-                                            <flux:avatar
-                                                :name="auth()->user()->name"
-                                                :initials="auth()->user()->initials()"
-                                            />
+                <flux:button x-data x-on:click="$flux.dark = ! $flux.dark" icon="moon" variant="subtle"
+                    aria-label="Toggle dark mode" />
 
-                                            <div class="grid flex-1 text-start text-sm leading-tight">
-                                                <flux:heading class="truncate">{{ auth()->user()->name }}</flux:heading>
-                                                <flux:text class="truncate">{{ auth()->user()->email }}</flux:text>
-                                            </div>
+                <flux:button icon="cog-6-tooth" variant="subtle" :href="route('profile.edit')" />
+
+                <flux:separator vertical class="my-5" />
+
+                <flux:navbar>
+                    <flux:spacer />
+
+                    <flux:dropdown position="top" align="start">
+                        <flux:profile
+                            :avatar="auth()->user()->profile_photo_path ? auth()->user()->profilePhotoUrl() : null"
+                            :initials="!auth()->user()->profile_photo_path ? auth()->user()->initials() : null" />
+
+                        <flux:menu>
+                            <flux:menu.radio.group>
+                                <div class="p-0 text-sm font-normal">
+                                    <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
+                                        <flux:avatar :name="auth()->user()->name"
+                                            :initials="auth()->user()->initials()" />
+
+                                        <div class="grid flex-1 text-start text-sm leading-tight">
+                                            <flux:heading class="truncate">{{ auth()->user()->name }}</flux:heading>
+                                            <flux:text class="truncate">{{ auth()->user()->email }}</flux:text>
                                         </div>
                                     </div>
-                                </flux:menu.radio.group>
+                                </div>
+                            </flux:menu.radio.group>
 
-                                <flux:menu.separator />
+                            <flux:menu.separator />
 
-                                <flux:menu.radio.group>
-                                    <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>
-                                        {{ __('Settings') }}
-                                    </flux:menu.item>
-                                </flux:menu.radio.group>
+                            <flux:menu.radio.group>
+                                <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>
+                                    {{ __('Settings') }}
+                                </flux:menu.item>
+                            </flux:menu.radio.group>
 
-                                <flux:menu.separator />
+                            <flux:menu.separator />
 
-                                <form method="POST" action="{{ route('logout') }}" class="w-full">
-                                    @csrf
-                                    <flux:menu.item
-                                        as="button"
-                                        type="submit"
-                                        icon="arrow-right-start-on-rectangle"
-                                        class="w-full cursor-pointer"
-                                        data-test="logout-button"
-                                    >
-                                        {{ __('Log out') }}
-                                    </flux:menu.item>
-                                </form>
-                            </flux:menu>
-                        </flux:dropdown>
-                    </flux:navbar>
-                </div>
+                            <form method="POST" action="{{ route('logout') }}" class="w-full">
+                                @csrf
+                                <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle"
+                                    class="w-full cursor-pointer" data-test="logout-button">
+                                    {{ __('Log out') }}
+                                </flux:menu.item>
+                            </form>
+                        </flux:menu>
+                    </flux:dropdown>
+                </flux:navbar>
             </div>
-        </flux:header>
-        {{ $slot }}
+        </div>
+    </flux:header>
+    {{ $slot }}
 
-        @fluxScripts
+    @fluxScripts
 
-        @persist('toast')
-            <flux:toast />
-        @endpersist
-    </body>
+    @persist('toast')
+        <flux:toast />
+    @endpersist
+</body>
+
 </html>

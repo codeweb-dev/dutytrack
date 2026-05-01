@@ -136,7 +136,7 @@
                         </flux:table.cell>
 
                         <flux:table.cell class="whitespace-nowrap font-medium">
-                            {{ $log->student?->student_id ?? '—' }}
+                            {{ $log->student?->studentProfile?->student_id ?? '—' }}
                         </flux:table.cell>
 
                         <flux:table.cell>

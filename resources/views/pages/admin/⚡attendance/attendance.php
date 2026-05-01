@@ -89,7 +89,7 @@ new #[Title('Attendance Monitoring')] class extends Component {
     public function attendanceLogs(): LengthAwarePaginator
     {
         return AttendanceLog::query()
-            ->with(['student', 'assignment.professor', 'assignment.companySupervisor'])
+            ->with(['student', 'assignment.professor', 'assignment.companySupervisor', 'student.studentProfile'])
             ->when($this->search !== '', function ($query) {
                 $search = '%' . $this->search . '%';
 

@@ -83,14 +83,12 @@
                 </flux:card>
             @empty
                 <div class="col-span-full">
-                    <flux:card class="flex flex-col items-center justify-center py-12 text-center space-y-3">
-                        <flux:icon name="megaphone" class="h-10 w-10 text-zinc-400" />
-
-                        <flux:heading size="md">No announcements yet</flux:heading>
-
-                        <flux:text>
-                            Create your first announcement to inform users.
-                        </flux:text>
+                    <flux:card class="flex flex-col items-center gap-4 py-24">
+                        <flux:icon name="megaphone" class="size-12" />
+                        <div class="text-center">
+                            <flux:heading size="xl">No announcements yet</flux:heading>
+                            <flux:text class="mt-2">Create your first announcement to inform users.</flux:text>
+                        </div>
                     </flux:card>
                 </div>
             @endforelse

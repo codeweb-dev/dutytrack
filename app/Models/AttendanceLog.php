@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class AttendanceLog extends Model
 {
@@ -11,9 +12,14 @@ class AttendanceLog extends Model
         'ojt_assignment_id',
         'attendance_date',
         'time_in',
+        'time_in_latitude',
+        'time_in_longitude',
+        'time_in_location_accuracy',
+        'time_in_selfie_path',
         'time_out',
         'break_minutes',
         'hours_rendered',
+        'overtime_enabled',
         'status',
         'source',
         'remarks',
@@ -25,10 +31,39 @@ class AttendanceLog extends Model
     protected $casts = [
         'attendance_date' => 'date',
         'time_in' => 'datetime',
+        'time_in_latitude' => 'float',
+        'time_in_longitude' => 'float',
+        'time_in_location_accuracy' => 'integer',
+        'overtime_enabled' => 'boolean',
         'time_out' => 'datetime',
         'is_flagged' => 'boolean',
         'hours_rendered' => 'decimal:2',
     ];
+
+    public function timeInSelfieUrl(): ?string
+    {
+        return $this->time_in_selfie_path ? Storage::url($this->time_in_selfie_path) : null;
+    }
+
+    public function hasTimeInLocation(): bool
+    {
+        return $this->time_in_latitude !== null && $this->time_in_longitude !== null;
+    }
+
+    public function timeInMapUrl(): ?string
+    {
+        if (! $this->hasTimeInLocation()) {
+            return null;
+        }
+
+        return sprintf(
+            'https://www.openstreetmap.org/?mlat=%s&mlon=%s#map=17/%s/%s',
+            $this->time_in_latitude,
+            $this->time_in_longitude,
+            $this->time_in_latitude,
+            $this->time_in_longitude,
+        );
+    }
 
     public function student()
     {

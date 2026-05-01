@@ -58,9 +58,125 @@
                 </flux:card>
             </div>
 
+            @if ($this->todayAttendance)
+                <div class="mt-4 grid gap-3 lg:grid-cols-2">
+                    <div class="rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
+                        <div class="flex items-center justify-between gap-3">
+                            <flux:heading>Time-in Location</flux:heading>
+                            @if ($this->todayAttendance->timeInMapUrl())
+                                <flux:button size="sm" variant="ghost" icon="map" :href="$this->todayAttendance->timeInMapUrl()" target="_blank">
+                                    Open Map
+                                </flux:button>
+                            @endif
+                        </div>
+
+                        @if ($this->todayAttendance->hasTimeInLocation())
+                            <div class="mt-3">
+                                <x-attendance-map
+                                    id="todayAttendanceMap{{ $this->todayAttendance->id }}"
+                                    :latitude="$this->todayAttendance->time_in_latitude"
+                                    :longitude="$this->todayAttendance->time_in_longitude"
+                                />
+                            </div>
+                            <flux:text class="mt-2 text-xs">
+                                {{ number_format($this->todayAttendance->time_in_latitude, 6) }},
+                                {{ number_format($this->todayAttendance->time_in_longitude, 6) }}
+                                @if ($this->todayAttendance->time_in_location_accuracy)
+                                    · ±{{ $this->todayAttendance->time_in_location_accuracy }}m
+                                @endif
+                            </flux:text>
+                        @else
+                            <flux:text class="mt-3">No location captured.</flux:text>
+                        @endif
+                    </div>
+
+                    <div class="rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
+                        <flux:heading>Time-in Selfie</flux:heading>
+
+                        @if ($this->todayAttendance->timeInSelfieUrl())
+                            <img src="{{ $this->todayAttendance->timeInSelfieUrl() }}" alt="Time-in selfie"
+                                class="mt-3 h-44 w-full rounded-lg object-cover">
+                        @else
+                            <flux:text class="mt-3">No selfie captured.</flux:text>
+                        @endif
+                    </div>
+                </div>
+            @endif
+
             <form wire:submit="{{ $this->todayAttendance ? 'clockOut' : 'clockIn' }}" class="mt-6 space-y-4">
-                @if ($this->todayAttendance && ! $this->todayAttendance->time_out)
+                @if (! $this->todayAttendance)
+                    <div x-data="{
+                        locating: false,
+                        message: 'Allow location access to attach your time-in map.',
+                        captureLocation() {
+                            if (!navigator.geolocation) {
+                                this.message = 'Location is not supported by this browser.';
+                                return;
+                            }
+
+                            this.locating = true;
+                            this.message = 'Getting your current location...';
+
+                            navigator.geolocation.getCurrentPosition(
+                                (position) => {
+                                    this.locating = false;
+                                    this.message = 'Location captured.';
+                                    $wire.set('time_in_latitude', position.coords.latitude);
+                                    $wire.set('time_in_longitude', position.coords.longitude);
+                                    $wire.set('time_in_location_accuracy', Math.round(position.coords.accuracy || 0));
+                                },
+                                () => {
+                                    this.locating = false;
+                                    this.message = 'Location permission is needed before clocking in.';
+                                },
+                                { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
+                            );
+                        },
+                    }" x-init="captureLocation()" class="rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                            <div>
+                                <flux:heading>Time-in Location</flux:heading>
+                                <flux:text class="mt-1" x-text="message"></flux:text>
+                            </div>
+
+                            <flux:button type="button" icon="map-pin" x-on:click="captureLocation()" x-bind:disabled="locating">
+                                Capture Location
+                            </flux:button>
+                        </div>
+
+                        @if ($time_in_latitude && $time_in_longitude)
+                            <div class="mt-4">
+                                <x-attendance-map
+                                    id="capturedTimeInMap"
+                                    :latitude="$time_in_latitude"
+                                    :longitude="$time_in_longitude"
+                                />
+                            </div>
+                            <div class="mt-2 flex flex-wrap items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
+                                <span>{{ number_format($time_in_latitude, 6) }}, {{ number_format($time_in_longitude, 6) }}</span>
+                                @if ($time_in_location_accuracy)
+                                    <span>±{{ $time_in_location_accuracy }}m</span>
+                                @endif
+                                <a class="font-medium text-red-600 hover:underline dark:text-red-400"
+                                    href="{{ $this->mapUrl($time_in_latitude, $time_in_longitude) }}" target="_blank">
+                                    Open map
+                                </a>
+                            </div>
+                        @endif
+
+                        @error('time_in_latitude')
+                            <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
+                        @enderror
+                        @error('time_in_longitude')
+                            <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <x-custom-file-upload model="selfie" label="Upload time-in selfie" accept="image/*" capture="user" />
+                @elseif (! $this->todayAttendance->time_out)
                     <flux:input type="number" min="0" max="720" wire:model="break_minutes" label="Break minutes" />
+                    <flux:switch wire:model="overtime_enabled" label="Enable OT"
+                        description="Continue counting rendered hours after 5:00 PM." />
                 @endif
 
                 <flux:textarea wire:model="remarks" label="Remarks" rows="3" badge="Optional"
@@ -92,7 +208,7 @@
 
                     <flux:text>
                         @if ($this->assignment)
-                            {{ ucfirst($this->assignment->ojt_type) }} OJT
+                            {{ ucfirst($this->assignment->ojt_type) }} OJT · 7:00 AM to 5:00 PM
                         @else
                             Waiting for assignment
                         @endif
@@ -115,6 +231,7 @@
                         <flux:table.column>Time Out</flux:table.column>
                         <flux:table.column>Break</flux:table.column>
                         <flux:table.column>Hours</flux:table.column>
+                        <flux:table.column>Evidence</flux:table.column>
                         <flux:table.column>Status</flux:table.column>
                     </flux:table.columns>
 
@@ -125,7 +242,26 @@
                                 <flux:table.cell>{{ $log->time_in?->format('h:i A') ?? '—' }}</flux:table.cell>
                                 <flux:table.cell>{{ $log->time_out?->format('h:i A') ?? '—' }}</flux:table.cell>
                                 <flux:table.cell>{{ $log->break_minutes }} min</flux:table.cell>
-                                <flux:table.cell>{{ number_format((float) $log->hours_rendered, 2) }}</flux:table.cell>
+                                <flux:table.cell>
+                                    {{ number_format((float) $log->hours_rendered, 2) }}
+                                    @if ($log->overtime_enabled)
+                                        <flux:badge size="sm" color="blue" inset="top bottom">OT</flux:badge>
+                                    @endif
+                                </flux:table.cell>
+                                <flux:table.cell>
+                                    <div class="flex items-center gap-2">
+                                        @if ($log->timeInSelfieUrl())
+                                            <img src="{{ $log->timeInSelfieUrl() }}" alt="Time-in selfie"
+                                                class="h-9 w-9 rounded-md object-cover">
+                                        @endif
+
+                                        @if ($log->timeInMapUrl())
+                                            <flux:button size="sm" variant="ghost" icon="map" :href="$log->timeInMapUrl()" target="_blank" />
+                                        @else
+                                            <span class="text-zinc-400">—</span>
+                                        @endif
+                                    </div>
+                                </flux:table.cell>
                                 <flux:table.cell>
                                     <flux:badge size="sm" :color="$this->badgeColor($log->status)" inset="top bottom">
                                         {{ ucfirst($log->status) }}
@@ -134,7 +270,7 @@
                             </flux:table.row>
                         @empty
                             <flux:table.row>
-                                <flux:table.cell colspan="6" class="py-8 text-center text-zinc-500">
+                                <flux:table.cell colspan="7" class="py-8 text-center text-zinc-500">
                                     No attendance records found.
                                 </flux:table.cell>
                             </flux:table.row>

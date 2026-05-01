@@ -89,66 +89,77 @@
             </div>
         </flux:modal>
 
-        <flux:table :paginate="$this->evaluations">
-            <flux:table.columns>
-                <flux:table.column>Student</flux:table.column>
-                <flux:table.column>ID</flux:table.column>
-                <flux:table.column>OJT Type</flux:table.column>
-                <flux:table.column>Evaluator</flux:table.column>
-                <flux:table.column>Date</flux:table.column>
-                <flux:table.column>Rating</flux:table.column>
-                <flux:table.column>Status</flux:table.column>
-                <flux:table.column>Remarks</flux:table.column>
-            </flux:table.columns>
+        @if ($this->evaluations->isEmpty())
+            <flux:card class="flex flex-col items-center gap-4 py-24">
+                <flux:icon name="check-badge" class="size-12" />
+                <div class="text-center">
+                    <flux:heading size="xl">No Evaluation Records found</flux:heading>
+                    <flux:text class="mt-2">Try adjusting your search or filter to find what you're looking
+                        for.</flux:text>
+                </div>
+            </flux:card>
+        @else
+            <flux:table :paginate="$this->evaluations">
+                <flux:table.columns>
+                    <flux:table.column>Student</flux:table.column>
+                    <flux:table.column>ID</flux:table.column>
+                    <flux:table.column>OJT Type</flux:table.column>
+                    <flux:table.column>Evaluator</flux:table.column>
+                    <flux:table.column>Date</flux:table.column>
+                    <flux:table.column>Rating</flux:table.column>
+                    <flux:table.column>Status</flux:table.column>
+                    <flux:table.column>Remarks</flux:table.column>
+                </flux:table.columns>
 
-            <flux:table.rows>
-                @forelse ($this->evaluations as $evaluation)
-                    <flux:table.row :key="$evaluation->id">
-                        <flux:table.cell>
-                            {{ $evaluation->student?->name ?? trim(($evaluation->student?->first_name ?? '') . ' ' . ($evaluation->student?->last_name ?? '')) }}
-                        </flux:table.cell>
+                <flux:table.rows>
+                    @forelse ($this->evaluations as $evaluation)
+                        <flux:table.row :key="$evaluation->id">
+                            <flux:table.cell>
+                                {{ $evaluation->student?->name ?? trim(($evaluation->student?->first_name ?? '') . ' ' . ($evaluation->student?->last_name ?? '')) }}
+                            </flux:table.cell>
 
-                        <flux:table.cell>
-                            {{ $evaluation->student?->student_id ?? '—' }}
-                        </flux:table.cell>
+                            <flux:table.cell>
+                                {{ $evaluation->student?->student_id ?? '—' }}
+                            </flux:table.cell>
 
-                        <flux:table.cell>
-                            <flux:badge size="sm" color="sky" inset="top bottom">
-                                {{ ucfirst($evaluation->assignment?->ojt_type ?? '—') }}
-                            </flux:badge>
-                        </flux:table.cell>
+                            <flux:table.cell>
+                                <flux:badge size="sm" color="sky" inset="top bottom">
+                                    {{ ucfirst($evaluation->assignment?->ojt_type ?? '—') }}
+                                </flux:badge>
+                            </flux:table.cell>
 
-                        <flux:table.cell>
-                            {{ $evaluation->evaluator?->name ?? trim(($evaluation->evaluator?->first_name ?? '') . ' ' . ($evaluation->evaluator?->last_name ?? '')) ?: '—' }}
-                        </flux:table.cell>
+                            <flux:table.cell>
+                                {{ $evaluation->evaluator?->name ?? trim(($evaluation->evaluator?->first_name ?? '') . ' ' . ($evaluation->evaluator?->last_name ?? '')) ?: '—' }}
+                            </flux:table.cell>
 
-                        <flux:table.cell>
-                            {{ $evaluation->evaluation_date?->format('M d, Y') ?? '—' }}
-                        </flux:table.cell>
+                            <flux:table.cell>
+                                {{ $evaluation->evaluation_date?->format('M d, Y') ?? '—' }}
+                            </flux:table.cell>
 
-                        <flux:table.cell>
-                            {{ number_format((float) $evaluation->rating, 2) }}
-                        </flux:table.cell>
+                            <flux:table.cell>
+                                {{ number_format((float) $evaluation->rating, 2) }}
+                            </flux:table.cell>
 
-                        <flux:table.cell>
-                            <flux:badge size="sm" :color="$this->badgeColor($evaluation->status)"
-                                inset="top bottom">
-                                {{ ucfirst($evaluation->status) }}
-                            </flux:badge>
-                        </flux:table.cell>
+                            <flux:table.cell>
+                                <flux:badge size="sm" :color="$this->badgeColor($evaluation->status)"
+                                    inset="top bottom">
+                                    {{ ucfirst($evaluation->status) }}
+                                </flux:badge>
+                            </flux:table.cell>
 
-                        <flux:table.cell>
-                            {{ $evaluation->remarks ?: '—' }}
-                        </flux:table.cell>
-                    </flux:table.row>
-                @empty
-                    <flux:table.row>
-                        <flux:table.cell colspan="8" class="py-6 text-center text-zinc-500">
-                            No evaluation records found.
-                        </flux:table.cell>
-                    </flux:table.row>
-                @endforelse
-            </flux:table.rows>
-        </flux:table>
+                            <flux:table.cell>
+                                {{ $evaluation->remarks ?: '—' }}
+                            </flux:table.cell>
+                        </flux:table.row>
+                    @empty
+                        <flux:table.row>
+                            <flux:table.cell colspan="8" class="py-6 text-center text-zinc-500">
+                                No evaluation records found.
+                            </flux:table.cell>
+                        </flux:table.row>
+                    @endforelse
+                </flux:table.rows>
+            </flux:table>
+        @endif
     </div>
 </div>

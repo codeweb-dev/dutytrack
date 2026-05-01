@@ -68,7 +68,9 @@ new class extends Component {
                             placeholder="Confirm password" viewable />
                     </div>
 
-                    <flux:select wire:model="form.department" label="Department" placeholder="Select department">
+                    <flux:input wire:model="form.department" label="Department" readonly />
+
+                    {{-- <flux:select wire:model="form.department" label="Department" placeholder="Select department">
                         <option value="">Select department</option>
 
                         <option value="Industrial Technology">Industrial Technology</option>
@@ -80,7 +82,7 @@ new class extends Component {
                         <option value="Office Administration">Office Administration</option>
                         <option value="Psychology">Psychology</option>
                         <option value="Teacher Education">Teacher Education</option>
-                    </flux:select>
+                    </flux:select> --}}
                 </div>
             </flux:fieldset>
 

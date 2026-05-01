@@ -2,6 +2,7 @@
     'model' => 'photo',
     'label' => 'Upload file',
     'accept' => 'image/*',
+    'capture' => null,
     'preview' => true,
     'existing' => null,
 ])
@@ -22,7 +23,7 @@
         class="relative flex min-h-56 w-full cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-zinc-300 bg-white p-6 text-center transition hover:border-zinc-400 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:border-zinc-600 dark:hover:bg-zinc-800/60"
         :class="isDropping ? 'border-primary-500 bg-primary-50 dark:bg-primary-950/20' : ''">
         <input id="{{ str_replace('.', '_', $model) }}" type="file" accept="{{ $accept }}"
-            wire:model="{{ $model }}" class="hidden" />
+            @if ($capture) capture="{{ $capture }}" @endif wire:model="{{ $model }}" class="hidden" />
 
         @if ($preview && $file)
             <div class="flex flex-col items-center gap-4">

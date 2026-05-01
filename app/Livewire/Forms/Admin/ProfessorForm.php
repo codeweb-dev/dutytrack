@@ -30,7 +30,7 @@ class ProfessorForm extends Form
     public ?string $contact_number = '';
     public string $password = '';
     public string $password_confirmation = '';
-    public string $department = '';
+    public string $department = 'Computer Science';
 
     public function rules(): array
     {

@@ -8,19 +8,26 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-new #[Title('Attendance Monitoring')] class extends Component {
+new #[Title('Attendance Monitoring')] class extends Component
+{
     use WithPagination;
 
     public array $breadcrumbs = [['logo' => 'logo.png', 'href' => '/dashboard'], ['label' => 'Monitoring', 'href' => '#'], ['label' => 'Attendance Monitoring']];
 
     public string $title = 'Attendance Monitoring';
+
     public string $description = 'Track student attendance, view daily logs, and monitor attendance status.';
 
     public string $search = '';
+
     public string $ojt_type = '';
+
     public string $status = '';
+
     public string $supervisor_id = '';
+
     public ?string $from_date = null;
+
     public ?string $to_date = null;
 
     public ?AttendanceLog $selectedRecord = null;
@@ -91,7 +98,7 @@ new #[Title('Attendance Monitoring')] class extends Component {
         return AttendanceLog::query()
             ->with(['student', 'assignment.professor', 'assignment.companySupervisor', 'student.studentProfile'])
             ->when($this->search !== '', function ($query) {
-                $search = '%' . $this->search . '%';
+                $search = '%'.$this->search.'%';
 
                 $query->whereHas('student', function ($studentQuery) use ($search) {
                     $studentQuery->where(function ($nested) use ($search) {
@@ -109,9 +116,13 @@ new #[Title('Attendance Monitoring')] class extends Component {
                     $assignmentQuery->where('professor_id', $this->supervisor_id)->orWhere('company_supervisor_id', $this->supervisor_id);
                 });
             })
-            ->when($this->status !== '', fn($query) => $query->where('status', $this->status))
-            ->when($this->from_date, fn($query) => $query->whereDate('attendance_date', '>=', $this->from_date))
-            ->when($this->to_date, fn($query) => $query->whereDate('attendance_date', '<=', $this->to_date))
+            ->when($this->status !== '', function ($query) {
+                $this->status === 'incomplete'
+                    ? $query->whereNull('time_out')
+                    : $query->where('status', $this->status);
+            })
+            ->when($this->from_date, fn ($query) => $query->whereDate('attendance_date', '>=', $this->from_date))
+            ->when($this->to_date, fn ($query) => $query->whereDate('attendance_date', '<=', $this->to_date))
             ->latest('attendance_date')
             ->latest('time_in')
             ->paginate(10);
@@ -131,16 +142,20 @@ new #[Title('Attendance Monitoring')] class extends Component {
                     $assignmentQuery->where('professor_id', $this->supervisor_id)->orWhere('company_supervisor_id', $this->supervisor_id);
                 });
             })
-            ->when($this->status !== '', fn($query) => $query->where('status', $this->status))
-            ->when($this->from_date, fn($query) => $query->whereDate('attendance_date', '>=', $this->from_date))
-            ->when($this->to_date, fn($query) => $query->whereDate('attendance_date', '<=', $this->to_date));
+            ->when($this->status !== '', function ($query) {
+                $this->status === 'incomplete'
+                    ? $query->whereNull('time_out')
+                    : $query->where('status', $this->status);
+            })
+            ->when($this->from_date, fn ($query) => $query->whereDate('attendance_date', '>=', $this->from_date))
+            ->when($this->to_date, fn ($query) => $query->whereDate('attendance_date', '<=', $this->to_date));
 
         return [
             'total' => (clone $query)->count(),
             'present' => (clone $query)->where('status', 'present')->count(),
             'late' => (clone $query)->where('status', 'late')->count(),
             'absent' => (clone $query)->where('status', 'absent')->count(),
-            'incomplete' => (clone $query)->where('status', 'incomplete')->count(),
+            'incomplete' => (clone $query)->whereNull('time_out')->count(),
         ];
     }
 

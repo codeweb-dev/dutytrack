@@ -10,9 +10,12 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 
-new #[Title('My Attendance')] class extends Component {
+new #[Title('My Attendance')] class extends Component
+{
+    use WithFileUploads;
     use WithPagination;
 
     public array $breadcrumbs = [
@@ -21,10 +24,27 @@ new #[Title('My Attendance')] class extends Component {
     ];
 
     public string $title = 'My Attendance';
+
     public string $description = 'Record your daily OJT attendance and review your attendance history.';
 
     public int $break_minutes = 0;
+
     public ?string $remarks = null;
+
+    public $selfie = null;
+
+    public ?float $time_in_latitude = null;
+
+    public ?float $time_in_longitude = null;
+
+    public ?int $time_in_location_accuracy = null;
+
+    public bool $overtime_enabled = false;
+
+    public function mount(): void
+    {
+        $this->overtime_enabled = (bool) ($this->todayAttendance?->overtime_enabled ?? false);
+    }
 
     protected function studentId(): int
     {
@@ -43,9 +63,54 @@ new #[Title('My Attendance')] class extends Component {
 
     protected function calculateHours(CarbonInterface $timeIn, CarbonInterface $timeOut, int $breakMinutes): float
     {
-        $minutes = max($timeIn->diffInMinutes($timeOut) - $breakMinutes, 0);
+        $countedStart = $timeIn->greaterThan($this->workdayStart($timeIn))
+            ? $timeIn->copy()
+            : $this->workdayStart($timeIn);
+
+        $countedEnd = $this->overtime_enabled
+            ? $timeOut->copy()
+            : $timeOut->copy()->min($this->workdayEnd($timeIn));
+
+        $minutes = $countedEnd->greaterThan($countedStart)
+            ? max($countedStart->diffInMinutes($countedEnd) - $breakMinutes, 0)
+            : 0;
 
         return round($minutes / 60, 2);
+    }
+
+    protected function workdayStart(CarbonInterface $date): Carbon
+    {
+        return Carbon::instance($date->copy())->setTime(7, 0);
+    }
+
+    protected function workdayEnd(CarbonInterface $date): Carbon
+    {
+        return Carbon::instance($date->copy())->setTime(17, 0);
+    }
+
+    protected function clockInStatus(CarbonInterface $timeIn): string
+    {
+        return $timeIn->greaterThan($this->workdayStart($timeIn)) ? 'late' : 'incomplete';
+    }
+
+    protected function completedStatus(CarbonInterface $timeIn): string
+    {
+        return $timeIn->greaterThan($this->workdayStart($timeIn)) ? 'late' : 'present';
+    }
+
+    public function mapUrl(?float $latitude = null, ?float $longitude = null): ?string
+    {
+        if ($latitude === null || $longitude === null) {
+            return null;
+        }
+
+        return sprintf(
+            'https://www.openstreetmap.org/?mlat=%s&mlon=%s#map=17/%s/%s',
+            $latitude,
+            $longitude,
+            $latitude,
+            $longitude,
+        );
     }
 
     public function clockIn(): void
@@ -64,19 +129,39 @@ new #[Title('My Attendance')] class extends Component {
             return;
         }
 
+        $this->validate([
+            'selfie' => ['required', 'image', 'max:4096'],
+            'time_in_latitude' => ['required', 'numeric', 'between:-90,90'],
+            'time_in_longitude' => ['required', 'numeric', 'between:-180,180'],
+            'time_in_location_accuracy' => ['nullable', 'integer', 'min:0', 'max:100000'],
+            'remarks' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $timeIn = now();
+
         AttendanceLog::create([
             'student_id' => $this->studentId(),
             'ojt_assignment_id' => $assignment->id,
             'attendance_date' => $this->today(),
-            'time_in' => now(),
+            'time_in' => $timeIn,
+            'time_in_latitude' => $this->time_in_latitude,
+            'time_in_longitude' => $this->time_in_longitude,
+            'time_in_location_accuracy' => $this->time_in_location_accuracy,
+            'time_in_selfie_path' => $this->selfie->store('attendance/selfies', 'public'),
             'break_minutes' => 0,
             'hours_rendered' => 0,
-            'status' => 'incomplete',
+            'overtime_enabled' => false,
+            'status' => $this->clockInStatus($timeIn),
             'source' => 'student',
             'remarks' => $this->remarks,
         ]);
 
         $this->remarks = null;
+        $this->selfie = null;
+        $this->time_in_latitude = null;
+        $this->time_in_longitude = null;
+        $this->time_in_location_accuracy = null;
+        $this->overtime_enabled = false;
         $this->resetPage();
         $this->resetAttendanceState();
 
@@ -87,6 +172,7 @@ new #[Title('My Attendance')] class extends Component {
     {
         $this->validate([
             'break_minutes' => ['required', 'integer', 'min:0', 'max:720'],
+            'overtime_enabled' => ['boolean'],
             'remarks' => ['nullable', 'string', 'max:1000'],
         ]);
 
@@ -112,12 +198,14 @@ new #[Title('My Attendance')] class extends Component {
             'time_out' => $timeOut,
             'break_minutes' => $this->break_minutes,
             'hours_rendered' => $hours,
-            'status' => 'present',
+            'overtime_enabled' => $this->overtime_enabled,
+            'status' => $this->completedStatus($timeIn),
             'remarks' => $this->remarks ?: $attendance->remarks,
         ]);
 
         $this->break_minutes = 0;
         $this->remarks = null;
+        $this->overtime_enabled = false;
         $this->resetPage();
         $this->resetAttendanceState();
 
@@ -172,7 +260,7 @@ new #[Title('My Attendance')] class extends Component {
         return [
             'total' => (clone $query)->count(),
             'present' => (clone $query)->where('status', 'present')->count(),
-            'incomplete' => (clone $query)->where('status', 'incomplete')->count(),
+            'incomplete' => (clone $query)->whereNull('time_out')->count(),
             'hours' => (float) (clone $query)->sum('hours_rendered'),
         ];
     }

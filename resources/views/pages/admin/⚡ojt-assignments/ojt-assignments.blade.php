@@ -97,88 +97,93 @@
             </div>
         </flux:modal>
 
-        <flux:table :paginate="$this->assignments">
-            <flux:table.columns>
-                <flux:table.column>Student</flux:table.column>
-                <flux:table.column>ID</flux:table.column>
-                <flux:table.column>OJT Type</flux:table.column>
-                <flux:table.column>Supervisor</flux:table.column>
-                <flux:table.column>Start Date</flux:table.column>
-                <flux:table.column>End Date</flux:table.column>
-                <flux:table.column>Required Hours</flux:table.column>
-                <flux:table.column>Status</flux:table.column>
-                <flux:table.column>Remarks</flux:table.column>
-            </flux:table.columns>
+        @if ($this->assignments->isEmpty())
+            <flux:card class="flex flex-col items-center gap-4 py-24">
+                <flux:icon name="briefcase" class="size-12" />
+                <div class="text-center">
+                    <flux:heading size="xl">No OJT assignments found</flux:heading>
+                    <flux:text class="mt-2">Try adjusting your search or filter to find what you're looking
+                        for.</flux:text>
+                </div>
+            </flux:card>
+        @else
+            <flux:table :paginate="$this->assignments">
+                <flux:table.columns>
+                    <flux:table.column>Student</flux:table.column>
+                    <flux:table.column>ID</flux:table.column>
+                    <flux:table.column>OJT Type</flux:table.column>
+                    <flux:table.column>Supervisor</flux:table.column>
+                    <flux:table.column>Start Date</flux:table.column>
+                    <flux:table.column>End Date</flux:table.column>
+                    <flux:table.column>Required Hours</flux:table.column>
+                    <flux:table.column>Status</flux:table.column>
+                    <flux:table.column>Remarks</flux:table.column>
+                </flux:table.columns>
 
-            <flux:table.rows>
-                @forelse ($this->assignments as $assignment)
-                    @php
-                        $supervisor =
-                            $assignment->ojt_type === 'internal'
-                                ? $assignment->professor
-                                : $assignment->companySupervisor;
-                    @endphp
+                <flux:table.rows>
+                    @foreach ($this->assignments as $assignment)
+                        @php
+                            $supervisor =
+                                $assignment->ojt_type === 'internal'
+                                    ? $assignment->professor
+                                    : $assignment->companySupervisor;
+                        @endphp
 
-                    <flux:table.row :key="$assignment->id">
-                        <flux:table.cell class="flex items-center gap-3">
-                            <flux:avatar size="md" :src="$assignment->student?->profile_photo_url"
-                                :name="$assignment->student?->name" />
+                        <flux:table.row :key="$assignment->id">
+                            <flux:table.cell class="flex items-center gap-3">
+                                <flux:avatar size="md" :src="$assignment->student?->profile_photo_url"
+                                    :name="$assignment->student?->name" />
 
-                            <div class="flex flex-col">
-                                <span class="font-medium">
-                                    {{ $assignment->student?->name ?? trim(($assignment->student?->first_name ?? '') . ' ' . ($assignment->student?->last_name ?? '')) }}
-                                </span>
-                                <span class="text-xs text-zinc-500">
-                                    {{ $assignment->student?->email }}
-                                </span>
-                            </div>
-                        </flux:table.cell>
+                                <div class="flex flex-col">
+                                    <span class="font-medium">
+                                        {{ $assignment->student?->name ?? trim(($assignment->student?->first_name ?? '') . ' ' . ($assignment->student?->last_name ?? '')) }}
+                                    </span>
+                                    <span class="text-xs text-zinc-500">
+                                        {{ $assignment->student?->email }}
+                                    </span>
+                                </div>
+                            </flux:table.cell>
 
-                        <flux:table.cell class="whitespace-nowrap font-medium">
-                            {{ $assignment->student?->studentProfile?->student_id ?? '—' }}
-                        </flux:table.cell>
+                            <flux:table.cell class="whitespace-nowrap font-medium">
+                                {{ $assignment->student?->studentProfile?->student_id ?? '—' }}
+                            </flux:table.cell>
 
-                        <flux:table.cell>
-                            <flux:badge size="sm" color="sky" inset="top bottom">
-                                {{ ucfirst($assignment->ojt_type ?? '—') }}
-                            </flux:badge>
-                        </flux:table.cell>
+                            <flux:table.cell>
+                                <flux:badge size="sm" color="sky" inset="top bottom">
+                                    {{ ucfirst($assignment->ojt_type ?? '—') }}
+                                </flux:badge>
+                            </flux:table.cell>
 
-                        <flux:table.cell>
-                            {{ $supervisor?->name ?? trim(($supervisor?->first_name ?? '') . ' ' . ($supervisor?->last_name ?? '')) ?: '—' }}
-                        </flux:table.cell>
+                            <flux:table.cell>
+                                {{ $supervisor?->name ?? trim(($supervisor?->first_name ?? '') . ' ' . ($supervisor?->last_name ?? '')) ?: '—' }}
+                            </flux:table.cell>
 
-                        <flux:table.cell>
-                            {{ $assignment->start_date?->format('M d, Y') ?? '—' }}
-                        </flux:table.cell>
+                            <flux:table.cell>
+                                {{ $assignment->start_date?->format('M d, Y') ?? '—' }}
+                            </flux:table.cell>
 
-                        <flux:table.cell>
-                            {{ $assignment->end_date?->format('M d, Y') ?? '—' }}
-                        </flux:table.cell>
+                            <flux:table.cell>
+                                {{ $assignment->end_date?->format('M d, Y') ?? '—' }}
+                            </flux:table.cell>
 
-                        <flux:table.cell>
-                            {{ $assignment->required_hours ?? 0 }}
-                        </flux:table.cell>
+                            <flux:table.cell>
+                                {{ $assignment->required_hours ?? 0 }}
+                            </flux:table.cell>
 
-                        <flux:table.cell>
-                            <flux:badge size="sm" :color="$this->badgeColor($assignment->status)"
-                                inset="top bottom">
-                                {{ ucfirst($assignment->status) }}
-                            </flux:badge>
-                        </flux:table.cell>
+                            <flux:table.cell>
+                                <flux:badge size="sm" :color="$this->badgeColor($assignment->status)"
+                                    inset="top bottom">
+                                    {{ ucfirst($assignment->status) }}
+                                </flux:badge>
+                            </flux:table.cell>
 
-                        <flux:table.cell>
-                            {{ $assignment->remarks ?: '—' }}
-                        </flux:table.cell>
-                    </flux:table.row>
-                @empty
-                    <flux:table.row>
-                        <flux:table.cell colspan="9" class="py-6 text-center text-zinc-500">
-                            No OJT assignments found.
-                        </flux:table.cell>
-                    </flux:table.row>
-                @endforelse
-            </flux:table.rows>
-        </flux:table>
+                            <flux:table.cell>
+                                {{ $assignment->remarks ?: '—' }}
+                            </flux:table.cell>
+                        </flux:table.row>
+                    @endforeach
+                </flux:table.rows>
+            </flux:table>
+        @endif
     </div>
 </div>

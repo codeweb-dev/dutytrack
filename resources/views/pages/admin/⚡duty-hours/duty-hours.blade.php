@@ -98,88 +98,93 @@
             </div>
         </flux:modal>
 
-        <flux:table :paginate="$this->dutyHourLogs">
-            <flux:table.columns>
-                <flux:table.column>Student</flux:table.column>
-                <flux:table.column>ID</flux:table.column>
-                <flux:table.column>OJT Type</flux:table.column>
-                <flux:table.column>Supervisor</flux:table.column>
-                <flux:table.column>Date</flux:table.column>
-                <flux:table.column>Rendered</flux:table.column>
-                <flux:table.column>Approved</flux:table.column>
-                <flux:table.column>Status</flux:table.column>
-                <flux:table.column>Remarks</flux:table.column>
-            </flux:table.columns>
+        @if ($this->dutyHourLogs->isEmpty())
+            <flux:card class="flex flex-col items-center gap-4 py-24">
+                <flux:icon name="clock" class="size-12" />
+                <div class="text-center">
+                    <flux:heading size="xl">No duty hour logs found</flux:heading>
+                    <flux:text class="mt-2">Try adjusting your search or filter to find what you're looking
+                        for.</flux:text>
+                </div>
+            </flux:card>
+        @else
+            <flux:table :paginate="$this->dutyHourLogs">
+                <flux:table.columns>
+                    <flux:table.column>Student</flux:table.column>
+                    <flux:table.column>ID</flux:table.column>
+                    <flux:table.column>OJT Type</flux:table.column>
+                    <flux:table.column>Supervisor</flux:table.column>
+                    <flux:table.column>Date</flux:table.column>
+                    <flux:table.column>Rendered</flux:table.column>
+                    <flux:table.column>Approved</flux:table.column>
+                    <flux:table.column>Status</flux:table.column>
+                    <flux:table.column>Remarks</flux:table.column>
+                </flux:table.columns>
 
-            <flux:table.rows>
-                @forelse ($this->dutyHourLogs as $log)
-                    @php
-                        $assignment = $log->assignment;
-                        $supervisor =
-                            $assignment?->ojt_type === 'internal'
-                                ? $assignment?->professor
-                                : $assignment?->companySupervisor;
-                    @endphp
+                <flux:table.rows>
+                    @foreach ($this->dutyHourLogs as $log)
+                        @php
+                            $assignment = $log->assignment;
+                            $supervisor =
+                                $assignment?->ojt_type === 'internal'
+                                    ? $assignment?->professor
+                                    : $assignment?->companySupervisor;
+                        @endphp
 
-                    <flux:table.row :key="$log->id">
-                        <flux:table.cell class="flex items-center gap-3">
-                            <flux:avatar size="md" :src="$log->student?->profile_photo_url"
-                                :name="$log->student?->name" />
+                        <flux:table.row :key="$log->id">
+                            <flux:table.cell class="flex items-center gap-3">
+                                <flux:avatar size="md" :src="$log->student?->profile_photo_url"
+                                    :name="$log->student?->name" />
 
-                            <div class="flex flex-col">
-                                <span class="font-medium">
-                                    {{ $log->student?->name ?? $log->student?->first_name . ' ' . $log->student?->last_name }}
-                                </span>
-                                <span class="text-xs text-zinc-500">
-                                    {{ $log->student?->email }}
-                                </span>
-                            </div>
-                        </flux:table.cell>
+                                <div class="flex flex-col">
+                                    <span class="font-medium">
+                                        {{ $log->student?->name ?? $log->student?->first_name . ' ' . $log->student?->last_name }}
+                                    </span>
+                                    <span class="text-xs text-zinc-500">
+                                        {{ $log->student?->email }}
+                                    </span>
+                                </div>
+                            </flux:table.cell>
 
-                        <flux:table.cell class="whitespace-nowrap font-medium">
-                            {{ $log->student?->student_id ?? '—' }}
-                        </flux:table.cell>
+                            <flux:table.cell class="whitespace-nowrap font-medium">
+                                {{ $log->student?->student_id ?? '—' }}
+                            </flux:table.cell>
 
-                        <flux:table.cell>
-                            <flux:badge size="sm" color="sky" inset="top bottom">
-                                {{ ucfirst($assignment?->ojt_type ?? '—') }}
-                            </flux:badge>
-                        </flux:table.cell>
+                            <flux:table.cell>
+                                <flux:badge size="sm" color="sky" inset="top bottom">
+                                    {{ ucfirst($assignment?->ojt_type ?? '—') }}
+                                </flux:badge>
+                            </flux:table.cell>
 
-                        <flux:table.cell>
-                            {{ $supervisor?->name ?? trim(($supervisor?->first_name ?? '') . ' ' . ($supervisor?->last_name ?? '')) ?: '—' }}
-                        </flux:table.cell>
+                            <flux:table.cell>
+                                {{ $supervisor?->name ?? trim(($supervisor?->first_name ?? '') . ' ' . ($supervisor?->last_name ?? '')) ?: '—' }}
+                            </flux:table.cell>
 
-                        <flux:table.cell>
-                            {{ $log->log_date?->format('M d, Y') ?? '—' }}
-                        </flux:table.cell>
+                            <flux:table.cell>
+                                {{ $log->log_date?->format('M d, Y') ?? '—' }}
+                            </flux:table.cell>
 
-                        <flux:table.cell>
-                            {{ number_format((float) $log->hours_rendered, 2) }}
-                        </flux:table.cell>
+                            <flux:table.cell>
+                                {{ number_format((float) $log->hours_rendered, 2) }}
+                            </flux:table.cell>
 
-                        <flux:table.cell>
-                            {{ number_format((float) $log->approved_hours, 2) }}
-                        </flux:table.cell>
+                            <flux:table.cell>
+                                {{ number_format((float) $log->approved_hours, 2) }}
+                            </flux:table.cell>
 
-                        <flux:table.cell>
-                            <flux:badge size="sm" :color="$this->badgeColor($log->status)" inset="top bottom">
-                                {{ ucfirst($log->status) }}
-                            </flux:badge>
-                        </flux:table.cell>
+                            <flux:table.cell>
+                                <flux:badge size="sm" :color="$this->badgeColor($log->status)" inset="top bottom">
+                                    {{ ucfirst($log->status) }}
+                                </flux:badge>
+                            </flux:table.cell>
 
-                        <flux:table.cell>
-                            {{ $log->remarks ?: '—' }}
-                        </flux:table.cell>
-                    </flux:table.row>
-                @empty
-                    <flux:table.row>
-                        <flux:table.cell colspan="9" class="py-6 text-center text-zinc-500">
-                            No duty hour records found.
-                        </flux:table.cell>
-                    </flux:table.row>
-                @endforelse
-            </flux:table.rows>
-        </flux:table>
+                            <flux:table.cell>
+                                {{ $log->remarks ?: '—' }}
+                            </flux:table.cell>
+                        </flux:table.row>
+                    @endforeach
+                </flux:table.rows>
+            </flux:table>
+        @endif
     </div>
 </div>

@@ -115,19 +115,32 @@
                             }
 
                             this.locating = true;
-                            this.message = 'Getting your current location...';
+                            this.message = 'Accept the location permission request to move the map to your current location.';
 
                             navigator.geolocation.getCurrentPosition(
                                 (position) => {
+                                    const location = {
+                                        id: 'capturedTimeInMap',
+                                        latitude: position.coords.latitude,
+                                        longitude: position.coords.longitude,
+                                        accuracy: Math.round(position.coords.accuracy || 0),
+                                    };
+
                                     this.locating = false;
                                     this.message = 'Location captured.';
-                                    $wire.set('time_in_latitude', position.coords.latitude);
-                                    $wire.set('time_in_longitude', position.coords.longitude);
-                                    $wire.set('time_in_location_accuracy', Math.round(position.coords.accuracy || 0));
+                                    window.dispatchEvent(new CustomEvent('attendance-location-found', { detail: location }));
+                                    window.dispatchEvent(new CustomEvent('attendance-location-found', {
+                                        detail: { ...location, id: 'capturedTimeInFullscreenMap' },
+                                    }));
+                                    $wire.set('time_in_latitude', location.latitude);
+                                    $wire.set('time_in_longitude', location.longitude);
+                                    $wire.set('time_in_location_accuracy', location.accuracy);
                                 },
-                                () => {
+                                (error) => {
                                     this.locating = false;
-                                    this.message = 'Location permission is needed before clocking in.';
+                                    this.message = error.code === error.PERMISSION_DENIED
+                                        ? 'Location permission was denied. Allow location access in your browser, then capture again.'
+                                        : 'Unable to get your current location. Check your connection or try again.';
                                 },
                                 { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
                             );
@@ -139,19 +152,28 @@
                                 <flux:text class="mt-1" x-text="message"></flux:text>
                             </div>
 
-                            <flux:button type="button" icon="map-pin" x-on:click="captureLocation()" x-bind:disabled="locating">
-                                Capture Location
-                            </flux:button>
+                            <div class="flex flex-wrap gap-2">
+                                <flux:button type="button" icon="map-pin" x-on:click="captureLocation()" x-bind:disabled="locating">
+                                    Capture Location
+                                </flux:button>
+
+                                <flux:modal.trigger name="attendance-location-map">
+                                    <flux:button type="button" variant="ghost" icon="arrows-pointing-out">
+                                        View Map
+                                    </flux:button>
+                                </flux:modal.trigger>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <x-attendance-location-picker-map
+                                id="capturedTimeInMap"
+                                :latitude="$time_in_latitude"
+                                :longitude="$time_in_longitude"
+                            />
                         </div>
 
                         @if ($time_in_latitude && $time_in_longitude)
-                            <div class="mt-4">
-                                <x-attendance-map
-                                    id="capturedTimeInMap"
-                                    :latitude="$time_in_latitude"
-                                    :longitude="$time_in_longitude"
-                                />
-                            </div>
                             <div class="mt-2 flex flex-wrap items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
                                 <span>{{ number_format($time_in_latitude, 6) }}, {{ number_format($time_in_longitude, 6) }}</span>
                                 @if ($time_in_location_accuracy)
@@ -162,7 +184,49 @@
                                     Open map
                                 </a>
                             </div>
+                        @else
+                            <flux:text class="mt-2 text-xs">
+                                Capture your location to place your time-in marker on the map.
+                            </flux:text>
                         @endif
+
+                        <flux:modal name="attendance-location-map" class="w-[calc(100vw-2rem)] !max-w-6xl">
+                            <div class="space-y-4">
+                                <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                    <div>
+                                        <flux:heading size="lg">Time-in Location Map</flux:heading>
+                                        <flux:text class="mt-2">
+                                            Capture your location to center the map and place your time-in marker.
+                                        </flux:text>
+                                    </div>
+
+                                    <flux:button type="button" icon="map-pin" x-on:click="captureLocation()" x-bind:disabled="locating">
+                                        Capture Location
+                                    </flux:button>
+                                </div>
+
+                                <x-attendance-location-picker-map
+                                    id="capturedTimeInFullscreenMap"
+                                    :latitude="$time_in_latitude"
+                                    :longitude="$time_in_longitude"
+                                    height="height: min(72vh, 42rem)"
+                                    :zoomLevel="$time_in_latitude && $time_in_longitude ? 17 : 13"
+                                />
+
+                                @if ($time_in_latitude && $time_in_longitude)
+                                    <div class="flex flex-wrap items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
+                                        <span>{{ number_format($time_in_latitude, 6) }}, {{ number_format($time_in_longitude, 6) }}</span>
+                                        @if ($time_in_location_accuracy)
+                                            <span>±{{ $time_in_location_accuracy }}m</span>
+                                        @endif
+                                        <a class="font-medium text-red-600 hover:underline dark:text-red-400"
+                                            href="{{ $this->mapUrl($time_in_latitude, $time_in_longitude) }}" target="_blank">
+                                            Open map
+                                        </a>
+                                    </div>
+                                @endif
+                            </div>
+                        </flux:modal>
 
                         @error('time_in_latitude')
                             <p class="mt-2 text-sm text-red-500">{{ $message }}</p>

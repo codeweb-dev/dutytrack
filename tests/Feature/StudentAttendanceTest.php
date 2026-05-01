@@ -48,7 +48,18 @@ test('students can view their attendance page', function () {
         ->get(route('student.attendance'))
         ->assertOk()
         ->assertSee('My Attendance')
-        ->assertSee('Clock In');
+        ->assertSee('Clock In')
+        ->assertSee('View Map')
+        ->assertSee('Time-in Location Map')
+        ->assertSee('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', false)
+        ->assertSee('wire:ignore', false)
+        ->assertSee('data-attendance-location-picker-map', false)
+        ->assertSee('https://tile.openstreetmap.org/{z}/{x}/{y}.png', false)
+        ->assertSee('Accept the location permission request', false)
+        ->assertSee('map.flyTo(point, 17', false)
+        ->assertSee('capturedTimeInFullscreenMap', false)
+        ->assertSee('modal-show', false)
+        ->assertSee('attendance-location-found', false);
 });
 
 test('students can clock in and clock out for attendance', function () {
@@ -90,6 +101,34 @@ test('students can clock in and clock out for attendance', function () {
     expect($attendance->status)->toBe('present');
     expect($attendance->time_out->format('H:i'))->toBe('17:00');
     expect((float) $attendance->hours_rendered)->toBe(9.0);
+});
+
+test('student attendance renders saved location with laravel maps leaflet', function () {
+    Carbon::setTestNow(Carbon::parse('2026-04-30 08:00:00'));
+
+    $student = createStudentWithAssignment();
+    $assignment = OjtAssignment::query()->where('student_id', $student->id)->firstOrFail();
+
+    $attendance = AttendanceLog::create([
+        'student_id' => $student->id,
+        'ojt_assignment_id' => $assignment->id,
+        'attendance_date' => '2026-04-30',
+        'time_in' => Carbon::parse('2026-04-30 07:00:00'),
+        'time_in_latitude' => 14.599512,
+        'time_in_longitude' => 120.984222,
+        'time_in_location_accuracy' => 12,
+        'break_minutes' => 0,
+        'hours_rendered' => 0,
+        'status' => 'incomplete',
+        'source' => 'student',
+    ]);
+
+    $this->actingAs($student)
+        ->get(route('student.attendance'))
+        ->assertOk()
+        ->assertSee('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', false)
+        ->assertSee("L.map('todayAttendanceMap{$attendance->id}')", false)
+        ->assertSee('14.599512, 120.984222', false);
 });
 
 test('early time in only counts from seven am', function () {

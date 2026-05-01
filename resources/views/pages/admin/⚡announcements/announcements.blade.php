@@ -80,7 +80,6 @@
                     <flux:modal :name="'delete-announcement-'.$announcement->id" class="md:w-xl">
                         <livewire:admin.announcements.delete :announcement="$announcement" :key="'delete-announcement-' . $announcement->id" />
                     </flux:modal>
-
                 </flux:card>
             @empty
                 <div class="col-span-full">
@@ -97,8 +96,10 @@
             @endforelse
         </div>
 
-        <div>
-            <flux:pagination :paginator="$this->announcements" />
-        </div>
+        @if (!$this->announcements->isEmpty())
+            <div>
+                <flux:pagination :paginator="$this->announcements" />
+            </div>
+        @endif
     </div>
 </div>

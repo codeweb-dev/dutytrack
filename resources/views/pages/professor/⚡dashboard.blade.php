@@ -240,7 +240,7 @@ new #[Title('Professor Dashboard')] class extends Component {
             </div>
 
             <div class="mt-8">
-                <flux:card class="flex h-92 items-end gap-6 rounded-2xl px-6 pb-6 pt-8">
+                <flux:card class="flex h-154 items-end gap-6 rounded-2xl px-6 pb-6 pt-8">
                     @foreach ($this->weeklyAttendance as $item)
                         <div class="flex min-w-0 flex-1 flex-col items-center gap-3">
                             <div class="flex h-52 w-full items-end justify-center">
@@ -350,7 +350,6 @@ new #[Title('Professor Dashboard')] class extends Component {
                 <flux:table.columns>
                     <flux:table.column>Student</flux:table.column>
                     <flux:table.column>Coordinator</flux:table.column>
-                    <flux:table.column>Company Supervisor</flux:table.column>
                     <flux:table.column>Status</flux:table.column>
                     <flux:table.column>Hours</flux:table.column>
                 </flux:table.columns>
@@ -370,11 +369,7 @@ new #[Title('Professor Dashboard')] class extends Component {
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ $assignment->student?->coordinator?->name ?? 'Unassigned' }}
-                            </flux:table.cell>
-
-                            <flux:table.cell>
-                                {{ $assignment->companySupervisor?->name ?? 'Not assigned yet' }}
+                                {{ $assignment->student?->coordinator?->name ?? '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>

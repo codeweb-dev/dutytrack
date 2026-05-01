@@ -23,7 +23,9 @@ class SupervisorForm extends Form
     public ?string $existing_photo_url = null;
 
     public string $supervisor_id = '';
-    public string $full_name = '';
+    public string $first_name = '';
+    public ?string $middle_name = '';
+    public string $last_name = '';
     public string $email = '';
     public ?string $contact_number = '';
     public string $password = '';
@@ -44,7 +46,9 @@ class SupervisorForm extends Form
                 'max:255',
                 Rule::unique('supervisor_profiles', 'supervisor_id')->ignore($supervisorProfileId),
             ],
-            'full_name' => ['required', 'string', 'max:255'],
+            'first_name' => ['required', 'string', 'max:255'],
+            'middle_name' => ['nullable', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
             'email' => [
                 'required',
                 'string',
@@ -63,11 +67,22 @@ class SupervisorForm extends Form
     {
         return [
             'supervisor_id' => 'supervisor ID',
-            'full_name' => 'full name',
+            'first_name' => 'first name',
+            'middle_name' => 'middle name',
+            'last_name' => 'last name',
             'contact_number' => 'contact number',
             'company_name' => 'company name',
             'company_address' => 'company address',
         ];
+    }
+
+    protected function fullName(): string
+    {
+        return trim(collect([
+            $this->first_name,
+            $this->middle_name,
+            $this->last_name,
+        ])->filter()->implode(' '));
     }
 
     protected function supervisorAuditData(?User $user = null): array
@@ -99,7 +114,9 @@ class SupervisorForm extends Form
             : null;
 
         $this->supervisor_id = $supervisor->supervisorProfile?->supervisor_id ?? '';
-        $this->full_name = $supervisor->name ?? '';
+        $this->first_name = $supervisor->first_name ?? '';
+        $this->middle_name = $supervisor->middle_name ?? '';
+        $this->last_name = $supervisor->last_name ?? '';
         $this->email = $supervisor->email ?? '';
         $this->contact_number = $supervisor->contact_number ?? '';
         $this->company_name = $supervisor->supervisorProfile?->company_name ?? '';
@@ -121,11 +138,13 @@ class SupervisorForm extends Form
                 ? $this->photo->store('supervisors/photos', 'public')
                 : null;
 
+            $fullName = $this->fullName();
+
             $user = User::create([
-                'name' => $this->full_name,
-                'first_name' => $this->full_name,
-                'middle_name' => null,
-                'last_name' => '',
+                'name' => $fullName,
+                'first_name' => $this->first_name,
+                'middle_name' => $this->middle_name ?: null,
+                'last_name' => $this->last_name,
                 'contact_number' => $this->contact_number ?: null,
                 'email' => $this->email,
                 'password' => $this->password,
@@ -192,9 +211,13 @@ class SupervisorForm extends Form
             $this->existing_photo_path = $photoPath;
             $this->existing_photo_url = $photoPath ? Storage::url($photoPath) : null;
 
+            $fullName = $this->fullName();
+
             $user->update([
-                'name' => $this->full_name,
-                'first_name' => $this->full_name,
+                'name' => $fullName,
+                'first_name' => $this->first_name,
+                'middle_name' => $this->middle_name ?: null,
+                'last_name' => $this->last_name,
                 'contact_number' => $this->contact_number ?: null,
                 'email' => $this->email,
                 'profile_photo_path' => $photoPath,
@@ -250,7 +273,9 @@ class SupervisorForm extends Form
         $this->existing_photo_path = null;
         $this->existing_photo_url = null;
         $this->supervisor_id = '';
-        $this->full_name = '';
+        $this->first_name = '';
+        $this->middle_name = '';
+        $this->last_name = '';
         $this->email = '';
         $this->contact_number = '';
         $this->password = '';

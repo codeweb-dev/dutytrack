@@ -164,7 +164,7 @@ new #[Title('Attendance Monitoring')] class extends Component
     {
         return User::query()
             ->role(['professor', 'company_supervisor'])
-            ->orderBy('first_name')
+            ->orderBy('first_name', 'asc')
             ->get();
     }
 };

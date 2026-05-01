@@ -133,7 +133,7 @@
                         intersect:opacity-100 intersect:translate-y-0
                         intersect-once"
                     style="transition-duration: 500ms; transition-delay: {{ $m['delay'] }}ms;">
-                    <div class="relative aspect-[4/3] sm:aspect-[5/4] lg:aspect-[4/3] bg-linear-to-br {{ $m['from'] }} {{ $m['to'] }} overflow-hidden">
+                    <div class="relative aspect-4/3 sm:aspect-5/4 lg:aspect-4/3 bg-linear-to-br {{ $m['from'] }} {{ $m['to'] }} overflow-hidden">
                         <img
                             src="{{ asset('teams/' . $m['image']) }}"
                             alt="{{ $m['name'] }}"

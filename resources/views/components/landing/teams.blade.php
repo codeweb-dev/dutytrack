@@ -76,7 +76,7 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-5">
             @foreach ([
                 [
                     'initials' => 'DM',
@@ -99,7 +99,7 @@
                     'to'       => 'to-emerald-700',
                     'shadow'   => 'shadow-emerald-200 dark:shadow-emerald-950/40',
                     'delay'    => '75',
-                    'image'    => 'khian.jpg',
+                    'image'    => 'khian.png',
                     'tags'     => ['Data Analyst', 'Tester'],
                 ],
                 [
@@ -111,7 +111,7 @@
                     'to'       => 'to-pink-700',
                     'shadow'   => 'shadow-pink-200 dark:shadow-pink-950/40',
                     'delay'    => '150',
-                    'image'    => 'shanley.jpg',
+                    'image'    => 'shanley.png',
                     'tags'     => ['Data Collector', 'RRL Writer'],
                 ],
                 [
@@ -123,34 +123,31 @@
                     'to'       => 'to-violet-700',
                     'shadow'   => 'shadow-violet-200 dark:shadow-violet-950/40',
                     'delay'    => '225',
-                    'image'    => 'entona.jpg',
+                    'image'    => 'entona.png',
                     'tags'     => ['Citation Specialist', 'Literature Reviewer'],
                 ],
             ] as $m)
                 <div
-                    class="group bg-white dark:bg-zinc-900 rounded-2xl border border-gray-100 dark:border-zinc-800 overflow-hidden hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300
+                    class="group w-full sm:max-w-none mx-auto bg-white dark:bg-zinc-900 rounded-2xl border border-gray-100 dark:border-zinc-800 overflow-hidden hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300
                         opacity-0 translate-y-8
                         intersect:opacity-100 intersect:translate-y-0
                         intersect-once"
                     style="transition-duration: 500ms; transition-delay: {{ $m['delay'] }}ms;">
-
-                    {{-- Photo area --}}
-                    <div class="relative h-52 bg-linear-to-br {{ $m['from'] }} {{ $m['to'] }} overflow-hidden">
+                    <div class="relative aspect-[4/3] sm:aspect-[5/4] lg:aspect-[4/3] bg-linear-to-br {{ $m['from'] }} {{ $m['to'] }} overflow-hidden">
                         <img
                             src="{{ asset('teams/' . $m['image']) }}"
                             alt="{{ $m['name'] }}"
-                            class="w-full h-full object-cover object-top" />
+                            class="w-full h-full object-cover" />
                     </div>
 
-                    {{-- Info --}}
                     <div class="p-5">
                         <div class="flex items-center gap-1.5 mb-0.5">
                             <h4 class="text-sm font-bold text-gray-900 dark:text-white leading-tight">{{ $m['name'] }}</h4>
                             <flux:icon.check-badge class="size-4 text-red-500 shrink-0" />
                         </div>
+
                         <p class="text-xs text-gray-400 dark:text-zinc-500 font-semibold uppercase tracking-widest mb-3">{{ $m['role'] }}</p>
 
-                        {{-- Skill tags --}}
                         <div class="flex flex-wrap gap-1.5">
                             @foreach ($m['tags'] as $tag)
                                 <span class="text-xs bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 text-gray-500 dark:text-zinc-400 px-2 py-0.5 rounded-md font-medium">
@@ -159,7 +156,6 @@
                             @endforeach
                         </div>
                     </div>
-
                 </div>
             @endforeach
         </div>

@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
 
 class AttendanceLog extends Model
 {
@@ -15,7 +14,6 @@ class AttendanceLog extends Model
         'time_in_latitude',
         'time_in_longitude',
         'time_in_location_accuracy',
-        'time_in_selfie_path',
         'time_out',
         'break_minutes',
         'hours_rendered',
@@ -39,11 +37,6 @@ class AttendanceLog extends Model
         'is_flagged' => 'boolean',
         'hours_rendered' => 'decimal:2',
     ];
-
-    public function timeInSelfieUrl(): ?string
-    {
-        return $this->time_in_selfie_path ? Storage::url($this->time_in_selfie_path) : null;
-    }
 
     public function hasTimeInLocation(): bool
     {

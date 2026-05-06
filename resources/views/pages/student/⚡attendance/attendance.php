@@ -10,12 +10,10 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
-use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 
 new #[Title('My Attendance')] class extends Component
 {
-    use WithFileUploads;
     use WithPagination;
 
     public array $breadcrumbs = [
@@ -30,8 +28,6 @@ new #[Title('My Attendance')] class extends Component
     public int $break_minutes = 0;
 
     public ?string $remarks = null;
-
-    public $selfie = null;
 
     public ?float $time_in_latitude = null;
 
@@ -130,7 +126,6 @@ new #[Title('My Attendance')] class extends Component
         }
 
         $this->validate([
-            'selfie' => ['required', 'image', 'max:4096'],
             'time_in_latitude' => ['required', 'numeric', 'between:-90,90'],
             'time_in_longitude' => ['required', 'numeric', 'between:-180,180'],
             'time_in_location_accuracy' => ['nullable', 'integer', 'min:0', 'max:100000'],
@@ -147,7 +142,6 @@ new #[Title('My Attendance')] class extends Component
             'time_in_latitude' => $this->time_in_latitude,
             'time_in_longitude' => $this->time_in_longitude,
             'time_in_location_accuracy' => $this->time_in_location_accuracy,
-            'time_in_selfie_path' => $this->selfie->store('attendance/selfies', 'public'),
             'break_minutes' => 0,
             'hours_rendered' => 0,
             'overtime_enabled' => false,
@@ -157,7 +151,6 @@ new #[Title('My Attendance')] class extends Component
         ]);
 
         $this->remarks = null;
-        $this->selfie = null;
         $this->time_in_latitude = null;
         $this->time_in_longitude = null;
         $this->time_in_location_accuracy = null;

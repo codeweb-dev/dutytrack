@@ -35,7 +35,7 @@
                     [
                         'title' => 'Secure Attendance Recording',
                         'desc' =>
-                            'DutyTrack records student attendance with photo capture and location verification to prevent fake time-in and time-out entries.',
+                            'DutyTrack records student attendance with location verification to support accurate time-in and time-out entries without collecting attendance selfies.',
                         'icon' =>
                             '<rect x="5" y="11" width="14" height="11" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
                         'delay' => '0',

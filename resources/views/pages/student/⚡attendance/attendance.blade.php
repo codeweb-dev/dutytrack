@@ -59,7 +59,7 @@
             </div>
 
             @if ($this->todayAttendance)
-                <div class="mt-4 grid gap-3 lg:grid-cols-2">
+                <div class="mt-4">
                     <div class="rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
                         <div class="flex items-center justify-between gap-3">
                             <flux:heading>Time-in Location</flux:heading>
@@ -87,17 +87,6 @@
                             </flux:text>
                         @else
                             <flux:text class="mt-3">No location captured.</flux:text>
-                        @endif
-                    </div>
-
-                    <div class="rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
-                        <flux:heading>Time-in Selfie</flux:heading>
-
-                        @if ($this->todayAttendance->timeInSelfieUrl())
-                            <img src="{{ $this->todayAttendance->timeInSelfieUrl() }}" alt="Time-in selfie"
-                                class="mt-3 h-44 w-full rounded-lg object-cover">
-                        @else
-                            <flux:text class="mt-3">No selfie captured.</flux:text>
                         @endif
                     </div>
                 </div>
@@ -235,8 +224,6 @@
                             <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
                         @enderror
                     </div>
-
-                    <x-custom-file-upload model="selfie" label="Upload time-in selfie" accept="image/*" capture="user" />
                 @elseif (! $this->todayAttendance->time_out)
                     <flux:input type="number" min="0" max="720" wire:model="break_minutes" label="Break minutes" />
                     <flux:switch wire:model="overtime_enabled" label="Enable OT"
@@ -295,7 +282,7 @@
                         <flux:table.column>Time Out</flux:table.column>
                         <flux:table.column>Break</flux:table.column>
                         <flux:table.column>Hours</flux:table.column>
-                        <flux:table.column>Evidence</flux:table.column>
+                        <flux:table.column>Location</flux:table.column>
                         <flux:table.column>Status</flux:table.column>
                     </flux:table.columns>
 
@@ -314,11 +301,6 @@
                                 </flux:table.cell>
                                 <flux:table.cell>
                                     <div class="flex items-center gap-2">
-                                        @if ($log->timeInSelfieUrl())
-                                            <img src="{{ $log->timeInSelfieUrl() }}" alt="Time-in selfie"
-                                                class="h-9 w-9 rounded-md object-cover">
-                                        @endif
-
                                         @if ($log->timeInMapUrl())
                                             <flux:button size="sm" variant="ghost" icon="map" :href="$log->timeInMapUrl()" target="_blank" />
                                         @else

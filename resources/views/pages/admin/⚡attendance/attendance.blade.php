@@ -116,7 +116,7 @@
                     <flux:table.column>Time In</flux:table.column>
                     <flux:table.column>Time Out</flux:table.column>
                     <flux:table.column>Hours</flux:table.column>
-                    <flux:table.column>Evidence</flux:table.column>
+                    <flux:table.column>Location</flux:table.column>
                     <flux:table.column>Status</flux:table.column>
                     <flux:table.column>Remarks</flux:table.column>
                 </flux:table.columns>
@@ -181,11 +181,6 @@
 
                             <flux:table.cell>
                                 <div class="flex items-center gap-2">
-                                    @if ($log->timeInSelfieUrl())
-                                        <img src="{{ $log->timeInSelfieUrl() }}" alt="Time-in selfie"
-                                            class="h-9 w-9 rounded-md object-cover">
-                                    @endif
-
                                     @if ($log->timeInMapUrl())
                                         <flux:button size="sm" variant="ghost" icon="map"
                                             :href="$log->timeInMapUrl()" target="_blank" />

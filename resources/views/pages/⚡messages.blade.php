@@ -360,7 +360,7 @@ new #[Title('Messages')] class extends Component
 };
 ?>
 
-<div class="flex min-h-[calc(100vh-9rem)] flex-col gap-6" x-data="{
+<div class="flex h-[calc(100vh-7rem)] min-h-0 flex-col gap-6 overflow-hidden" x-data="{
     userChannel: null,
     handler: null,
     typingHandler: null,
@@ -419,14 +419,14 @@ new #[Title('Messages')] class extends Component
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
     <div wire:poll.visible.1500ms="refreshMessages"
-        class="grid min-h-136 overflow-hidden rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 lg:grid-cols-[20rem_1fr]">
-        <aside class="border-b border-zinc-200 dark:border-zinc-800 lg:border-b-0 lg:border-r">
-            <div class="border-b border-zinc-200 p-4 dark:border-zinc-800">
+        class="grid min-h-0 flex-1 overflow-hidden rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 lg:grid-cols-[20rem_1fr]">
+        <aside class="flex min-h-0 flex-col border-b border-zinc-200 dark:border-zinc-800 lg:border-b-0 lg:border-r">
+            <div class="shrink-0 border-b border-zinc-200 p-4 dark:border-zinc-800">
                 <flux:heading size="lg">Conversations</flux:heading>
                 <flux:text class="mt-1 text-zinc-500">Assignment contacts only</flux:text>
             </div>
 
-            <div class="max-h-136 overflow-y-auto p-2">
+            <div class="min-h-0 flex-1 overflow-y-auto p-2">
                 @forelse ($this->conversations as $conversation)
                     @php($peer = $this->peerFor($conversation))
 
@@ -466,11 +466,12 @@ new #[Title('Messages')] class extends Component
             </div>
         </aside>
 
-        <section class="flex min-h-136 flex-col">
+        <section class="flex min-h-0 flex-col">
             @if ($this->selectedConversation)
                 @php($peer = $this->peerFor($this->selectedConversation))
 
-                <header class="flex items-center justify-between gap-3 border-b border-zinc-200 p-4 pb-5.5 dark:border-zinc-800">
+                <header
+                    class="flex shrink-0 items-center justify-between gap-3 border-b border-zinc-200 p-4 pb-5.5 dark:border-zinc-800">
                     <div class="flex min-w-0 items-center gap-3">
                         <flux:avatar :name="$peer?->name ?? 'Contact'"
                             :src="$peer?->profile_photo_path ? $peer->profilePhotoUrl() : null" />
@@ -528,18 +529,16 @@ new #[Title('Messages')] class extends Component
 
                 @if ($this->typingUsers->isNotEmpty())
                     <div
-                        class="border-t border-zinc-200 px-4 py-2 text-xs font-medium text-zinc-500 dark:border-zinc-800">
+                        class="shrink-0 border-t border-zinc-200 px-4 py-2 text-xs font-medium text-zinc-500 dark:border-zinc-800">
                         {{ $this->typingUsers->count() === 1 ? $this->typingUsers->first()->name . ' is typing...' : 'Several people are typing...' }}
                     </div>
                 @endif
 
-                <form wire:submit="sendMessage" class="border-t border-zinc-200 p-4 dark:border-zinc-800">
-                    <div class="flex items-end gap-3">
-                        <flux:textarea wire:model="body" rows="2" placeholder="Type your message..." class="flex-1"
+                <form wire:submit="sendMessage" class="shrink-0 border-t border-zinc-200 p-4 dark:border-zinc-800">
+                    <div class="flex items-center gap-3">
+                        <flux:textarea wire:model="body" rows="auto" placeholder="Type your message..." class="flex-1"
                             x-on:input.debounce.250ms="sendTyping()" />
-                        <flux:button type="submit" variant="primary" icon="paper-airplane">
-                            Send
-                        </flux:button>
+                        <flux:button type="submit" variant="primary" icon="paper-airplane" />
                     </div>
                 </form>
             @else

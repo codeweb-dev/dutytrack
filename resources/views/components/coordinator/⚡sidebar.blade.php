@@ -1,18 +1,8 @@
 <?php
 
-use App\Models\AttendanceLog;
-use App\Models\DutyHourLog;
-use App\Models\Evaluation;
-use App\Models\OjtAssignment;
-use App\Models\User;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
-use Livewire\Attributes\Computed;
 use Livewire\Component;
 
-new class extends Component
-{
-};
+new class extends Component {};
 ?>
 
 <flux:sidebar.nav>
@@ -32,6 +22,11 @@ new class extends Component
     </flux:sidebar.item>
 
     <flux:sidebar.group expandable icon="chart-bar-square" heading="Monitoring">
+        <flux:sidebar.item icon="clipboard-document-check" href="{{ route('coordinator.requirements') }}"
+            :current="request()->routeIs('coordinator.requirements')" wire:navigate>
+            Requirements
+        </flux:sidebar.item>
+
         <flux:sidebar.item icon="clipboard-document-list" href="#">
             Attendance
         </flux:sidebar.item>

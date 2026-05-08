@@ -1,7 +1,6 @@
 <?php
 
 use App\Enums\Role as EnumsRole;
-use App\Models\StudentRequirement;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -23,10 +22,13 @@ new #[Title('Students')] class extends Component
     ];
 
     public string $title = 'Student Management';
+
     public string $description = 'Create and manage only the students assigned to your coordinator account.';
 
     public string $sortBy = 'name';
+
     public string $sortDirection = 'asc';
+
     public string $search = '';
 
     public function sort(string $column): void
@@ -59,7 +61,7 @@ new #[Title('Students')] class extends Component
     public function students(): LengthAwarePaginator
     {
         $query = User::query()
-            ->with(['studentProfile', 'coordinator', 'professorProfile', 'studentRequirements'])
+            ->with(['studentProfile', 'coordinator', 'professorProfile'])
             ->whereHas('roles', function (Builder $query) {
                 $query->where('name', EnumsRole::STUDENT->value);
             })
@@ -68,7 +70,7 @@ new #[Title('Students')] class extends Component
             ->select('users.*');
 
         if ($this->search !== '') {
-            $search = '%' . $this->search . '%';
+            $search = '%'.$this->search.'%';
 
             $query->where(function (Builder $query) use ($search) {
                 $query->where('users.name', 'like', $search)
@@ -96,12 +98,6 @@ new #[Title('Students')] class extends Component
 
         $query->orderBy($sortColumn, $sortDirection);
 
-        $students = $query->paginate(5);
-
-        $students->getCollection()->each(function (User $student): void {
-            $student->setRelation('studentRequirements', StudentRequirement::ensureForStudent($student));
-        });
-
-        return $students;
+        return $query->paginate(5);
     }
 };

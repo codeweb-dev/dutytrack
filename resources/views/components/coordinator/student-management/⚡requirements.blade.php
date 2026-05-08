@@ -140,7 +140,7 @@ new class extends Component
 
                                 @if ($requirement->template_path)
                                     <flux:button href="{{ asset($requirement->template_path) }}" target="_blank" download
-                                        icon="document-arrow-down" size="sm">
+                                        icon="document-arrow-down" size="xs">
                                         Template
                                     </flux:button>
                                 @endif

@@ -154,3 +154,21 @@ test('coordinators can check off submitted student requirements', function () {
     expect($requirement->completed_at)->not->toBeNull();
     expect($requirement->completed_by)->toBe($coordinator->id);
 });
+
+test('coordinators can monitor requirements for their own students', function () {
+    $coordinatorA = createCoordinator(['name' => 'Coordinator Requirements A']);
+    $coordinatorB = createCoordinator(['name' => 'Coordinator Requirements B']);
+
+    $ownedStudent = createStudentForCoordinator($coordinatorA, ['name' => 'Requirement Owned Student']);
+    $otherStudent = createStudentForCoordinator($coordinatorB, ['name' => 'Requirement Other Student']);
+
+    StudentRequirement::ensureForStudent($ownedStudent);
+    StudentRequirement::ensureForStudent($otherStudent);
+
+    $this->actingAs($coordinatorA)
+        ->get(route('coordinator.requirements'))
+        ->assertOk()
+        ->assertSee('Requirement Monitoring')
+        ->assertSee($ownedStudent->name)
+        ->assertDontSee($otherStudent->name);
+});

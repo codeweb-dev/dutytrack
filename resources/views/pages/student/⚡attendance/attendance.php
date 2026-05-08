@@ -146,7 +146,6 @@ new #[Title('My Attendance')] class extends Component
             'hours_rendered' => 0,
             'overtime_enabled' => false,
             'status' => $this->clockInStatus($timeIn),
-            'source' => 'student',
             'remarks' => $this->remarks,
         ]);
 

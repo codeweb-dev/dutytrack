@@ -15,15 +15,15 @@
                     <flux:text class="mt-2">Create a task for one or more assigned students.</flux:text>
                 </div>
 
-                <flux:checkbox.group wire:model="student_ids" label="Students" variant="cards"
-                    class="max-sm:flex-col">
+                <flux:checkbox.group wire:model="student_ids" label="Students" variant="cards" class="max-sm:flex-col">
                     @foreach ($this->assignableStudents as $student)
                         <flux:checkbox value="{{ $student->id }}" :label="$student->name"
                             :description="$student->studentProfile?->student_id ?? 'No student ID'" />
                     @endforeach
                 </flux:checkbox.group>
 
-                <flux:input wire:model="task_title" label="Task Title" placeholder="Prepare weekly accomplishment report" />
+                <flux:input wire:model="task_title" label="Task Title"
+                    placeholder="Prepare weekly accomplishment report" />
 
                 <flux:textarea wire:model="task_description" label="Description" rows="4"
                     placeholder="Add instructions, expected output, links, or reminders." />
@@ -68,9 +68,11 @@
                     </header>
 
                     <div class="flex flex-1 flex-col gap-3">
-                        @forelse ($column['tasks'] as $task)
+                        @forelse ($column['tasks'] as $taskCard)
+                            @php($task = $taskCard['task'])
+
                             <div class="flex h-full w-full flex-col rounded-lg border border-neutral-300 bg-white dark:border-neutral-700 dark:bg-zinc-800"
-                                wire:key="professor-task-{{ $task->id }}">
+                                wire:key="professor-task-{{ $taskCard['key'] }}">
                                 <div class="p-4">
                                     <div class="mb-3 flex flex-wrap gap-2">
                                         <flux:badge :color="$this->priorityColor($task->priority)" size="sm">
@@ -96,14 +98,32 @@
                                 <div class="flex items-center justify-between gap-2 px-4 pb-2 pt-3">
                                     <div class="flex min-w-0 items-center gap-2">
                                         <flux:avatar.group>
-                                            <flux:avatar size="xs" name="{{ $task->student?->name ?? 'Student' }}" />
+                                            @foreach ($taskCard['visible_students'] as $student)
+                                                <flux:tooltip :content="$student->name">
+                                                    <flux:avatar size="xs" name="{{ $student->name }}" />
+                                                </flux:tooltip>
+                                            @endforeach
+
+                                            @if ($taskCard['hidden_students'] > 0)
+                                                <flux:avatar size="xs">{{ $taskCard['hidden_students'] }}+
+                                                </flux:avatar>
+                                            @endif
                                         </flux:avatar.group>
 
                                         <div class="min-w-0 text-sm text-neutral-500">
-                                            <span class="block truncate">{{ $task->student?->name ?? 'Student' }}</span>
-                                            <span class="block truncate text-xs">
-                                                {{ $task->student?->studentProfile?->student_id ?? 'No student ID' }}
-                                            </span>
+                                            @if ($taskCard['students']->count() === 1)
+                                                <span
+                                                    class="block truncate">{{ $taskCard['students']->first()?->name ?? 'Student' }}</span>
+                                                <span class="block truncate text-xs">
+                                                    {{ $taskCard['students']->first()?->studentProfile?->student_id ?? 'No student ID' }}
+                                                </span>
+                                            @else
+                                                <span class="block truncate">{{ $taskCard['students']->count() }}
+                                                    students</span>
+                                                <span class="block truncate text-xs">
+                                                    {{ $taskCard['students']->pluck('name')->take(2)->join(', ') }}{{ $taskCard['students']->count() > 2 ? ', +' . ($taskCard['students']->count() - 2) : '' }}
+                                                </span>
+                                            @endif
                                         </div>
                                     </div>
 
@@ -117,7 +137,7 @@
 
                                             <flux:menu>
                                                 <flux:menu.item icon="eye">
-                                                    {{ $task->student?->name ?? 'Student' }}
+                                                    {{ $taskCard['students']->count() === 1 ? $taskCard['students']->first()?->name ?? 'Student' : $taskCard['students']->count() . ' students' }}
                                                 </flux:menu.item>
                                                 <flux:menu.item icon="calendar">
                                                     {{ $task->due_date?->format('M d, Y') ?? 'No due date' }}

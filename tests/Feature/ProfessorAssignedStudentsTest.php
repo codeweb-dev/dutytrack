@@ -114,7 +114,7 @@ test('professors can assign tasks to their assigned students', function () {
 
     $this->actingAs($professor);
 
-    Livewire::test('pages::professor.tasks')
+    $component = Livewire::test('pages::professor.tasks')
         ->set('student_ids', [$studentA->id, $studentB->id])
         ->set('task_title', 'Prepare weekly accomplishment report')
         ->set('task_description', 'Summarize completed OJT activities for this week.')
@@ -129,7 +129,16 @@ test('professors can assign tasks to their assigned students', function () {
     expect($task->assigned_by)->toBe($professor->id);
     expect($task->title)->toBe('Prepare weekly accomplishment report');
     expect($task->priority)->toBe('high');
-    expect(StudentTask::query()->where('student_id', $studentB->id)->where('title', 'Prepare weekly accomplishment report')->exists())->toBeTrue();
+
+    $otherTask = StudentTask::query()->where('student_id', $studentB->id)->where('title', 'Prepare weekly accomplishment report')->first();
+
+    expect($otherTask)->not->toBeNull();
+    expect($otherTask->task_group_id)->toBe($task->task_group_id);
+
+    $pendingColumn = collect($component->instance()->displayColumns())->firstWhere('status', 'pending');
+
+    expect($pendingColumn['tasks'])->toHaveCount(1);
+    expect($pendingColumn['tasks']->first()['students'])->toHaveCount(2);
 });
 
 test('professors cannot assign tasks to students not assigned to them', function () {

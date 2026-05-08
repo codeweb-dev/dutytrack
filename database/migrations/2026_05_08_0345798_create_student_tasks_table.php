@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('student_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('assigned_by')->constrained('users')->cascadeOnDelete();
             $table->foreignId('ojt_assignment_id')->nullable()->constrained('ojt_assignments')->nullOnDelete();
+            $table->uuid('task_group_id')->nullable();
             $table->string('title');
             $table->text('description')->nullable();
             $table->enum('status', ['pending', 'in_progress', 'in_review', 'done'])->default('pending');
@@ -26,6 +27,7 @@ return new class extends Migration
 
             $table->index(['student_id', 'status']);
             $table->index(['assigned_by', 'status']);
+            $table->index(['task_group_id', 'status']);
         });
     }
 

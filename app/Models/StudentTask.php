@@ -10,6 +10,7 @@ class StudentTask extends Model
         'student_id',
         'assigned_by',
         'ojt_assignment_id',
+        'task_group_id',
         'title',
         'description',
         'status',

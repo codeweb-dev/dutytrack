@@ -5,6 +5,7 @@ use App\Models\StudentTask;
 use Flux\Flux;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
@@ -74,12 +75,14 @@ new #[Title('Tasks')] class extends Component
         ]);
 
         $assignments = $this->assignedStudentAssignments($this->student_ids);
+        $taskGroupId = (string) Str::uuid();
 
-        $assignments->each(function (OjtAssignment $assignment): void {
+        $assignments->each(function (OjtAssignment $assignment) use ($taskGroupId): void {
             StudentTask::query()->create([
                 'student_id' => $assignment->student_id,
                 'assigned_by' => Auth::id(),
                 'ojt_assignment_id' => $assignment->id,
+                'task_group_id' => $taskGroupId,
                 'title' => $this->task_title,
                 'description' => $this->task_description ?: null,
                 'priority' => $this->priority,
@@ -209,10 +212,29 @@ new #[Title('Tasks')] class extends Component
 
         return collect(StudentTask::statusLabels())
             ->map(function (string $label, string $status) use ($tasks): array {
+                $taskCards = $tasks->get($status, collect())
+                    ->groupBy(fn (StudentTask $task): string => $task->task_group_id ?: 'task-'.$task->id)
+                    ->map(function ($groupedTasks, string $key): array {
+                        $students = $groupedTasks
+                            ->pluck('student')
+                            ->filter()
+                            ->values();
+
+                        return [
+                            'key' => $key,
+                            'task' => $groupedTasks->first(),
+                            'tasks' => $groupedTasks,
+                            'students' => $students,
+                            'visible_students' => $students->take(3),
+                            'hidden_students' => max($students->count() - 3, 0),
+                        ];
+                    })
+                    ->values();
+
                 return [
                     'status' => $status,
                     'title' => $label,
-                    'tasks' => $tasks->get($status, collect()),
+                    'tasks' => $taskCards,
                 ];
             })
             ->values()

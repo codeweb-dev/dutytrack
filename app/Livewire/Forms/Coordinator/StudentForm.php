@@ -3,6 +3,7 @@
 namespace App\Livewire\Forms\Coordinator;
 
 use App\Enums\Role as EnumsRole;
+use App\Models\StudentRequirement;
 use App\Models\User;
 use App\Support\AuditLogger;
 use Flux\Flux;
@@ -48,6 +49,8 @@ class StudentForm extends Form
     public ?string $middle_name = '';
 
     public int $ojt_required_hours = 0;
+
+    public array $requirementChecks = [];
 
     public function rules(): array
     {
@@ -210,6 +213,24 @@ class StudentForm extends Form
                 'ojt_required_hours' => $this->ojt_required_hours ?: 0,
             ]);
 
+            StudentRequirement::ensureForStudent($user);
+
+            $checkedRequirements = collect($this->requirementChecks)
+                ->filter(fn ($checked): bool => (bool) $checked)
+                ->keys()
+                ->all();
+
+            if ($checkedRequirements !== []) {
+                StudentRequirement::query()
+                    ->where('student_id', $user->id)
+                    ->whereIn('key', $checkedRequirements)
+                    ->update([
+                        'is_completed' => true,
+                        'completed_at' => now(),
+                        'completed_by' => $coordinator->id,
+                    ]);
+            }
+
             $user = $user->fresh(['studentProfile', 'coordinator']);
 
             AuditLogger::log(
@@ -340,6 +361,7 @@ class StudentForm extends Form
         $this->year_level = '';
         $this->section = '';
         $this->ojt_required_hours = 0;
+        $this->requirementChecks = [];
 
         $this->resetValidation();
     }

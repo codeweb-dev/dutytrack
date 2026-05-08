@@ -4,7 +4,8 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
-new class extends Component {
+new class extends Component
+{
     public User $student;
 
     public function mount(User $student): void
@@ -196,4 +197,5 @@ new class extends Component {
             </div>
         </div>
     </div>
+
 </div>

@@ -48,6 +48,8 @@
                         OJT Hours
                     </flux:table.column>
 
+                    <flux:table.column>Requirements</flux:table.column>
+
                     <flux:table.column>Actions</flux:table.column>
                 </flux:table.columns>
 
@@ -93,11 +95,32 @@
                             </flux:table.cell>
 
                             <flux:table.cell>
+                                @php
+                                    $completedRequirements = $student->studentRequirements->where('is_completed', true)->count();
+                                    $totalRequirements = $student->studentRequirements->count();
+                                @endphp
+
+                                <div class="flex flex-col gap-1">
+                                    <flux:badge :color="$completedRequirements === $totalRequirements ? 'green' : 'amber'"
+                                        size="sm" inset="top bottom">
+                                        {{ $completedRequirements }}/{{ $totalRequirements }} received
+                                    </flux:badge>
+                                    <span class="text-xs text-zinc-500">
+                                        OJT can start with pending forms
+                                    </span>
+                                </div>
+                            </flux:table.cell>
+
+                            <flux:table.cell>
                                 <flux:dropdown>
                                     <flux:button variant="ghost" size="sm" icon="ellipsis-horizontal"
                                         inset="top bottom" />
 
                                     <flux:menu>
+                                        <flux:modal.trigger :name="'requirements-'.$student->id">
+                                            <flux:menu.item icon="clipboard-document-check">Requirements</flux:menu.item>
+                                        </flux:modal.trigger>
+
                                         <flux:modal.trigger :name="'view-profile-'.$student->id">
                                             <flux:menu.item icon="eye">View</flux:menu.item>
                                         </flux:modal.trigger>
@@ -117,6 +140,12 @@
                                 <flux:modal :name="'view-profile-'.$student->id" flyout variant="floating"
                                     class="md:w-2xl">
                                     <livewire:coordinator.student-management.view :student="$student" :key="'view-student-' . $student->id" />
+                                </flux:modal>
+
+                                <flux:modal :name="'requirements-'.$student->id" flyout variant="floating"
+                                    class="md:w-2xl">
+                                    <livewire:coordinator.student-management.requirements :student="$student"
+                                        :key="'requirements-student-' . $student->id" />
                                 </flux:modal>
 
                                 <flux:modal :name="'edit-student-'.$student->id" flyout variant="floating"

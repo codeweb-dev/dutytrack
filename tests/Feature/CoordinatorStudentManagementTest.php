@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Role as AppRole;
+use App\Models\StudentRequirement;
 use App\Models\User;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Role as PermissionRole;
@@ -95,6 +96,7 @@ test('creating a student from the coordinator flow assigns ownership to the curr
         ->set('form.year_level', '4')
         ->set('form.section', 'A')
         ->set('form.ojt_required_hours', 600)
+        ->set('form.requirementChecks.orientation', true)
         ->call('save')
         ->assertHasNoErrors();
 
@@ -107,4 +109,48 @@ test('creating a student from the coordinator flow assigns ownership to the curr
     expect($student->coordinator_id)->toBe($coordinator->id);
     expect($student->hasRole(AppRole::STUDENT->value))->toBeTrue();
     expect($student->studentProfile?->student_id)->toBe('2026-0001');
+    expect($student->studentRequirements()->count())->toBe(count(StudentRequirement::definitions()));
+    expect($student->studentRequirements()->where('key', 'orientation')->first()?->is_completed)->toBeTrue();
+    expect($student->studentRequirements()->where('key', 'parents_waiver')->first()?->is_completed)->toBeFalse();
+});
+
+test('students can mark a missing physical requirement as submitted', function () {
+    $coordinator = createCoordinator();
+    $student = createStudentForCoordinator($coordinator);
+
+    StudentRequirement::ensureForStudent($student);
+
+    $this->actingAs($student);
+
+    Livewire::test('pages::student.dashboard')
+        ->call('submitRequirement', 'parents_waiver')
+        ->assertHasNoErrors();
+
+    $requirement = StudentRequirement::query()
+        ->where('student_id', $student->id)
+        ->where('key', 'parents_waiver')
+        ->first();
+
+    expect($requirement?->submitted_at)->not->toBeNull();
+    expect($requirement?->is_completed)->toBeFalse();
+});
+
+test('coordinators can check off submitted student requirements', function () {
+    $coordinator = createCoordinator();
+    $student = createStudentForCoordinator($coordinator);
+
+    $requirement = StudentRequirement::ensureForStudent($student)
+        ->firstWhere('key', 'parents_waiver');
+
+    $this->actingAs($coordinator);
+
+    Livewire::test('coordinator.student-management.requirements', ['student' => $student])
+        ->call('toggleRequirement', $requirement->id)
+        ->assertHasNoErrors();
+
+    $requirement->refresh();
+
+    expect($requirement->is_completed)->toBeTrue();
+    expect($requirement->completed_at)->not->toBeNull();
+    expect($requirement->completed_by)->toBe($coordinator->id);
 });

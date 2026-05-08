@@ -408,19 +408,19 @@ new #[Title('Coordinator Dashboard')] class extends Component {
 
                                 <flux:table.cell>
                                     @if ($assignment)
-                                        <flux:badge
+                                        <flux:badge size="sm"
                                             :color="match ($assignment->status) {
-                                                                                                                                                                                                                        'active' => 'lime',
-                                                                                                                                                                                                                        'pending' => 'amber',
-                                                                                                                                                                                                                        'completed' => 'sky',
-                                                                                                                                                                                                                        'cancelled' => 'red',
-                                                                                                                                                                                                                        default => 'zinc',
-                                                                                                                                                                                                                    }"
+                                                                                                                                                                                                                                                                    'active' => 'lime',
+                                                                                                                                                                                                                                                                    'pending' => 'amber',
+                                                                                                                                                                                                                                                                    'completed' => 'sky',
+                                                                                                                                                                                                                                                                    'cancelled' => 'red',
+                                                                                                                                                                                                                                                                    default => 'zinc',
+                                                                                                                                                                                                                                                                }"
                                             inset="top bottom">
                                             {{ ucfirst($assignment->status) }}
                                         </flux:badge>
                                     @else
-                                        <flux:badge color="zinc" inset="top bottom">
+                                        <flux:badge size="sm" color="zinc" inset="top bottom">
                                             Unassigned
                                         </flux:badge>
                                     @endif

@@ -89,12 +89,6 @@ new #[Title('Professor Dashboard')] class extends Component {
                 'icon' => 'clock',
                 'footnote' => number_format((clone $dutyHours)->count()) . ' duty-hour entries tracked',
             ],
-            [
-                'title' => 'Flagged Attendance',
-                'value' => number_format((clone $attendance)->where('is_flagged', true)->count()),
-                'icon' => 'exclamation-triangle',
-                'footnote' => number_format(Evaluation::query()->where('evaluator_id', $this->professorId())->where('status', 'pending')->count()) . ' evaluations pending',
-            ],
         ];
     }
 
@@ -171,7 +165,6 @@ new #[Title('Professor Dashboard')] class extends Component {
             'internal_assignments' => $this->professorAssignmentsQuery()->where('ojt_type', 'internal')->count(),
             'submitted_evaluations' => Evaluation::query()->where('evaluator_id', $this->professorId())->where('status', 'submitted')->count(),
             'pending_evaluations' => Evaluation::query()->where('evaluator_id', $this->professorId())->where('status', 'pending')->count(),
-            'flagged_logs' => $this->professorAttendanceQuery()->where('is_flagged', true)->count(),
         ];
     }
 
@@ -201,7 +194,7 @@ new #[Title('Professor Dashboard')] class extends Component {
 <div class="flex flex-col gap-8">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$this->title" :description="$description" />
 
-    <section class="grid gap-4 xl:grid-cols-4">
+    <section class="grid gap-4 xl:grid-cols-3">
         @foreach ($this->topCards as $card)
             <flux:card>
                 <div class="flex items-start justify-between gap-4">
@@ -320,13 +313,6 @@ new #[Title('Professor Dashboard')] class extends Component {
                             {{ number_format($this->quickSummary['pending_evaluations']) }}
                         </div>
                     </flux:card>
-
-                    <flux:card>
-                        <flux:heading class="uppercase tracking-[0.2em]">Flagged Logs</flux:heading>
-                        <div class="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white">
-                            {{ number_format($this->quickSummary['flagged_logs']) }}
-                        </div>
-                    </flux:card>
                 </div>
             </flux:card>
         </div>
@@ -375,12 +361,12 @@ new #[Title('Professor Dashboard')] class extends Component {
                             <flux:table.cell>
                                 <flux:badge
                                     :color="match ($assignment->status) {
-                                                                                                                                                                                    'active' => 'lime',
-                                                                                                                                                                                    'pending' => 'amber',
-                                                                                                                                                                                    'completed' => 'sky',
-                                                                                                                                                                                    'cancelled' => 'red',
-                                                                                                                                                                                    default => 'zinc',
-                                                                                                                                                                                }"
+                                                                                                                                                                                                                        'active' => 'lime',
+                                                                                                                                                                                                                        'pending' => 'amber',
+                                                                                                                                                                                                                        'completed' => 'sky',
+                                                                                                                                                                                                                        'cancelled' => 'red',
+                                                                                                                                                                                                                        default => 'zinc',
+                                                                                                                                                                                                                    }"
                                     inset="top bottom">
                                     {{ ucfirst($assignment->status) }}
                                 </flux:badge>

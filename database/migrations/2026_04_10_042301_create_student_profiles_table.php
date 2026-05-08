@@ -13,22 +13,13 @@ return new class extends Migration
     {
         Schema::create('student_profiles', function (Blueprint $table) {
             $table->id();
-
-            // link to users table
             $table->foreignId('user_id')
                 ->unique()
                 ->constrained()
                 ->cascadeOnDelete();
-
-            // student-specific fields
             $table->string('student_id')->unique();
-
-            $table->string('course');       // BSCS, BSIT
-            $table->string('year_level');   // 1,2,3,4
-            $table->string('section')->nullable(); // A, B, etc
-
+            $table->string('course');
             $table->unsignedInteger('ojt_required_hours')->default(0);
-
             $table->timestamps();
         });
     }

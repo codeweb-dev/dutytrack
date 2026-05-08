@@ -16,25 +16,19 @@ return new class extends Migration
 
             $table->foreignId('student_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('ojt_assignment_id')->constrained('ojt_assignments')->cascadeOnDelete();
-
+            $table->foreignId('reviewed_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->decimal('hours_rendered', 5, 2)->default(0);
+            $table->boolean('overtime_enabled')->default(false);
             $table->date('attendance_date');
+            $table->decimal('time_in_latitude', 10, 7)->nullable();
+            $table->decimal('time_in_longitude', 10, 7)->nullable();
+            $table->unsignedInteger('time_in_location_accuracy')->nullable();
+            $table->unsignedInteger('break_minutes')->default(0);
+            $table->enum('status', ['present', 'late', 'absent', 'incomplete'])->default('present');
+            $table->text('remarks')->nullable();
             $table->timestamp('time_in')->nullable();
             $table->timestamp('time_out')->nullable();
-
-            $table->unsignedInteger('break_minutes')->default(0);
-            $table->decimal('hours_rendered', 5, 2)->default(0);
-
-            $table->enum('status', ['present', 'late', 'absent', 'incomplete'])->default('present');
-            $table->string('source')->nullable(); // qr, manual, biometric, etc.
-            $table->text('remarks')->nullable();
-
-            $table->boolean('is_flagged')->default(false);
-            $table->text('flag_reason')->nullable();
-
-            $table->foreignId('reviewed_by')->nullable()->constrained('users')->nullOnDelete();
-
             $table->timestamps();
-
             $table->unique(['student_id', 'attendance_date']);
             $table->index(['attendance_date', 'status']);
         });

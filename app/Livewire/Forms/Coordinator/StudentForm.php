@@ -38,7 +38,7 @@ class StudentForm extends Form
 
     public string $password_confirmation = '';
 
-    public string $course = '';
+    public string $course = 'BSCS';
 
     public string $year_level = '';
 

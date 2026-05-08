@@ -400,8 +400,9 @@ new #[Title('Student Dashboard')] class extends Component {
 
                                         @if (!$requirement->is_completed)
                                             <flux:button wire:click="submitRequirement('{{ $requirement->key }}')"
-                                                icon="arrow-up-tray" size="sm" variant="primary"
-                                                :disabled="$requirement->submitted_at !== null">
+                                                icon="arrow-up-tray" size="xs" variant="primary"
+                                                :disabled="$requirement->submitted_at !== null"
+                                                wire:key="submit-{{ $requirement->id }}">
                                                 {{ $requirement->submitted_at ? 'Submitted' : 'Submit' }}
                                             </flux:button>
                                         @endif

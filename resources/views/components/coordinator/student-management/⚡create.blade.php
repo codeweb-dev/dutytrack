@@ -130,7 +130,7 @@ new class extends Component
                     $step = $this->requirementSteps[$currentStep - 1];
                 @endphp
 
-                <div class="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
+                <div wire:key="create-student-requirement-step-{{ $step['key'] }}">
                     <div class="mb-4 flex items-center justify-between gap-3">
                         <div>
                             <flux:heading>{{ $step['label'] }}</flux:heading>
@@ -140,9 +140,11 @@ new class extends Component
                         </div>
                     </div>
 
-                    <flux:checkbox.group wire:model="form.requirementChecks" variant="cards" class="grid gap-3 md:grid-cols-2">
+                    <flux:checkbox.group wire:model="form.requirementChecks" variant="cards"
+                        wire:key="create-student-requirement-group-{{ $step['key'] }}" class="grid gap-3 md:grid-cols-2">
                         @foreach ($step['items'] as $requirement)
                             <flux:checkbox
+                                wire:key="create-student-requirement-{{ $step['key'] }}-{{ $requirement['key'] }}"
                                 value="{{ $requirement['key'] }}"
                                 label="{{ $requirement['label'] }}"
                                 description="Mark checked only if already provided."
@@ -196,18 +198,7 @@ new class extends Component
                         </div>
 
                         <div class="grid grid-cols-3 gap-x-4 gap-y-6">
-                            <flux:select wire:model="form.course" label="Course">
-                                <option value="">Select course</option>
-                                <option value="BINDTECH">BINDTECH</option>
-                                <option value="BSBA">BSBA</option>
-                                <option value="BSCRIM">BSCRIM</option>
-                                <option value="BSCS">BSCS</option>
-                                <option value="BSHM">BSHM</option>
-                                <option value="BSIT">BSIT</option>
-                                <option value="BSOA">BSOA</option>
-                                <option value="BSP">BSP</option>
-                                <option value="BTLED">BTLED</option>
-                            </flux:select>
+                            <flux:input wire:model="form.course" label="Course" readonly />
 
                             <flux:input wire:model="form.year_level" label="Year Level" placeholder="4" />
                             <flux:input wire:model="form.section" label="Section" placeholder="A" />

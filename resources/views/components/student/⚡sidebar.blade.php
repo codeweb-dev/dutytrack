@@ -19,26 +19,18 @@ new class extends Component
         Dashboard
     </flux:sidebar.item>
 
-    <flux:sidebar.item icon="briefcase" href="#">
-        My Assignments
-    </flux:sidebar.item>
-
     <flux:sidebar.item icon="clipboard-document-list" :href="route('student.attendance')" :current="request()->routeIs('student.attendance')"
         wire:navigate>
         Attendance
     </flux:sidebar.item>
 
-    <flux:sidebar.item icon="clock" href="#">
+    {{-- <flux:sidebar.item icon="clock" href="#">
         Duty Hours
-    </flux:sidebar.item>
+    </flux:sidebar.item> --}}
 
-    <flux:sidebar.item icon="document-text" href="#">
+    {{-- <flux:sidebar.item icon="document-text" href="#">
         Reports / Submissions
-    </flux:sidebar.item>
-
-    <flux:sidebar.item icon="check-badge" href="#">
-        Evaluation
-    </flux:sidebar.item>
+    </flux:sidebar.item> --}}
 
     <flux:sidebar.group expandable icon="squares-2x2" heading="Productivity">
         <flux:sidebar.item icon="rectangle-stack" href="{{ route('student.kanban') }}" :current="request()->routeIs('student.kanban')"

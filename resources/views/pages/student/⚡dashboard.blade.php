@@ -94,13 +94,7 @@ new #[Title('Student Dashboard')] class extends Component {
                 'value' => $assignment ? ucfirst($assignment->status) : 'Unassigned',
                 'icon' => 'briefcase',
                 'footnote' => $assignment ? ucfirst($assignment->ojt_type) . ' OJT' : 'Waiting for placement',
-            ],
-            [
-                'title' => 'Pending Evaluations',
-                'value' => number_format(Evaluation::query()->where('student_id', $this->studentId())->where('status', 'pending')->count()),
-                'icon' => 'clipboard-document-check',
-                'footnote' => number_format(AttendanceLog::query()->where('student_id', $this->studentId())->where('is_flagged', true)->count()) . ' flagged attendance logs',
-            ],
+            ]
         ];
     }
 
@@ -161,7 +155,7 @@ new #[Title('Student Dashboard')] class extends Component {
 <div class="flex flex-col gap-8">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$this->title" :description="$description" />
 
-    <section class="grid gap-4 xl:grid-cols-4">
+    <section class="grid gap-4 xl:grid-cols-3">
         @foreach ($this->topCards as $card)
             <flux:card>
                 <div class="flex items-start justify-between gap-4">
@@ -237,53 +231,43 @@ new #[Title('Student Dashboard')] class extends Component {
         </flux:card>
 
         <flux:card>
-            <flux:heading size="lg">Placement Overview</flux:heading>
+            <flux:heading size="lg">OJT Student Requirements</flux:heading>
             <flux:text class="mt-2">
-                Your current placement details, academic profile, and assigned reviewers.
+                A checklist of requirements for your OJT. Make sure to coordinate with your
+                supervisor and coordinator to complete these on time.
             </flux:text>
 
-            <div class="mt-6 grid grid-cols-2 gap-3">
-                <flux:card>
-                    <flux:heading class="uppercase tracking-[0.2em]">Student Id</flux:heading>
-                    <div class="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white">
-                        {{ $this->placementSummary['student_id'] }}
-                    </div>
-                </flux:card>
+            <div class="mt-6 flex flex-col gap-3">
+                <ul class="space-y-4">
+                    @foreach (['Student Health Record', 'Recommendation for OJT individual', 'Parents Waiver', 'OJT Rules & Regulations', 'Narrative Report'] as $item)
+                        <li class="flex items-center gap-3">
+                            <span
+                                class="w-6 h-6 rounded-full bg-red-600 flex items-center justify-center flex-shrink-0">
+                                <svg class="size-3 text-white" viewBox="0 0 12 12" fill="none" stroke="currentColor"
+                                    stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M2 6l3 3 5-5" />
+                                </svg>
+                            </span>
+                            <span
+                                class="text-sm font-medium text-gray-900 dark:text-zinc-100">{{ $item }}</span>
+                        </li>
+                    @endforeach
+                </ul>
 
-                <flux:card>
-                    <flux:heading class="uppercase tracking-[0.2em]">Course</flux:heading>
-                    <div class="mt-2 text-xl font-semibold text-zinc-950 dark:text-white">
-                        {{ $this->placementSummary['course'] }}
-                    </div>
-                </flux:card>
-
-                <flux:card>
-                    <flux:heading class="uppercase tracking-[0.2em]">Coordinator</flux:heading>
-                    <div class="mt-2 text-base font-semibold text-zinc-950 dark:text-white">
-                        {{ $this->placementSummary['coordinator'] }}
-                    </div>
-                </flux:card>
-
-                <flux:card>
-                    <flux:heading class="uppercase tracking-[0.2em]">Professor</flux:heading>
-                    <div class="mt-2 text-base font-semibold text-zinc-950 dark:text-white">
-                        {{ $this->placementSummary['professor'] }}
-                    </div>
-                </flux:card>
-
-                <flux:card>
-                    <flux:heading class="uppercase tracking-[0.2em]">Supervisor</flux:heading>
-                    <div class="mt-2 text-base font-semibold text-zinc-950 dark:text-white">
-                        {{ $this->placementSummary['supervisor'] }}
-                    </div>
-                </flux:card>
-
-                <flux:card>
-                    <flux:heading class="uppercase tracking-[0.2em]">Assignment</flux:heading>
-                    <div class="mt-2 text-base font-semibold text-zinc-950 dark:text-white">
-                        {{ $this->placementSummary['type'] }} <flux:badge color="lime" inset="top bottom">{{ $this->placementSummary['status'] }}</flux:badge>
-                    </div>
-                </flux:card>
+                <ul class="space-y-4">
+                    @foreach (['Evaluation Form for Practicum', 'Acceptance Letter'] as $item)
+                        <li class="flex items-center gap-3">
+                            <span
+                                class="w-6 h-6 rounded-full border-2 border-gray-300 dark:border-zinc-600 flex items-center justify-center flex-shrink-0">
+                                <svg class="size-3 text-gray-400 dark:text-zinc-500" viewBox="0 0 12 12" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                    <path d="M2 2l8 8M10 2l-8 8" />
+                                </svg>
+                            </span>
+                            <span class="text-sm text-gray-500 dark:text-zinc-400">{{ $item }}</span>
+                        </li>
+                    @endforeach
+                </ul>
             </div>
         </flux:card>
     </section>

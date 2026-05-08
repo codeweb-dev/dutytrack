@@ -96,7 +96,7 @@ new #[Title('Student Dashboard')] class extends Component {
                 'value' => $assignment ? ucfirst($assignment->status) : 'Unassigned',
                 'icon' => 'briefcase',
                 'footnote' => $assignment ? ucfirst($assignment->ojt_type) . ' OJT' : 'Waiting for placement',
-            ]
+            ],
         ];
     }
 
@@ -203,22 +203,15 @@ new #[Title('Student Dashboard')] class extends Component {
 
     public function submitRequirement(string $key): void
     {
-        $requirement = StudentRequirement::query()
-            ->where('student_id', $this->studentId())
-            ->where('key', $key)
-            ->firstOrFail();
+        $requirement = StudentRequirement::query()->where('student_id', $this->studentId())->where('key', $key)->firstOrFail();
 
-        if (! $requirement->is_completed && ! $requirement->submitted_at) {
+        if (!$requirement->is_completed && !$requirement->submitted_at) {
             $requirement->update(['submitted_at' => now()]);
         }
 
         unset($this->requirements, $this->requirementSummary, $this->requirementSteps);
 
-        Flux::toast(
-            variant: 'success',
-            heading: 'Requirement submitted.',
-            text: 'Your coordinator can now verify the physical copy.'
-        );
+        Flux::toast(variant: 'success', heading: 'Requirement submitted.', text: 'Your coordinator can now verify the physical copy.');
     }
 };
 ?>
@@ -333,40 +326,48 @@ new #[Title('Student Dashboard')] class extends Component {
                             </div>
                         </div>
 
-                        @if (! $loop->last)
+                        @if (!$loop->last)
                             <div class="mt-6 h-px w-10 bg-zinc-300 dark:bg-zinc-700 md:w-16"></div>
                         @endif
                     @endforeach
                 </div>
             </div>
 
-            <flux:progress class="mt-6 h-2" :value="$this->requirementSummary['progress']" />
+            <flux:field class="mt-6">
+                <flux:label>Progress</flux:label>
+
+                <div class="flex items-center gap-4 -mt-2">
+                    <flux:progress :value="$this->requirementSummary['progress']" />
+                    <span class="text-sm tabular-nums ...">{{ $this->requirementSummary['progress'] }}%</span>
+                </div>
+            </flux:field>
 
             <div class="mt-6 space-y-6">
                 @foreach ($this->requirementSteps as $step)
                     <div>
                         <div class="mb-3 flex items-center justify-between gap-3">
                             <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">{{ $step['label'] }}</h3>
-                            <flux:badge size="sm" :color="$step['is_completed'] ? 'green' : null" inset="top bottom">
+                            <flux:badge size="sm" :color="$step['is_completed'] ? 'green' : null"
+                                inset="top bottom">
                                 {{ $step['is_completed'] ? 'Complete' : 'In progress' }}
                             </flux:badge>
                         </div>
 
                         <div class="space-y-3">
                             @foreach ($step['items'] as $requirement)
-                                <div
-                                    class="flex flex-col gap-3 rounded-lg border border-zinc-200 p-3 dark:border-zinc-800 sm:flex-row sm:items-center sm:justify-between">
+                                <flux:card class=px-5 py-1>
                                     <div class="flex min-w-0 items-start gap-3">
                                         <span
                                             class="{{ $requirement->is_completed ? 'bg-green-600 text-white' : 'bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500' }} mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full">
-                                            <flux:icon :name="$requirement->is_completed ? 'check-circle' : 'clock'" class="size-4" />
+                                            <flux:icon :name="$requirement->is_completed ? 'check-circle' : 'clock'"
+                                                class="size-4" />
                                         </span>
 
                                         <div class="min-w-0">
-                                            <div class="text-sm font-medium text-zinc-900 dark:text-white">
+                                            <flux:heading>
                                                 {{ $requirement->label }}
-                                            </div>
-                                            <div class="mt-1 text-xs text-zinc-500">
+                                            </flux:heading>
+                                            <flux:text class="mt-1">
                                                 @if ($requirement->is_completed)
                                                     Verified by coordinator.
                                                 @elseif ($requirement->submitted_at)
@@ -374,27 +375,30 @@ new #[Title('Student Dashboard')] class extends Component {
                                                 @else
                                                     Missing physical copy.
                                                 @endif
-                                            </div>
+                                            </flux:text>
                                         </div>
                                     </div>
 
                                     <div class="flex flex-wrap items-center gap-2 sm:justify-end">
                                         @if ($requirement->is_completed)
-                                            <flux:badge color="green" size="sm" inset="top bottom">Done</flux:badge>
+                                            <flux:badge color="green" size="sm" inset="top bottom">Done
+                                            </flux:badge>
                                         @elseif ($requirement->submitted_at)
-                                            <flux:badge color="sky" size="sm" inset="top bottom">Submitted</flux:badge>
+                                            <flux:badge color="sky" size="sm" inset="top bottom">Submitted
+                                            </flux:badge>
                                         @else
-                                            <flux:badge color="amber" size="sm" inset="top bottom">Missing</flux:badge>
+                                            <flux:badge color="amber" size="sm" inset="top bottom">Missing
+                                            </flux:badge>
                                         @endif
 
                                         @if ($requirement->template_path)
-                                            <flux:button href="{{ asset($requirement->template_path) }}" target="_blank"
-                                                download icon="document-arrow-down" size="sm">
+                                            <flux:button href="{{ asset($requirement->template_path) }}"
+                                                target="_blank" download icon="document-arrow-down" size="xs">
                                                 Template
                                             </flux:button>
                                         @endif
 
-                                        @if (! $requirement->is_completed)
+                                        @if (!$requirement->is_completed)
                                             <flux:button wire:click="submitRequirement('{{ $requirement->key }}')"
                                                 icon="arrow-up-tray" size="sm" variant="primary"
                                                 :disabled="$requirement->submitted_at !== null">
@@ -402,7 +406,7 @@ new #[Title('Student Dashboard')] class extends Component {
                                             </flux:button>
                                         @endif
                                     </div>
-                                </div>
+                                </flux:card>
                             @endforeach
                         </div>
                     </div>

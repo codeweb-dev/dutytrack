@@ -96,19 +96,16 @@
 
                             <flux:table.cell>
                                 @php
-                                    $completedRequirements = $student->studentRequirements->where('is_completed', true)->count();
+                                    $completedRequirements = $student->studentRequirements
+                                        ->where('is_completed', true)
+                                        ->count();
                                     $totalRequirements = $student->studentRequirements->count();
                                 @endphp
 
-                                <div class="flex flex-col gap-1">
-                                    <flux:badge :color="$completedRequirements === $totalRequirements ? 'green' : 'amber'"
-                                        size="sm" inset="top bottom">
-                                        {{ $completedRequirements }}/{{ $totalRequirements }} received
-                                    </flux:badge>
-                                    <span class="text-xs text-zinc-500">
-                                        OJT can start with pending forms
-                                    </span>
-                                </div>
+                                <flux:badge :color="$completedRequirements === $totalRequirements ? 'green' : 'red'"
+                                    size="sm" inset="top bottom">
+                                    {{ $completedRequirements }}/{{ $totalRequirements }} received
+                                </flux:badge>
                             </flux:table.cell>
 
                             <flux:table.cell>
@@ -118,7 +115,8 @@
 
                                     <flux:menu>
                                         <flux:modal.trigger :name="'requirements-'.$student->id">
-                                            <flux:menu.item icon="clipboard-document-check">Requirements</flux:menu.item>
+                                            <flux:menu.item icon="clipboard-document-check">Requirements
+                                            </flux:menu.item>
                                         </flux:modal.trigger>
 
                                         <flux:modal.trigger :name="'view-profile-'.$student->id">

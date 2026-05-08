@@ -93,10 +93,6 @@ new class extends Component
                 {{ $student->name }} can start OJT with pending requirements. Check each row after receiving the physical copy.
             </flux:text>
         </div>
-
-        <flux:badge :color="$this->requirementSummary['pending'] === 0 ? 'green' : 'amber'" inset="top bottom">
-            {{ $this->requirementSummary['completed'] }}/{{ $this->requirementSummary['total'] }} received
-        </flux:badge>
     </div>
 
     <div class="space-y-6">
@@ -113,9 +109,10 @@ new class extends Component
                     @foreach ($step['items'] as $requirement)
                         <div class="flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between">
                             <label class="flex min-w-0 items-start gap-3">
-                                <input type="checkbox" @checked($requirement->is_completed)
+                                <flux:checkbox wire:click="toggleRequirement({{ $requirement->id }})" :checked="$requirement->is_completed" />
+                                {{-- <input type="checkbox" @checked($requirement->is_completed)
                                     wire:click="toggleRequirement({{ $requirement->id }})"
-                                    class="mt-1 size-4 rounded border-zinc-300 text-red-600 focus:ring-red-500 dark:border-zinc-700 dark:bg-zinc-900">
+                                    class="mt-1 size-4 rounded border-zinc-300 text-red-600 focus:ring-red-500 dark:border-zinc-700 dark:bg-zinc-900"> --}}
 
                                 <span class="min-w-0">
                                     <span class="block text-sm font-medium text-zinc-900 dark:text-white">

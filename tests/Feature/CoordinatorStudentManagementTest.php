@@ -96,7 +96,7 @@ test('creating a student from the coordinator flow assigns ownership to the curr
         ->set('form.year_level', '4')
         ->set('form.section', 'A')
         ->set('form.ojt_required_hours', 600)
-        ->set('form.requirementChecks.orientation', true)
+        ->set('form.requirementChecks', ['orientation'])
         ->call('save')
         ->assertHasNoErrors();
 

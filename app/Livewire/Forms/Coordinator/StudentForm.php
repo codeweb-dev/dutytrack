@@ -215,10 +215,12 @@ class StudentForm extends Form
 
             StudentRequirement::ensureForStudent($user);
 
-            $checkedRequirements = collect($this->requirementChecks)
-                ->filter(fn ($checked): bool => (bool) $checked)
-                ->keys()
-                ->all();
+            $checkedRequirements = array_is_list($this->requirementChecks)
+                ? collect($this->requirementChecks)->filter()->values()->all()
+                : collect($this->requirementChecks)
+                    ->filter(fn ($checked): bool => (bool) $checked)
+                    ->keys()
+                    ->all();
 
             if ($checkedRequirements !== []) {
                 StudentRequirement::query()

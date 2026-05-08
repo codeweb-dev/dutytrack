@@ -140,23 +140,15 @@ new class extends Component
                         </div>
                     </div>
 
-                    <div class="grid gap-3 md:grid-cols-2">
+                    <flux:checkbox.group wire:model="form.requirementChecks" variant="cards" class="grid gap-3 md:grid-cols-2">
                         @foreach ($step['items'] as $requirement)
-                            <label class="flex items-start gap-3 rounded-lg border border-zinc-200 p-3 dark:border-zinc-800">
-                                <input type="checkbox" wire:model="form.requirementChecks.{{ $requirement['key'] }}"
-                                    class="mt-1 size-4 rounded border-zinc-300 text-red-600 focus:ring-red-500 dark:border-zinc-700 dark:bg-zinc-900">
-
-                                <span class="min-w-0">
-                                    <span class="block text-sm font-medium text-zinc-900 dark:text-white">
-                                        {{ $requirement['label'] }}
-                                    </span>
-                                    <span class="block text-xs text-zinc-500">
-                                        Mark checked only if already provided.
-                                    </span>
-                                </span>
-                            </label>
+                            <flux:checkbox
+                                value="{{ $requirement['key'] }}"
+                                label="{{ $requirement['label'] }}"
+                                description="Mark checked only if already provided."
+                            />
                         @endforeach
-                    </div>
+                    </flux:checkbox.group>
                 </div>
             @endif
 

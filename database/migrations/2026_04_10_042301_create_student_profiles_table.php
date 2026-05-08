@@ -19,6 +19,8 @@ return new class extends Migration
                 ->cascadeOnDelete();
             $table->string('student_id')->unique();
             $table->string('course');
+            $table->string('year_level');
+            $table->string('section')->nullable();
             $table->unsignedInteger('ojt_required_hours')->default(0);
             $table->timestamps();
         });

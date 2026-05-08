@@ -57,4 +57,9 @@ class OjtAssignment extends Model
     {
         return $this->hasMany(StudentTask::class, 'ojt_assignment_id');
     }
+
+    public function chatConversations()
+    {
+        return $this->hasMany(ChatConversation::class, 'ojt_assignment_id');
+    }
 }

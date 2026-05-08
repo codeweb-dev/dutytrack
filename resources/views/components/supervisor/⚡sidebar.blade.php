@@ -20,6 +20,11 @@ new class extends Component {};
         Productivity
     </flux:sidebar.item>
 
+    <flux:sidebar.item icon="chat-bubble-left-right" href="{{ route('supervisor.messages') }}"
+        :current="request()->routeIs('supervisor.messages')" wire:navigate>
+        Messages
+    </flux:sidebar.item>
+
     <flux:sidebar.item icon="document-text" href="#">
         Reports / Submissions
     </flux:sidebar.item>

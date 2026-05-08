@@ -105,6 +105,11 @@ class User extends Authenticatable
         return $this->hasMany(StudentTask::class, 'assigned_by');
     }
 
+    public function chatMessages()
+    {
+        return $this->hasMany(ChatMessage::class, 'sender_id');
+    }
+
     public function ojtAssignment()
     {
         return $this->hasOne(OjtAssignment::class, 'student_id');

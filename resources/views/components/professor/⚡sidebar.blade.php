@@ -21,6 +21,11 @@ new class extends Component {};
         Tasks
     </flux:sidebar.item>
 
+    <flux:sidebar.item icon="chat-bubble-left-right" href="{{ route('professor.messages') }}"
+        :current="request()->routeIs('professor.messages')" wire:navigate>
+        Messages
+    </flux:sidebar.item>
+
     <flux:sidebar.item icon="document-text" href="#">
         Reports / Submissions
     </flux:sidebar.item>

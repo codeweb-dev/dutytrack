@@ -185,7 +185,6 @@ new #[Title('Coordinator Dashboard')] class extends Component {
                     $query->where('coordinator_id', $this->coordinatorId());
                 })
                 ->count(),
-            'flagged_logs' => $this->managedAttendanceQuery()->where('is_flagged', true)->count(),
         ];
     }
 
@@ -332,13 +331,6 @@ new #[Title('Coordinator Dashboard')] class extends Component {
                         <flux:heading class="uppercase tracking-[0.2em]">Pending Reviews</flux:heading>
                         <div class="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white">
                             {{ number_format($this->quickSummary['pending_reviews']) }}
-                        </div>
-                    </flux:card>
-
-                    <flux:card class="uppercase tracking-[0.2em]">
-                        <flux:heading class="uppercase tracking-[0.2em]">Flagged Logs</flux:heading>
-                        <div class="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white">
-                            {{ number_format($this->quickSummary['flagged_logs']) }}
                         </div>
                     </flux:card>
                 </div>

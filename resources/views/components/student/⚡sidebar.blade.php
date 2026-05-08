@@ -1,16 +1,8 @@
 <?php
 
-use App\Models\AttendanceLog;
-use App\Models\DutyHourLog;
-use App\Models\Evaluation;
-use App\Models\OjtAssignment;
-use Illuminate\Support\Facades\Auth;
-use Livewire\Attributes\Computed;
 use Livewire\Component;
 
-new class extends Component
-{
-};
+new class extends Component {};
 ?>
 
 <flux:sidebar.nav>
@@ -33,7 +25,7 @@ new class extends Component
     </flux:sidebar.item> --}}
 
     <flux:sidebar.group expandable icon="squares-2x2" heading="Productivity">
-        <flux:sidebar.item icon="rectangle-stack" href="{{ route('student.kanban') }}" :current="request()->routeIs('student.kanban')"
+        <flux:sidebar.item icon="rectangle-stack" href="{{ route('student.tasks') }}" :current="request()->routeIs('student.tasks', 'student.kanban')"
             wire:navigate>
             Tasks
         </flux:sidebar.item>

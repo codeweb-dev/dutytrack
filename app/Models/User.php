@@ -95,6 +95,16 @@ class User extends Authenticatable
         return $this->hasMany(StudentRequirement::class, 'student_id');
     }
 
+    public function studentTasks()
+    {
+        return $this->hasMany(StudentTask::class, 'student_id');
+    }
+
+    public function assignedStudentTasks()
+    {
+        return $this->hasMany(StudentTask::class, 'assigned_by');
+    }
+
     public function ojtAssignment()
     {
         return $this->hasOne(OjtAssignment::class, 'student_id');

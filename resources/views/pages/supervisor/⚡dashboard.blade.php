@@ -89,12 +89,6 @@ new #[Title('Company Supervisor Dashboard')] class extends Component {
                 'icon' => 'clock',
                 'footnote' => number_format((clone $dutyHours)->count()) . ' duty-hour entries tracked',
             ],
-            [
-                'title' => 'Pending Evaluations',
-                'value' => number_format(Evaluation::query()->where('evaluator_id', $this->supervisorId())->where('status', 'pending')->count()),
-                'icon' => 'check-badge',
-                'footnote' => number_format((clone $attendance)->where('is_flagged', true)->count()) . ' flagged attendance logs',
-            ],
         ];
     }
 
@@ -168,7 +162,6 @@ new #[Title('Company Supervisor Dashboard')] class extends Component {
             'external_assignments' => $this->supervisorAssignmentsQuery()->where('ojt_type', 'external')->count(),
             'internal_assignments' => $this->supervisorAssignmentsQuery()->where('ojt_type', 'internal')->count(),
             'submitted_evaluations' => Evaluation::query()->where('evaluator_id', $this->supervisorId())->where('status', 'submitted')->count(),
-            'flagged_logs' => $this->supervisorAttendanceQuery()->where('is_flagged', true)->count(),
         ];
     }
 
@@ -198,7 +191,7 @@ new #[Title('Company Supervisor Dashboard')] class extends Component {
 <div class="flex flex-col gap-8">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$this->title" :description="$description" />
 
-    <section class="grid gap-4 xl:grid-cols-4">
+    <section class="grid gap-4 xl:grid-cols-3">
         @foreach ($this->topCards as $card)
             <flux:card>
                 <div class="flex items-start justify-between gap-4">
@@ -308,13 +301,6 @@ new #[Title('Company Supervisor Dashboard')] class extends Component {
                     <flux:heading class="uppercase tracking-[0.2em]">Submitted Evaluations</flux:heading>
                     <div class="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white">
                         {{ number_format($this->quickSummary['submitted_evaluations']) }}
-                    </div>
-                </flux:card>
-
-                <flux:card>
-                    <flux:heading class="uppercase tracking-[0.2em]">Flagged Logs</flux:heading>
-                    <div class="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white">
-                        {{ number_format($this->quickSummary['flagged_logs']) }}
                     </div>
                 </flux:card>
             </div>

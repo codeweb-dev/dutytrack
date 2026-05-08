@@ -1,129 +1,97 @@
 <?php
 
+use App\Models\StudentTask;
+use Flux\Flux;
+use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Computed;
 use Livewire\Component;
 
-new class extends Component {
-    public array $columns = [];
-
+new class extends Component
+{
     public array $breadcrumbs = [
         ['logo' => 'logo.png', 'href' => '/dashboard'],
         ['label' => 'Productivity', 'href' => '#'],
-        ['label' => 'Kanban Board'],
+        ['label' => 'Tasks'],
     ];
 
-    public string $title = 'Kanban Board';
-    public string $description = 'Organize and track your tasks with this interactive Kanban board. Move tasks across columns to reflect their current status and stay on top of your work.';
+    public string $title = 'Tasks';
 
-    public function mount(): void
+    public string $description = 'Track tasks assigned by your professor and update their progress as you work.';
+
+    public function priorityColor(?string $priority): string
     {
-        $this->columns = [
-            [
-                'title' => 'Pending',
-                'tasks' => [
-                    [
-                        'title' => 'Resolve late check-in exception flow for students',
-                        'labels' => ['Bug'],
-                    ],
-                    [
-                        'title' => 'Align partner company cards on smaller screens',
-                        'labels' => ['UI'],
-                    ],
-                    [
-                        'title' => 'Investigate missing duty log summaries in analytics',
-                        'labels' => ['Bug', 'High priority'],
-                    ],
-                    [
-                        'title' => 'Prepare database index for time log reporting',
-                        'labels' => ['Backend'],
-                    ],
-                    [
-                        'title' => 'Fix icon spacing in the student footer',
-                        'labels' => ['UI'],
-                    ],
-                ],
-            ],
-            [
-                'title' => 'In Progress',
-                'tasks' => [
-                    [
-                        'title' => 'Refresh OJT handbook acknowledgement screen',
-                        'labels' => ['UI'],
-                    ],
-                    [
-                        'title' => 'Fix partner search auto-suggestions',
-                        'labels' => ['Bug', 'UI'],
-                    ],
-                    [
-                        'title' => 'Improve loading state for report submissions',
-                        'labels' => ['UI'],
-                    ],
-                    [
-                        'title' => 'Fix hour picker keyboard input issue',
-                        'labels' => ['Bug'],
-                    ],
-                    [
-                        'title' => 'Correct approval permissions for supervisors',
-                        'labels' => ['Backend', 'Bug'],
-                    ],
-                    [
-                        'title' => 'Restore broken partner logo thumbnails',
-                        'labels' => ['Bug'],
-                    ],
-                ],
-            ],
-            [
-                'title' => 'Done',
-                'tasks' => [
-                    [
-                        'title' => 'Improve mobile layout for duty history',
-                        'labels' => ['UI'],
-                    ],
-                    [
-                        'title' => 'Fix sorting in the student submissions table',
-                        'labels' => ['Bug', 'UI'],
-                    ],
-                    [
-                        'title' => 'Normalize API validation error messages',
-                        'labels' => ['Backend'],
-                    ],
-                    [
-                        'title' => 'Run accessibility pass on attendance widgets',
-                        'labels' => ['UI'],
-                    ],
-                    [
-                        'title' => 'Polish the student dashboard experience',
-                        'labels' => ['UI'],
-                    ],
-                ],
-            ],
-            [
-                'title' => 'In Review',
-                'tasks' => [
-                    [
-                        'title' => 'Add double-submit protection to daily logs',
-                        'labels' => ['Bug', 'UI'],
-                    ],
-                    [
-                        'title' => 'Prevent crashes during bulk file uploads',
-                        'labels' => ['High priority'],
-                    ],
-                    [
-                        'title' => 'Handle concurrent approval requests safely',
-                        'labels' => ['Backend'],
-                    ],
-                ],
-            ],
-        ];
+        return match ($priority) {
+            'high' => 'red',
+            'low' => 'sky',
+            default => 'zinc',
+        };
     }
 
-    public function labelClasses(string $label): string
+    public function statusColor(?string $status): string
     {
-        return match ($label) {
-            'Bug' => 'red',
-            'UI' => 'blue',
-            'Backend' => 'green',
-            'High priority' => 'yellow',
-            default => 'bg-white/10 text-white/80 ring-1 ring-inset ring-white/10',
+        return match ($status) {
+            'done' => 'green',
+            'in_review' => 'blue',
+            'in_progress' => 'amber',
+            default => 'zinc',
         };
+    }
+
+    public function displayColumns(): array
+    {
+        $columns = collect($this->columns)->keyBy('status');
+
+        return collect(['pending', 'in_progress', 'done', 'in_review'])
+            ->map(fn (string $status): array => $columns->get($status))
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    public function updateTaskStatus(int $taskId, string $status): void
+    {
+        abort_unless(array_key_exists($status, StudentTask::statusLabels()), 422);
+
+        $task = StudentTask::query()
+            ->where('student_id', Auth::id())
+            ->findOrFail($taskId);
+
+        $task->update([
+            'status' => $status,
+            'completed_at' => $status === 'done' ? now() : null,
+        ]);
+
+        unset($this->columns);
+
+        Flux::toast(
+            variant: 'success',
+            heading: 'Task updated.',
+            text: $task->title.' is now '.StudentTask::statusLabels()[$status].'.'
+        );
+    }
+
+    #[Computed]
+    public function columns(): array
+    {
+        $tasks = StudentTask::query()
+            ->with('assignedBy')
+            ->where('student_id', Auth::id())
+            ->orderByRaw("CASE priority WHEN 'high' THEN 0 WHEN 'normal' THEN 1 ELSE 2 END")
+            ->orderByRaw('due_date IS NULL')
+            ->orderBy('due_date')
+            ->latest('created_at')
+            ->get()
+            ->groupBy('status');
+
+        return collect(StudentTask::statusLabels())
+            ->map(function (string $label, string $status) use ($tasks): array {
+                return [
+                    'status' => $status,
+                    'title' => $label,
+                    'tasks' => $tasks->get($status, collect()),
+                ];
+            })
+            ->values()
+            ->all();
     }
 };

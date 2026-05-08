@@ -1,17 +1,8 @@
 <?php
 
-use App\Models\AttendanceLog;
-use App\Models\DutyHourLog;
-use App\Models\Evaluation;
-use App\Models\OjtAssignment;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
-use Livewire\Attributes\Computed;
 use Livewire\Component;
 
-new class extends Component
-{
-};
+new class extends Component {};
 ?>
 
 <flux:sidebar.nav>
@@ -20,12 +11,14 @@ new class extends Component
         Dashboard
     </flux:sidebar.item>
 
-    <flux:sidebar.item icon="academic-cap" href="#">
+    <flux:sidebar.item icon="academic-cap" href="{{ route('professor.assigned-students') }}"
+        :current="request()->routeIs('professor.assigned-students')" wire:navigate>
         Assigned Students
     </flux:sidebar.item>
 
-    <flux:sidebar.item icon="chart-bar-square" href="#">
-        Productivity
+    <flux:sidebar.item icon="rectangle-stack" href="{{ route('professor.tasks') }}"
+        :current="request()->routeIs('professor.tasks')" wire:navigate>
+        Tasks
     </flux:sidebar.item>
 
     <flux:sidebar.item icon="document-text" href="#">

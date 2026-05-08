@@ -48,6 +48,7 @@ Route::group(['middleware' => ['role:ojt_coordinator']], function () {
     Route::livewire('/coordinator/student-management', 'pages::coordinator.student-management')->name('coordinator.student-management');
     Route::livewire('/coordinator/ojt-assignments', 'pages::coordinator.ojt-assignments')->name('coordinator.ojt-assignments');
     Route::livewire('/coordinator/requirements', 'pages::coordinator.requirements')->name('coordinator.requirements');
+    Route::livewire('/coordinator/attendance', 'pages::coordinator.attendance')->name('coordinator.attendance');
 });
 
 Route::group(['middleware' => ['role:professor']], function () {

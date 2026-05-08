@@ -1,6 +1,8 @@
 <?php
 
 use App\Enums\Role as AppRole;
+use App\Models\AttendanceLog;
+use App\Models\OjtAssignment;
 use App\Models\StudentRequirement;
 use App\Models\User;
 use Livewire\Livewire;
@@ -169,6 +171,65 @@ test('coordinators can monitor requirements for their own students', function ()
         ->get(route('coordinator.requirements'))
         ->assertOk()
         ->assertSee('Requirement Monitoring')
+        ->assertSee($ownedStudent->name)
+        ->assertDontSee($otherStudent->name);
+});
+
+test('coordinators can monitor attendance for their own students', function () {
+    $coordinatorA = createCoordinator(['name' => 'Coordinator Attendance A']);
+    $coordinatorB = createCoordinator(['name' => 'Coordinator Attendance B']);
+
+    $ownedStudent = createStudentForCoordinator($coordinatorA, ['name' => 'Attendance Owned Student']);
+    $otherStudent = createStudentForCoordinator($coordinatorB, ['name' => 'Attendance Other Student']);
+
+    $professor = User::factory()->create([
+        'name' => 'Attendance Professor',
+        'email' => 'attendance-professor@example.com',
+    ]);
+    $professor->assignRole(AppRole::PROFESSOR->value);
+
+    $ownedAssignment = OjtAssignment::query()->create([
+        'student_id' => $ownedStudent->id,
+        'ojt_type' => 'internal',
+        'professor_id' => $professor->id,
+        'start_date' => '2026-04-20',
+        'required_hours' => 600,
+        'status' => 'active',
+    ]);
+
+    $otherAssignment = OjtAssignment::query()->create([
+        'student_id' => $otherStudent->id,
+        'ojt_type' => 'internal',
+        'professor_id' => $professor->id,
+        'start_date' => '2026-04-20',
+        'required_hours' => 600,
+        'status' => 'active',
+    ]);
+
+    AttendanceLog::query()->create([
+        'student_id' => $ownedStudent->id,
+        'ojt_assignment_id' => $ownedAssignment->id,
+        'attendance_date' => '2026-05-01',
+        'time_in' => '2026-05-01 07:00:00',
+        'time_out' => '2026-05-01 17:00:00',
+        'hours_rendered' => 10,
+        'status' => 'present',
+    ]);
+
+    AttendanceLog::query()->create([
+        'student_id' => $otherStudent->id,
+        'ojt_assignment_id' => $otherAssignment->id,
+        'attendance_date' => '2026-05-01',
+        'time_in' => '2026-05-01 07:15:00',
+        'time_out' => '2026-05-01 17:00:00',
+        'hours_rendered' => 9.75,
+        'status' => 'late',
+    ]);
+
+    $this->actingAs($coordinatorA)
+        ->get(route('coordinator.attendance'))
+        ->assertOk()
+        ->assertSee('Attendance Monitoring')
         ->assertSee($ownedStudent->name)
         ->assertDontSee($otherStudent->name);
 });

@@ -27,7 +27,8 @@ new class extends Component {};
             Requirements
         </flux:sidebar.item>
 
-        <flux:sidebar.item icon="clipboard-document-list" href="#">
+        <flux:sidebar.item icon="clipboard-document-list" href="{{ route('coordinator.attendance') }}"
+            :current="request()->routeIs('coordinator.attendance')" wire:navigate>
             Attendance
         </flux:sidebar.item>
         <flux:sidebar.item icon="clock" href="#">

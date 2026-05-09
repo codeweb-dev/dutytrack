@@ -16,8 +16,9 @@ new class extends Component {};
         Assigned Students
     </flux:sidebar.item>
 
-    <flux:sidebar.item icon="chart-bar-square" href="#">
-        Productivity
+    <flux:sidebar.item icon="clock" href="{{ route('supervisor.duty-hours') }}"
+        :current="request()->routeIs('supervisor.duty-hours')" wire:navigate>
+        Duty Hours
     </flux:sidebar.item>
 
     <flux:sidebar.item icon="chat-bubble-left-right" href="{{ route('supervisor.messages') }}"

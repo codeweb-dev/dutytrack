@@ -2,6 +2,7 @@
 
 use App\Enums\Role as AppRole;
 use App\Models\AttendanceLog;
+use App\Models\DutyHourLog;
 use App\Models\OjtAssignment;
 use App\Models\User;
 use Illuminate\Support\Carbon;
@@ -90,6 +91,54 @@ test('students can clock in and clock out for attendance', function () {
     expect($attendance->status)->toBe('present');
     expect($attendance->time_out->format('H:i'))->toBe('17:00');
     expect((float) $attendance->hours_rendered)->toBe(9.0);
+
+    $dutyHourLog = DutyHourLog::query()->where('attendance_log_id', $attendance->id)->first();
+
+    expect($dutyHourLog)->not->toBeNull();
+    expect($dutyHourLog->status)->toBe('pending');
+    expect((float) $dutyHourLog->hours_rendered)->toBe(9.0);
+    expect((float) $dutyHourLog->approved_hours)->toBe(0.0);
+});
+
+test('students can bypass attendance time for testing', function () {
+    Carbon::setTestNow(Carbon::parse('2026-04-30 09:00:00'));
+
+    $student = createStudentWithAssignment();
+
+    $this->actingAs($student);
+
+    Livewire::test('pages::student.attendance')
+        ->call('bypassAttendance', 20)
+        ->assertHasNoErrors();
+
+    $attendance = AttendanceLog::query()->where('student_id', $student->id)->first();
+    $dutyHourLog = DutyHourLog::query()->where('attendance_log_id', $attendance->id)->first();
+
+    expect($attendance)->not->toBeNull();
+    expect($attendance->time_in->format('H:i'))->toBe('08:40');
+    expect($attendance->time_out->format('H:i'))->toBe('09:00');
+    expect((float) $attendance->hours_rendered)->toBe(0.33);
+    expect($dutyHourLog)->not->toBeNull();
+    expect($dutyHourLog->status)->toBe('pending');
+    expect((float) $dutyHourLog->hours_rendered)->toBe(0.33);
+});
+
+test('students can view their own duty hours page', function () {
+    Carbon::setTestNow(Carbon::parse('2026-04-30 09:00:00'));
+
+    $student = createStudentWithAssignment();
+
+    $this->actingAs($student);
+
+    Livewire::test('pages::student.attendance')
+        ->call('bypassAttendance', 60)
+        ->assertHasNoErrors();
+
+    $this->get(route('student.duty-hours'))
+        ->assertOk()
+        ->assertSee('My Duty Hours')
+        ->assertSee('1.00')
+        ->assertSee('Pending');
 });
 
 test('student attendance renders saved location with laravel maps leaflet', function () {

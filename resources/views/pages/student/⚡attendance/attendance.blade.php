@@ -1,7 +1,7 @@
 <div class="flex flex-col gap-6">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
-    <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+    <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         <flux:card class="p-4">
             <flux:heading>Total Records</flux:heading>
             <div class="mt-2 text-3xl font-semibold text-zinc-950 dark:text-white">{{ $this->summary['total'] }}</div>
@@ -18,10 +18,20 @@
         </flux:card>
 
         <flux:card class="p-4">
-            <flux:heading>Total Hours</flux:heading>
+            <flux:heading>Rendered Hours</flux:heading>
             <div class="mt-2 text-3xl font-semibold text-zinc-950 dark:text-white">
                 {{ number_format($this->summary['hours'], 2) }}
             </div>
+        </flux:card>
+
+        <flux:card class="p-4">
+            <flux:heading>Approved Hours</flux:heading>
+            <div class="mt-2 text-3xl font-semibold text-zinc-950 dark:text-white">
+                {{ number_format($this->summary['approved_hours'], 2) }}
+            </div>
+            <flux:text class="mt-2 text-xs">
+                {{ number_format($this->summary['pending_hours'], 2) }} pending
+            </flux:text>
         </flux:card>
     </section>
 
@@ -233,6 +243,26 @@
                 <flux:textarea wire:model="remarks" label="Remarks" rows="3" badge="Optional"
                     placeholder="Add a note for this attendance record" />
 
+                @if ($this->assignment && (! $this->todayAttendance || ! $this->todayAttendance->time_out))
+                    <div class="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-500/30 dark:bg-amber-500/10">
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <flux:heading>Testing Bypass</flux:heading>
+                                <flux:text class="mt-1">Create a completed attendance log without waiting for the timer.</flux:text>
+                            </div>
+
+                            <div class="flex flex-wrap gap-2">
+                                <flux:button type="button" variant="ghost" icon="bolt" wire:click="bypassAttendance(20)">
+                                    Add 20 min
+                                </flux:button>
+                                <flux:button type="button" variant="primary" icon="bolt" wire:click="bypassAttendance(60)">
+                                    Add 1 hour
+                                </flux:button>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
                 @if (! $this->assignment)
                     <flux:callout icon="exclamation-triangle" color="amber">
                         <flux:callout.heading>No OJT assignment found</flux:callout.heading>
@@ -282,6 +312,7 @@
                         <flux:table.column>Time Out</flux:table.column>
                         <flux:table.column>Break</flux:table.column>
                         <flux:table.column>Hours</flux:table.column>
+                        <flux:table.column>Duty Hours</flux:table.column>
                         <flux:table.column>Location</flux:table.column>
                         <flux:table.column>Status</flux:table.column>
                     </flux:table.columns>
@@ -297,6 +328,18 @@
                                     {{ number_format((float) $log->hours_rendered, 2) }}
                                     @if ($log->overtime_enabled)
                                         <flux:badge size="sm" color="blue" inset="top bottom">OT</flux:badge>
+                                    @endif
+                                </flux:table.cell>
+                                <flux:table.cell>
+                                    @if ($log->dutyHourLog)
+                                        <div class="flex flex-col">
+                                            <span>{{ number_format((float) $log->dutyHourLog->approved_hours, 2) }} approved</span>
+                                            <flux:badge size="sm" :color="$this->dutyBadgeColor($log->dutyHourLog->status)" inset="top bottom">
+                                                {{ ucfirst($log->dutyHourLog->status) }}
+                                            </flux:badge>
+                                        </div>
+                                    @else
+                                        <span class="text-zinc-400">—</span>
                                     @endif
                                 </flux:table.cell>
                                 <flux:table.cell>
@@ -316,7 +359,7 @@
                             </flux:table.row>
                         @empty
                             <flux:table.row>
-                                <flux:table.cell colspan="7" class="py-8 text-center text-zinc-500">
+                                <flux:table.cell colspan="8" class="py-8 text-center text-zinc-500">
                                     No attendance records found.
                                 </flux:table.cell>
                             </flux:table.row>

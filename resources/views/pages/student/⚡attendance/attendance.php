@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\AttendanceLog;
+use App\Models\DutyHourLog;
 use App\Models\OjtAssignment;
 use Carbon\CarbonInterface;
 use Flux\Flux;
@@ -92,6 +93,24 @@ new #[Title('My Attendance')] class extends Component
     protected function completedStatus(CarbonInterface $timeIn): string
     {
         return $timeIn->greaterThan($this->workdayStart($timeIn)) ? 'late' : 'present';
+    }
+
+    protected function syncDutyHourLog(AttendanceLog $attendance): DutyHourLog
+    {
+        return DutyHourLog::query()->updateOrCreate(
+            ['attendance_log_id' => $attendance->id],
+            [
+                'student_id' => $attendance->student_id,
+                'ojt_assignment_id' => $attendance->ojt_assignment_id,
+                'log_date' => $attendance->attendance_date,
+                'hours_rendered' => $attendance->hours_rendered,
+                'approved_hours' => 0,
+                'status' => 'pending',
+                'remarks' => $attendance->remarks,
+                'approved_by' => null,
+                'approved_at' => null,
+            ],
+        );
     }
 
     public function mapUrl(?float $latitude = null, ?float $longitude = null): ?string
@@ -195,6 +214,8 @@ new #[Title('My Attendance')] class extends Component
             'remarks' => $this->remarks ?: $attendance->remarks,
         ]);
 
+        $this->syncDutyHourLog($attendance->fresh());
+
         $this->break_minutes = 0;
         $this->remarks = null;
         $this->overtime_enabled = false;
@@ -204,6 +225,73 @@ new #[Title('My Attendance')] class extends Component
         Flux::toast(variant: 'success', heading: 'Clocked out.', text: 'Your rendered hours have been calculated.');
     }
 
+    public function bypassAttendance(int $minutes): void
+    {
+        if (! in_array($minutes, [20, 60], true)) {
+            abort(404);
+        }
+
+        $assignment = $this->assignment;
+
+        if (! $assignment) {
+            Flux::toast(variant: 'warning', heading: 'No assignment yet.', text: 'You need an OJT assignment before creating attendance.');
+
+            return;
+        }
+
+        $attendance = $this->todayAttendance;
+
+        if ($attendance?->time_out) {
+            Flux::toast(variant: 'warning', heading: 'Attendance complete.', text: 'Today already has a completed attendance record.');
+
+            return;
+        }
+
+        $timeOut = now();
+        $timeIn = $timeOut->copy()->subMinutes($minutes);
+        $hours = round($minutes / 60, 2);
+
+        if (! $attendance) {
+            $attendance = AttendanceLog::query()->create([
+                'student_id' => $this->studentId(),
+                'ojt_assignment_id' => $assignment->id,
+                'attendance_date' => $this->today(),
+                'time_in' => $timeIn,
+                'time_in_latitude' => $this->time_in_latitude,
+                'time_in_longitude' => $this->time_in_longitude,
+                'time_in_location_accuracy' => $this->time_in_location_accuracy,
+                'break_minutes' => 0,
+                'hours_rendered' => 0,
+                'overtime_enabled' => true,
+                'status' => $this->clockInStatus($timeIn),
+                'remarks' => $this->remarks,
+            ]);
+        }
+
+        $attendance->update([
+            'time_in' => $timeIn,
+            'time_out' => $timeOut,
+            'break_minutes' => 0,
+            'hours_rendered' => $hours,
+            'overtime_enabled' => true,
+            'status' => $this->completedStatus($timeIn),
+            'remarks' => $this->remarks ?: $attendance->remarks,
+        ]);
+
+        $this->syncDutyHourLog($attendance->fresh());
+
+        $this->break_minutes = 0;
+        $this->remarks = null;
+        $this->time_in_latitude = null;
+        $this->time_in_longitude = null;
+        $this->time_in_location_accuracy = null;
+        $this->overtime_enabled = false;
+        $this->resetPage();
+        $this->resetAttendanceState();
+
+        Flux::toast(variant: 'success', heading: 'Attendance bypassed.', text: "{$minutes} minutes were logged for approval.");
+    }
+
     public function badgeColor(string $status): string
     {
         return match ($status) {
@@ -211,6 +299,16 @@ new #[Title('My Attendance')] class extends Component
             'late' => 'amber',
             'absent' => 'red',
             'incomplete' => 'zinc',
+            default => 'zinc',
+        };
+    }
+
+    public function dutyBadgeColor(?string $status): string
+    {
+        return match ($status) {
+            'approved' => 'lime',
+            'pending' => 'amber',
+            'rejected' => 'red',
             default => 'zinc',
         };
     }
@@ -238,6 +336,7 @@ new #[Title('My Attendance')] class extends Component
     public function attendanceLogs(): LengthAwarePaginator
     {
         return AttendanceLog::query()
+            ->with('dutyHourLog')
             ->where('student_id', $this->studentId())
             ->latest('attendance_date')
             ->latest('created_at')
@@ -248,12 +347,15 @@ new #[Title('My Attendance')] class extends Component
     public function summary(): array
     {
         $query = AttendanceLog::query()->where('student_id', $this->studentId());
+        $dutyQuery = DutyHourLog::query()->where('student_id', $this->studentId());
 
         return [
             'total' => (clone $query)->count(),
             'present' => (clone $query)->where('status', 'present')->count(),
             'incomplete' => (clone $query)->whereNull('time_out')->count(),
             'hours' => (float) (clone $query)->sum('hours_rendered'),
+            'pending_hours' => (float) (clone $dutyQuery)->where('status', 'pending')->sum('hours_rendered'),
+            'approved_hours' => (float) (clone $dutyQuery)->where('status', 'approved')->sum('approved_hours'),
         ];
     }
 };

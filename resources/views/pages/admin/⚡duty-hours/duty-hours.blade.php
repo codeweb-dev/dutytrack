@@ -4,12 +4,12 @@
     <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
         <flux:card class="p-4">
             <flux:heading class="flex items-center gap-2">Rendered Hours</flux:heading>
-            <flux:text class="mt-2">{{ number_format($this->summary['rendered_hours'], 2) }}</flux:text>
+            <flux:text class="mt-2">{{ \App\Support\HourFormatter::format($this->summary['rendered_hours']) }}</flux:text>
         </flux:card>
 
         <flux:card class="p-4">
             <flux:heading class="flex items-center gap-2">Approved Hours</flux:heading>
-            <flux:text class="mt-2">{{ number_format($this->summary['approved_hours'], 2) }}</flux:text>
+            <flux:text class="mt-2">{{ \App\Support\HourFormatter::format($this->summary['approved_hours']) }}</flux:text>
         </flux:card>
 
         <flux:card class="p-4">
@@ -165,11 +165,11 @@
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ number_format((float) $log->hours_rendered, 2) }}
+                                {{ \App\Support\HourFormatter::format($log->hours_rendered) }}
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ number_format((float) $log->approved_hours, 2) }}
+                                {{ \App\Support\HourFormatter::format($log->approved_hours) }}
                             </flux:table.cell>
 
                             <flux:table.cell>

@@ -217,8 +217,8 @@ new class extends Component
                                     </button>
 
                                     <div class="text-center">
-                                        <div class="text-6xl font-bold leading-none text-zinc-900 dark:text-white">
-                                            {{ $form->ojt_required_hours ?: 0 }}
+                                        <div class="text-4xl font-bold leading-none text-zinc-900 dark:text-white">
+                                            {{ \App\Support\HourFormatter::format($form->ojt_required_hours ?: 0) }}
                                         </div>
 
                                         <div class="mt-2 text-sm uppercase tracking-wide text-zinc-500 dark:text-zinc-400">

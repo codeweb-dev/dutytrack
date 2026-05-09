@@ -3,7 +3,8 @@
 use App\Models\User;
 use Livewire\Component;
 
-new class extends Component {
+new class extends Component
+{
     public User $student;
 
     public function mount(User $student): void
@@ -147,7 +148,7 @@ new class extends Component {
                 <div class="flex items-start justify-between gap-4">
                     <span class="text-sm text-zinc-500">OJT Required Hours</span>
                     <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
-                        {{ $student->studentProfile?->ojt_required_hours ?? 0 }} hrs
+                        {{ \App\Support\HourFormatter::format($student->studentProfile?->ojt_required_hours ?? 0) }}
                     </span>
                 </div>
             </div>
@@ -188,7 +189,7 @@ new class extends Component {
                 <div class="text-xs uppercase tracking-wide text-zinc-400">OJT
                     Requirement</div>
                 <div class="mt-2 text-base font-semibold text-zinc-900 dark:text-white">
-                    {{ $student->studentProfile?->ojt_required_hours ?? 0 }} hrs
+                    {{ \App\Support\HourFormatter::format($student->studentProfile?->ojt_required_hours ?? 0) }}
                 </div>
             </div>
         </div>

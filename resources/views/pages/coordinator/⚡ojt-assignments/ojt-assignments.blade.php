@@ -141,7 +141,7 @@
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ $assignment->required_hours }}
+                                {{ \App\Support\HourFormatter::format($assignment->required_hours) }}
                             </flux:table.cell>
 
                             <flux:table.cell>

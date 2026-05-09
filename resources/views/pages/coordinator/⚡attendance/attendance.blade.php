@@ -163,7 +163,7 @@
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ number_format((float) $log->hours_rendered, 2) }}
+                                {{ \App\Support\HourFormatter::format($log->hours_rendered) }}
                                 @if ($log->overtime_enabled)
                                     <flux:badge size="sm" color="blue" inset="top bottom">OT</flux:badge>
                                 @endif

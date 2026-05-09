@@ -6,6 +6,7 @@ use App\Models\DutyHourLog;
 use App\Models\Evaluation;
 use App\Models\OjtAssignment;
 use App\Models\User;
+use App\Support\HourFormatter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
@@ -14,7 +15,8 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-new #[Title('Admin Dashboard')] class extends Component {
+new #[Title('Admin Dashboard')] class extends Component
+{
     use WithPagination;
 
     public array $breadcrumbs = [['logo' => 'logo.png', 'href' => '/dashboard'], ['label' => 'Admin Dashboard']];
@@ -97,7 +99,7 @@ new #[Title('Admin Dashboard')] class extends Component {
         }
 
         return [
-            'label' => ($positive ? '+' : '-') . $percent . '%',
+            'label' => ($positive ? '+' : '-').$percent.'%',
             'color' => $positive ? 'lime' : 'red',
             'tone' => $positive ? 'bg-lime-50 text-lime-700 ring-lime-200 dark:bg-lime-500/10 dark:text-lime-300 dark:ring-lime-500/20' : 'bg-red-50 text-red-700 ring-red-200 dark:bg-red-500/10 dark:text-red-300 dark:ring-red-500/20',
         ];
@@ -105,23 +107,23 @@ new #[Title('Admin Dashboard')] class extends Component {
 
     protected function compactHours(float $value): string
     {
-        return number_format($value, $value >= 100 ? 0 : 1) . 'h';
+        return HourFormatter::format($value);
     }
 
     #[Computed]
     public function topCards(): array
     {
-        $studentCurrent = $this->monthlyCount(User::class, 'created_at', 0, fn(Builder $query) => $this->applyRoleFilter($query, EnumsRole::STUDENT->value));
-        $studentPrevious = $this->monthlyCount(User::class, 'created_at', 1, fn(Builder $query) => $this->applyRoleFilter($query, EnumsRole::STUDENT->value));
+        $studentCurrent = $this->monthlyCount(User::class, 'created_at', 0, fn (Builder $query) => $this->applyRoleFilter($query, EnumsRole::STUDENT->value));
+        $studentPrevious = $this->monthlyCount(User::class, 'created_at', 1, fn (Builder $query) => $this->applyRoleFilter($query, EnumsRole::STUDENT->value));
 
         $assignmentCurrent = $this->monthlyCount(OjtAssignment::class, 'created_at');
         $assignmentPrevious = $this->monthlyCount(OjtAssignment::class, 'created_at', 1);
 
         $reviewCurrent = Evaluation::query()->where('status', 'pending')->count();
-        $reviewPrevious = $this->monthlyCount(Evaluation::class, 'created_at', 1, fn(Builder $query) => $query->where('status', 'pending'));
+        $reviewPrevious = $this->monthlyCount(Evaluation::class, 'created_at', 1, fn (Builder $query) => $query->where('status', 'pending'));
 
-        $hoursCurrent = $this->monthlySum(DutyHourLog::class, 'approved_at', 'approved_hours', 0, fn(Builder $query) => $query->where('status', 'approved')->whereNotNull('approved_at'));
-        $hoursPrevious = $this->monthlySum(DutyHourLog::class, 'approved_at', 'approved_hours', 1, fn(Builder $query) => $query->where('status', 'approved')->whereNotNull('approved_at'));
+        $hoursCurrent = $this->monthlySum(DutyHourLog::class, 'approved_at', 'approved_hours', 0, fn (Builder $query) => $query->where('status', 'approved')->whereNotNull('approved_at'));
+        $hoursPrevious = $this->monthlySum(DutyHourLog::class, 'approved_at', 'approved_hours', 1, fn (Builder $query) => $query->where('status', 'approved')->whereNotNull('approved_at'));
 
         return [
             [
@@ -129,7 +131,7 @@ new #[Title('Admin Dashboard')] class extends Component {
                 'value' => number_format($this->roleCount(EnumsRole::STUDENT->value)),
                 'icon' => 'academic-cap',
                 'delta' => $this->deltaMeta($studentCurrent, $studentPrevious),
-                'footnote' => 'Last month: ' . number_format($studentPrevious),
+                'footnote' => 'Last month: '.number_format($studentPrevious),
                 'link' => '/admin/students',
             ],
             [
@@ -137,7 +139,7 @@ new #[Title('Admin Dashboard')] class extends Component {
                 'value' => number_format(OjtAssignment::query()->count()),
                 'icon' => 'briefcase',
                 'delta' => $this->deltaMeta($assignmentCurrent, $assignmentPrevious),
-                'footnote' => 'Last month: ' . number_format($assignmentPrevious),
+                'footnote' => 'Last month: '.number_format($assignmentPrevious),
                 'link' => '/admin/ojt-assignments',
             ],
             [
@@ -145,7 +147,7 @@ new #[Title('Admin Dashboard')] class extends Component {
                 'value' => number_format($reviewCurrent),
                 'icon' => 'clipboard-document-check',
                 'delta' => $this->deltaMeta($reviewCurrent, $reviewPrevious),
-                'footnote' => 'Last month: ' . number_format($reviewPrevious),
+                'footnote' => 'Last month: '.number_format($reviewPrevious),
                 'link' => '/admin/evaluations',
             ],
             [
@@ -153,7 +155,7 @@ new #[Title('Admin Dashboard')] class extends Component {
                 'value' => $this->compactHours((float) DutyHourLog::query()->where('status', 'approved')->sum('approved_hours')),
                 'icon' => 'clock',
                 'delta' => $this->deltaMeta($hoursCurrent, $hoursPrevious),
-                'footnote' => 'Last month: ' . $this->compactHours($hoursPrevious),
+                'footnote' => 'Last month: '.$this->compactHours($hoursPrevious),
                 'link' => '/admin/duty-hours',
             ],
         ];
@@ -163,7 +165,7 @@ new #[Title('Admin Dashboard')] class extends Component {
     public function weeklyActivity(): array
     {
         $days = collect(range(6, 0, -1))
-            ->map(fn(int $offset) => now()->subDays($offset)->startOfDay())
+            ->map(fn (int $offset) => now()->subDays($offset)->startOfDay())
             ->push(now()->startOfDay())
             ->values();
 
@@ -195,7 +197,7 @@ new #[Title('Admin Dashboard')] class extends Component {
     public function monthlyAssignmentMix(): array
     {
         $months = collect(range(5, 0, -1))
-            ->map(fn(int $offset) => now()->subMonths($offset)->startOfMonth())
+            ->map(fn (int $offset) => now()->subMonths($offset)->startOfMonth())
             ->push(now()->startOfMonth())
             ->values();
 
@@ -236,7 +238,7 @@ new #[Title('Admin Dashboard')] class extends Component {
         return OjtAssignment::query()
             ->with(['student.studentProfile', 'student.coordinator', 'professor', 'companySupervisor'])
             ->when($this->search !== '', function (Builder $query) {
-                $search = '%' . $this->search . '%';
+                $search = '%'.$this->search.'%';
 
                 $query->where(function (Builder $nested) use ($search) {
                     $nested
@@ -256,7 +258,7 @@ new #[Title('Admin Dashboard')] class extends Component {
                         });
                 });
             })
-            ->when($this->status !== '', fn(Builder $query) => $query->where('status', $this->status))
+            ->when($this->status !== '', fn (Builder $query) => $query->where('status', $this->status))
             ->latest('created_at')
             ->paginate(5);
     }
@@ -475,7 +477,7 @@ new #[Title('Admin Dashboard')] class extends Component {
                                 </flux:table.cell>
 
                                 <flux:table.cell>
-                                    {{ number_format($assignment->required_hours) }} hrs
+                                    {{ \App\Support\HourFormatter::format($assignment->required_hours) }}
                                 </flux:table.cell>
                             </flux:table.row>
                         @endforeach

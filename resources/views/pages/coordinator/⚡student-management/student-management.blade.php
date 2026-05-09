@@ -88,7 +88,7 @@
 
                             <flux:table.cell>
                                 <flux:badge size="sm" inset="top bottom">
-                                    {{ $student->studentProfile?->ojt_required_hours ?? 0 }} hrs
+                                    {{ \App\Support\HourFormatter::format($student->studentProfile?->ojt_required_hours ?? 0) }}
                                 </flux:badge>
                             </flux:table.cell>
 

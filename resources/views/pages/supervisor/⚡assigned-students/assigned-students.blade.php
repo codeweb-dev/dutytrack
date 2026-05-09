@@ -136,9 +136,9 @@
 
                             <flux:table.cell>
                                 <div class="flex flex-col">
-                                    <span>{{ number_format((float) $approvedHours, 1) }} approved</span>
+                                    <span>{{ \App\Support\HourFormatter::format($approvedHours) }} approved</span>
                                     <span class="text-xs text-zinc-500">
-                                        {{ number_format($assignment->required_hours) }} required
+                                        {{ \App\Support\HourFormatter::format($assignment->required_hours) }} required
                                     </span>
                                 </div>
                             </flux:table.cell>

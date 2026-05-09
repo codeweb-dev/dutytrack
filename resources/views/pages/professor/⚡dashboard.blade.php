@@ -4,6 +4,7 @@ use App\Models\AttendanceLog;
 use App\Models\DutyHourLog;
 use App\Models\Evaluation;
 use App\Models\OjtAssignment;
+use App\Support\HourFormatter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
@@ -13,7 +14,8 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-new #[Title('Professor Dashboard')] class extends Component {
+new #[Title('Professor Dashboard')] class extends Component
+{
     use WithPagination;
 
     public array $breadcrumbs = [['logo' => 'logo.png', 'href' => '/dashboard'], ['label' => 'Professor Dashboard']];
@@ -21,7 +23,7 @@ new #[Title('Professor Dashboard')] class extends Component {
     #[Computed]
     public function title(): string
     {
-        return 'Welcome back, ' . (Auth::user()?->name ?? 'Professor') . ' 👋';
+        return 'Welcome back, '.(Auth::user()?->name ?? 'Professor').' 👋';
     }
 
     public string $description = 'A concise view of your advisees, internal OJT assignments, weekly attendance, and pending review activity.';
@@ -60,7 +62,7 @@ new #[Title('Professor Dashboard')] class extends Component {
 
     protected function compactHours(float $value): string
     {
-        return number_format($value, $value >= 100 ? 0 : 1) . 'h';
+        return HourFormatter::format($value);
     }
 
     #[Computed]
@@ -75,19 +77,19 @@ new #[Title('Professor Dashboard')] class extends Component {
                 'title' => 'My Advisees',
                 'value' => number_format((clone $assignments)->count()),
                 'icon' => 'academic-cap',
-                'footnote' => number_format((clone $assignments)->where('status', 'active')->count()) . ' currently active',
+                'footnote' => number_format((clone $assignments)->where('status', 'active')->count()).' currently active',
             ],
             [
                 'title' => 'Pending Assignments',
                 'value' => number_format((clone $assignments)->where('status', 'pending')->count()),
                 'icon' => 'clipboard-document-check',
-                'footnote' => number_format((clone $assignments)->where('status', 'completed')->count()) . ' already completed',
+                'footnote' => number_format((clone $assignments)->where('status', 'completed')->count()).' already completed',
             ],
             [
                 'title' => 'Approved Hours',
                 'value' => $this->compactHours((float) (clone $dutyHours)->where('status', 'approved')->sum('approved_hours')),
                 'icon' => 'clock',
-                'footnote' => number_format((clone $dutyHours)->count()) . ' duty-hour entries tracked',
+                'footnote' => number_format((clone $dutyHours)->count()).' duty-hour entries tracked',
             ],
         ];
     }
@@ -96,7 +98,7 @@ new #[Title('Professor Dashboard')] class extends Component {
     public function weeklyAttendance(): array
     {
         $days = collect(range(6, 0, -1))
-            ->map(fn(int $offset) => now()->subDays($offset)->startOfDay())
+            ->map(fn (int $offset) => now()->subDays($offset)->startOfDay())
             ->push(now()->startOfDay())
             ->values();
 
@@ -174,7 +176,7 @@ new #[Title('Professor Dashboard')] class extends Component {
         return $this->professorAssignmentsQuery()
             ->with(['student.studentProfile', 'student.coordinator', 'companySupervisor'])
             ->when($this->studentSearch !== '', function (Builder $query) {
-                $search = '%' . $this->studentSearch . '%';
+                $search = '%'.$this->studentSearch.'%';
 
                 $query->whereHas('student', function (Builder $studentQuery) use ($search) {
                     $studentQuery
@@ -373,7 +375,7 @@ new #[Title('Professor Dashboard')] class extends Component {
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ number_format($assignment->required_hours) }} hrs
+                                {{ \App\Support\HourFormatter::format($assignment->required_hours) }}
                             </flux:table.cell>
                         </flux:table.row>
                     @empty

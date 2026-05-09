@@ -4,6 +4,7 @@ use App\Models\AttendanceLog;
 use App\Models\DutyHourLog;
 use App\Models\Evaluation;
 use App\Models\OjtAssignment;
+use App\Support\HourFormatter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
@@ -13,7 +14,8 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-new #[Title('Company Supervisor Dashboard')] class extends Component {
+new #[Title('Company Supervisor Dashboard')] class extends Component
+{
     use WithPagination;
 
     public array $breadcrumbs = [['logo' => 'logo.png', 'href' => '/dashboard'], ['label' => 'Company Supervisor Dashboard']];
@@ -21,7 +23,7 @@ new #[Title('Company Supervisor Dashboard')] class extends Component {
     #[Computed]
     public function title(): string
     {
-        return 'Welcome back, ' . (Auth::user()?->name ?? 'Supervisor') . ' 👋';
+        return 'Welcome back, '.(Auth::user()?->name ?? 'Supervisor').' 👋';
     }
 
     public string $description = 'A focused view of your trainees, placement progress, attendance activity, and pending review work.';
@@ -60,7 +62,7 @@ new #[Title('Company Supervisor Dashboard')] class extends Component {
 
     protected function compactHours(float $value): string
     {
-        return number_format($value, $value >= 100 ? 0 : 1) . 'h';
+        return HourFormatter::format($value);
     }
 
     #[Computed]
@@ -75,19 +77,19 @@ new #[Title('Company Supervisor Dashboard')] class extends Component {
                 'title' => 'Assigned Trainees',
                 'value' => number_format((clone $assignments)->count()),
                 'icon' => 'academic-cap',
-                'footnote' => number_format((clone $assignments)->where('status', 'active')->count()) . ' currently active',
+                'footnote' => number_format((clone $assignments)->where('status', 'active')->count()).' currently active',
             ],
             [
                 'title' => 'Pending Placements',
                 'value' => number_format((clone $assignments)->where('status', 'pending')->count()),
                 'icon' => 'briefcase',
-                'footnote' => number_format((clone $assignments)->where('status', 'completed')->count()) . ' already completed',
+                'footnote' => number_format((clone $assignments)->where('status', 'completed')->count()).' already completed',
             ],
             [
                 'title' => 'Approved Hours',
                 'value' => $this->compactHours((float) (clone $dutyHours)->where('status', 'approved')->sum('approved_hours')),
                 'icon' => 'clock',
-                'footnote' => number_format((clone $dutyHours)->count()) . ' duty-hour entries tracked',
+                'footnote' => number_format((clone $dutyHours)->count()).' duty-hour entries tracked',
             ],
         ];
     }
@@ -95,7 +97,7 @@ new #[Title('Company Supervisor Dashboard')] class extends Component {
     #[Computed]
     public function weeklyAttendance(): array
     {
-        $days = collect(range(6, 0))->map(fn(int $offset) => now()->subDays($offset)->startOfDay())->values();
+        $days = collect(range(6, 0))->map(fn (int $offset) => now()->subDays($offset)->startOfDay())->values();
 
         $counts = $this->supervisorAttendanceQuery()
             ->selectRaw('DATE(attendance_date) as day_key, COUNT(*) as total')
@@ -171,7 +173,7 @@ new #[Title('Company Supervisor Dashboard')] class extends Component {
         return $this->supervisorAssignmentsQuery()
             ->with(['student.studentProfile', 'student.coordinator', 'professor'])
             ->when($this->studentSearch !== '', function (Builder $query) {
-                $search = '%' . $this->studentSearch . '%';
+                $search = '%'.$this->studentSearch.'%';
 
                 $query->whereHas('student', function (Builder $studentQuery) use ($search) {
                     $studentQuery

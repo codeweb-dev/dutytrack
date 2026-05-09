@@ -2,12 +2,13 @@
 
 use App\Models\User;
 use Flux\Flux;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 
-new class extends Component {
+new class extends Component
+{
     public User $student;
 
     public function mount(User $student): void
@@ -33,7 +34,7 @@ new class extends Component {
 
         Flux::toast(variant: 'success', heading: 'Student deleted.', text: 'The student has been removed successfully.');
 
-        Flux::modal('delete-student-' . $this->student->id)->close();
+        Flux::modal('delete-student-'.$this->student->id)->close();
 
         $this->dispatch('student-saved');
     }
@@ -98,7 +99,7 @@ new class extends Component {
         <div class="rounded-2xl bg-zinc-50 p-4 dark:bg-zinc-800/50">
             <div class="text-xs uppercase tracking-wide text-zinc-400">OJT Hours</div>
             <div class="mt-2 text-sm font-semibold text-zinc-900 dark:text-white">
-                {{ $student->studentProfile?->ojt_required_hours ?? 0 }} hrs
+                {{ \App\Support\HourFormatter::format($student->studentProfile?->ojt_required_hours ?? 0) }}
             </div>
         </div>
     </div>

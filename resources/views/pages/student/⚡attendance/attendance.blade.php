@@ -20,17 +20,17 @@
         <flux:card class="p-4">
             <flux:heading>Rendered Hours</flux:heading>
             <div class="mt-2 text-3xl font-semibold text-zinc-950 dark:text-white">
-                {{ number_format($this->summary['hours'], 2) }}
+                {{ \App\Support\HourFormatter::format($this->summary['hours']) }}
             </div>
         </flux:card>
 
         <flux:card class="p-4">
             <flux:heading>Approved Hours</flux:heading>
             <div class="mt-2 text-3xl font-semibold text-zinc-950 dark:text-white">
-                {{ number_format($this->summary['approved_hours'], 2) }}
+                {{ \App\Support\HourFormatter::format($this->summary['approved_hours']) }}
             </div>
             <flux:text class="mt-2 text-xs">
-                {{ number_format($this->summary['pending_hours'], 2) }} pending
+                {{ \App\Support\HourFormatter::format($this->summary['pending_hours']) }} pending
             </flux:text>
         </flux:card>
     </section>
@@ -325,7 +325,7 @@
                                 <flux:table.cell>{{ $log->time_out?->format('h:i A') ?? '—' }}</flux:table.cell>
                                 <flux:table.cell>{{ $log->break_minutes }} min</flux:table.cell>
                                 <flux:table.cell>
-                                    {{ number_format((float) $log->hours_rendered, 2) }}
+                                    {{ \App\Support\HourFormatter::format($log->hours_rendered) }}
                                     @if ($log->overtime_enabled)
                                         <flux:badge size="sm" color="blue" inset="top bottom">OT</flux:badge>
                                     @endif
@@ -333,7 +333,7 @@
                                 <flux:table.cell>
                                     @if ($log->dutyHourLog)
                                         <div class="flex flex-col">
-                                            <span>{{ number_format((float) $log->dutyHourLog->approved_hours, 2) }} approved</span>
+                                            <span>{{ \App\Support\HourFormatter::format($log->dutyHourLog->approved_hours) }} approved</span>
                                             <flux:badge size="sm" :color="$this->dutyBadgeColor($log->dutyHourLog->status)" inset="top bottom">
                                                 {{ ucfirst($log->dutyHourLog->status) }}
                                             </flux:badge>

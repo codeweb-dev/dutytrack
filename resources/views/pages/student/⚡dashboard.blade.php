@@ -2,10 +2,10 @@
 
 use App\Models\AttendanceLog;
 use App\Models\DutyHourLog;
-use App\Models\Evaluation;
 use App\Models\OjtAssignment;
 use App\Models\StudentRequirement;
 use App\Models\User;
+use App\Support\HourFormatter;
 use Flux\Flux;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
@@ -15,7 +15,8 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-new #[Title('Student Dashboard')] class extends Component {
+new #[Title('Student Dashboard')] class extends Component
+{
     use WithPagination;
 
     public array $breadcrumbs = [['logo' => 'logo.png', 'href' => '/dashboard'], ['label' => 'Student Dashboard']];
@@ -23,7 +24,7 @@ new #[Title('Student Dashboard')] class extends Component {
     #[Computed]
     public function title(): string
     {
-        return 'Welcome back, ' . (Auth::user()?->name ?? 'Professor') . ' 👋';
+        return 'Welcome back, '.(Auth::user()?->name ?? 'Professor').' 👋';
     }
 
     public string $title = 'Student Dashboard';
@@ -37,7 +38,7 @@ new #[Title('Student Dashboard')] class extends Component {
 
     protected function compactHours(float $value): string
     {
-        return number_format($value, $value >= 100 ? 0 : 1) . 'h';
+        return HourFormatter::format($value);
     }
 
     #[Computed]
@@ -81,21 +82,21 @@ new #[Title('Student Dashboard')] class extends Component {
         return [
             [
                 'title' => 'Required Hours',
-                'value' => number_format((float) $hours['required']),
+                'value' => $this->compactHours((float) $hours['required']),
                 'icon' => 'clock',
-                'footnote' => $this->compactHours((float) $hours['remaining']) . ' remaining',
+                'footnote' => $this->compactHours((float) $hours['remaining']).' remaining',
             ],
             [
                 'title' => 'Approved Hours',
                 'value' => $this->compactHours((float) $hours['approved']),
                 'icon' => 'check-badge',
-                'footnote' => $hours['progress'] . '% of your requirement completed',
+                'footnote' => $hours['progress'].'% of your requirement completed',
             ],
             [
                 'title' => 'Assignment Status',
                 'value' => $assignment ? ucfirst($assignment->status) : 'Unassigned',
                 'icon' => 'briefcase',
-                'footnote' => $assignment ? ucfirst($assignment->ojt_type) . ' OJT' : 'Waiting for placement',
+                'footnote' => $assignment ? ucfirst($assignment->ojt_type).' OJT' : 'Waiting for placement',
             ],
         ];
     }
@@ -103,7 +104,7 @@ new #[Title('Student Dashboard')] class extends Component {
     #[Computed]
     public function weeklyHours(): array
     {
-        $days = collect(range(6, 0))->map(fn(int $offset) => now()->subDays($offset)->startOfDay())->values();
+        $days = collect(range(6, 0))->map(fn (int $offset) => now()->subDays($offset)->startOfDay())->values();
 
         $totals = DutyHourLog::query()
             ->selectRaw('DATE(log_date) as day_key, COALESCE(SUM(hours_rendered), 0) as total')
@@ -205,7 +206,7 @@ new #[Title('Student Dashboard')] class extends Component {
     {
         $requirement = StudentRequirement::query()->where('student_id', $this->studentId())->where('key', $key)->firstOrFail();
 
-        if (!$requirement->is_completed && !$requirement->submitted_at) {
+        if (! $requirement->is_completed && ! $requirement->submitted_at) {
             $requirement->update(['submitted_at' => now()]);
         }
 
@@ -466,7 +467,7 @@ new #[Title('Student Dashboard')] class extends Component {
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ number_format((float) ($log->hours_rendered ?? 0), 2) }} hrs
+                                {{ \App\Support\HourFormatter::format($log->hours_rendered ?? 0) }}
                             </flux:table.cell>
                         </flux:table.row>
                     @empty

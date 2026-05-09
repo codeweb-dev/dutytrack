@@ -5,6 +5,7 @@ use App\Models\DutyHourLog;
 use App\Models\Evaluation;
 use App\Models\OjtAssignment;
 use App\Models\User;
+use App\Support\HourFormatter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
@@ -14,7 +15,8 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-new #[Title('Coordinator Dashboard')] class extends Component {
+new #[Title('Coordinator Dashboard')] class extends Component
+{
     use WithPagination;
 
     public array $breadcrumbs = [['logo' => 'logo.png', 'href' => '/dashboard'], ['label' => 'Coordinator Dashboard']];
@@ -22,7 +24,7 @@ new #[Title('Coordinator Dashboard')] class extends Component {
     #[Computed]
     public function title(): string
     {
-        return 'Welcome back, ' . (Auth::user()?->name ?? 'Coordinator') . ' 👋';
+        return 'Welcome back, '.(Auth::user()?->name ?? 'Coordinator').' 👋';
     }
 
     public string $description = 'A focused view of your students, placement progress, weekly activity, and the latest assignment records.';
@@ -68,7 +70,7 @@ new #[Title('Coordinator Dashboard')] class extends Component {
 
     protected function compactHours(float $value): string
     {
-        return number_format($value, $value >= 100 ? 0 : 1) . 'h';
+        return HourFormatter::format($value);
     }
 
     #[Computed]
@@ -85,25 +87,25 @@ new #[Title('Coordinator Dashboard')] class extends Component {
                 'title' => 'My Students',
                 'value' => number_format($totalStudents),
                 'icon' => 'academic-cap',
-                'footnote' => number_format($assignedStudents) . ' already deployed',
+                'footnote' => number_format($assignedStudents).' already deployed',
             ],
             [
                 'title' => 'Pending Placements',
                 'value' => number_format($unassignedStudents),
                 'icon' => 'user-plus',
-                'footnote' => number_format($pendingAssignments) . ' assignment records still pending',
+                'footnote' => number_format($pendingAssignments).' assignment records still pending',
             ],
             [
                 'title' => 'Active Assignments',
                 'value' => number_format($this->managedAssignmentsQuery()->where('status', 'active')->count()),
                 'icon' => 'briefcase',
-                'footnote' => number_format($this->managedAssignmentsQuery()->count()) . ' total assignment records',
+                'footnote' => number_format($this->managedAssignmentsQuery()->count()).' total assignment records',
             ],
             [
                 'title' => 'Approved Hours',
                 'value' => $this->compactHours($approvedHours),
                 'icon' => 'clock',
-                'footnote' => number_format($this->managedAttendanceQuery()->count()) . ' attendance logs tracked',
+                'footnote' => number_format($this->managedAttendanceQuery()->count()).' attendance logs tracked',
             ],
         ];
     }
@@ -112,7 +114,7 @@ new #[Title('Coordinator Dashboard')] class extends Component {
     public function weeklyAttendance(): array
     {
         $days = collect(range(6, 0, -1))
-            ->map(fn(int $offset) => now()->subDays($offset)->startOfDay())
+            ->map(fn (int $offset) => now()->subDays($offset)->startOfDay())
             ->push(now()->startOfDay())
             ->values();
 
@@ -194,7 +196,7 @@ new #[Title('Coordinator Dashboard')] class extends Component {
         return $this->managedStudentsQuery()
             ->with(['studentProfile', 'ojtAssignment.professor', 'ojtAssignment.companySupervisor'])
             ->when($this->studentSearch !== '', function (Builder $query) {
-                $search = '%' . $this->studentSearch . '%';
+                $search = '%'.$this->studentSearch.'%';
 
                 $query->where(function (Builder $nested) use ($search) {
                     $nested
@@ -427,7 +429,7 @@ new #[Title('Coordinator Dashboard')] class extends Component {
                                 </flux:table.cell>
 
                                 <flux:table.cell>
-                                    {{ number_format($student->studentProfile?->ojt_required_hours ?? 0) }} hrs
+                                    {{ \App\Support\HourFormatter::format($student->studentProfile?->ojt_required_hours ?? 0) }}
                                 </flux:table.cell>
                             </flux:table.row>
                         @endforeach

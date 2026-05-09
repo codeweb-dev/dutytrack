@@ -137,7 +137,7 @@ test('students can view their own duty hours page', function () {
     $this->get(route('student.duty-hours'))
         ->assertOk()
         ->assertSee('My Duty Hours')
-        ->assertSee('1.00')
+        ->assertSee('1 hr')
         ->assertSee('Pending');
 });
 

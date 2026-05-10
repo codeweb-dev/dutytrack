@@ -44,7 +44,7 @@ new class extends Component {};
             Pomodoro Timer
         </flux:sidebar.item>
         <flux:sidebar.item icon="fire" href="{{ route('student.pet-streak') }}" :current="request()->routeIs('student.pet-streak')"
-            wire:navigate>
+            wire:navigate badge="In Progress" badgeColor="red">
             Pet Streak
         </flux:sidebar.item>
     </flux:sidebar.group>

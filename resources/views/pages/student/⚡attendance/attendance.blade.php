@@ -335,11 +335,13 @@
                                         <div class="flex flex-col">
                                             <span>{{ \App\Support\HourFormatter::format($log->dutyHourLog->approved_hours) }}
                                                 approved</span>
-                                            <flux:badge size="sm"
-                                                :color="$this->dutyBadgeColor($log->dutyHourLog->status)"
-                                                inset="top bottom">
-                                                {{ ucfirst($log->dutyHourLog->status) }}
-                                            </flux:badge>
+                                            <div class="mt-1">
+                                                <flux:badge size="sm"
+                                                    :color="$this->dutyBadgeColor($log->dutyHourLog->status)"
+                                                    inset="top bottom">
+                                                    {{ ucfirst($log->dutyHourLog->status) }}
+                                                </flux:badge>
+                                            </div>
                                         </div>
                                     @else
                                         <span class="text-zinc-400">—</span>

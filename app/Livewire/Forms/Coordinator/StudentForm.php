@@ -6,6 +6,7 @@ use App\Enums\Role as EnumsRole;
 use App\Models\StudentRequirement;
 use App\Models\User;
 use App\Support\AuditLogger;
+use App\Support\StudentDirectory;
 use Flux\Flux;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -131,6 +132,23 @@ class StudentForm extends Form
         }
 
         abort_unless((int) $student->coordinator_id === (int) $this->coordinator()->id, 403);
+    }
+
+    public function fillFromStudentDirectory(): bool
+    {
+        $student = StudentDirectory::find($this->student_id);
+
+        if (! $student) {
+            return false;
+        }
+
+        $this->first_name = $student['first_name'];
+        $this->middle_name = $student['middle_name'];
+        $this->last_name = $student['last_name'];
+        $this->email = $student['email'];
+        $this->contact_number = $student['contact_number'];
+
+        return true;
     }
 
     public function setStudent(User $student): void

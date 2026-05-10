@@ -113,6 +113,20 @@ test('creating a student from the coordinator flow assigns ownership to the curr
     expect($student->studentRequirements()->where('key', 'parents_waiver')->first()?->is_completed)->toBeFalse();
 });
 
+test('student information autofills from a known student id in the coordinator create flow', function () {
+    $coordinator = createCoordinator();
+
+    $this->actingAs($coordinator);
+
+    Livewire::test('coordinator.student-management.create')
+        ->set('form.student_id', '2316-02373C')
+        ->assertSet('form.first_name', 'ALLEN')
+        ->assertSet('form.middle_name', 'INGRAHAM')
+        ->assertSet('form.last_name', 'LABRAGUE')
+        ->assertSet('form.email', 'labrague@gmail.com')
+        ->assertSet('form.contact_number', '09156862513');
+});
+
 test('students can mark a missing physical requirement as submitted', function () {
     $coordinator = createCoordinator();
     $student = createStudentForCoordinator($coordinator);

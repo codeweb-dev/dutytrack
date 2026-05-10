@@ -21,6 +21,11 @@ new class extends Component
         $this->dispatch('student-saved');
     }
 
+    public function updatedFormStudentId(): void
+    {
+        $this->form->fillFromStudentDirectory();
+    }
+
     public function nextStep(): void
     {
         $this->currentStep = min($this->currentStep + 1, 4);
@@ -163,7 +168,7 @@ new class extends Component
                             <x-custom-file-upload model="form.photo" label="Upload student photo" accept="image/*" />
                         </div>
 
-                        <flux:input wire:model="form.student_id" label="Student ID" placeholder="2316-02373C"
+                        <flux:input wire:model.live.debounce.300ms="form.student_id" label="Student ID" placeholder="2316-02373C"
                             description:trailing="Student ID can be found on the student's ID card." />
 
                         <div class="grid grid-cols-3 gap-x-4 gap-y-6">

@@ -40,10 +40,6 @@ class StudentForm extends Form
 
     public string $course = 'BSCS';
 
-    public string $year_level = '';
-
-    public ?string $section = '';
-
     public ?string $contact_number = '';
 
     public ?string $middle_name = '';
@@ -78,8 +74,6 @@ class StudentForm extends Form
             'contact_number' => ['nullable', 'string', 'max:20'],
             'password' => [$this->student ? 'nullable' : 'required', 'string', 'min:8', 'confirmed'],
             'course' => ['required', 'string', 'max:50'],
-            'year_level' => ['required', 'string', 'max:20'],
-            'section' => ['nullable', 'string', 'max:50'],
             'ojt_required_hours' => ['nullable', 'integer', 'min:0'],
         ];
     }
@@ -92,7 +86,6 @@ class StudentForm extends Form
             'middle_name' => 'middle name',
             'last_name' => 'last name',
             'contact_number' => 'contact number',
-            'year_level' => 'year level',
             'ojt_required_hours' => 'OJT required hours',
         ];
     }
@@ -111,8 +104,6 @@ class StudentForm extends Form
             'status' => $user?->status,
             'student_id' => $user?->studentProfile?->student_id,
             'course' => $user?->studentProfile?->course,
-            'year_level' => $user?->studentProfile?->year_level,
-            'section' => $user?->studentProfile?->section,
             'ojt_required_hours' => $user?->studentProfile?->ojt_required_hours,
             'coordinator_id' => $user?->coordinator_id,
             'coordinator_name' => $user?->coordinator?->name,
@@ -162,8 +153,6 @@ class StudentForm extends Form
 
         $this->student_id = $student->studentProfile?->student_id ?? '';
         $this->course = $student->studentProfile?->course ?? '';
-        $this->year_level = $student->studentProfile?->year_level ?? '';
-        $this->section = $student->studentProfile?->section ?? '';
         $this->ojt_required_hours = (int) ($student->studentProfile?->ojt_required_hours ?? 0);
 
         $this->password = '';
@@ -208,8 +197,6 @@ class StudentForm extends Form
             $user->studentProfile()->create([
                 'student_id' => $this->student_id,
                 'course' => $this->course,
-                'year_level' => $this->year_level,
-                'section' => $this->section ?: null,
                 'ojt_required_hours' => $this->ojt_required_hours ?: 0,
             ]);
 
@@ -311,8 +298,6 @@ class StudentForm extends Form
             $user->studentProfile()->update([
                 'student_id' => $this->student_id,
                 'course' => $this->course,
-                'year_level' => $this->year_level,
-                'section' => $this->section ?: null,
                 'ojt_required_hours' => $this->ojt_required_hours ?: 0,
             ]);
 
@@ -360,8 +345,6 @@ class StudentForm extends Form
         $this->password = '';
         $this->password_confirmation = '';
         $this->course = '';
-        $this->year_level = '';
-        $this->section = '';
         $this->ojt_required_hours = 0;
         $this->requirementChecks = [];
 

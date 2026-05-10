@@ -100,8 +100,7 @@ new #[Title('Duty Hours')] class extends Component
                         })
                         ->orWhereHas('studentProfile', function (Builder $profileQuery) use ($search) {
                             $profileQuery->where('student_id', 'like', $search)
-                                ->orWhere('course', 'like', $search)
-                                ->orWhere('section', 'like', $search);
+                                ->orWhere('course', 'like', $search);
                         });
                 });
             })

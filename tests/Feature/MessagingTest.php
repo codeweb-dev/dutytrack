@@ -30,8 +30,6 @@ function createMessagingUser(AppRole $role, array $attributes = []): User
         $user->studentProfile()->create([
             'student_id' => 'MSG-'.str_pad((string) $user->id, 5, '0', STR_PAD_LEFT),
             'course' => 'BSIT',
-            'year_level' => '4',
-            'section' => 'A',
             'ojt_required_hours' => 600,
         ]);
     }

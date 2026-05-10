@@ -10,8 +10,6 @@ class StudentProfile extends Model
         'user_id',
         'student_id',
         'course',
-        'year_level',
-        'section',
         'ojt_required_hours',
     ];
 

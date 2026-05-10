@@ -45,8 +45,6 @@ function createStudentForCoordinator(User $coordinator, array $attributes = []):
     $student->studentProfile()->create([
         'student_id' => "S-{$sequence}",
         'course' => 'BSIT',
-        'year_level' => '4',
-        'section' => 'A',
         'ojt_required_hours' => 600,
     ]);
 
@@ -96,8 +94,6 @@ test('creating a student from the coordinator flow assigns ownership to the curr
         ->set('form.password', 'password123')
         ->set('form.password_confirmation', 'password123')
         ->set('form.course', 'BSIT')
-        ->set('form.year_level', '4')
-        ->set('form.section', 'A')
         ->set('form.ojt_required_hours', 600)
         ->set('form.requirementChecks', ['orientation'])
         ->call('save')

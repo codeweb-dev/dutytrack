@@ -42,8 +42,6 @@ function createManagedStudent(User $coordinator, array $attributes = []): User
     $student->studentProfile()->create([
         'student_id' => "SID-{$sequence}",
         'course' => 'BSIT',
-        'year_level' => '4',
-        'section' => 'A',
         'ojt_required_hours' => 600,
     ]);
 

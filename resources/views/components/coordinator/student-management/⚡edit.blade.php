@@ -94,15 +94,12 @@ new class extends Component
                     placeholder="Confirm new password" viewable />
             </div>
 
-            <div class="grid grid-cols-3 gap-x-4 gap-y-6">
+            <div>
                 <flux:select wire:model="form.course" label="Course">
                     <option value="">Select course</option>
                     <option value="BSCS">BSCS</option>
                     <option value="BSIT">BSIT</option>
                 </flux:select>
-
-                <flux:input wire:model="form.year_level" label="Year Level" placeholder="4" />
-                <flux:input wire:model="form.section" label="Section" placeholder="A" />
             </div>
 
             <flux:field>

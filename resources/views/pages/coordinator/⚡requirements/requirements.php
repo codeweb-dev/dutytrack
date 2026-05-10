@@ -75,9 +75,7 @@ new #[Title('Requirement Monitoring')] class extends Component
                     ->orWhere('users.last_name', 'like', $search)
                     ->orWhere('users.email', 'like', $search)
                     ->orWhere('student_profiles.student_id', 'like', $search)
-                    ->orWhere('student_profiles.course', 'like', $search)
-                    ->orWhere('student_profiles.year_level', 'like', $search)
-                    ->orWhere('student_profiles.section', 'like', $search);
+                    ->orWhere('student_profiles.course', 'like', $search);
             });
         }
 

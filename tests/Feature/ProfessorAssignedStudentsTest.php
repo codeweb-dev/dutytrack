@@ -56,8 +56,6 @@ function createProfessorAssignedStudent(User $coordinator, array $attributes = [
     $student->studentProfile()->create([
         'student_id' => "PAS-{$sequence}",
         'course' => 'BSIT',
-        'year_level' => '4',
-        'section' => 'A',
         'ojt_required_hours' => 600,
     ]);
 

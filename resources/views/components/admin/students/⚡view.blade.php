@@ -131,20 +131,6 @@ new class extends Component
                     </span>
                 </div>
 
-                <div class="flex items-start justify-between gap-4 border-b border-zinc-100 pb-3 dark:border-zinc-800">
-                    <span class="text-sm text-zinc-500">Year Level</span>
-                    <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
-                        {{ $student->studentProfile?->year_level ?? '' }}
-                    </span>
-                </div>
-
-                <div class="flex items-start justify-between gap-4 border-b border-zinc-100 pb-3 dark:border-zinc-800">
-                    <span class="text-sm text-zinc-500">Section</span>
-                    <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
-                        {{ $student->studentProfile?->section ?? '' }}
-                    </span>
-                </div>
-
                 <div class="flex items-start justify-between gap-4">
                     <span class="text-sm text-zinc-500">OJT Required Hours</span>
                     <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
@@ -176,12 +162,6 @@ new class extends Component
                 </div>
                 <div class="mt-2 text-base font-semibold text-zinc-900 dark:text-white">
                     {{ $student->studentProfile?->course ?? '' }}
-                </div>
-                <div class="text-sm text-zinc-500">
-                    Year {{ $student->studentProfile?->year_level ?? '' }}
-                    @if ($student->studentProfile?->section)
-                        • Section {{ $student->studentProfile->section }}
-                    @endif
                 </div>
             </div>
 

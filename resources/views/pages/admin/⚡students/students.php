@@ -79,8 +79,6 @@ new #[Title('Students')] class extends Component
                     })
                     ->orWhere('student_profiles.student_id', 'like', $search)
                     ->orWhere('student_profiles.course', 'like', $search)
-                    ->orWhere('student_profiles.year_level', 'like', $search)
-                    ->orWhere('student_profiles.section', 'like', $search)
                     ->orWhere('student_profiles.ojt_required_hours', 'like', $search);
             });
         }

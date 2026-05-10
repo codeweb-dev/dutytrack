@@ -104,15 +104,7 @@
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                <div class="flex flex-col">
-                                    <span>{{ $assignment->student?->studentProfile?->course ?? '' }}</span>
-                                    <span class="text-xs text-zinc-500">
-                                        Year {{ $assignment->student?->studentProfile?->year_level ?? '' }}
-                                        @if ($assignment->student?->studentProfile?->section)
-                                            • Section {{ $assignment->student->studentProfile->section }}
-                                        @endif
-                                    </span>
-                                </div>
+                                {{ $assignment->student?->studentProfile?->course ?? '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>

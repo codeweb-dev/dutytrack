@@ -127,8 +127,6 @@ class UserFactory extends Factory
                     [
                         'student_id' => 'STU-'.str_pad((string) $user->id, 5, '0', STR_PAD_LEFT),
                         'course' => 'BS Information Technology',
-                        'year_level' => '4th Year',
-                        'section' => 'A',
                         'ojt_required_hours' => 486,
                     ],
                 );

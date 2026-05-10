@@ -197,11 +197,8 @@ new class extends Component
                                 placeholder="Confirm password" viewable />
                         </div>
 
-                        <div class="grid grid-cols-3 gap-x-4 gap-y-6">
+                        <div>
                             <flux:input wire:model="form.course" label="Course" readonly />
-
-                            <flux:input wire:model="form.year_level" label="Year Level" placeholder="4" />
-                            <flux:input wire:model="form.section" label="Section" placeholder="A" />
                         </div>
 
                         <flux:field>

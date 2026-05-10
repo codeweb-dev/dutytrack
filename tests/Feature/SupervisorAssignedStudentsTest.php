@@ -56,8 +56,6 @@ function createSupervisorAssignedStudent(User $coordinator, array $attributes = 
     $student->studentProfile()->create([
         'student_id' => "SAS-{$sequence}",
         'course' => 'BSIT',
-        'year_level' => '4',
-        'section' => 'A',
         'ojt_required_hours' => 600,
     ]);
 

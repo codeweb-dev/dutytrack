@@ -113,9 +113,6 @@
                     <flux:table.column>ID</flux:table.column>
                     <flux:table.column>OJT Type</flux:table.column>
                     <flux:table.column>Supervisor</flux:table.column>
-                    <flux:table.column>Start Date</flux:table.column>
-                    <flux:table.column>End Date</flux:table.column>
-                    <flux:table.column>Required Hours</flux:table.column>
                     <flux:table.column>Status</flux:table.column>
                     <flux:table.column>Remarks</flux:table.column>
                 </flux:table.columns>
@@ -156,18 +153,6 @@
 
                             <flux:table.cell>
                                 {{ $supervisor?->name ?? trim(($supervisor?->first_name ?? '') . ' ' . ($supervisor?->last_name ?? '')) ?: '' }}
-                            </flux:table.cell>
-
-                            <flux:table.cell>
-                                {{ $assignment->start_date?->format('M d, Y') ?? '' }}
-                            </flux:table.cell>
-
-                            <flux:table.cell>
-                                {{ $assignment->end_date?->format('M d, Y') ?? '' }}
-                            </flux:table.cell>
-
-                            <flux:table.cell>
-                                {{ \App\Support\HourFormatter::format($assignment->required_hours ?? 0) }}
                             </flux:table.cell>
 
                             <flux:table.cell>

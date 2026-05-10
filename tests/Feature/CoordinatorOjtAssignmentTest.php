@@ -97,9 +97,6 @@ test('coordinator can create an internal assignment for their own student', func
         ->set('form.student_id', $student->id)
         ->set('form.ojt_type', 'internal')
         ->set('form.professor_id', $professor->id)
-        ->set('form.start_date', '2026-04-20')
-        ->set('form.end_date', '2026-06-20')
-        ->set('form.required_hours', 600)
         ->set('form.status', 'active')
         ->set('form.remarks', 'Assigned to faculty adviser.')
         ->call('save')
@@ -124,8 +121,6 @@ test('coordinator can create an external assignment for their own student', func
         ->set('form.student_id', $student->id)
         ->set('form.ojt_type', 'external')
         ->set('form.company_supervisor_id', $supervisor->id)
-        ->set('form.start_date', '2026-04-20')
-        ->set('form.required_hours', 600)
         ->set('form.status', 'active')
         ->call('save')
         ->assertHasNoErrors();
@@ -150,8 +145,6 @@ test('coordinator cannot assign another coordinators student', function () {
         ->set('form.student_id', $otherStudent->id)
         ->set('form.ojt_type', 'internal')
         ->set('form.professor_id', $professor->id)
-        ->set('form.start_date', '2026-04-20')
-        ->set('form.required_hours', 600)
         ->set('form.status', 'active')
         ->call('save')
         ->assertForbidden();
@@ -172,8 +165,6 @@ test('coordinator cannot assign both a professor and a company supervisor to one
         ->set('form.ojt_type', 'internal')
         ->set('form.professor_id', $professor->id)
         ->set('form.company_supervisor_id', $supervisor->id)
-        ->set('form.start_date', '2026-04-20')
-        ->set('form.required_hours', 600)
         ->set('form.status', 'active')
         ->call('save')
         ->assertHasErrors(['form.company_supervisor_id']);

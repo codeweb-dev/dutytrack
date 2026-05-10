@@ -46,8 +46,6 @@ function createMessagingAssignment(User $student, ?User $professor = null, ?User
         'ojt_type' => $supervisor ? 'external' : 'internal',
         'professor_id' => $professor?->id,
         'company_supervisor_id' => $supervisor?->id,
-        'start_date' => '2026-04-20',
-        'required_hours' => 600,
         'status' => 'active',
     ]);
 }

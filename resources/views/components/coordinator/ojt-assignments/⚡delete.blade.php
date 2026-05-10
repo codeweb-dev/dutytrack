@@ -36,9 +36,6 @@ new class extends Component
                 'ojt_type' => $assignment->ojt_type,
                 'professor_name' => $assignment->professor?->name,
                 'company_supervisor_name' => $assignment->companySupervisor?->name,
-                'start_date' => $assignment->start_date?->toDateString(),
-                'end_date' => $assignment->end_date?->toDateString(),
-                'required_hours' => $assignment->required_hours,
                 'status' => $assignment->status,
                 'remarks' => $assignment->remarks,
             ];

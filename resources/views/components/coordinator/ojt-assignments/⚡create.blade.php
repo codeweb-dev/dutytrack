@@ -41,19 +41,6 @@ new class extends Component
             ->get();
     }
 
-    public function updatedFormStudentId($value): void
-    {
-        if (! $value) {
-            $this->form->required_hours = 0;
-
-            return;
-        }
-
-        $student = $this->students->firstWhere('id', (int) $value);
-
-        $this->form->required_hours = (int) ($student?->studentProfile?->ojt_required_hours ?? 0);
-    }
-
     public function updatedFormOjtType(string $value): void
     {
         if ($value === 'internal') {
@@ -127,21 +114,12 @@ new class extends Component
                     </flux:select>
                 @endif
 
-                <div class="grid grid-cols-2 gap-4">
-                    <flux:input wire:model="form.start_date" type="date" label="Start Date" />
-                    <flux:input wire:model="form.end_date" type="date" label="End Date" badge="Optional" />
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <flux:input wire:model="form.required_hours" type="number" min="0" label="Required Hours" />
-
-                    <flux:select wire:model="form.status" label="Status">
-                        <option value="pending">Pending</option>
-                        <option value="active">Active</option>
-                        <option value="completed">Completed</option>
-                        <option value="cancelled">Cancelled</option>
-                    </flux:select>
-                </div>
+                <flux:select wire:model="form.status" label="Status">
+                    <option value="pending">Pending</option>
+                    <option value="active">Active</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                </flux:select>
 
                 <flux:textarea wire:model="form.remarks" label="Remarks" rows="4" badge="Optional"
                     placeholder="Add assignment notes, deployment details, or coordinator remarks." />

@@ -23,12 +23,6 @@ class OjtAssignmentForm extends Form
 
     public ?int $company_supervisor_id = null;
 
-    public string $start_date = '';
-
-    public ?string $end_date = null;
-
-    public int $required_hours = 0;
-
     public string $status = 'active';
 
     public ?string $remarks = null;
@@ -59,9 +53,6 @@ class OjtAssignmentForm extends Form
                 'integer',
                 Rule::exists('users', 'id'),
             ],
-            'start_date' => ['required', 'date'],
-            'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
-            'required_hours' => ['required', 'integer', 'min:0'],
             'status' => ['required', Rule::in(['pending', 'active', 'completed', 'cancelled'])],
             'remarks' => ['nullable', 'string', 'max:1000'],
         ];
@@ -74,9 +65,6 @@ class OjtAssignmentForm extends Form
             'ojt_type' => 'OJT type',
             'professor_id' => 'professor',
             'company_supervisor_id' => 'company supervisor',
-            'start_date' => 'start date',
-            'end_date' => 'end date',
-            'required_hours' => 'required hours',
         ];
     }
 
@@ -158,9 +146,6 @@ class OjtAssignmentForm extends Form
             'professor_name' => $assignment?->professor?->name,
             'company_supervisor_id' => $assignment?->company_supervisor_id,
             'company_supervisor_name' => $assignment?->companySupervisor?->name,
-            'start_date' => $assignment?->start_date?->toDateString(),
-            'end_date' => $assignment?->end_date?->toDateString(),
-            'required_hours' => $assignment?->required_hours,
             'status' => $assignment?->status,
             'remarks' => $assignment?->remarks,
         ];
@@ -191,9 +176,6 @@ class OjtAssignmentForm extends Form
         $this->ojt_type = $assignment->ojt_type;
         $this->professor_id = $assignment->professor_id;
         $this->company_supervisor_id = $assignment->company_supervisor_id;
-        $this->start_date = $assignment->start_date?->toDateString() ?? '';
-        $this->end_date = $assignment->end_date?->toDateString();
-        $this->required_hours = (int) $assignment->required_hours;
         $this->status = $assignment->status;
         $this->remarks = $assignment->remarks;
 
@@ -220,9 +202,6 @@ class OjtAssignmentForm extends Form
                 'ojt_type' => $this->ojt_type,
                 'professor_id' => $this->ojt_type === 'internal' ? $this->professor_id : null,
                 'company_supervisor_id' => $this->ojt_type === 'external' ? $this->company_supervisor_id : null,
-                'start_date' => $this->start_date,
-                'end_date' => $this->end_date ?: null,
-                'required_hours' => $this->required_hours,
                 'status' => $this->status,
                 'remarks' => $this->remarks ?: null,
             ]);
@@ -288,9 +267,6 @@ class OjtAssignmentForm extends Form
                 'ojt_type' => $this->ojt_type,
                 'professor_id' => $this->ojt_type === 'internal' ? $this->professor_id : null,
                 'company_supervisor_id' => $this->ojt_type === 'external' ? $this->company_supervisor_id : null,
-                'start_date' => $this->start_date,
-                'end_date' => $this->end_date ?: null,
-                'required_hours' => $this->required_hours,
                 'status' => $this->status,
                 'remarks' => $this->remarks ?: null,
             ]);
@@ -328,9 +304,6 @@ class OjtAssignmentForm extends Form
         $this->ojt_type = 'internal';
         $this->professor_id = null;
         $this->company_supervisor_id = null;
-        $this->start_date = '';
-        $this->end_date = null;
-        $this->required_hours = 0;
         $this->status = 'active';
         $this->remarks = null;
 

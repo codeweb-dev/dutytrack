@@ -424,7 +424,6 @@ new #[Title('Admin Dashboard')] class extends Component
                         <flux:table.column>Assignee</flux:table.column>
                         <flux:table.column>Type</flux:table.column>
                         <flux:table.column>Status</flux:table.column>
-                        <flux:table.column>Hours</flux:table.column>
                     </flux:table.columns>
 
                     <flux:table.rows>
@@ -476,9 +475,6 @@ new #[Title('Admin Dashboard')] class extends Component
                                     </flux:badge>
                                 </flux:table.cell>
 
-                                <flux:table.cell>
-                                    {{ \App\Support\HourFormatter::format($assignment->required_hours) }}
-                                </flux:table.cell>
                             </flux:table.row>
                         @endforeach
                     </flux:table.rows>

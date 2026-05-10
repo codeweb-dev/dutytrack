@@ -27,8 +27,6 @@ function createStudentWithAssignment(): User
         'student_id' => $student->id,
         'ojt_type' => 'internal',
         'professor_id' => $professor->id,
-        'start_date' => '2026-04-20',
-        'required_hours' => 486,
         'status' => 'active',
     ]);
 

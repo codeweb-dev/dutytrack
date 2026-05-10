@@ -186,16 +186,12 @@ test('coordinators can view duty hours for all students', function () {
     $ownedAssignment = OjtAssignment::query()->create([
         'student_id' => $ownedStudent->id,
         'ojt_type' => 'internal',
-        'start_date' => '2026-04-20',
-        'required_hours' => 600,
         'status' => 'active',
     ]);
 
     $otherAssignment = OjtAssignment::query()->create([
         'student_id' => $otherStudent->id,
         'ojt_type' => 'external',
-        'start_date' => '2026-04-20',
-        'required_hours' => 600,
         'status' => 'active',
     ]);
 
@@ -241,8 +237,6 @@ test('coordinators can monitor attendance for their own students', function () {
         'student_id' => $ownedStudent->id,
         'ojt_type' => 'internal',
         'professor_id' => $professor->id,
-        'start_date' => '2026-04-20',
-        'required_hours' => 600,
         'status' => 'active',
     ]);
 
@@ -250,8 +244,6 @@ test('coordinators can monitor attendance for their own students', function () {
         'student_id' => $otherStudent->id,
         'ojt_type' => 'internal',
         'professor_id' => $professor->id,
-        'start_date' => '2026-04-20',
-        'required_hours' => 600,
         'status' => 'active',
     ]);
 

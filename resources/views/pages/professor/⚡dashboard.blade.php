@@ -339,7 +339,6 @@ new #[Title('Professor Dashboard')] class extends Component
                     <flux:table.column>Student</flux:table.column>
                     <flux:table.column>Coordinator</flux:table.column>
                     <flux:table.column>Status</flux:table.column>
-                    <flux:table.column>Hours</flux:table.column>
                 </flux:table.columns>
 
                 <flux:table.rows>
@@ -374,13 +373,10 @@ new #[Title('Professor Dashboard')] class extends Component
                                 </flux:badge>
                             </flux:table.cell>
 
-                            <flux:table.cell>
-                                {{ \App\Support\HourFormatter::format($assignment->required_hours) }}
-                            </flux:table.cell>
                         </flux:table.row>
                     @empty
                         <flux:table.row>
-                            <flux:table.cell colspan="5" class="py-8 text-center text-zinc-500">
+                            <flux:table.cell colspan="3" class="py-8 text-center text-zinc-500">
                                 No advisees found.
                             </flux:table.cell>
                         </flux:table.row>

@@ -76,8 +76,6 @@ test('professors can view only their assigned students', function () {
         'student_id' => $ownedStudent->id,
         'ojt_type' => 'internal',
         'professor_id' => $professorA->id,
-        'start_date' => '2026-04-20',
-        'required_hours' => 600,
         'status' => 'active',
     ]);
 
@@ -85,8 +83,6 @@ test('professors can view only their assigned students', function () {
         'student_id' => $otherStudent->id,
         'ojt_type' => 'internal',
         'professor_id' => $professorB->id,
-        'start_date' => '2026-04-20',
-        'required_hours' => 600,
         'status' => 'active',
     ]);
 
@@ -110,8 +106,6 @@ test('professors can approve pending duty hours from duty hours page', function 
         'student_id' => $ownedStudent->id,
         'ojt_type' => 'internal',
         'professor_id' => $professorA->id,
-        'start_date' => '2026-04-20',
-        'required_hours' => 600,
         'status' => 'active',
     ]);
 
@@ -119,8 +113,6 @@ test('professors can approve pending duty hours from duty hours page', function 
         'student_id' => $otherStudent->id,
         'ojt_type' => 'internal',
         'professor_id' => $professorB->id,
-        'start_date' => '2026-04-20',
-        'required_hours' => 600,
         'status' => 'active',
     ]);
 
@@ -185,8 +177,6 @@ test('professors can assign tasks to their assigned students', function () {
             'student_id' => $student->id,
             'ojt_type' => 'internal',
             'professor_id' => $professor->id,
-            'start_date' => '2026-04-20',
-            'required_hours' => 600,
             'status' => 'active',
         ]);
     }
@@ -230,8 +220,6 @@ test('professors cannot assign tasks to students not assigned to them', function
         'student_id' => $student->id,
         'ojt_type' => 'internal',
         'professor_id' => $professorB->id,
-        'start_date' => '2026-04-20',
-        'required_hours' => 600,
         'status' => 'active',
     ]);
 
@@ -256,8 +244,6 @@ test('students can see tasks assigned by their professor', function () {
         'student_id' => $student->id,
         'ojt_type' => 'internal',
         'professor_id' => $professor->id,
-        'start_date' => '2026-04-20',
-        'required_hours' => 600,
         'status' => 'active',
     ]);
 
@@ -288,8 +274,6 @@ test('students can drag tasks between kanban columns', function () {
         'student_id' => $student->id,
         'ojt_type' => 'internal',
         'professor_id' => $professor->id,
-        'start_date' => '2026-04-20',
-        'required_hours' => 600,
         'status' => 'active',
     ]);
 
@@ -336,8 +320,6 @@ test('professors can drag grouped task cards between columns', function () {
         'student_id' => $studentA->id,
         'ojt_type' => 'internal',
         'professor_id' => $professor->id,
-        'start_date' => '2026-04-20',
-        'required_hours' => 600,
         'status' => 'active',
     ]);
 
@@ -345,8 +327,6 @@ test('professors can drag grouped task cards between columns', function () {
         'student_id' => $studentB->id,
         'ojt_type' => 'internal',
         'professor_id' => $professor->id,
-        'start_date' => '2026-04-20',
-        'required_hours' => 600,
         'status' => 'active',
     ]);
 
@@ -354,8 +334,6 @@ test('professors can drag grouped task cards between columns', function () {
         'student_id' => $studentC->id,
         'ojt_type' => 'internal',
         'professor_id' => $professor->id,
-        'start_date' => '2026-04-20',
-        'required_hours' => 600,
         'status' => 'active',
     ]);
 

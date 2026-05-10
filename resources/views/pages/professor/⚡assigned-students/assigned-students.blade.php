@@ -76,7 +76,6 @@
                     <flux:table.column>Student ID</flux:table.column>
                     <flux:table.column>Academic Details</flux:table.column>
                     <flux:table.column>Coordinator</flux:table.column>
-                    <flux:table.column>Dates</flux:table.column>
                     <flux:table.column>Hours</flux:table.column>
                     <flux:table.column>Attendance</flux:table.column>
                     <flux:table.column>Status</flux:table.column>
@@ -121,21 +120,7 @@
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                <div class="flex flex-col text-sm">
-                                    <span>{{ $assignment->start_date?->format('M d, Y') ?? '' }}</span>
-                                    <span class="text-xs text-zinc-500">
-                                        Until {{ $assignment->end_date?->format('M d, Y') ?? 'Open-ended' }}
-                                    </span>
-                                </div>
-                            </flux:table.cell>
-
-                            <flux:table.cell>
-                                <div class="flex flex-col">
-                                    <span>{{ \App\Support\HourFormatter::format($approvedHours) }} approved</span>
-                                    <span class="text-xs text-zinc-500">
-                                        {{ \App\Support\HourFormatter::format($assignment->required_hours) }} required
-                                    </span>
-                                </div>
+                                {{ \App\Support\HourFormatter::format($approvedHours) }} approved
                             </flux:table.cell>
 
                             <flux:table.cell>

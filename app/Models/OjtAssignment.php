@@ -11,16 +11,8 @@ class OjtAssignment extends Model
         'ojt_type',
         'professor_id',
         'company_supervisor_id',
-        'start_date',
-        'end_date',
-        'required_hours',
         'status',
         'remarks',
-    ];
-
-    protected $casts = [
-        'start_date' => 'date',
-        'end_date' => 'date',
     ];
 
     public function evaluations()

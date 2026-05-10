@@ -76,8 +76,6 @@ test('company supervisors can view only their assigned students', function () {
         'student_id' => $ownedStudent->id,
         'ojt_type' => 'external',
         'company_supervisor_id' => $supervisorA->id,
-        'start_date' => '2026-04-20',
-        'required_hours' => 600,
         'status' => 'active',
     ]);
 
@@ -85,8 +83,6 @@ test('company supervisors can view only their assigned students', function () {
         'student_id' => $otherStudent->id,
         'ojt_type' => 'external',
         'company_supervisor_id' => $supervisorB->id,
-        'start_date' => '2026-04-20',
-        'required_hours' => 600,
         'status' => 'active',
     ]);
 
@@ -110,8 +106,6 @@ test('company supervisors can approve pending duty hours from duty hours page', 
         'student_id' => $ownedStudent->id,
         'ojt_type' => 'external',
         'company_supervisor_id' => $supervisorA->id,
-        'start_date' => '2026-04-20',
-        'required_hours' => 600,
         'status' => 'active',
     ]);
 
@@ -119,8 +113,6 @@ test('company supervisors can approve pending duty hours from duty hours page', 
         'student_id' => $otherStudent->id,
         'ojt_type' => 'external',
         'company_supervisor_id' => $supervisorB->id,
-        'start_date' => '2026-04-20',
-        'required_hours' => 600,
         'status' => 'active',
     ]);
 
@@ -185,8 +177,6 @@ test('company supervisors can assign tasks to their assigned trainees', function
             'student_id' => $student->id,
             'ojt_type' => 'external',
             'company_supervisor_id' => $supervisor->id,
-            'start_date' => '2026-04-20',
-            'required_hours' => 600,
             'status' => 'active',
         ]);
     }
@@ -235,8 +225,6 @@ test('company supervisors cannot assign tasks to trainees not assigned to them',
         'student_id' => $student->id,
         'ojt_type' => 'external',
         'company_supervisor_id' => $supervisorB->id,
-        'start_date' => '2026-04-20',
-        'required_hours' => 600,
         'status' => 'active',
     ]);
 
@@ -263,8 +251,6 @@ test('company supervisors can drag grouped task cards between columns', function
         'student_id' => $studentA->id,
         'ojt_type' => 'external',
         'company_supervisor_id' => $supervisor->id,
-        'start_date' => '2026-04-20',
-        'required_hours' => 600,
         'status' => 'active',
     ]);
 
@@ -272,8 +258,6 @@ test('company supervisors can drag grouped task cards between columns', function
         'student_id' => $studentB->id,
         'ojt_type' => 'external',
         'company_supervisor_id' => $supervisor->id,
-        'start_date' => '2026-04-20',
-        'required_hours' => 600,
         'status' => 'active',
     ]);
 
@@ -281,8 +265,6 @@ test('company supervisors can drag grouped task cards between columns', function
         'student_id' => $studentC->id,
         'ojt_type' => 'external',
         'company_supervisor_id' => $supervisor->id,
-        'start_date' => '2026-04-20',
-        'required_hours' => 600,
         'status' => 'active',
     ]);
 

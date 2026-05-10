@@ -22,6 +22,8 @@ return new class extends Migration
             $table->enum('status', ['pending', 'in_progress', 'in_review', 'done'])->default('pending');
             $table->enum('priority', ['low', 'normal', 'high'])->default('normal');
             $table->date('due_date')->nullable();
+            $table->unsignedInteger('sort_order')->default(0);
+            $table->index(['status', 'sort_order']);
             $table->timestamp('completed_at')->nullable();
             $table->timestamps();
 

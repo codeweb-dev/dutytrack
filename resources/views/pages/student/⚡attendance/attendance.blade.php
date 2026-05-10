@@ -53,18 +53,32 @@
                 @endif
             </div>
 
-            <div class="mt-6 grid gap-3 sm:grid-cols-2">
+            <div class="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                 <flux:card class="p-4">
-                    <flux:heading>Time In</flux:heading>
+                    <flux:heading>Morning In</flux:heading>
                     <div class="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white">
-                        {{ $this->todayAttendance?->time_in?->format('h:i A') ?? '' }}
+                        {{ $this->todayAttendance?->displayMorningTimeIn()?->format('h:i A') ?? '' }}
                     </div>
                 </flux:card>
 
                 <flux:card class="p-4">
-                    <flux:heading>Time Out</flux:heading>
+                    <flux:heading>Morning Out</flux:heading>
                     <div class="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white">
-                        {{ $this->todayAttendance?->time_out?->format('h:i A') ?? '' }}
+                        {{ $this->todayAttendance?->displayMorningTimeOut()?->format('h:i A') ?? '' }}
+                    </div>
+                </flux:card>
+
+                <flux:card class="p-4">
+                    <flux:heading>Afternoon In</flux:heading>
+                    <div class="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white">
+                        {{ $this->todayAttendance?->displayAfternoonTimeIn()?->format('h:i A') ?? '' }}
+                    </div>
+                </flux:card>
+
+                <flux:card class="p-4">
+                    <flux:heading>Afternoon Out</flux:heading>
+                    <div class="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white">
+                        {{ $this->todayAttendance?->displayAfternoonTimeOut()?->format('h:i A') ?? '' }}
                     </div>
                 </flux:card>
             </div>
@@ -101,8 +115,8 @@
                 </div>
             @endif
 
-            <form wire:submit="{{ $this->todayAttendance ? 'clockOut' : 'clockIn' }}" class="mt-6 space-y-4">
-                @if (!$this->todayAttendance)
+            <form wire:submit="recordNextPunch" class="mt-6 space-y-4">
+                @if ($this->nextPunch() === 'morning_time_in')
                     <div x-data="{
                         locating: false,
                         message: 'Allow location access to attach your time-in map.',
@@ -232,9 +246,7 @@
                             <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
                         @enderror
                     </div>
-                @elseif (!$this->todayAttendance->time_out)
-                    <flux:input type="number" min="0" max="720" wire:model="break_minutes"
-                        label="Break minutes" />
+                @elseif ($this->nextPunch() === 'afternoon_time_out')
                     <flux:switch wire:model="overtime_enabled" label="Enable OT"
                         description="Continue counting rendered hours after 5:00 PM." />
                 @endif
@@ -242,7 +254,7 @@
                 <flux:textarea wire:model="remarks" label="Remarks" rows="3" badge="Optional"
                     placeholder="Add a note for this attendance record" />
 
-                @if ($this->assignment && (!$this->todayAttendance || !$this->todayAttendance->time_out))
+                @if ($this->assignment && $this->nextPunch())
                     <flux:callout icon="cube" variant="secondary" inline>
                         <flux:callout.heading>Your Testing Bypass</flux:callout.heading>
                         <flux:callout.text>Create a completed attendance log without waiting for the timer.
@@ -271,14 +283,10 @@
                 @endif
 
                 <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-                    @if (!$this->todayAttendance)
-                        <flux:button type="submit" variant="primary" icon="arrow-right-end-on-rectangle"
+                    @if ($this->nextPunch())
+                        <flux:button type="submit" variant="primary" :icon="$this->nextPunchIcon()"
                             :disabled="! $this->assignment">
-                            Clock In
-                        </flux:button>
-                    @elseif (!$this->todayAttendance->time_out)
-                        <flux:button type="submit" variant="primary" icon="arrow-left-end-on-rectangle">
-                            Clock Out
+                            {{ $this->nextPunchLabel() }}
                         </flux:button>
                     @else
                         <flux:button variant="ghost" icon="check-circle" disabled>
@@ -288,7 +296,7 @@
 
                     <flux:text>
                         @if ($this->assignment)
-                            {{ ucfirst($this->assignment->ojt_type) }} OJT · 7:00 AM to 5:00 PM
+                            {{ ucfirst($this->assignment->ojt_type) }} OJT · Morning and afternoon attendance
                         @else
                             Waiting for assignment
                         @endif
@@ -307,9 +315,10 @@
                 <flux:table :paginate="$this->attendanceLogs">
                     <flux:table.columns>
                         <flux:table.column>Date</flux:table.column>
-                        <flux:table.column>Time In</flux:table.column>
-                        <flux:table.column>Time Out</flux:table.column>
-                        <flux:table.column>Break</flux:table.column>
+                        <flux:table.column>Morning In</flux:table.column>
+                        <flux:table.column>Morning Out</flux:table.column>
+                        <flux:table.column>Afternoon In</flux:table.column>
+                        <flux:table.column>Afternoon Out</flux:table.column>
                         <flux:table.column>Hours</flux:table.column>
                         <flux:table.column>Duty Hours</flux:table.column>
                         <flux:table.column>Location</flux:table.column>
@@ -321,9 +330,10 @@
                             <flux:table.row :key="$log->id">
                                 <flux:table.cell>{{ $log->attendance_date?->format('M d, Y') ?? '' }}
                                 </flux:table.cell>
-                                <flux:table.cell>{{ $log->time_in?->format('h:i A') ?? '' }}</flux:table.cell>
-                                <flux:table.cell>{{ $log->time_out?->format('h:i A') ?? '' }}</flux:table.cell>
-                                <flux:table.cell>{{ $log->break_minutes }} min</flux:table.cell>
+                                <flux:table.cell>{{ $log->displayMorningTimeIn()?->format('h:i A') ?? '' }}</flux:table.cell>
+                                <flux:table.cell>{{ $log->displayMorningTimeOut()?->format('h:i A') ?? '' }}</flux:table.cell>
+                                <flux:table.cell>{{ $log->displayAfternoonTimeIn()?->format('h:i A') ?? '' }}</flux:table.cell>
+                                <flux:table.cell>{{ $log->displayAfternoonTimeOut()?->format('h:i A') ?? '' }}</flux:table.cell>
                                 <flux:table.cell>
                                     {{ \App\Support\HourFormatter::format($log->hours_rendered) }}
                                     @if ($log->overtime_enabled)
@@ -366,7 +376,7 @@
                             </flux:table.row>
                         @empty
                             <flux:table.row>
-                                <flux:table.cell colspan="8" class="py-8 text-center text-zinc-500">
+                                <flux:table.cell colspan="9" class="py-8 text-center text-zinc-500">
                                     No attendance records found.
                                 </flux:table.cell>
                             </flux:table.row>

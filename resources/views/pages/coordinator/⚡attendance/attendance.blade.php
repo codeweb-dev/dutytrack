@@ -103,8 +103,10 @@
                     <flux:table.column>OJT Type</flux:table.column>
                     <flux:table.column>Supervisor</flux:table.column>
                     <flux:table.column>Date</flux:table.column>
-                    <flux:table.column>Time In</flux:table.column>
-                    <flux:table.column>Time Out</flux:table.column>
+                    <flux:table.column>Morning In</flux:table.column>
+                    <flux:table.column>Morning Out</flux:table.column>
+                    <flux:table.column>Afternoon In</flux:table.column>
+                    <flux:table.column>Afternoon Out</flux:table.column>
                     <flux:table.column>Hours</flux:table.column>
                     <flux:table.column>Location</flux:table.column>
                     <flux:table.column>Status</flux:table.column>
@@ -155,11 +157,19 @@
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ $log->time_in?->format('h:i A') ?? '' }}
+                                {{ $log->displayMorningTimeIn()?->format('h:i A') ?? '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ $log->time_out?->format('h:i A') ?? '' }}
+                                {{ $log->displayMorningTimeOut()?->format('h:i A') ?? '' }}
+                            </flux:table.cell>
+
+                            <flux:table.cell>
+                                {{ $log->displayAfternoonTimeIn()?->format('h:i A') ?? '' }}
+                            </flux:table.cell>
+
+                            <flux:table.cell>
+                                {{ $log->displayAfternoonTimeOut()?->format('h:i A') ?? '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>

@@ -116,9 +116,9 @@
 
                             <flux:table.cell>
                                 <div class="flex flex-col text-sm">
-                                    <span>{{ $log->attendance?->time_in?->format('h:i A') ?? '' }}</span>
+                                    <span>{{ $log->attendance?->displayMorningTimeIn()?->format('h:i A') ?? '' }}</span>
                                     <span class="text-xs text-zinc-500">
-                                        Out {{ $log->attendance?->time_out?->format('h:i A') ?? '' }}
+                                        Out {{ $log->attendance?->displayAfternoonTimeOut()?->format('h:i A') ?? '' }}
                                     </span>
                                 </div>
                             </flux:table.cell>

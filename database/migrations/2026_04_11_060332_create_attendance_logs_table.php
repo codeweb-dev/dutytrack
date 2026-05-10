@@ -20,14 +20,15 @@ return new class extends Migration
             $table->decimal('hours_rendered', 5, 2)->default(0);
             $table->boolean('overtime_enabled')->default(false);
             $table->date('attendance_date');
+            $table->timestamp('morning_time_in')->nullable();
+            $table->timestamp('morning_time_out')->nullable();
+            $table->timestamp('afternoon_time_in')->nullable();
+            $table->timestamp('afternoon_time_out')->nullable();
             $table->decimal('time_in_latitude', 10, 7)->nullable();
             $table->decimal('time_in_longitude', 10, 7)->nullable();
             $table->unsignedInteger('time_in_location_accuracy')->nullable();
-            $table->unsignedInteger('break_minutes')->default(0);
             $table->enum('status', ['present', 'late', 'absent', 'incomplete'])->default('present');
             $table->text('remarks')->nullable();
-            $table->timestamp('time_in')->nullable();
-            $table->timestamp('time_out')->nullable();
             $table->timestamps();
             $table->unique(['student_id', 'attendance_date']);
             $table->index(['attendance_date', 'status']);

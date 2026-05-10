@@ -431,8 +431,10 @@ new #[Title('Student Dashboard')] class extends Component
             <flux:table :paginate="$this->recentAttendance">
                 <flux:table.columns>
                     <flux:table.column>Date</flux:table.column>
-                    <flux:table.column>Time In</flux:table.column>
-                    <flux:table.column>Time Out</flux:table.column>
+                    <flux:table.column>Morning In</flux:table.column>
+                    <flux:table.column>Morning Out</flux:table.column>
+                    <flux:table.column>Afternoon In</flux:table.column>
+                    <flux:table.column>Afternoon Out</flux:table.column>
                     <flux:table.column>Status</flux:table.column>
                     <flux:table.column>Hours</flux:table.column>
                 </flux:table.columns>
@@ -445,24 +447,26 @@ new #[Title('Student Dashboard')] class extends Component
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ $log->time_in?->format('h:i A') ?? '' }}
+                                {{ $log->displayMorningTimeIn()?->format('h:i A') ?? '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ $log->time_out?->format('h:i A') ?? '' }}
+                                {{ $log->displayMorningTimeOut()?->format('h:i A') ?? '' }}
+                            </flux:table.cell>
+
+                            <flux:table.cell>
+                                {{ $log->displayAfternoonTimeIn()?->format('h:i A') ?? '' }}
+                            </flux:table.cell>
+
+                            <flux:table.cell>
+                                {{ $log->displayAfternoonTimeOut()?->format('h:i A') ?? '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>
                                 <div class="flex items-center gap-2">
-                                    <flux:badge size="sm" :color="$log->is_flagged ? 'red' : 'sky'" inset="top bottom">
+                                    <flux:badge size="sm" color="sky" inset="top bottom">
                                         {{ ucfirst($log->status ?? 'recorded') }}
                                     </flux:badge>
-
-                                    @if ($log->is_flagged)
-                                        <flux:badge color="amber" inset="top bottom">
-                                            Flagged
-                                        </flux:badge>
-                                    @endif
                                 </div>
                             </flux:table.cell>
 
@@ -472,7 +476,7 @@ new #[Title('Student Dashboard')] class extends Component
                         </flux:table.row>
                     @empty
                         <flux:table.row>
-                            <flux:table.cell colspan="5" class="py-8 text-center text-zinc-500">
+                            <flux:table.cell colspan="7" class="py-8 text-center text-zinc-500">
                                 No attendance records found.
                             </flux:table.cell>
                         </flux:table.row>

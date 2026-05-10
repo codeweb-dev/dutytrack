@@ -10,33 +10,57 @@ class AttendanceLog extends Model
         'student_id',
         'ojt_assignment_id',
         'attendance_date',
-        'time_in',
+        'morning_time_in',
+        'morning_time_out',
+        'afternoon_time_in',
+        'afternoon_time_out',
         'time_in_latitude',
         'time_in_longitude',
         'time_in_location_accuracy',
-        'time_out',
-        'break_minutes',
         'hours_rendered',
         'overtime_enabled',
         'status',
-        'source',
         'remarks',
-        'is_flagged',
-        'flag_reason',
         'reviewed_by',
     ];
 
     protected $casts = [
         'attendance_date' => 'date',
-        'time_in' => 'datetime',
+        'morning_time_in' => 'datetime',
+        'morning_time_out' => 'datetime',
+        'afternoon_time_in' => 'datetime',
+        'afternoon_time_out' => 'datetime',
         'time_in_latitude' => 'float',
         'time_in_longitude' => 'float',
         'time_in_location_accuracy' => 'integer',
         'overtime_enabled' => 'boolean',
-        'time_out' => 'datetime',
-        'is_flagged' => 'boolean',
         'hours_rendered' => 'decimal:2',
     ];
+
+    public function isComplete(): bool
+    {
+        return $this->afternoon_time_out !== null;
+    }
+
+    public function displayMorningTimeIn()
+    {
+        return $this->morning_time_in;
+    }
+
+    public function displayMorningTimeOut()
+    {
+        return $this->morning_time_out;
+    }
+
+    public function displayAfternoonTimeIn()
+    {
+        return $this->afternoon_time_in;
+    }
+
+    public function displayAfternoonTimeOut()
+    {
+        return $this->afternoon_time_out;
+    }
 
     public function hasTimeInLocation(): bool
     {

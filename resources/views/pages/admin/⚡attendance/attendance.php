@@ -118,13 +118,13 @@ new #[Title('Attendance Monitoring')] class extends Component
             })
             ->when($this->status !== '', function ($query) {
                 $this->status === 'incomplete'
-                    ? $query->whereNull('time_out')
+                    ? $query->whereNull('afternoon_time_out')
                     : $query->where('status', $this->status);
             })
             ->when($this->from_date, fn ($query) => $query->whereDate('attendance_date', '>=', $this->from_date))
             ->when($this->to_date, fn ($query) => $query->whereDate('attendance_date', '<=', $this->to_date))
             ->latest('attendance_date')
-            ->latest('time_in')
+            ->latest('morning_time_in')
             ->paginate(10);
     }
 
@@ -144,7 +144,7 @@ new #[Title('Attendance Monitoring')] class extends Component
             })
             ->when($this->status !== '', function ($query) {
                 $this->status === 'incomplete'
-                    ? $query->whereNull('time_out')
+                    ? $query->whereNull('afternoon_time_out')
                     : $query->where('status', $this->status);
             })
             ->when($this->from_date, fn ($query) => $query->whereDate('attendance_date', '>=', $this->from_date))
@@ -155,7 +155,7 @@ new #[Title('Attendance Monitoring')] class extends Component
             'present' => (clone $query)->where('status', 'present')->count(),
             'late' => (clone $query)->where('status', 'late')->count(),
             'absent' => (clone $query)->where('status', 'absent')->count(),
-            'incomplete' => (clone $query)->whereNull('time_out')->count(),
+            'incomplete' => (clone $query)->whereNull('afternoon_time_out')->count(),
         ];
     }
 

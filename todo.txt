@@ -1,2 +1,4 @@
-GLOBAL:
-    make it if i created an account or anything should be the sidebar counting will update
+API_KEY=AIzaSyDBL8CErTuQf3nZ4rLdGwdFtVeINVKxAeg
+NAME=DutyTrack
+PROJECT_NAME=projects/434917087324
+PROJECT_NUMBER=434917087324

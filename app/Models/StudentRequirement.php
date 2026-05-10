@@ -89,28 +89,12 @@ class StudentRequirement extends Model
                 'template_path' => 'requirements/OJT-Rules-and-Regulations.docx',
             ],
             [
-                'key' => 'evaluation_form_for_practicum',
-                'label' => 'Evaluation Form for Practicum',
-                'step' => 'forms',
-                'step_label' => 'Step 3: Forms',
-                'sort_order' => 80,
-                'template_path' => 'requirements/Evaluation-Form-for-Practicum.doc',
-            ],
-            [
                 'key' => 'parents_waiver',
                 'label' => 'Parents Waiver',
                 'step' => 'forms',
                 'step_label' => 'Step 3: Forms',
                 'sort_order' => 90,
                 'template_path' => 'requirements/Parents-Waiver.docx',
-            ],
-            [
-                'key' => 'accomplishment_report_template',
-                'label' => 'Accomplishment Report Template',
-                'step' => 'forms',
-                'step_label' => 'Step 3: Forms',
-                'sort_order' => 100,
-                'template_path' => 'requirements/Accomplishment-Report-Template.docx',
             ],
             [
                 'key' => 'narrative_report',
@@ -128,6 +112,11 @@ class StudentRequirement extends Model
         return collect(self::definitions())
             ->mapWithKeys(fn (array $definition): array => [$definition['step'] => $definition['step_label']])
             ->all();
+    }
+
+    public static function activeKeys(): array
+    {
+        return collect(self::definitions())->pluck('key')->all();
     }
 
     public static function ensureForStudent(User|int $student): Collection
@@ -151,6 +140,7 @@ class StudentRequirement extends Model
 
         return self::query()
             ->where('student_id', $studentId)
+            ->whereIn('key', self::activeKeys())
             ->orderBy('sort_order')
             ->get();
     }

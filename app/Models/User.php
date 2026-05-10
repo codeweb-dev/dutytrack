@@ -92,7 +92,8 @@ class User extends Authenticatable
 
     public function studentRequirements()
     {
-        return $this->hasMany(StudentRequirement::class, 'student_id');
+        return $this->hasMany(StudentRequirement::class, 'student_id')
+            ->whereIn('key', StudentRequirement::activeKeys());
     }
 
     public function studentTasks()

@@ -12,6 +12,10 @@
                 <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
                     placeholder="Search students..." clearable />
 
+                <flux:button href="{{ route('coordinator.requirements') }}" icon:trailing="arrow-up-right">
+                    View Requirements
+                </flux:button>
+                
                 <livewire:coordinator.student-management.create />
             </div>
         </div>

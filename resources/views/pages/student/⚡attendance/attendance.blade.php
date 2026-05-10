@@ -14,7 +14,8 @@
 
         <flux:card class="p-4">
             <flux:heading>Incomplete</flux:heading>
-            <div class="mt-2 text-3xl font-semibold text-zinc-950 dark:text-white">{{ $this->summary['incomplete'] }}</div>
+            <div class="mt-2 text-3xl font-semibold text-zinc-950 dark:text-white">{{ $this->summary['incomplete'] }}
+            </div>
         </flux:card>
 
         <flux:card class="p-4">
@@ -74,7 +75,8 @@
                         <div class="flex items-center justify-between gap-3">
                             <flux:heading>Time-in Location</flux:heading>
                             @if ($this->todayAttendance->timeInMapUrl())
-                                <flux:button size="sm" variant="ghost" icon="map" :href="$this->todayAttendance->timeInMapUrl()" target="_blank">
+                                <flux:button size="sm" variant="ghost" icon="map"
+                                    :href="$this->todayAttendance->timeInMapUrl()" target="_blank">
                                     Open Map
                                 </flux:button>
                             @endif
@@ -82,11 +84,8 @@
 
                         @if ($this->todayAttendance->hasTimeInLocation())
                             <div class="mt-3">
-                                <x-attendance-map
-                                    id="todayAttendanceMap{{ $this->todayAttendance->id }}"
-                                    :latitude="$this->todayAttendance->time_in_latitude"
-                                    :longitude="$this->todayAttendance->time_in_longitude"
-                                />
+                                <x-attendance-map id="todayAttendanceMap{{ $this->todayAttendance->id }}"
+                                    :latitude="$this->todayAttendance->time_in_latitude" :longitude="$this->todayAttendance->time_in_longitude" />
                             </div>
                             <flux:text class="mt-2 text-xs">
                                 {{ number_format($this->todayAttendance->time_in_latitude, 6) }},
@@ -103,7 +102,7 @@
             @endif
 
             <form wire:submit="{{ $this->todayAttendance ? 'clockOut' : 'clockIn' }}" class="mt-6 space-y-4">
-                @if (! $this->todayAttendance)
+                @if (!$this->todayAttendance)
                     <div x-data="{
                         locating: false,
                         message: 'Allow location access to attach your time-in map.',
@@ -112,10 +111,10 @@
                                 this.message = 'Location is not supported by this browser.';
                                 return;
                             }
-
+                    
                             this.locating = true;
                             this.message = 'Accept the location permission request to move the map to your current location.';
-
+                    
                             navigator.geolocation.getCurrentPosition(
                                 (position) => {
                                     const location = {
@@ -124,7 +123,7 @@
                                         longitude: position.coords.longitude,
                                         accuracy: Math.round(position.coords.accuracy || 0),
                                     };
-
+                    
                                     this.locating = false;
                                     this.message = 'Location captured.';
                                     window.dispatchEvent(new CustomEvent('attendance-location-found', { detail: location }));
@@ -137,14 +136,14 @@
                                 },
                                 (error) => {
                                     this.locating = false;
-                                    this.message = error.code === error.PERMISSION_DENIED
-                                        ? 'Location permission was denied. Allow location access in your browser, then capture again.'
-                                        : 'Unable to get your current location. Check your connection or try again.';
-                                },
-                                { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
+                                    this.message = error.code === error.PERMISSION_DENIED ?
+                                        'Location permission was denied. Allow location access in your browser, then capture again.' :
+                                        'Unable to get your current location. Check your connection or try again.';
+                                }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
                             );
                         },
-                    }" x-init="captureLocation()" class="rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
+                    }" x-init="captureLocation()"
+                        class="rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
                         <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                             <div>
                                 <flux:heading>Time-in Location</flux:heading>
@@ -152,7 +151,8 @@
                             </div>
 
                             <div class="flex flex-wrap gap-2">
-                                <flux:button type="button" icon="map-pin" x-on:click="captureLocation()" x-bind:disabled="locating">
+                                <flux:button type="button" icon="map-pin" x-on:click="captureLocation()"
+                                    x-bind:disabled="locating">
                                     Capture Location
                                 </flux:button>
 
@@ -165,16 +165,15 @@
                         </div>
 
                         <div class="mt-4">
-                            <x-attendance-location-picker-map
-                                id="capturedTimeInMap"
-                                :latitude="$time_in_latitude"
-                                :longitude="$time_in_longitude"
-                            />
+                            <x-attendance-location-picker-map id="capturedTimeInMap" :latitude="$time_in_latitude"
+                                :longitude="$time_in_longitude" />
                         </div>
 
                         @if ($time_in_latitude && $time_in_longitude)
-                            <div class="mt-2 flex flex-wrap items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
-                                <span>{{ number_format($time_in_latitude, 6) }}, {{ number_format($time_in_longitude, 6) }}</span>
+                            <div
+                                class="mt-2 flex flex-wrap items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
+                                <span>{{ number_format($time_in_latitude, 6) }},
+                                    {{ number_format($time_in_longitude, 6) }}</span>
                                 @if ($time_in_location_accuracy)
                                     <span>±{{ $time_in_location_accuracy }}m</span>
                                 @endif
@@ -199,27 +198,26 @@
                                         </flux:text>
                                     </div>
 
-                                    <flux:button type="button" icon="map-pin" x-on:click="captureLocation()" x-bind:disabled="locating">
+                                    <flux:button type="button" icon="map-pin" x-on:click="captureLocation()"
+                                        x-bind:disabled="locating">
                                         Capture Location
                                     </flux:button>
                                 </div>
 
-                                <x-attendance-location-picker-map
-                                    id="capturedTimeInFullscreenMap"
-                                    :latitude="$time_in_latitude"
-                                    :longitude="$time_in_longitude"
-                                    height="height: min(72vh, 42rem)"
-                                    :zoomLevel="$time_in_latitude && $time_in_longitude ? 17 : 13"
-                                />
+                                <x-attendance-location-picker-map id="capturedTimeInFullscreenMap" :latitude="$time_in_latitude"
+                                    :longitude="$time_in_longitude" height="height: min(72vh, 42rem)" :zoomLevel="$time_in_latitude && $time_in_longitude ? 17 : 13" />
 
                                 @if ($time_in_latitude && $time_in_longitude)
-                                    <div class="flex flex-wrap items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
-                                        <span>{{ number_format($time_in_latitude, 6) }}, {{ number_format($time_in_longitude, 6) }}</span>
+                                    <div
+                                        class="flex flex-wrap items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
+                                        <span>{{ number_format($time_in_latitude, 6) }},
+                                            {{ number_format($time_in_longitude, 6) }}</span>
                                         @if ($time_in_location_accuracy)
                                             <span>±{{ $time_in_location_accuracy }}m</span>
                                         @endif
                                         <a class="font-medium text-red-600 hover:underline dark:text-red-400"
-                                            href="{{ $this->mapUrl($time_in_latitude, $time_in_longitude) }}" target="_blank">
+                                            href="{{ $this->mapUrl($time_in_latitude, $time_in_longitude) }}"
+                                            target="_blank">
                                             Open map
                                         </a>
                                     </div>
@@ -234,8 +232,9 @@
                             <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
                         @enderror
                     </div>
-                @elseif (! $this->todayAttendance->time_out)
-                    <flux:input type="number" min="0" max="720" wire:model="break_minutes" label="Break minutes" />
+                @elseif (!$this->todayAttendance->time_out)
+                    <flux:input type="number" min="0" max="720" wire:model="break_minutes"
+                        label="Break minutes" />
                     <flux:switch wire:model="overtime_enabled" label="Enable OT"
                         description="Continue counting rendered hours after 5:00 PM." />
                 @endif
@@ -243,27 +242,26 @@
                 <flux:textarea wire:model="remarks" label="Remarks" rows="3" badge="Optional"
                     placeholder="Add a note for this attendance record" />
 
-                @if ($this->assignment && (! $this->todayAttendance || ! $this->todayAttendance->time_out))
-                    <div class="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-500/30 dark:bg-amber-500/10">
-                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                            <div>
-                                <flux:heading>Testing Bypass</flux:heading>
-                                <flux:text class="mt-1">Create a completed attendance log without waiting for the timer.</flux:text>
-                            </div>
+                @if ($this->assignment && (!$this->todayAttendance || !$this->todayAttendance->time_out))
+                    <flux:callout icon="cube" variant="secondary" inline>
+                        <flux:callout.heading>Your Testing Bypass</flux:callout.heading>
+                        <flux:callout.text>Create a completed attendance log without waiting for the timer.
+                        </flux:callout.text>
 
-                            <div class="flex flex-wrap gap-2">
-                                <flux:button type="button" variant="ghost" icon="bolt" wire:click="bypassAttendance(20)">
-                                    Add 20 min
-                                </flux:button>
-                                <flux:button type="button" variant="primary" icon="bolt" wire:click="bypassAttendance(60)">
-                                    Add 1 hour
-                                </flux:button>
-                            </div>
-                        </div>
-                    </div>
+                        <x-slot name="actions">
+                            <flux:button type="button" variant="ghost" icon="bolt"
+                                wire:click="bypassAttendance(60)">
+                                Add 1 hour
+                            </flux:button>
+                            <flux:button type="button" variant="primary" icon="bolt"
+                                wire:click="bypassAttendance(480)">
+                                Add full day
+                            </flux:button>
+                        </x-slot>
+                    </flux:callout>
                 @endif
 
-                @if (! $this->assignment)
+                @if (!$this->assignment)
                     <flux:callout icon="exclamation-triangle" color="amber">
                         <flux:callout.heading>No OJT assignment found</flux:callout.heading>
                         <flux:callout.text>
@@ -273,11 +271,12 @@
                 @endif
 
                 <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-                    @if (! $this->todayAttendance)
-                        <flux:button type="submit" variant="primary" icon="arrow-right-end-on-rectangle" :disabled="! $this->assignment">
+                    @if (!$this->todayAttendance)
+                        <flux:button type="submit" variant="primary" icon="arrow-right-end-on-rectangle"
+                            :disabled="! $this->assignment">
                             Clock In
                         </flux:button>
-                    @elseif (! $this->todayAttendance->time_out)
+                    @elseif (!$this->todayAttendance->time_out)
                         <flux:button type="submit" variant="primary" icon="arrow-left-end-on-rectangle">
                             Clock Out
                         </flux:button>
@@ -320,7 +319,8 @@
                     <flux:table.rows>
                         @forelse ($this->attendanceLogs as $log)
                             <flux:table.row :key="$log->id">
-                                <flux:table.cell>{{ $log->attendance_date?->format('M d, Y') ?? '—' }}</flux:table.cell>
+                                <flux:table.cell>{{ $log->attendance_date?->format('M d, Y') ?? '—' }}
+                                </flux:table.cell>
                                 <flux:table.cell>{{ $log->time_in?->format('h:i A') ?? '—' }}</flux:table.cell>
                                 <flux:table.cell>{{ $log->time_out?->format('h:i A') ?? '—' }}</flux:table.cell>
                                 <flux:table.cell>{{ $log->break_minutes }} min</flux:table.cell>
@@ -333,8 +333,11 @@
                                 <flux:table.cell>
                                     @if ($log->dutyHourLog)
                                         <div class="flex flex-col">
-                                            <span>{{ \App\Support\HourFormatter::format($log->dutyHourLog->approved_hours) }} approved</span>
-                                            <flux:badge size="sm" :color="$this->dutyBadgeColor($log->dutyHourLog->status)" inset="top bottom">
+                                            <span>{{ \App\Support\HourFormatter::format($log->dutyHourLog->approved_hours) }}
+                                                approved</span>
+                                            <flux:badge size="sm"
+                                                :color="$this->dutyBadgeColor($log->dutyHourLog->status)"
+                                                inset="top bottom">
                                                 {{ ucfirst($log->dutyHourLog->status) }}
                                             </flux:badge>
                                         </div>
@@ -345,14 +348,16 @@
                                 <flux:table.cell>
                                     <div class="flex items-center gap-2">
                                         @if ($log->timeInMapUrl())
-                                            <flux:button size="sm" variant="ghost" icon="map" :href="$log->timeInMapUrl()" target="_blank" />
+                                            <flux:button size="sm" variant="ghost" icon="map"
+                                                :href="$log->timeInMapUrl()" target="_blank" />
                                         @else
                                             <span class="text-zinc-400">—</span>
                                         @endif
                                     </div>
                                 </flux:table.cell>
                                 <flux:table.cell>
-                                    <flux:badge size="sm" :color="$this->badgeColor($log->status)" inset="top bottom">
+                                    <flux:badge size="sm" :color="$this->badgeColor($log->status)"
+                                        inset="top bottom">
                                         {{ ucfirst($log->status) }}
                                     </flux:badge>
                                 </flux:table.cell>

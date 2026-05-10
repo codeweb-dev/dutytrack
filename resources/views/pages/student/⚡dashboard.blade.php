@@ -304,7 +304,7 @@ new #[Title('Student Dashboard')] class extends Component
                     </flux:text>
                 </div>
 
-                <flux:badge :color="$this->requirementSummary['pending'] === 0 ? 'green' : 'amber'" inset="top bottom">
+                <flux:badge :color="$this->requirementSummary['pending'] === 0 ? 'green' : 'red'" inset="top bottom">
                     {{ $this->requirementSummary['completed'] }}/{{ $this->requirementSummary['total'] }}
                 </flux:badge>
             </div>
@@ -322,9 +322,9 @@ new #[Title('Student Dashboard')] class extends Component
                                 {{ $step['label'] }}
                             </div>
 
-                            <div class="mt-1 text-xs text-zinc-500">
+                            <flux:text class="mt-1">
                                 {{ $step['completed'] }}/{{ $step['total'] }} done
-                            </div>
+                            </flux:text>
                         </div>
 
                         @if (!$loop->last)
@@ -356,7 +356,7 @@ new #[Title('Student Dashboard')] class extends Component
 
                         <div class="space-y-3">
                             @foreach ($step['items'] as $requirement)
-                                <flux:card class=px-5 py-1>
+                                <flux:card class="px-5 py-3">
                                     <div class="flex min-w-0 items-start gap-3">
                                         <span
                                             class="{{ $requirement->is_completed ? 'bg-green-600 text-white' : 'bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500' }} mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full">
@@ -454,7 +454,7 @@ new #[Title('Student Dashboard')] class extends Component
 
                             <flux:table.cell>
                                 <div class="flex items-center gap-2">
-                                    <flux:badge :color="$log->is_flagged ? 'red' : 'sky'" inset="top bottom">
+                                    <flux:badge size="sm" :color="$log->is_flagged ? 'red' : 'sky'" inset="top bottom">
                                         {{ ucfirst($log->status ?? 'recorded') }}
                                     </flux:badge>
 

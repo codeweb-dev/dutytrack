@@ -227,7 +227,7 @@ new #[Title('My Attendance')] class extends Component
 
     public function bypassAttendance(int $minutes): void
     {
-        if (! in_array($minutes, [20, 60], true)) {
+        if (! in_array($minutes, [60, 480], true)) {
             abort(404);
         }
 

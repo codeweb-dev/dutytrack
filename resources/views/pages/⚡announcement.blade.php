@@ -120,7 +120,7 @@ new #[Title('Announcements')] #[Layout('layouts::announcement')] class extends C
         </div>
 
         <div class="mx-auto flex max-w-3xl flex-col items-center text-center">
-            <div class="text-sm font-medium tracking-[0.28em] text-sky-500 uppercase">
+            <div class="text-sm font-medium tracking-[0.28em] text-red-500 uppercase">
                 The Changelog
             </div>
 

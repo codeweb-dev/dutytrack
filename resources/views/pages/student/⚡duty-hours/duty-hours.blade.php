@@ -4,12 +4,14 @@
     <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
         <flux:card class="p-4">
             <flux:heading>Rendered Hours</flux:heading>
-            <flux:text class="mt-2">{{ \App\Support\HourFormatter::format($this->summary['rendered_hours']) }}</flux:text>
+            <flux:text class="mt-2">{{ \App\Support\HourFormatter::format($this->summary['rendered_hours']) }}
+            </flux:text>
         </flux:card>
 
         <flux:card class="p-4">
             <flux:heading>Approved Hours</flux:heading>
-            <flux:text class="mt-2">{{ \App\Support\HourFormatter::format($this->summary['approved_hours']) }}</flux:text>
+            <flux:text class="mt-2">{{ \App\Support\HourFormatter::format($this->summary['approved_hours']) }}
+            </flux:text>
         </flux:card>
 
         <flux:card class="p-4">
@@ -35,9 +37,12 @@
                 <flux:badge color="red" inset="top bottom">{{ $this->dutyHourLogs->total() }}</flux:badge>
             </h2>
 
-            <flux:modal.trigger name="filter-student-duty-hours">
-                <flux:button icon="funnel">Filter</flux:button>
-            </flux:modal.trigger>
+            <div class="flex flex-col gap-2 sm:flex-row">
+                <flux:button icon="arrow-down-tray">Export Accomplishment Report</flux:button>
+                <flux:modal.trigger name="filter-student-duty-hours">
+                    <flux:button icon="funnel">Filter</flux:button>
+                </flux:modal.trigger>
+            </div>
         </div>
 
         <flux:modal name="filter-student-duty-hours" class="md:w-lg">
@@ -119,8 +124,10 @@
                                 </div>
                             </flux:table.cell>
 
-                            <flux:table.cell>{{ \App\Support\HourFormatter::format($log->hours_rendered) }}</flux:table.cell>
-                            <flux:table.cell>{{ \App\Support\HourFormatter::format($log->approved_hours) }}</flux:table.cell>
+                            <flux:table.cell>{{ \App\Support\HourFormatter::format($log->hours_rendered) }}
+                            </flux:table.cell>
+                            <flux:table.cell>{{ \App\Support\HourFormatter::format($log->approved_hours) }}
+                            </flux:table.cell>
 
                             <flux:table.cell>
                                 <flux:badge size="sm" :color="$this->badgeColor($log->status)" inset="top bottom">

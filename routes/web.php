@@ -64,6 +64,7 @@ Route::group(['middleware' => ['role:company_supervisor']], function () {
     Route::livewire('/supervisor/dashboard', 'pages::supervisor.dashboard')->name('supervisor.dashboard');
     Route::livewire('/supervisor/assigned-students', 'pages::supervisor.assigned-students')->name('supervisor.assigned-students');
     Route::livewire('/supervisor/duty-hours', 'pages::supervisor.duty-hours')->name('supervisor.duty-hours');
+    Route::livewire('/supervisor/tasks', 'pages::supervisor.tasks')->name('supervisor.tasks');
     Route::livewire('/supervisor/messages', 'pages::messages')->name('supervisor.messages');
 });
 

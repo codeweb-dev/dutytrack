@@ -67,21 +67,30 @@
                         </flux:dropdown>
                     </header>
 
-                    <div class="flex flex-1 flex-col gap-3">
-                        @forelse ($column['tasks'] as $taskCard)
+                    <div class="flex min-h-24 flex-1 flex-col gap-3" wire:sort="sortTaskCard"
+                        wire:sort:group="professor-tasks" wire:sort:group-id="{{ $column['status'] }}">
+                        @foreach ($column['tasks'] as $taskCard)
                             @php($task = $taskCard['task'])
 
                             <div class="flex h-full w-full flex-col rounded-lg border border-neutral-300 bg-white dark:border-neutral-700 dark:bg-zinc-800"
-                                wire:key="professor-task-{{ $taskCard['key'] }}">
+                                wire:key="professor-task-{{ $taskCard['key'] }}" wire:sort:item="{{ $taskCard['key'] }}">
                                 <div class="p-4">
-                                    <div class="mb-3 flex flex-wrap gap-2">
-                                        <flux:badge :color="$this->priorityColor($task->priority)" size="sm">
-                                            {{ ucfirst($task->priority) }}
-                                        </flux:badge>
+                                    <div class="mb-3 flex items-start justify-between gap-3">
+                                        <div class="flex flex-wrap gap-2">
+                                            <flux:badge :color="$this->priorityColor($task->priority)" size="sm">
+                                                {{ ucfirst($task->priority) }}
+                                            </flux:badge>
 
-                                        <flux:badge :color="$this->statusColor($task->status)" size="sm">
-                                            {{ \App\Models\StudentTask::statusLabels()[$task->status] ?? ucfirst($task->status) }}
-                                        </flux:badge>
+                                            <flux:badge :color="$this->statusColor($task->status)" size="sm">
+                                                {{ \App\Models\StudentTask::statusLabels()[$task->status] ?? ucfirst($task->status) }}
+                                            </flux:badge>
+                                        </div>
+
+                                        <button type="button" wire:sort:handle
+                                            class="shrink-0 cursor-grab rounded-md p-1 text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-600 active:cursor-grabbing dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
+                                            aria-label="Drag task">
+                                            <flux:icon name="grip-vertical" variant="micro" />
+                                        </button>
                                     </div>
 
                                     <flux:heading>
@@ -131,28 +140,10 @@
                                         <flux:badge icon="calendar" rounded size="sm">
                                             {{ $task->due_date?->format('M d') ?? 'No due' }}
                                         </flux:badge>
-
-                                        <flux:dropdown position="bottom" align="end">
-                                            <flux:button size="sm" variant="subtle" icon="ellipsis-horizontal" />
-
-                                            <flux:menu>
-                                                <flux:menu.item icon="eye">
-                                                    {{ $taskCard['students']->count() === 1 ? $taskCard['students']->first()?->name ?? 'Student' : $taskCard['students']->count() . ' students' }}
-                                                </flux:menu.item>
-                                                <flux:menu.item icon="calendar">
-                                                    {{ $task->due_date?->format('M d, Y') ?? 'No due date' }}
-                                                </flux:menu.item>
-                                            </flux:menu>
-                                        </flux:dropdown>
                                     </div>
                                 </div>
                             </div>
-                        @empty
-                            <div
-                                class="rounded-lg border border-dashed border-zinc-300 bg-white/60 p-6 text-center text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800/40">
-                                No tasks here.
-                            </div>
-                        @endforelse
+                        @endforeach
                     </div>
                 </article>
             @endforeach

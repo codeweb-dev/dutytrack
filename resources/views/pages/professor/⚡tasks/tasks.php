@@ -4,7 +4,9 @@ use App\Models\OjtAssignment;
 use App\Models\StudentTask;
 use Flux\Flux;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Computed;
@@ -76,8 +78,9 @@ new #[Title('Tasks')] class extends Component
 
         $assignments = $this->assignedStudentAssignments($this->student_ids);
         $taskGroupId = (string) Str::uuid();
+        $sortOrder = $this->nextProfessorTaskSortOrder('pending');
 
-        $assignments->each(function (OjtAssignment $assignment) use ($taskGroupId): void {
+        $assignments->each(function (OjtAssignment $assignment) use ($taskGroupId, $sortOrder): void {
             StudentTask::query()->create([
                 'student_id' => $assignment->student_id,
                 'assigned_by' => Auth::id(),
@@ -88,6 +91,7 @@ new #[Title('Tasks')] class extends Component
                 'priority' => $this->priority,
                 'due_date' => $this->due_date ?: null,
                 'status' => 'pending',
+                'sort_order' => $sortOrder,
             ]);
         });
 
@@ -163,6 +167,118 @@ new #[Title('Tasks')] class extends Component
             ->when($this->status !== '', fn (Builder $query) => $query->where('status', $this->status));
     }
 
+    public function sortTaskCard(string $taskCardKey, int $position, string $status): void
+    {
+        abort_unless(array_key_exists($status, StudentTask::statusLabels()), 422);
+
+        $tasks = $this->taskCardQuery($taskCardKey)->get();
+
+        abort_if($tasks->isEmpty(), 404);
+
+        $previousStatuses = $tasks
+            ->pluck('status')
+            ->unique()
+            ->reject(fn (string $previousStatus): bool => $previousStatus === $status)
+            ->values();
+
+        DB::transaction(function () use ($tasks, $taskCardKey, $position, $status, $previousStatuses): void {
+            $tasks->each(function (StudentTask $task) use ($position, $status): void {
+                $task->update([
+                    'status' => $status,
+                    'sort_order' => max(0, $position),
+                    'completed_at' => $status === 'done' ? now() : null,
+                ]);
+            });
+
+            $this->reorderProfessorStatus($status, $taskCardKey, $position);
+
+            $previousStatuses->each(function (string $previousStatus): void {
+                $this->reorderProfessorStatus($previousStatus);
+            });
+        });
+
+        unset($this->tasks, $this->summary, $this->columns);
+    }
+
+    protected function taskCardQuery(string $taskCardKey): Builder
+    {
+        if (Str::startsWith($taskCardKey, 'task-')) {
+            $taskId = Str::after($taskCardKey, 'task-');
+
+            abort_unless(ctype_digit($taskId), 404);
+
+            return $this->taskQuery()->whereKey((int) $taskId);
+        }
+
+        return $this->taskQuery()->where('task_group_id', $taskCardKey);
+    }
+
+    protected function reorderProfessorStatus(string $status, ?string $movedTaskCardKey = null, ?int $position = null): void
+    {
+        $taskCards = $this->taskQuery()
+            ->where('status', $status)
+            ->when($movedTaskCardKey, function (Builder $query) use ($movedTaskCardKey): void {
+                if (Str::startsWith($movedTaskCardKey, 'task-')) {
+                    $taskId = Str::after($movedTaskCardKey, 'task-');
+
+                    if (ctype_digit($taskId)) {
+                        $query->whereKeyNot((int) $taskId);
+                    }
+
+                    return;
+                }
+
+                $query->where(function (Builder $nested) use ($movedTaskCardKey): void {
+                    $nested->where('task_group_id', '!=', $movedTaskCardKey)
+                        ->orWhereNull('task_group_id');
+                });
+            })
+            ->orderBy('sort_order')
+            ->orderByRaw("CASE priority WHEN 'high' THEN 0 WHEN 'normal' THEN 1 ELSE 2 END")
+            ->orderByRaw('due_date IS NULL')
+            ->orderBy('due_date')
+            ->latest('created_at')
+            ->get()
+            ->groupBy(fn (StudentTask $task): string => $this->taskCardKey($task))
+            ->map(fn (Collection $tasks, string $key): array => [
+                'key' => $key,
+                'task_ids' => $tasks->pluck('id')->all(),
+            ])
+            ->values();
+
+        if ($movedTaskCardKey !== null) {
+            $movedTaskIds = $this->taskCardQuery($movedTaskCardKey)
+                ->where('status', $status)
+                ->pluck('id')
+                ->all();
+
+            if ($movedTaskIds !== []) {
+                $taskCards->splice(min(max(0, $position ?? 0), $taskCards->count()), 0, [[
+                    'key' => $movedTaskCardKey,
+                    'task_ids' => $movedTaskIds,
+                ]]);
+            }
+        }
+
+        $taskCards->values()->each(function (array $taskCard, int $index): void {
+            StudentTask::query()
+                ->whereIn('id', $taskCard['task_ids'])
+                ->update(['sort_order' => $index]);
+        });
+    }
+
+    protected function taskCardKey(StudentTask $task): string
+    {
+        return $task->task_group_id ?: 'task-'.$task->id;
+    }
+
+    protected function nextProfessorTaskSortOrder(string $status): int
+    {
+        return ((int) $this->taskQuery()
+            ->where('status', $status)
+            ->max('sort_order')) + 1;
+    }
+
     public function statusColor(?string $status): string
     {
         return match ($status) {
@@ -198,6 +314,7 @@ new #[Title('Tasks')] class extends Component
     public function tasks()
     {
         return $this->applyFilters($this->taskQuery())
+            ->orderBy('sort_order')
             ->orderByRaw("CASE priority WHEN 'high' THEN 0 WHEN 'normal' THEN 1 ELSE 2 END")
             ->orderByRaw('due_date IS NULL')
             ->orderBy('due_date')
@@ -213,7 +330,7 @@ new #[Title('Tasks')] class extends Component
         return collect(StudentTask::statusLabels())
             ->map(function (string $label, string $status) use ($tasks): array {
                 $taskCards = $tasks->get($status, collect())
-                    ->groupBy(fn (StudentTask $task): string => $task->task_group_id ?: 'task-'.$task->id)
+                    ->groupBy(fn (StudentTask $task): string => $this->taskCardKey($task))
                     ->map(function ($groupedTasks, string $key): array {
                         $students = $groupedTasks
                             ->pluck('student')

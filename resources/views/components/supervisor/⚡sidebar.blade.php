@@ -21,6 +21,11 @@ new class extends Component {};
         Duty Hours
     </flux:sidebar.item>
 
+    <flux:sidebar.item icon="rectangle-stack" href="{{ route('supervisor.tasks') }}"
+        :current="request()->routeIs('supervisor.tasks')" wire:navigate>
+        Tasks
+    </flux:sidebar.item>
+
     <flux:sidebar.item icon="chat-bubble-left-right" href="{{ route('supervisor.messages') }}"
         :current="request()->routeIs('supervisor.messages')" wire:navigate>
         Messages

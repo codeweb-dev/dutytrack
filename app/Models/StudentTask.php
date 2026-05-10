@@ -14,6 +14,7 @@ class StudentTask extends Model
         'title',
         'description',
         'status',
+        'sort_order',
         'priority',
         'due_date',
         'completed_at',

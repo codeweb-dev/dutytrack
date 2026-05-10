@@ -278,3 +278,125 @@ test('students can see tasks assigned by their professor', function () {
         ->assertSee('Submit daily task evidence')
         ->assertSee($professor->name);
 });
+
+test('students can drag tasks between kanban columns', function () {
+    $coordinator = createProfessorAssignedStudentCoordinator();
+    $professor = createProfessorAssignedStudentUser(['name' => 'Professor Sort Task']);
+    $student = createProfessorAssignedStudent($coordinator, ['name' => 'Student Sort Task']);
+
+    $assignment = OjtAssignment::query()->create([
+        'student_id' => $student->id,
+        'ojt_type' => 'internal',
+        'professor_id' => $professor->id,
+        'start_date' => '2026-04-20',
+        'required_hours' => 600,
+        'status' => 'active',
+    ]);
+
+    $pendingTask = StudentTask::query()->create([
+        'student_id' => $student->id,
+        'assigned_by' => $professor->id,
+        'ojt_assignment_id' => $assignment->id,
+        'title' => 'Pending task',
+        'priority' => 'normal',
+        'status' => 'pending',
+        'sort_order' => 0,
+    ]);
+
+    $doneTask = StudentTask::query()->create([
+        'student_id' => $student->id,
+        'assigned_by' => $professor->id,
+        'ojt_assignment_id' => $assignment->id,
+        'title' => 'Done task',
+        'priority' => 'normal',
+        'status' => 'done',
+        'sort_order' => 0,
+    ]);
+
+    $this->actingAs($student);
+
+    Livewire::test('pages::student.kanban')
+        ->call('sortTask', (string) $pendingTask->id, 0, 'done')
+        ->assertHasNoErrors();
+
+    expect($pendingTask->refresh()->status)->toBe('done');
+    expect($pendingTask->sort_order)->toBe(0);
+    expect($pendingTask->completed_at)->not->toBeNull();
+    expect($doneTask->refresh()->sort_order)->toBe(1);
+});
+
+test('professors can drag grouped task cards between columns', function () {
+    $coordinator = createProfessorAssignedStudentCoordinator();
+    $professor = createProfessorAssignedStudentUser(['name' => 'Professor Group Sort']);
+    $studentA = createProfessorAssignedStudent($coordinator, ['name' => 'Group Sort Student A']);
+    $studentB = createProfessorAssignedStudent($coordinator, ['name' => 'Group Sort Student B']);
+    $studentC = createProfessorAssignedStudent($coordinator, ['name' => 'Group Sort Student C']);
+
+    $assignmentA = OjtAssignment::query()->create([
+        'student_id' => $studentA->id,
+        'ojt_type' => 'internal',
+        'professor_id' => $professor->id,
+        'start_date' => '2026-04-20',
+        'required_hours' => 600,
+        'status' => 'active',
+    ]);
+
+    $assignmentB = OjtAssignment::query()->create([
+        'student_id' => $studentB->id,
+        'ojt_type' => 'internal',
+        'professor_id' => $professor->id,
+        'start_date' => '2026-04-20',
+        'required_hours' => 600,
+        'status' => 'active',
+    ]);
+
+    $assignmentC = OjtAssignment::query()->create([
+        'student_id' => $studentC->id,
+        'ojt_type' => 'internal',
+        'professor_id' => $professor->id,
+        'start_date' => '2026-04-20',
+        'required_hours' => 600,
+        'status' => 'active',
+    ]);
+
+    $groupId = (string) fake()->uuid();
+
+    foreach ([[$studentA, $assignmentA], [$studentB, $assignmentB]] as [$student, $assignment]) {
+        StudentTask::query()->create([
+            'student_id' => $student->id,
+            'assigned_by' => $professor->id,
+            'ojt_assignment_id' => $assignment->id,
+            'task_group_id' => $groupId,
+            'title' => 'Grouped sortable task',
+            'priority' => 'normal',
+            'status' => 'pending',
+            'sort_order' => 0,
+        ]);
+    }
+
+    $existingReviewTask = StudentTask::query()->create([
+        'student_id' => $studentC->id,
+        'assigned_by' => $professor->id,
+        'ojt_assignment_id' => $assignmentC->id,
+        'title' => 'Existing review task',
+        'priority' => 'normal',
+        'status' => 'in_review',
+        'sort_order' => 0,
+    ]);
+
+    $this->actingAs($professor);
+
+    Livewire::test('pages::professor.tasks')
+        ->call('sortTaskCard', $groupId, 0, 'in_review')
+        ->assertHasNoErrors();
+
+    $groupedTasks = StudentTask::query()
+        ->where('task_group_id', $groupId)
+        ->orderBy('student_id')
+        ->get();
+
+    expect($groupedTasks)->toHaveCount(2);
+    expect($groupedTasks->pluck('status')->unique()->values()->all())->toBe(['in_review']);
+    expect($groupedTasks->pluck('sort_order')->unique()->values()->all())->toBe([0]);
+    expect($existingReviewTask->refresh()->sort_order)->toBe(1);
+});

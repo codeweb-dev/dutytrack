@@ -72,8 +72,7 @@ Route::group(['middleware' => ['role:student']], function () {
     Route::livewire('/student/dashboard', 'pages::student.dashboard')->name('student.dashboard');
     Route::livewire('/student/attendance', 'pages::student.attendance')->name('student.attendance');
     Route::livewire('/student/duty-hours', 'pages::student.duty-hours')->name('student.duty-hours');
-    Route::livewire('/student/tasks', 'pages::student.kanban')->name('student.tasks');
-    Route::livewire('/student/kanban', 'pages::student.kanban')->name('student.kanban');
+    Route::livewire('/student/tasks', 'pages::student.tasks')->name('student.tasks');
     Route::livewire('/student/notes', 'pages::student.notes')->name('student.notes');
     Route::livewire('/student/messages', 'pages::messages')->name('student.messages');
     Route::livewire('/student/pomodoro', 'pages::student.pomodoro')->name('student.pomodoro');

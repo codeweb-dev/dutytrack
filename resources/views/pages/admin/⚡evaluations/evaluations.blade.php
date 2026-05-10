@@ -119,21 +119,21 @@
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ $evaluation->student?->student_id ?? '—' }}
+                                {{ $evaluation->student?->student_id ?? '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>
                                 <flux:badge size="sm" color="sky" inset="top bottom">
-                                    {{ ucfirst($evaluation->assignment?->ojt_type ?? '—') }}
+                                    {{ ucfirst($evaluation->assignment?->ojt_type ?? '') }}
                                 </flux:badge>
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ $evaluation->evaluator?->name ?? trim(($evaluation->evaluator?->first_name ?? '') . ' ' . ($evaluation->evaluator?->last_name ?? '')) ?: '—' }}
+                                {{ $evaluation->evaluator?->name ?? trim(($evaluation->evaluator?->first_name ?? '') . ' ' . ($evaluation->evaluator?->last_name ?? '')) ?: '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ $evaluation->evaluation_date?->format('M d, Y') ?? '—' }}
+                                {{ $evaluation->evaluation_date?->format('M d, Y') ?? '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>
@@ -148,7 +148,7 @@
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ $evaluation->remarks ?: '—' }}
+                                {{ $evaluation->remarks ?: '' }}
                             </flux:table.cell>
                         </flux:table.row>
                     @empty

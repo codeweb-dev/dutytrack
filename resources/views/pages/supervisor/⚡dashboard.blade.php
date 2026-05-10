@@ -340,25 +340,25 @@ new #[Title('Company Supervisor Dashboard')] class extends Component
                             <flux:table.cell>
                                 <div class="space-y-1">
                                     <div class="font-medium text-zinc-950 dark:text-white">
-                                        {{ $assignment->student?->name ?? '—' }}
+                                        {{ $assignment->student?->name ?? '' }}
                                     </div>
 
                                     <div class="text-sm text-zinc-500 dark:text-zinc-400">
-                                        {{ $assignment->student?->studentProfile?->student_id ?? ($assignment->student?->email ?? '—') }}
+                                        {{ $assignment->student?->studentProfile?->student_id ?? ($assignment->student?->email ?? '') }}
                                     </div>
                                 </div>
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ $assignment->student?->studentProfile?->course ?? '—' }}
+                                {{ $assignment->student?->studentProfile?->course ?? '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ $assignment->student?->coordinator?->name ?? '—' }}
+                                {{ $assignment->student?->coordinator?->name ?? '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ $assignment->professor?->name ?? '—' }}
+                                {{ $assignment->professor?->name ?? '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>

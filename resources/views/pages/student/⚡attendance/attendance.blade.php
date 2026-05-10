@@ -57,14 +57,14 @@
                 <flux:card class="p-4">
                     <flux:heading>Time In</flux:heading>
                     <div class="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white">
-                        {{ $this->todayAttendance?->time_in?->format('h:i A') ?? '—' }}
+                        {{ $this->todayAttendance?->time_in?->format('h:i A') ?? '' }}
                     </div>
                 </flux:card>
 
                 <flux:card class="p-4">
                     <flux:heading>Time Out</flux:heading>
                     <div class="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white">
-                        {{ $this->todayAttendance?->time_out?->format('h:i A') ?? '—' }}
+                        {{ $this->todayAttendance?->time_out?->format('h:i A') ?? '' }}
                     </div>
                 </flux:card>
             </div>
@@ -188,7 +188,7 @@
                             </flux:text>
                         @endif
 
-                        <flux:modal name="attendance-location-map" class="w-[calc(100vw-2rem)] !max-w-6xl">
+                        <flux:modal name="attendance-location-map" class="w-[calc(100vw-2rem)] max-w-6xl!">
                             <div class="space-y-4">
                                 <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                                     <div>
@@ -319,10 +319,10 @@
                     <flux:table.rows>
                         @forelse ($this->attendanceLogs as $log)
                             <flux:table.row :key="$log->id">
-                                <flux:table.cell>{{ $log->attendance_date?->format('M d, Y') ?? '—' }}
+                                <flux:table.cell>{{ $log->attendance_date?->format('M d, Y') ?? '' }}
                                 </flux:table.cell>
-                                <flux:table.cell>{{ $log->time_in?->format('h:i A') ?? '—' }}</flux:table.cell>
-                                <flux:table.cell>{{ $log->time_out?->format('h:i A') ?? '—' }}</flux:table.cell>
+                                <flux:table.cell>{{ $log->time_in?->format('h:i A') ?? '' }}</flux:table.cell>
+                                <flux:table.cell>{{ $log->time_out?->format('h:i A') ?? '' }}</flux:table.cell>
                                 <flux:table.cell>{{ $log->break_minutes }} min</flux:table.cell>
                                 <flux:table.cell>
                                     {{ \App\Support\HourFormatter::format($log->hours_rendered) }}
@@ -344,7 +344,7 @@
                                             </div>
                                         </div>
                                     @else
-                                        <span class="text-zinc-400">—</span>
+                                        <span class="text-zinc-400"></span>
                                     @endif
                                 </flux:table.cell>
                                 <flux:table.cell>

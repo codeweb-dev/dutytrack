@@ -64,7 +64,7 @@ new class extends Component {
                         <div class="text-xs uppercase tracking-wide text-zinc-400">Date
                             & Time</div>
                         <div class="mt-1 font-medium text-zinc-900 dark:text-white">
-                            {{ $log->created_at?->format('M d, Y h:i A') ?? '—' }}
+                            {{ $log->created_at?->format('M d, Y h:i A') ?? '' }}
                         </div>
                     </div>
                 </div>
@@ -84,7 +84,7 @@ new class extends Component {
                 <div class="flex items-start justify-between gap-4 border-b border-zinc-100 pb-3 dark:border-zinc-800">
                     <span class="text-sm text-zinc-500">Module</span>
                     <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
-                        {{ $log->module ?: '—' }}
+                        {{ $log->module ?: '' }}
                     </span>
                 </div>
 
@@ -98,14 +98,14 @@ new class extends Component {
                 <div class="flex items-start justify-between gap-4 border-b border-zinc-100 pb-3 dark:border-zinc-800">
                     <span class="text-sm text-zinc-500">Target</span>
                     <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
-                        {{ $log->target_label ?: '—' }}
+                        {{ $log->target_label ?: '' }}
                     </span>
                 </div>
 
                 <div class="flex items-start justify-between gap-4">
                     <span class="text-sm text-zinc-500">Target Type</span>
                     <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
-                        {{ class_basename($log->target_type ?? '') ?: '—' }}
+                        {{ class_basename($log->target_type ?? '') ?: '' }}
                         @if ($log->target_id)
                             <span class="text-zinc-500">#{{ $log->target_id }}</span>
                         @endif
@@ -125,14 +125,14 @@ new class extends Component {
                 <div class="flex items-start justify-between gap-4 border-b border-zinc-100 pb-3 dark:border-zinc-800">
                     <span class="text-sm text-zinc-500">IP Address</span>
                     <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
-                        {{ $log->ip_address ?: '—' }}
+                        {{ $log->ip_address ?: '' }}
                     </span>
                 </div>
 
                 <div class="flex items-start justify-between gap-4">
                     <span class="text-sm text-zinc-500">User Agent</span>
                     <span class="text-sm font-medium text-right text-zinc-900 dark:text-white break-all">
-                        {{ $log->user_agent ?: '—' }}
+                        {{ $log->user_agent ?: '' }}
                     </span>
                 </div>
             </div>

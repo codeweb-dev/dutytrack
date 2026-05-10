@@ -348,7 +348,7 @@ new #[Title('Professor Dashboard')] class extends Component
                             <flux:table.cell>
                                 <div>
                                     <div class="font-medium text-zinc-900 dark:text-white">
-                                        {{ $assignment->student?->name ?? '—' }}
+                                        {{ $assignment->student?->name ?? '' }}
                                     </div>
                                     <div class="text-sm text-zinc-500">
                                         {{ $assignment->student?->studentProfile?->student_id ?? 'No student ID' }}

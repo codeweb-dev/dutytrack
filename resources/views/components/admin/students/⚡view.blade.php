@@ -62,7 +62,7 @@ new class extends Component
                         <div class="text-xs uppercase tracking-wide text-zinc-400">
                             Assigned Coordinator</div>
                         <div class="mt-1 font-medium text-zinc-900 dark:text-white">
-                            {{ $student->coordinator?->name ?? 'Unassigned' }} | {{ $student->coordinator?->professorProfile->department ?? '—' }}
+                            {{ $student->coordinator?->name ?? 'Unassigned' }} | {{ $student->coordinator?->professorProfile->department ?? '' }}
                         </div>
                     </div>
                 </div>
@@ -82,21 +82,21 @@ new class extends Component
                 <div class="flex items-start justify-between gap-4 border-b border-zinc-100 pb-3 dark:border-zinc-800">
                     <span class="text-sm text-zinc-500">First Name</span>
                     <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
-                        {{ $student->first_name ?? '—' }}
+                        {{ $student->first_name ?? '' }}
                     </span>
                 </div>
 
                 <div class="flex items-start justify-between gap-4 border-b border-zinc-100 pb-3 dark:border-zinc-800">
                     <span class="text-sm text-zinc-500">Middle Name</span>
                     <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
-                        {{ $student->middle_name ?: '—' }}
+                        {{ $student->middle_name ?: '' }}
                     </span>
                 </div>
 
                 <div class="flex items-start justify-between gap-4 border-b border-zinc-100 pb-3 dark:border-zinc-800">
                     <span class="text-sm text-zinc-500">Last Name</span>
                     <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
-                        {{ $student->last_name ?? '—' }}
+                        {{ $student->last_name ?? '' }}
                     </span>
                 </div>
 
@@ -120,28 +120,28 @@ new class extends Component
                 <div class="flex items-start justify-between gap-4 border-b border-zinc-100 pb-3 dark:border-zinc-800">
                     <span class="text-sm text-zinc-500">Student ID</span>
                     <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
-                        {{ $student->studentProfile?->student_id ?? '—' }}
+                        {{ $student->studentProfile?->student_id ?? '' }}
                     </span>
                 </div>
 
                 <div class="flex items-start justify-between gap-4 border-b border-zinc-100 pb-3 dark:border-zinc-800">
                     <span class="text-sm text-zinc-500">Course</span>
                     <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
-                        {{ $student->studentProfile?->course ?? '—' }}
+                        {{ $student->studentProfile?->course ?? '' }}
                     </span>
                 </div>
 
                 <div class="flex items-start justify-between gap-4 border-b border-zinc-100 pb-3 dark:border-zinc-800">
                     <span class="text-sm text-zinc-500">Year Level</span>
                     <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
-                        {{ $student->studentProfile?->year_level ?? '—' }}
+                        {{ $student->studentProfile?->year_level ?? '' }}
                     </span>
                 </div>
 
                 <div class="flex items-start justify-between gap-4 border-b border-zinc-100 pb-3 dark:border-zinc-800">
                     <span class="text-sm text-zinc-500">Section</span>
                     <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
-                        {{ $student->studentProfile?->section ?? '—' }}
+                        {{ $student->studentProfile?->section ?? '' }}
                     </span>
                 </div>
 
@@ -167,7 +167,7 @@ new class extends Component
                 <div class="text-xs uppercase tracking-wide text-zinc-400">Student ID
                 </div>
                 <div class="mt-2 text-base font-semibold text-zinc-900 dark:text-white">
-                    {{ $student->studentProfile?->student_id ?? '—' }}
+                    {{ $student->studentProfile?->student_id ?? '' }}
                 </div>
             </div>
 
@@ -175,10 +175,10 @@ new class extends Component
                 <div class="text-xs uppercase tracking-wide text-zinc-400">Academic
                 </div>
                 <div class="mt-2 text-base font-semibold text-zinc-900 dark:text-white">
-                    {{ $student->studentProfile?->course ?? '—' }}
+                    {{ $student->studentProfile?->course ?? '' }}
                 </div>
                 <div class="text-sm text-zinc-500">
-                    Year {{ $student->studentProfile?->year_level ?? '—' }}
+                    Year {{ $student->studentProfile?->year_level ?? '' }}
                     @if ($student->studentProfile?->section)
                         • Section {{ $student->studentProfile->section }}
                     @endif

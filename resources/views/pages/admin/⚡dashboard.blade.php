@@ -441,7 +441,7 @@ new #[Title('Admin Dashboard')] class extends Component
                                     <div class="flex items-center gap-3">
                                         <div>
                                             <div class="font-medium text-zinc-900 dark:text-white">
-                                                {{ $assignment->student?->name ?? '—' }}
+                                                {{ $assignment->student?->name ?? '' }}
                                             </div>
                                             <div class="text-sm text-zinc-500">
                                                 {{ $assignment->student?->studentProfile?->student_id ?? 'No student ID' }}
@@ -455,7 +455,7 @@ new #[Title('Admin Dashboard')] class extends Component
                                 </flux:table.cell>
 
                                 <flux:table.cell>
-                                    {{ $assignee?->name ?? '—' }}
+                                    {{ $assignee?->name ?? '' }}
                                 </flux:table.cell>
 
                                 <flux:table.cell>

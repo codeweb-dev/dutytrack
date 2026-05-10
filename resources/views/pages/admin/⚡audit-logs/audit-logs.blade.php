@@ -84,14 +84,14 @@
                                 <div class="flex flex-col">
                                     <span class="font-medium">{{ $log->actor_name ?: 'System' }}</span>
                                     <span class="text-xs text-zinc-500">
-                                        {{ $log->actor_role ?: '—' }}
+                                        {{ $log->actor_role ?: '' }}
                                     </span>
                                 </div>
                             </flux:table.cell>
 
                             <flux:table.cell>
                                 <flux:badge size="sm" inset="top bottom">
-                                    {{ $log->module ?: '—' }}
+                                    {{ $log->module ?: '' }}
                                 </flux:badge>
                             </flux:table.cell>
 
@@ -102,7 +102,7 @@
                             </flux:table.cell>
 
                             <flux:table.cell class="whitespace-nowrap font-medium">
-                                {{ $log->target_label ?: '—' }}
+                                {{ $log->target_label ?: '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>

@@ -98,23 +98,23 @@
                         @endphp
 
                         <flux:table.row :key="$log->id">
-                            <flux:table.cell>{{ $log->log_date?->format('M d, Y') ?? '—' }}</flux:table.cell>
+                            <flux:table.cell>{{ $log->log_date?->format('M d, Y') ?? '' }}</flux:table.cell>
 
                             <flux:table.cell>
                                 <flux:badge size="sm" color="sky" inset="top bottom">
-                                    {{ ucfirst($assignment?->ojt_type ?? '—') }}
+                                    {{ ucfirst($assignment?->ojt_type ?? '') }}
                                 </flux:badge>
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ $supervisor?->name ?? trim(($supervisor?->first_name ?? '') . ' ' . ($supervisor?->last_name ?? '')) ?: '—' }}
+                                {{ $supervisor?->name ?? trim(($supervisor?->first_name ?? '') . ' ' . ($supervisor?->last_name ?? '')) ?: '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>
                                 <div class="flex flex-col text-sm">
-                                    <span>{{ $log->attendance?->time_in?->format('h:i A') ?? '—' }}</span>
+                                    <span>{{ $log->attendance?->time_in?->format('h:i A') ?? '' }}</span>
                                     <span class="text-xs text-zinc-500">
-                                        Out {{ $log->attendance?->time_out?->format('h:i A') ?? '—' }}
+                                        Out {{ $log->attendance?->time_out?->format('h:i A') ?? '' }}
                                     </span>
                                 </div>
                             </flux:table.cell>
@@ -128,8 +128,8 @@
                                 </flux:badge>
                             </flux:table.cell>
 
-                            <flux:table.cell>{{ $log->approver?->name ?? '—' }}</flux:table.cell>
-                            <flux:table.cell>{{ $log->remarks ?: '—' }}</flux:table.cell>
+                            <flux:table.cell>{{ $log->approver?->name ?? '' }}</flux:table.cell>
+                            <flux:table.cell>{{ $log->remarks ?: '' }}</flux:table.cell>
                         </flux:table.row>
                     @endforeach
                 </flux:table.rows>

@@ -50,7 +50,7 @@ new class extends Component {
                     {{ $supervisor->email }}
                 </div>
                 <div class="mt-1 text-sm text-zinc-400">
-                    Supervisor ID: {{ $supervisor->supervisorProfile?->supervisor_id ?? '—' }}
+                    Supervisor ID: {{ $supervisor->supervisorProfile?->supervisor_id ?? '' }}
                 </div>
             </div>
         </div>
@@ -74,7 +74,7 @@ new class extends Component {
         <div class="rounded-2xl bg-zinc-50 p-4 dark:bg-zinc-800/50">
             <div class="text-xs uppercase tracking-wide text-zinc-400">Company Name</div>
             <div class="mt-2 text-sm font-semibold text-zinc-900 dark:text-white">
-                {{ $supervisor->supervisorProfile?->company_name ?? '—' }}
+                {{ $supervisor->supervisorProfile?->company_name ?? '' }}
             </div>
         </div>
 

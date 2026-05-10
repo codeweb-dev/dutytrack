@@ -63,28 +63,28 @@ new class extends Component {
                 <div class="flex items-start justify-between gap-4 border-b border-zinc-100 pb-3 dark:border-zinc-800">
                     <span class="text-sm text-zinc-500">Employee ID</span>
                     <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
-                        {{ $coordinator->professorProfile?->employee_id ?? '—' }}
+                        {{ $coordinator->professorProfile?->employee_id ?? '' }}
                     </span>
                 </div>
 
                 <div class="flex items-start justify-between gap-4 border-b border-zinc-100 pb-3 dark:border-zinc-800">
                     <span class="text-sm text-zinc-500">First Name</span>
                     <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
-                        {{ $coordinator->first_name ?? '—' }}
+                        {{ $coordinator->first_name ?? '' }}
                     </span>
                 </div>
 
                 <div class="flex items-start justify-between gap-4 border-b border-zinc-100 pb-3 dark:border-zinc-800">
                     <span class="text-sm text-zinc-500">Middle Name</span>
                     <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
-                        {{ $coordinator->middle_name ?: '—' }}
+                        {{ $coordinator->middle_name ?: '' }}
                     </span>
                 </div>
 
                 <div class="flex items-start justify-between gap-4">
                     <span class="text-sm text-zinc-500">Last Name</span>
                     <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
-                        {{ $coordinator->last_name ?? '—' }}
+                        {{ $coordinator->last_name ?? '' }}
                     </span>
                 </div>
             </div>
@@ -101,7 +101,7 @@ new class extends Component {
                 <div class="flex items-start justify-between gap-4 border-b border-zinc-100 pb-3 dark:border-zinc-800">
                     <span class="text-sm text-zinc-500">Department</span>
                     <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
-                        {{ $coordinator->professorProfile?->department ?? '—' }}
+                        {{ $coordinator->professorProfile?->department ?? '' }}
                     </span>
                 </div>
 

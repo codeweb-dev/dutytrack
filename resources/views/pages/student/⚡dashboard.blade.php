@@ -137,8 +137,8 @@ new #[Title('Student Dashboard')] class extends Component
         $assignment = $this->assignment;
 
         return [
-            'course' => $this->currentStudent->studentProfile?->course ?? '—',
-            'student_id' => $this->currentStudent->studentProfile?->student_id ?? '—',
+            'course' => $this->currentStudent->studentProfile?->course ?? '',
+            'student_id' => $this->currentStudent->studentProfile?->student_id ?? '',
             'coordinator' => $this->currentStudent->coordinator?->name ?? 'Not assigned yet',
             'professor' => $assignment?->professor?->name ?? 'Not assigned yet',
             'supervisor' => $assignment?->companySupervisor?->name ?? 'Not assigned yet',
@@ -441,15 +441,15 @@ new #[Title('Student Dashboard')] class extends Component
                     @forelse ($this->recentAttendance as $log)
                         <flux:table.row :key="$log->id">
                             <flux:table.cell>
-                                {{ $log->attendance_date?->format('M d, Y') ?? '—' }}
+                                {{ $log->attendance_date?->format('M d, Y') ?? '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ $log->time_in?->format('h:i A') ?? '—' }}
+                                {{ $log->time_in?->format('h:i A') ?? '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ $log->time_out?->format('h:i A') ?? '—' }}
+                                {{ $log->time_out?->format('h:i A') ?? '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>

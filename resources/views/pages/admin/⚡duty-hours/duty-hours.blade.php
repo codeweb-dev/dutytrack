@@ -147,21 +147,21 @@
                             </flux:table.cell>
 
                             <flux:table.cell class="whitespace-nowrap font-medium">
-                                {{ $log->student?->student_id ?? '—' }}
+                                {{ $log->student?->student_id ?? '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>
                                 <flux:badge size="sm" color="sky" inset="top bottom">
-                                    {{ ucfirst($assignment?->ojt_type ?? '—') }}
+                                    {{ ucfirst($assignment?->ojt_type ?? '') }}
                                 </flux:badge>
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ $supervisor?->name ?? trim(($supervisor?->first_name ?? '') . ' ' . ($supervisor?->last_name ?? '')) ?: '—' }}
+                                {{ $supervisor?->name ?? trim(($supervisor?->first_name ?? '') . ' ' . ($supervisor?->last_name ?? '')) ?: '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ $log->log_date?->format('M d, Y') ?? '—' }}
+                                {{ $log->log_date?->format('M d, Y') ?? '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>
@@ -179,7 +179,7 @@
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ $log->remarks ?: '—' }}
+                                {{ $log->remarks ?: '' }}
                             </flux:table.cell>
                         </flux:table.row>
                     @endforeach

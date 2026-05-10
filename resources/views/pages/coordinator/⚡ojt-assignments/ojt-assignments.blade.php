@@ -107,13 +107,13 @@
                                     :name="$assignment->student?->name" />
 
                                 <div class="flex flex-col">
-                                    <span class="font-medium">{{ $assignment->student?->name ?? '—' }}</span>
-                                    <span class="text-xs text-zinc-500">{{ $assignment->student?->email ?? '—' }}</span>
+                                    <span class="font-medium">{{ $assignment->student?->name ?? '' }}</span>
+                                    <span class="text-xs text-zinc-500">{{ $assignment->student?->email ?? '' }}</span>
                                 </div>
                             </flux:table.cell>
 
                             <flux:table.cell class="whitespace-nowrap font-medium">
-                                {{ $assignment->student?->studentProfile?->student_id ?? '—' }}
+                                {{ $assignment->student?->studentProfile?->student_id ?? '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>
@@ -124,7 +124,7 @@
 
                             <flux:table.cell>
                                 <div class="flex flex-col">
-                                    <span>{{ $assignee?->name ?? '—' }}</span>
+                                    <span>{{ $assignee?->name ?? '' }}</span>
                                     <span class="text-xs text-zinc-500">
                                         {{ $assignment->ojt_type === 'internal' ? 'Professor' : 'Company Supervisor' }}
                                     </span>
@@ -133,7 +133,7 @@
 
                             <flux:table.cell>
                                 <div class="flex flex-col text-sm">
-                                    <span>{{ $assignment->start_date?->format('M d, Y') ?? '—' }}</span>
+                                    <span>{{ $assignment->start_date?->format('M d, Y') ?? '' }}</span>
                                     <span class="text-xs text-zinc-500">
                                         Until {{ $assignment->end_date?->format('M d, Y') ?? 'Open-ended' }}
                                     </span>

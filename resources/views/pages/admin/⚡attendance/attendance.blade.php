@@ -147,29 +147,29 @@
                             </flux:table.cell>
 
                             <flux:table.cell class="whitespace-nowrap font-medium">
-                                {{ $log->student?->studentProfile?->student_id ?? '—' }}
+                                {{ $log->student?->studentProfile?->student_id ?? '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>
                                 <flux:badge size="sm" color="sky" inset="top bottom">
-                                    {{ ucfirst($assignment?->ojt_type ?? '—') }}
+                                    {{ ucfirst($assignment?->ojt_type ?? '') }}
                                 </flux:badge>
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ $supervisor?->name ?? trim(($supervisor?->first_name ?? '') . ' ' . ($supervisor?->last_name ?? '')) ?: '—' }}
+                                {{ $supervisor?->name ?? trim(($supervisor?->first_name ?? '') . ' ' . ($supervisor?->last_name ?? '')) ?: '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ $log->attendance_date?->format('M d, Y') ?? '—' }}
+                                {{ $log->attendance_date?->format('M d, Y') ?? '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ $log->time_in?->format('h:i A') ?? '—' }}
+                                {{ $log->time_in?->format('h:i A') ?? '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ $log->time_out?->format('h:i A') ?? '—' }}
+                                {{ $log->time_out?->format('h:i A') ?? '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>
@@ -198,7 +198,7 @@
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ $log->remarks ?: '—' }}
+                                {{ $log->remarks ?: '' }}
                             </flux:table.cell>
                         </flux:table.row>
                     @endforeach

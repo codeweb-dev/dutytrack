@@ -55,17 +55,17 @@
                         </flux:table.cell>
 
                         <flux:table.cell class="whitespace-nowrap font-medium">
-                            {{ $professor->professorProfile?->employee_id ?? '—' }}
+                            {{ $professor->professorProfile?->employee_id ?? '' }}
                         </flux:table.cell>
 
                         <flux:table.cell>
-                            {{ $professor->professorProfile?->department ?? '—' }}
+                            {{ $professor->professorProfile?->department ?? '' }}
                         </flux:table.cell>
 
                         <flux:table.cell>
                             <flux:badge size="sm" :color="$this->badgeColor($professor->professorProfile?->position ?? '')"
                                 inset="top bottom">
-                                {{ $professor->professorProfile?->position ?? '—' }}
+                                {{ $professor->professorProfile?->position ?? '' }}
                             </flux:badge>
                         </flux:table.cell>
 

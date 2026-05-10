@@ -96,20 +96,20 @@
                                     :name="$assignment->student?->name" />
 
                                 <div class="flex flex-col">
-                                    <span class="font-medium">{{ $assignment->student?->name ?? '—' }}</span>
-                                    <span class="text-xs text-zinc-500">{{ $assignment->student?->email ?? '—' }}</span>
+                                    <span class="font-medium">{{ $assignment->student?->name ?? '' }}</span>
+                                    <span class="text-xs text-zinc-500">{{ $assignment->student?->email ?? '' }}</span>
                                 </div>
                             </flux:table.cell>
 
                             <flux:table.cell class="whitespace-nowrap font-medium">
-                                {{ $assignment->student?->studentProfile?->student_id ?? '—' }}
+                                {{ $assignment->student?->studentProfile?->student_id ?? '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>
                                 <div class="flex flex-col">
-                                    <span>{{ $assignment->student?->studentProfile?->course ?? '—' }}</span>
+                                    <span>{{ $assignment->student?->studentProfile?->course ?? '' }}</span>
                                     <span class="text-xs text-zinc-500">
-                                        Year {{ $assignment->student?->studentProfile?->year_level ?? '—' }}
+                                        Year {{ $assignment->student?->studentProfile?->year_level ?? '' }}
                                         @if ($assignment->student?->studentProfile?->section)
                                             • Section {{ $assignment->student->studentProfile->section }}
                                         @endif
@@ -118,16 +118,16 @@
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ $assignment->student?->coordinator?->name ?? '—' }}
+                                {{ $assignment->student?->coordinator?->name ?? '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ $assignment->professor?->name ?? '—' }}
+                                {{ $assignment->professor?->name ?? '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>
                                 <div class="flex flex-col text-sm">
-                                    <span>{{ $assignment->start_date?->format('M d, Y') ?? '—' }}</span>
+                                    <span>{{ $assignment->start_date?->format('M d, Y') ?? '' }}</span>
                                     <span class="text-xs text-zinc-500">
                                         Until {{ $assignment->end_date?->format('M d, Y') ?? 'Open-ended' }}
                                     </span>

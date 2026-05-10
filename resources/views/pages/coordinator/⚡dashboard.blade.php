@@ -397,10 +397,10 @@ new #[Title('Coordinator Dashboard')] class extends Component
 
                                 <flux:table.cell>
                                     <div class="text-sm text-zinc-900 dark:text-white">
-                                        {{ $student->studentProfile?->course ?? '—' }}
+                                        {{ $student->studentProfile?->course ?? '' }}
                                     </div>
                                     <div class="text-xs text-zinc-500">
-                                        Year {{ $student->studentProfile?->year_level ?? '—' }}
+                                        Year {{ $student->studentProfile?->year_level ?? '' }}
                                     </div>
                                 </flux:table.cell>
 

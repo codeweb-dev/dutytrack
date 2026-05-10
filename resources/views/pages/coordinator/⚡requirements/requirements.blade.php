@@ -80,14 +80,14 @@
                             </flux:table.cell>
 
                             <flux:table.cell class="whitespace-nowrap font-medium">
-                                {{ $student->studentProfile?->student_id ?? '—' }}
+                                {{ $student->studentProfile?->student_id ?? '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>
                                 <div class="flex flex-col">
-                                    <span>{{ $student->studentProfile?->course ?? '—' }}</span>
+                                    <span>{{ $student->studentProfile?->course ?? '' }}</span>
                                     <span class="text-xs text-zinc-500">
-                                        Year {{ $student->studentProfile?->year_level ?? '—' }}
+                                        Year {{ $student->studentProfile?->year_level ?? '' }}
                                         @if ($student->studentProfile?->section)
                                             • Section {{ $student->studentProfile->section }}
                                         @endif

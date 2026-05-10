@@ -50,7 +50,7 @@ new class extends Component {
                     {{ $professor->email }}
                 </div>
                 <div class="mt-1 text-sm text-zinc-400">
-                    Employee ID: {{ $professor->professorProfile?->employee_id ?? '—' }}
+                    Employee ID: {{ $professor->professorProfile?->employee_id ?? '' }}
                 </div>
             </div>
         </div>

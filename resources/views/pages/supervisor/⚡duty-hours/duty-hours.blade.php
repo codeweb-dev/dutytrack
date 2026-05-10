@@ -100,22 +100,22 @@
                                     :name="$log->student?->name" />
 
                                 <div class="flex flex-col">
-                                    <span class="font-medium">{{ $log->student?->name ?? '—' }}</span>
-                                    <span class="text-xs text-zinc-500">{{ $log->student?->email ?? '—' }}</span>
+                                    <span class="font-medium">{{ $log->student?->name ?? '' }}</span>
+                                    <span class="text-xs text-zinc-500">{{ $log->student?->email ?? '' }}</span>
                                 </div>
                             </flux:table.cell>
 
                             <flux:table.cell class="whitespace-nowrap font-medium">
-                                {{ $log->student?->studentProfile?->student_id ?? '—' }}
+                                {{ $log->student?->studentProfile?->student_id ?? '' }}
                             </flux:table.cell>
 
-                            <flux:table.cell>{{ $log->log_date?->format('M d, Y') ?? '—' }}</flux:table.cell>
+                            <flux:table.cell>{{ $log->log_date?->format('M d, Y') ?? '' }}</flux:table.cell>
 
                             <flux:table.cell>
                                 <div class="flex flex-col text-sm">
-                                    <span>{{ $log->attendance?->time_in?->format('h:i A') ?? '—' }}</span>
+                                    <span>{{ $log->attendance?->time_in?->format('h:i A') ?? '' }}</span>
                                     <span class="text-xs text-zinc-500">
-                                        Out {{ $log->attendance?->time_out?->format('h:i A') ?? '—' }}
+                                        Out {{ $log->attendance?->time_out?->format('h:i A') ?? '' }}
                                     </span>
                                 </div>
                             </flux:table.cell>
@@ -129,7 +129,7 @@
                                 </flux:badge>
                             </flux:table.cell>
 
-                            <flux:table.cell>{{ $log->remarks ?: '—' }}</flux:table.cell>
+                            <flux:table.cell>{{ $log->remarks ?: '' }}</flux:table.cell>
 
                             <flux:table.cell>
                                 @if ($log->status === 'pending')

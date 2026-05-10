@@ -55,7 +55,7 @@ new class extends Component {
                         {{ $log->actor_name ?: 'System' }}
                     </div>
                     <div class="text-sm text-zinc-500">
-                        {{ $log->actor_role ?: '—' }}
+                        {{ $log->actor_role ?: '' }}
                     </div>
                 </div>
 
@@ -68,21 +68,21 @@ new class extends Component {
                 <div>
                     <div class="text-xs uppercase tracking-wide text-zinc-400">Module</div>
                     <div class="mt-1 text-sm font-medium text-zinc-900 dark:text-white">
-                        {{ $log->module ?: '—' }}
+                        {{ $log->module ?: '' }}
                     </div>
                 </div>
 
                 <div>
                     <div class="text-xs uppercase tracking-wide text-zinc-400">Target</div>
                     <div class="mt-1 text-sm font-medium text-zinc-900 dark:text-white">
-                        {{ $log->target_label ?: '—' }}
+                        {{ $log->target_label ?: '' }}
                     </div>
                 </div>
 
                 <div>
                     <div class="text-xs uppercase tracking-wide text-zinc-400">Date & Time</div>
                     <div class="mt-1 text-sm font-medium text-zinc-900 dark:text-white">
-                        {{ $log->created_at?->format('M d, Y h:i A') ?? '—' }}
+                        {{ $log->created_at?->format('M d, Y h:i A') ?? '' }}
                     </div>
                 </div>
 

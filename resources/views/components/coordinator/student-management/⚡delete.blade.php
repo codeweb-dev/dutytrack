@@ -61,7 +61,7 @@ new class extends Component
                     {{ $student->email }}
                 </div>
                 <div class="mt-1 text-sm text-zinc-400">
-                    Student ID: {{ $student->studentProfile?->student_id ?? '—' }}
+                    Student ID: {{ $student->studentProfile?->student_id ?? '' }}
                 </div>
             </div>
         </div>
@@ -85,14 +85,14 @@ new class extends Component
         <div class="rounded-2xl bg-zinc-50 p-4 dark:bg-zinc-800/50">
             <div class="text-xs uppercase tracking-wide text-zinc-400">Student ID</div>
             <div class="mt-2 text-sm font-semibold text-zinc-900 dark:text-white">
-                {{ $student->studentProfile?->student_id ?? '—' }}
+                {{ $student->studentProfile?->student_id ?? '' }}
             </div>
         </div>
 
         <div class="rounded-2xl bg-zinc-50 p-4 dark:bg-zinc-800/50">
             <div class="text-xs uppercase tracking-wide text-zinc-400">Course</div>
             <div class="mt-2 text-sm font-semibold text-zinc-900 dark:text-white">
-                {{ $student->studentProfile?->course ?? '—' }}
+                {{ $student->studentProfile?->course ?? '' }}
             </div>
         </div>
 

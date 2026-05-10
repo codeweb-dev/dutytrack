@@ -62,12 +62,12 @@
                             </flux:table.cell>
 
                             <flux:table.cell class="whitespace-nowrap font-medium">
-                                {{ $supervisor->supervisorProfile?->supervisor_id ?? '—' }}
+                                {{ $supervisor->supervisorProfile?->supervisor_id ?? '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>
                                 <div class="flex flex-col">
-                                    <span>{{ $supervisor->supervisorProfile?->company_name ?? '—' }}</span>
+                                    <span>{{ $supervisor->supervisorProfile?->company_name ?? '' }}</span>
                                     <span class="text-xs text-zinc-500 line-clamp-1">
                                         {{ $supervisor->supervisorProfile?->company_address ?? 'No address provided' }}
                                     </span>

@@ -83,10 +83,10 @@ new class extends Component
             <div>
                 <div class="text-xs uppercase tracking-wide text-zinc-400">Student</div>
                 <div class="mt-1 text-base font-semibold text-zinc-900 dark:text-white">
-                    {{ $assignment->student?->name ?? '—' }}
+                    {{ $assignment->student?->name ?? '' }}
                 </div>
                 <div class="text-sm text-zinc-500">
-                    {{ $assignment->student?->studentProfile?->student_id ?? '—' }}
+                    {{ $assignment->student?->studentProfile?->student_id ?? '' }}
                 </div>
             </div>
 
@@ -101,7 +101,7 @@ new class extends Component
                 <div class="rounded-2xl bg-zinc-50 p-4 dark:bg-zinc-800/50">
                     <div class="text-xs uppercase tracking-wide text-zinc-400">Assigned To</div>
                     <div class="mt-2 text-sm font-semibold text-zinc-900 dark:text-white">
-                        {{ $assignment->ojt_type === 'internal' ? ($assignment->professor?->name ?? '—') : ($assignment->companySupervisor?->name ?? '—') }}
+                        {{ $assignment->ojt_type === 'internal' ? ($assignment->professor?->name ?? '') : ($assignment->companySupervisor?->name ?? '') }}
                     </div>
                 </div>
 

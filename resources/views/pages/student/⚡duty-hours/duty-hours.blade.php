@@ -37,8 +37,7 @@
                 <flux:badge color="red" inset="top bottom">{{ $this->dutyHourLogs->total() }}</flux:badge>
             </h2>
 
-            <div class="flex flex-col gap-2 sm:flex-row">
-                <flux:button icon="arrow-down-tray">Export Accomplishment Report</flux:button>
+            <div>
                 <flux:modal.trigger name="filter-student-duty-hours">
                     <flux:button icon="funnel">Filter</flux:button>
                 </flux:modal.trigger>

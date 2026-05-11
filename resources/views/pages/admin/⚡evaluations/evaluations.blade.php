@@ -119,7 +119,7 @@
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ $evaluation->student?->student_id ?? '' }}
+                                {{ $evaluation->student?->studentProfile?->student_id ?? '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>

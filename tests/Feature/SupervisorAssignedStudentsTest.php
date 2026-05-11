@@ -3,6 +3,7 @@
 use App\Enums\Role as AppRole;
 use App\Models\AttendanceLog;
 use App\Models\DutyHourLog;
+use App\Models\Evaluation;
 use App\Models\OjtAssignment;
 use App\Models\StudentTask;
 use App\Models\User;
@@ -306,4 +307,37 @@ test('company supervisors can drag grouped task cards between columns', function
     expect($groupedTasks->pluck('status')->unique()->values()->all())->toBe(['in_review']);
     expect($groupedTasks->pluck('sort_order')->unique()->values()->all())->toBe([0]);
     expect($existingReviewTask->refresh()->sort_order)->toBe(1);
+});
+
+test('company supervisors can submit practicum evaluations for assigned trainees', function () {
+    $coordinator = createSupervisorAssignedStudentCoordinator(['name' => 'Supervisor Evaluation Coordinator']);
+    $supervisor = createSupervisorAssignedStudentUser(['name' => 'Company Supervisor Evaluator']);
+    $student = createSupervisorAssignedStudent($coordinator, ['name' => 'Supervisor Evaluation Student']);
+
+    $assignment = OjtAssignment::query()->create([
+        'student_id' => $student->id,
+        'ojt_type' => 'external',
+        'company_supervisor_id' => $supervisor->id,
+        'status' => 'active',
+    ]);
+
+    $this->actingAs($supervisor);
+
+    Livewire::test('pages::supervisor.evaluations')
+        ->call('openEvaluationModal', $assignment->id)
+        ->set('inclusive_from', '2026-05-01')
+        ->set('inclusive_to', '2026-05-31')
+        ->set('evaluation_remarks', 'Shows strong work habits.')
+        ->call('saveEvaluation')
+        ->assertHasNoErrors();
+
+    $evaluation = Evaluation::query()->first();
+
+    expect($evaluation)->not->toBeNull();
+    expect($evaluation->student_id)->toBe($student->id);
+    expect($evaluation->evaluator_id)->toBe($supervisor->id);
+    expect($evaluation->evaluator_type)->toBe('company_supervisor');
+    expect($evaluation->cooperating_program)->toBe('Supervisor Evaluation Coordinator');
+    expect((float) $evaluation->rating)->toBe(100.0);
+    expect($evaluation->status)->toBe('submitted');
 });

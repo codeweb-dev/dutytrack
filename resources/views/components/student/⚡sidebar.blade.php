@@ -21,6 +21,11 @@ new class extends Component {};
         Duty Hours
     </flux:sidebar.item>
 
+    <flux:sidebar.item icon="check-badge" :href="route('student.evaluations')" :current="request()->routeIs('student.evaluations')"
+        wire:navigate>
+        Evaluations
+    </flux:sidebar.item>
+
     <flux:sidebar.item icon="chat-bubble-left-right" :href="route('student.messages')" :current="request()->routeIs('student.messages')"
         wire:navigate>
         Messages

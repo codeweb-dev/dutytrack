@@ -3,6 +3,7 @@
 use App\Enums\Role as AppRole;
 use App\Models\AttendanceLog;
 use App\Models\DutyHourLog;
+use App\Models\Evaluation;
 use App\Models\OjtAssignment;
 use App\Models\StudentTask;
 use App\Models\User;
@@ -375,4 +376,37 @@ test('professors can drag grouped task cards between columns', function () {
     expect($groupedTasks->pluck('status')->unique()->values()->all())->toBe(['in_review']);
     expect($groupedTasks->pluck('sort_order')->unique()->values()->all())->toBe([0]);
     expect($existingReviewTask->refresh()->sort_order)->toBe(1);
+});
+
+test('professors can submit practicum evaluations for assigned students', function () {
+    $coordinator = createProfessorAssignedStudentCoordinator(['name' => 'Professor Evaluation Coordinator']);
+    $professor = createProfessorAssignedStudentUser(['name' => 'Professor Evaluator']);
+    $student = createProfessorAssignedStudent($coordinator, ['name' => 'Professor Evaluation Student']);
+
+    $assignment = OjtAssignment::query()->create([
+        'student_id' => $student->id,
+        'ojt_type' => 'internal',
+        'professor_id' => $professor->id,
+        'status' => 'active',
+    ]);
+
+    $this->actingAs($professor);
+
+    Livewire::test('pages::professor.evaluations')
+        ->call('openEvaluationModal', $assignment->id)
+        ->set('inclusive_from', '2026-05-01')
+        ->set('inclusive_to', '2026-05-31')
+        ->set('evaluation_remarks', 'Consistently dependable.')
+        ->call('saveEvaluation')
+        ->assertHasNoErrors();
+
+    $evaluation = Evaluation::query()->first();
+
+    expect($evaluation)->not->toBeNull();
+    expect($evaluation->student_id)->toBe($student->id);
+    expect($evaluation->evaluator_id)->toBe($professor->id);
+    expect($evaluation->evaluator_type)->toBe('professor');
+    expect($evaluation->cooperating_program)->toBe('Professor Evaluation Coordinator');
+    expect((float) $evaluation->rating)->toBe(100.0);
+    expect($evaluation->status)->toBe('submitted');
 });

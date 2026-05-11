@@ -91,7 +91,7 @@ new #[Title('Evaluation Monitoring')] class extends Component {
     {
         return Evaluation::query()
             ->with([
-                'student',
+                'student.studentProfile',
                 'assignment',
                 'evaluator',
             ])

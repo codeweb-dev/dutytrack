@@ -35,7 +35,8 @@ new class extends Component {};
         Reports / Submissions
     </flux:sidebar.item>
 
-    <flux:sidebar.item icon="check-badge" href="#">
-        Evaluation
+    <flux:sidebar.item icon="check-badge" href="{{ route('supervisor.evaluations') }}"
+        :current="request()->routeIs('supervisor.evaluations')" wire:navigate>
+        Evaluations
     </flux:sidebar.item>
 </flux:sidebar.nav>

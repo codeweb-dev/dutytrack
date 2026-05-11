@@ -12,14 +12,21 @@ class Evaluation extends Model
         'evaluator_id',
         'evaluator_type',
         'evaluation_date',
+        'inclusive_from',
+        'inclusive_to',
+        'cooperating_program',
         'rating',
+        'ratings',
         'remarks',
         'status',
     ];
 
     protected $casts = [
         'evaluation_date' => 'date',
+        'inclusive_from' => 'date',
+        'inclusive_to' => 'date',
         'rating' => 'decimal:2',
+        'ratings' => 'array',
     ];
 
     public function student()

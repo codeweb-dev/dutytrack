@@ -1,7 +1,10 @@
 <?php
 
+use App\Exports\EvaluationExport;
+use App\Models\Evaluation;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Maatwebsite\Excel\Facades\Excel;
 
 Route::view('/', 'welcome')->name('home');
 
@@ -56,27 +59,60 @@ Route::group(['middleware' => ['role:professor']], function () {
     Route::livewire('/professor/dashboard', 'pages::professor.dashboard')->name('professor.dashboard');
     Route::livewire('/professor/assigned-students', 'pages::professor.assigned-students')->name('professor.assigned-students');
     Route::livewire('/professor/duty-hours', 'pages::professor.duty-hours')->name('professor.duty-hours');
+    Route::livewire('/professor/evaluations', 'pages::professor.evaluations')->name('professor.evaluations');
     Route::livewire('/professor/tasks', 'pages::professor.tasks')->name('professor.tasks');
     Route::livewire('/professor/messages', 'pages::messages')->name('professor.messages');
+
+    Route::get('/professor/evaluations/{evaluation}/download', function (Evaluation $evaluation) {
+        abort_unless($evaluation->evaluator_id === Auth::id() && $evaluation->evaluator_type === 'professor', 403);
+
+        $evaluation->load(['student.studentProfile', 'evaluator', 'assignment']);
+
+        $filename = 'practicum-evaluation-'.$evaluation->id.'.xlsx';
+
+        return Excel::download(new EvaluationExport($evaluation), $filename);
+    })->name('professor.evaluations.download');
 });
 
 Route::group(['middleware' => ['role:company_supervisor']], function () {
     Route::livewire('/supervisor/dashboard', 'pages::supervisor.dashboard')->name('supervisor.dashboard');
     Route::livewire('/supervisor/assigned-students', 'pages::supervisor.assigned-students')->name('supervisor.assigned-students');
     Route::livewire('/supervisor/duty-hours', 'pages::supervisor.duty-hours')->name('supervisor.duty-hours');
+    Route::livewire('/supervisor/evaluations', 'pages::supervisor.evaluations')->name('supervisor.evaluations');
     Route::livewire('/supervisor/tasks', 'pages::supervisor.tasks')->name('supervisor.tasks');
     Route::livewire('/supervisor/messages', 'pages::messages')->name('supervisor.messages');
+
+    Route::get('/supervisor/evaluations/{evaluation}/download', function (Evaluation $evaluation) {
+        abort_unless($evaluation->evaluator_id === Auth::id() && $evaluation->evaluator_type === 'company_supervisor', 403);
+
+        $evaluation->load(['student.studentProfile', 'evaluator', 'assignment']);
+
+        $filename = 'practicum-evaluation-'.$evaluation->id.'.xlsx';
+
+        return Excel::download(new EvaluationExport($evaluation), $filename);
+    })->name('supervisor.evaluations.download');
 });
 
 Route::group(['middleware' => ['role:student']], function () {
     Route::livewire('/student/dashboard', 'pages::student.dashboard')->name('student.dashboard');
     Route::livewire('/student/attendance', 'pages::student.attendance')->name('student.attendance');
     Route::livewire('/student/duty-hours', 'pages::student.duty-hours')->name('student.duty-hours');
+    Route::livewire('/student/evaluations', 'pages::student.evaluations')->name('student.evaluations');
     Route::livewire('/student/tasks', 'pages::student.tasks')->name('student.tasks');
     Route::livewire('/student/notes', 'pages::student.notes')->name('student.notes');
     Route::livewire('/student/messages', 'pages::messages')->name('student.messages');
     Route::livewire('/student/pomodoro', 'pages::student.pomodoro')->name('student.pomodoro');
     Route::livewire('/student/pet', 'pages::student.pet-streak')->name('student.pet-streak');
+
+    Route::get('/student/evaluations/{evaluation}/download', function (Evaluation $evaluation) {
+        abort_unless($evaluation->student_id === Auth::id(), 403);
+
+        $evaluation->load(['student.studentProfile', 'evaluator', 'assignment']);
+
+        $filename = 'practicum-evaluation-'.$evaluation->id.'.xlsx';
+
+        return Excel::download(new EvaluationExport($evaluation), $filename);
+    })->name('student.evaluations.download');
 });
 
 require __DIR__.'/settings.php';

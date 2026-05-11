@@ -6,8 +6,7 @@ use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
-new class extends Component
-{
+new class extends Component {
     use WithFileUploads;
 
     public StudentForm $form;
@@ -123,8 +122,10 @@ new class extends Component
                             </div>
                         </div>
 
-                        @if (! $loop->last)
-                            <div class="{{ $currentStep > $stepNumber ? 'bg-red-500' : 'bg-zinc-700' }} mt-7 h-px w-10 md:w-16"></div>
+                        @if (!$loop->last)
+                            <div
+                                class="{{ $currentStep > $stepNumber ? 'bg-red-500' : 'bg-zinc-700' }} mt-7 h-px w-10 md:w-16">
+                            </div>
                         @endif
                     @endforeach
                 </div>
@@ -140,20 +141,20 @@ new class extends Component
                         <div>
                             <flux:heading>{{ $step['label'] }}</flux:heading>
                             <flux:text class="mt-2">
-                                Check only the requirements already provided. You can leave everything blank and continue.
+                                Check only the requirements already provided. You can leave everything blank and
+                                continue.
                             </flux:text>
                         </div>
                     </div>
 
                     <flux:checkbox.group wire:model="form.requirementChecks" variant="cards"
-                        wire:key="create-student-requirement-group-{{ $step['key'] }}" class="grid gap-3 md:grid-cols-2">
+                        wire:key="create-student-requirement-group-{{ $step['key'] }}"
+                        class="grid gap-3 md:grid-cols-2">
                         @foreach ($step['items'] as $requirement)
                             <flux:checkbox
                                 wire:key="create-student-requirement-{{ $step['key'] }}-{{ $requirement['key'] }}"
-                                value="{{ $requirement['key'] }}"
-                                label="{{ $requirement['label'] }}"
-                                description="Mark checked only if already provided."
-                            />
+                                value="{{ $requirement['key'] }}" label="{{ $requirement['label'] }}"
+                                description="Mark checked only if already provided." />
                         @endforeach
                     </flux:checkbox.group>
                 </div>
@@ -168,7 +169,8 @@ new class extends Component
                             <x-custom-file-upload model="form.photo" label="Upload student photo" accept="image/*" />
                         </div>
 
-                        <flux:input wire:model.live.debounce.300ms="form.student_id" label="Student ID" placeholder="2316-02373C"
+                        <flux:input wire:model.live.debounce.300ms="form.student_id" label="Student ID"
+                            placeholder="2316-02373C"
                             description:trailing="Student ID can be found on the student's ID card." />
 
                         <div class="grid grid-cols-3 gap-x-4 gap-y-6">
@@ -203,7 +205,10 @@ new class extends Component
                         </div>
 
                         <div>
-                            <flux:input wire:model="form.course" label="Course" readonly />
+                            <flux:select label="Course" wire:model="form.course" placeholder="Choose a course">
+                                <flux:select.option>BSCS</flux:select.option>
+                                <flux:select.option>BSIT</flux:select.option>
+                            </flux:select>
                         </div>
 
                         <flux:field>
@@ -223,7 +228,8 @@ new class extends Component
                                             {{ \App\Support\HourFormatter::format($form->ojt_required_hours ?: 0) }}
                                         </div>
 
-                                        <div class="mt-2 text-sm uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                                        <div
+                                            class="mt-2 text-sm uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
                                             Hours Required
                                         </div>
                                     </div>
@@ -242,12 +248,14 @@ new class extends Component
             @endif
 
             <div class="flex items-center justify-between gap-3">
-                <flux:button type="button" wire:click="previousStep" icon="arrow-long-left" :disabled="$currentStep === 1">
+                <flux:button type="button" wire:click="previousStep" icon="arrow-long-left"
+                    :disabled="$currentStep === 1">
                     Back
                 </flux:button>
 
                 @if ($currentStep < 4)
-                    <flux:button type="button" wire:click="nextStep" variant="primary" icon:trailing="arrow-long-right">
+                    <flux:button type="button" wire:click="nextStep" variant="primary"
+                        icon:trailing="arrow-long-right">
                         Next
                     </flux:button>
                 @else

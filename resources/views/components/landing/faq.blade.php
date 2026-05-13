@@ -9,10 +9,10 @@
                 <flux:badge rounded icon="sparkles" color="red">FAQ's</flux:badge>
             </div>
             <h2
-                class="text-4xl lg:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight mb-4">
+                class="text-4xl lg:text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight mb-4">
                 Common Questions<br>With Clear Answers
             </h2>
-            <p class="text-base text-gray-500 dark:text-zinc-400 leading-relaxed">
+            <p class="text-lg text-gray-500 dark:text-zinc-400 leading-relaxed">
                 Here are answers to the most common<br>
                 things people ask before getting started.
             </p>
@@ -60,11 +60,10 @@
                         get isOpen() { return open === {{ $i }} },
                         toggle() { open = open === {{ $i }} ? null : {{ $i }} }
                     }">
-
                     <button class="w-full flex items-center justify-between px-6 py-5 text-left cursor-pointer"
                         x-on:click="toggle()">
                         <span
-                            class="text-sm font-semibold text-gray-900 dark:text-white pr-4">{{ $faq['q'] }}</span>
+                            class="text-lg font-semibold text-gray-900 dark:text-white pr-4">{{ $faq['q'] }}</span>
                         <span
                             class="shrink-0 w-7 h-7 rounded-full border flex items-center justify-center transition-all duration-300"
                             :class="isOpen ? 'bg-red-600 border-red-600' :
@@ -84,7 +83,7 @@
                         x-transition:leave="transition-all ease-[cubic-bezier(0.4,0,0.2,1)] duration-300"
                         x-transition:leave-start="opacity-100 max-h-96" x-transition:leave-end="opacity-0 max-h-0"
                         style="overflow: hidden;" class="border-t border-gray-100 dark:border-zinc-800">
-                        <p class="px-6 pt-4 pb-5 text-sm text-gray-500 dark:text-zinc-400 leading-relaxed">
+                        <p class="px-6 pt-4 pb-5 text-md text-gray-500 dark:text-zinc-400 leading-relaxed">
                             {{ $faq['a'] }}</p>
                     </div>
 

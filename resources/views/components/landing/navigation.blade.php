@@ -3,7 +3,7 @@
     <div class="max-w-6xl mx-auto w-full">
         <div class="flex items-center justify-between px-12 py-2 w-full rounded-b-xl">
             <div class="flex items-center gap-2 font-bold text-lg text-gray-900 dark:text-white">
-                <img src="{{ asset('logo.png') }}" alt="Duty Track Logo" width="32" height="32" />
+                <img src="{{ asset('logo.png') }}" alt="Duty Track Logo" width="40" height="40" />
                 <div>Duty Track</div>
             </div>
 

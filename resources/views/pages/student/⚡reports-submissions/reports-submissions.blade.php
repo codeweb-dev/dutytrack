@@ -2,19 +2,12 @@
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
     <section class="space-y-4">
-        <div class="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
-            <div>
-                <flux:heading size="lg">Completed Attendance Reports</flux:heading>
-                <flux:text class="mt-2">Completed attendance days appear here after morning and afternoon punches are done.</flux:text>
-            </div>
-
-            <div class="grid gap-3 sm:grid-cols-[minmax(0,10rem)_minmax(0,10rem)_auto] sm:items-end">
-                <flux:input type="date" wire:model.live="from_date" label="From" />
-                <flux:input type="date" wire:model.live="to_date" label="To" />
-                <flux:button icon="arrow-down-tray" variant="primary" :href="$this->downloadUrl()" target="_blank">
-                    Download Docs
-                </flux:button>
-            </div>
+        <div class="flex items-center md:items-end gap-3 w-full">
+            <flux:input type="date" wire:model.live="from_date" label="From" />
+            <flux:input type="date" wire:model.live="to_date" label="To" />
+            <flux:button icon="arrow-down-tray" variant="primary" :href="$this->downloadUrl()" target="_blank" class="mt-6">
+                Download Docs
+            </flux:button>
         </div>
 
         <flux:table :paginate="$this->completedAttendances">
@@ -33,20 +26,28 @@
                     <flux:table.row :key="$log->id">
                         <flux:table.cell>{{ $log->attendance_date?->format('M d, Y') }}</flux:table.cell>
                         <flux:table.cell>
-                            {{ $log->morning_time_in?->format('h:i A') }} - {{ $log->morning_time_out?->format('h:i A') }}
+                            {{ $log->morning_time_in?->format('h:i A') }} -
+                            {{ $log->morning_time_out?->format('h:i A') }}
                         </flux:table.cell>
                         <flux:table.cell>
-                            {{ $log->afternoon_time_in?->format('h:i A') }} - {{ $log->afternoon_time_out?->format('h:i A') }}
+                            {{ $log->afternoon_time_in?->format('h:i A') }} -
+                            {{ $log->afternoon_time_out?->format('h:i A') }}
                         </flux:table.cell>
-                        <flux:table.cell>{{ \App\Support\HourFormatter::format($log->hours_rendered) }}</flux:table.cell>
-                        <flux:table.cell>{{ \Illuminate\Support\Str::limit($log->submission?->accomplishment ?? '', 80) }}</flux:table.cell>
+                        <flux:table.cell>{{ \App\Support\HourFormatter::format($log->hours_rendered) }}
+                        </flux:table.cell>
                         <flux:table.cell>
-                            <flux:badge size="sm" color="{{ count($log->submission?->photo_paths ?? []) ? 'lime' : 'zinc' }}" inset="top bottom">
+                            {{ \Illuminate\Support\Str::limit($log->submission?->accomplishment ?? '', 80) }}
+                        </flux:table.cell>
+                        <flux:table.cell>
+                            <flux:badge size="sm"
+                                color="{{ count($log->submission?->photo_paths ?? []) ? 'lime' : 'zinc' }}"
+                                inset="top bottom">
                                 {{ count($log->submission?->photo_paths ?? []) }}
                             </flux:badge>
                         </flux:table.cell>
                         <flux:table.cell>
-                            <flux:button size="sm" icon="pencil-square" wire:click="openSubmissionModal({{ $log->id }})">
+                            <flux:button size="sm" icon="pencil-square"
+                                wire:click="openSubmissionModal({{ $log->id }})">
                                 Submit
                             </flux:button>
                         </flux:table.cell>
@@ -66,7 +67,8 @@
         <form wire:submit="saveSubmission" class="space-y-6">
             <div>
                 <flux:heading size="lg">Daily Submission</flux:heading>
-                <flux:text class="mt-2">Add the accomplishment and photos for this completed attendance day.</flux:text>
+                <flux:text class="mt-2">Add the accomplishment and photos for this completed attendance day.
+                </flux:text>
             </div>
 
             <flux:textarea wire:model="accomplishment" label="Accomplishment" rows="5"

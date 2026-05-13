@@ -1,5 +1,5 @@
 <section class="py-24 px-6 bg-gray-100 dark:bg-zinc-950" id="teams">
-    <div class="max-w-5xl mx-auto">
+    <div class="max-w-6xl mx-auto">
         <div class="text-center mb-16
             opacity-0 translate-y-6
             intersect:opacity-100 intersect:translate-y-0
@@ -7,10 +7,10 @@
             <div class="inline-block mb-5">
                 <flux:badge rounded icon="sparkles" color="red">Our Team</flux:badge>
             </div>
-            <h2 class="text-4xl lg:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight mb-4">
+            <h2 class="text-4xl lg:text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight mb-4">
                 The People Behind<br>DutyTrack
             </h2>
-            <p class="text-base text-gray-500 dark:text-zinc-400 max-w-md mx-auto leading-relaxed">
+            <p class="text-lg text-gray-500 dark:text-zinc-400 max-w-md mx-auto leading-relaxed">
                 A small but passionate team building tools that make OJT
                 management simpler, smarter, and more transparent.
             </p>
@@ -142,7 +142,7 @@
 
                     <div class="p-5">
                         <div class="flex items-center gap-1.5 mb-0.5">
-                            <h4 class="text-sm font-bold text-gray-900 dark:text-white leading-tight">{{ $m['name'] }}</h4>
+                            <h4 class="text-md font-bold text-gray-900 dark:text-white leading-tight">{{ $m['name'] }}</h4>
                             <flux:icon.check-badge class="size-4 text-red-500 shrink-0" />
                         </div>
 

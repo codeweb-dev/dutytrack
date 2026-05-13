@@ -1,5 +1,5 @@
 <section class="py-24 px-6 bg-gray-100 dark:bg-zinc-950" id="benefits">
-    <div class="max-w-5xl mx-auto">
+    <div class="max-w-6xl mx-auto">
         <div class="text-center mb-16">
             <div
                 class="inline-block relative mb-7
@@ -10,7 +10,7 @@
                 <flux:badge rounded icon="sparkles" color="red">Benefits</flux:badge>
             </div>
             <h2
-                class="text-4xl lg:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight mb-4
+                class="text-4xl lg:text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight mb-4
                 opacity-0 translate-y-6
                 intersect:opacity-100 intersect:translate-y-0
                 transition-all duration-600 delay-100 ease-out
@@ -18,7 +18,7 @@
                 Benefits That Improve<br>OJT Management
             </h2>
             <p
-                class="text-base text-gray-500 dark:text-zinc-400 max-w-md mx-auto leading-relaxed
+                class="text-lg text-gray-500 dark:text-zinc-400 max-w-md mx-auto leading-relaxed
                 opacity-0 translate-y-6
                 intersect:opacity-100 intersect:translate-y-0
                 transition-all duration-600 delay-200 ease-out
@@ -29,7 +29,6 @@
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-
             @php
                 $benefits = [
                     [
@@ -88,18 +87,19 @@
                     intersect:opacity-100 intersect:translate-y-0
                     intersect-once"
                     style="transition-duration: 500ms; transition-delay: {{ $benefit['delay'] }}ms;">
-                    <div
-                        class="w-12 h-12 rounded-xl bg-red-50 dark:bg-red-950/40 flex items-center justify-center mb-5">
-                        <svg class="size-6 text-red-500 dark:text-red-400" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                            {!! $benefit['icon'] !!}
-                        </svg>
+                    <div class="flex items-center gap-4 mb-4">
+                        <div
+                            class="w-12 h-12 rounded-xl bg-red-50 dark:bg-red-950/40 flex items-center justify-center">
+                            <svg class="size-6 text-red-500 dark:text-red-400" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                {!! $benefit['icon'] !!}
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">{{ $benefit['title'] }}</h3>
                     </div>
-                    <h3 class="text-base font-bold text-gray-900 dark:text-white mb-2">{{ $benefit['title'] }}</h3>
-                    <p class="text-sm text-gray-500 dark:text-zinc-400 leading-relaxed">{{ $benefit['desc'] }}</p>
+                    <p class="text-md text-gray-500 dark:text-zinc-400 leading-relaxed">{{ $benefit['desc'] }}</p>
                 </div>
             @endforeach
-
         </div>
     </div>
 </section>

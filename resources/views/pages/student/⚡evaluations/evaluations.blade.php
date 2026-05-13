@@ -8,8 +8,10 @@
                 <flux:badge color="red" inset="top bottom">{{ $this->evaluations->total() }}</flux:badge>
             </h2>
 
-            <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
-                placeholder="Search evaluations..." clearable />
+            <div>
+                <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
+                    placeholder="Search evaluations..." clearable />
+            </div>
         </div>
 
         @if ($this->evaluations->isEmpty())

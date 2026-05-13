@@ -28,18 +28,15 @@ trait ManagesPracticumEvaluations
     public function openEvaluationModal(int $assignmentId): void
     {
         $assignment = $this->assignmentQuery()
-            ->with(['student.studentProfile', 'student.coordinator', 'evaluations'])
+            ->with(['student.studentProfile', 'student.coordinator'])
             ->whereKey($assignmentId)
             ->firstOrFail();
 
-        $evaluation = $assignment->evaluations
-            ->firstWhere('evaluator_id', Auth::id());
-
         $this->evaluation_assignment_id = $assignment->id;
-        $this->inclusive_from = $evaluation?->inclusive_from?->format('Y-m-d') ?? '';
-        $this->inclusive_to = $evaluation?->inclusive_to?->format('Y-m-d') ?? '';
-        $this->evaluation_remarks = $evaluation?->remarks ?? '';
-        $this->evaluation_ratings = $evaluation?->ratings ?: PracticumEvaluationForm::defaultRatings();
+        $this->inclusive_from = '';
+        $this->inclusive_to = '';
+        $this->evaluation_remarks = '';
+        $this->evaluation_ratings = PracticumEvaluationForm::defaultRatings();
 
         $this->resetValidation();
 
@@ -61,24 +58,20 @@ trait ManagesPracticumEvaluations
 
         $rating = PracticumEvaluationForm::total($this->evaluation_ratings);
 
-        Evaluation::query()->updateOrCreate(
-            [
-                'ojt_assignment_id' => $assignment->id,
-                'evaluator_id' => Auth::id(),
-            ],
-            [
-                'student_id' => $assignment->student_id,
-                'evaluator_type' => $this->evaluatorType(),
-                'evaluation_date' => now()->toDateString(),
-                'inclusive_from' => $this->inclusive_from,
-                'inclusive_to' => $this->inclusive_to,
-                'cooperating_program' => $this->cooperatingProgramFor($assignment),
-                'ratings' => $this->evaluation_ratings,
-                'rating' => $rating,
-                'remarks' => trim($this->evaluation_remarks) !== '' ? trim($this->evaluation_remarks) : null,
-                'status' => 'submitted',
-            ],
-        );
+        Evaluation::query()->create([
+            'student_id' => $assignment->student_id,
+            'ojt_assignment_id' => $assignment->id,
+            'evaluator_id' => Auth::id(),
+            'evaluator_type' => $this->evaluatorType(),
+            'evaluation_date' => now()->toDateString(),
+            'inclusive_from' => $this->inclusive_from,
+            'inclusive_to' => $this->inclusive_to,
+            'cooperating_program' => $this->cooperatingProgramFor($assignment),
+            'ratings' => $this->evaluation_ratings,
+            'rating' => $rating,
+            'remarks' => trim($this->evaluation_remarks) !== '' ? trim($this->evaluation_remarks) : null,
+            'status' => 'submitted',
+        ]);
 
         $this->resetEvaluationForm();
         unset($this->assignments, $this->evaluations, $this->summary);

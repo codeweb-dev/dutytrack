@@ -82,7 +82,7 @@
         <div class="space-y-6">
             <div>
                 <flux:heading size="lg">Students to Evaluate</flux:heading>
-                <flux:text class="mt-2">Choose an assigned student to evaluate or update anytime.</flux:text>
+                <flux:text class="mt-2">Choose an assigned student and submit a new evaluation record.</flux:text>
             </div>
 
             @if ($this->assignments->isEmpty())
@@ -107,7 +107,8 @@
                     <flux:table.rows>
                         @foreach ($this->assignments as $assignment)
                             @php
-                                $myEvaluation = $assignment->evaluations->firstWhere('evaluator_id', auth()->id());
+                                $myEvaluations = $assignment->evaluations->where('evaluator_id', auth()->id());
+                                $latestEvaluation = $myEvaluations->sortByDesc('created_at')->first();
                             @endphp
 
                             <flux:table.row :key="$assignment->id">
@@ -118,12 +119,12 @@
                                 </flux:table.cell>
                                 <flux:table.cell>{{ $this->cooperatingProgramFor($assignment) }}</flux:table.cell>
                                 <flux:table.cell>
-                                    @if ($myEvaluation)
+                                    @if ($latestEvaluation)
                                         <div class="flex flex-col">
                                             <span
-                                                class="font-medium">{{ number_format((float) $myEvaluation->rating, 1) }}</span>
+                                                class="font-medium">{{ $myEvaluations->count() }} submitted</span>
                                             <span class="text-xs text-zinc-500">
-                                                {{ $myEvaluation->evaluation_date?->format('M d, Y') }}
+                                                Latest: {{ $latestEvaluation->evaluation_date?->format('M d, Y') }}
                                             </span>
                                         </div>
                                     @else
@@ -134,7 +135,7 @@
                                     <flux:button type="button" size="sm" icon="check-badge"
                                         wire:key="evaluate-{{ $assignment->id }}"
                                         wire:click="openEvaluationModal({{ $assignment->id }})">
-                                        {{ $myEvaluation ? 'Update' : 'Evaluate' }}
+                                        Evaluate
                                     </flux:button>
                                 </flux:table.cell>
                             </flux:table.row>

@@ -298,7 +298,7 @@ test('students can drag tasks between kanban columns', function () {
 
     $this->actingAs($student);
 
-    Livewire::test('pages::student.kanban')
+    Livewire::test('pages::student.tasks')
         ->call('sortTask', (string) $pendingTask->id, 0, 'done')
         ->assertHasNoErrors();
 
@@ -409,4 +409,45 @@ test('professors can submit practicum evaluations for assigned students', functi
     expect($evaluation->cooperating_program)->toBe('Professor Evaluation Coordinator');
     expect((float) $evaluation->rating)->toBe(100.0);
     expect($evaluation->status)->toBe('submitted');
+});
+
+test('professors can submit multiple practicum evaluations for one assigned student', function () {
+    $coordinator = createProfessorAssignedStudentCoordinator(['name' => 'Professor Multiple Evaluation Coordinator']);
+    $professor = createProfessorAssignedStudentUser(['name' => 'Professor Multiple Evaluator']);
+    $student = createProfessorAssignedStudent($coordinator, ['name' => 'Professor Multiple Evaluation Student']);
+
+    $assignment = OjtAssignment::query()->create([
+        'student_id' => $student->id,
+        'ojt_type' => 'internal',
+        'professor_id' => $professor->id,
+        'status' => 'active',
+    ]);
+
+    $this->actingAs($professor);
+
+    Livewire::test('pages::professor.evaluations')
+        ->call('openEvaluationModal', $assignment->id)
+        ->set('inclusive_from', '2026-05-01')
+        ->set('inclusive_to', '2026-05-15')
+        ->set('evaluation_remarks', 'First evaluation period.')
+        ->call('saveEvaluation')
+        ->call('openEvaluationModal', $assignment->id)
+        ->set('inclusive_from', '2026-05-16')
+        ->set('inclusive_to', '2026-05-31')
+        ->set('evaluation_remarks', 'Second evaluation period.')
+        ->call('saveEvaluation')
+        ->assertHasNoErrors();
+
+    $evaluations = Evaluation::query()
+        ->where('student_id', $student->id)
+        ->where('ojt_assignment_id', $assignment->id)
+        ->where('evaluator_id', $professor->id)
+        ->orderBy('inclusive_from')
+        ->get();
+
+    expect($evaluations)->toHaveCount(2);
+    expect($evaluations->pluck('remarks')->all())->toBe([
+        'First evaluation period.',
+        'Second evaluation period.',
+    ]);
 });

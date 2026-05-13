@@ -341,3 +341,44 @@ test('company supervisors can submit practicum evaluations for assigned trainees
     expect((float) $evaluation->rating)->toBe(100.0);
     expect($evaluation->status)->toBe('submitted');
 });
+
+test('company supervisors can submit multiple practicum evaluations for one assigned trainee', function () {
+    $coordinator = createSupervisorAssignedStudentCoordinator(['name' => 'Supervisor Multiple Evaluation Coordinator']);
+    $supervisor = createSupervisorAssignedStudentUser(['name' => 'Company Supervisor Multiple Evaluator']);
+    $student = createSupervisorAssignedStudent($coordinator, ['name' => 'Supervisor Multiple Evaluation Student']);
+
+    $assignment = OjtAssignment::query()->create([
+        'student_id' => $student->id,
+        'ojt_type' => 'external',
+        'company_supervisor_id' => $supervisor->id,
+        'status' => 'active',
+    ]);
+
+    $this->actingAs($supervisor);
+
+    Livewire::test('pages::supervisor.evaluations')
+        ->call('openEvaluationModal', $assignment->id)
+        ->set('inclusive_from', '2026-05-01')
+        ->set('inclusive_to', '2026-05-15')
+        ->set('evaluation_remarks', 'First supervisor evaluation period.')
+        ->call('saveEvaluation')
+        ->call('openEvaluationModal', $assignment->id)
+        ->set('inclusive_from', '2026-05-16')
+        ->set('inclusive_to', '2026-05-31')
+        ->set('evaluation_remarks', 'Second supervisor evaluation period.')
+        ->call('saveEvaluation')
+        ->assertHasNoErrors();
+
+    $evaluations = Evaluation::query()
+        ->where('student_id', $student->id)
+        ->where('ojt_assignment_id', $assignment->id)
+        ->where('evaluator_id', $supervisor->id)
+        ->orderBy('inclusive_from')
+        ->get();
+
+    expect($evaluations)->toHaveCount(2);
+    expect($evaluations->pluck('remarks')->all())->toBe([
+        'First supervisor evaluation period.',
+        'Second supervisor evaluation period.',
+    ]);
+});

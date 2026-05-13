@@ -36,7 +36,7 @@
         </flux:card>
     </section>
 
-    <section class="grid gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+    <section class="flex flex-col gap-6">
         <flux:card>
             <div class="flex items-start justify-between gap-4">
                 <div>
@@ -85,7 +85,7 @@
 
             @if ($this->todayAttendance)
                 <div class="mt-4">
-                    <div class="rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
+                    <flux:card>
                         <div class="flex items-center justify-between gap-3">
                             <flux:heading>Time-in Location</flux:heading>
                             @if ($this->todayAttendance->timeInMapUrl())
@@ -111,7 +111,7 @@
                         @else
                             <flux:text class="mt-3">No location captured.</flux:text>
                         @endif
-                    </div>
+                    </flux:card>
                 </div>
             @endif
 

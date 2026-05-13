@@ -19,7 +19,7 @@ new #[Title('My Attendance')] class extends Component
 
     public array $breadcrumbs = [
         ['logo' => 'logo.png', 'href' => '/dashboard'],
-        ['label' => 'My Attendance'],
+        ['label' => 'Attendance'],
     ];
 
     public string $title = 'My Attendance';

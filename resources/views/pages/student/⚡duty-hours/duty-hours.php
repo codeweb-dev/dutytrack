@@ -14,7 +14,7 @@ new #[Title('My Duty Hours')] class extends Component
 
     public array $breadcrumbs = [
         ['logo' => 'logo.png', 'href' => '/dashboard'],
-        ['label' => 'My Duty Hours'],
+        ['label' => 'Duty Hours'],
     ];
 
     public string $title = 'My Duty Hours';

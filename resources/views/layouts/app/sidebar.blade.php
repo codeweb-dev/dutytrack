@@ -54,7 +54,7 @@
 
     <flux:header class="block! bg-white lg:bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700">
         <div class="flex items-center justify-between mt-1">
-            <flux:spacer />
+            <flux:spacer class="hidden md:block" />
 
             <flux:sidebar.toggle class="md:hidden" icon="bars-2" inset="left" />
 

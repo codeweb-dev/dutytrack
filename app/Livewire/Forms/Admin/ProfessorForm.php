@@ -5,6 +5,7 @@ namespace App\Livewire\Forms\Admin;
 use App\Enums\Role as EnumsRole;
 use App\Models\User;
 use App\Support\AuditLogger;
+use App\Support\StaffDirectory;
 use Flux\Flux;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -19,17 +20,27 @@ class ProfessorForm extends Form
     public ?User $professor = null;
 
     public $photo = null;
+
     public ?string $existing_photo_path = null;
+
     public ?string $existing_photo_url = null;
 
     public string $employee_id = '';
+
     public string $first_name = '';
+
     public ?string $middle_name = '';
+
     public string $last_name = '';
+
     public string $email = '';
+
     public ?string $contact_number = '';
+
     public string $password = '';
+
     public string $password_confirmation = '';
+
     public string $department = 'Computer Science';
 
     public function rules(): array
@@ -56,7 +67,7 @@ class ProfessorForm extends Form
                 Rule::unique('users', 'email')->ignore($userId),
             ],
             'contact_number' => ['nullable', 'string', 'max:20'],
-            'password' => [$this->professor ? 'nullable' : 'required', 'string', 'min:8', 'confirmed'],
+            'password' => [$this->professor ? 'nullable' : 'required', 'string', 'min:2', 'confirmed'],
             'department' => ['required', 'string', 'max:255'],
         ];
     }
@@ -71,6 +82,48 @@ class ProfessorForm extends Form
             'contact_number' => 'contact number',
             'department' => 'department',
         ];
+    }
+
+    public function fillRandom(): void
+    {
+        $this->fillFromDirectoryRecord(StaffDirectory::randomProfessor());
+    }
+
+    public function fillFromStaffDirectory(): bool
+    {
+        $professor = StaffDirectory::findProfessor($this->employee_id);
+
+        if (! $professor) {
+            return false;
+        }
+
+        $this->fillFromDirectoryRecord($professor);
+
+        return true;
+    }
+
+    public function fillPasswordFromLastName(): void
+    {
+        if ($this->professor) {
+            return;
+        }
+
+        $this->password = trim($this->last_name);
+        $this->password_confirmation = trim($this->last_name);
+    }
+
+    private function fillFromDirectoryRecord(array $professor): void
+    {
+        $this->employee_id = $professor['employee_id'];
+        $this->first_name = $professor['first_name'];
+        $this->middle_name = $professor['middle_name'];
+        $this->last_name = $professor['last_name'];
+        $this->email = $professor['email'];
+        $this->contact_number = $professor['contact_number'];
+        $this->department = $professor['department'];
+        $this->fillPasswordFromLastName();
+
+        $this->resetValidation();
     }
 
     protected function professorAuditData(?User $user = null): array
@@ -258,7 +311,7 @@ class ProfessorForm extends Form
             text: 'The professor record has been updated successfully.'
         );
 
-        Flux::modal('edit-professor-' . $this->professor->id)->close();
+        Flux::modal('edit-professor-'.$this->professor->id)->close();
     }
 
     public function resetForm(): void
@@ -275,7 +328,7 @@ class ProfessorForm extends Form
         $this->contact_number = '';
         $this->password = '';
         $this->password_confirmation = '';
-        $this->department = '';
+        $this->department = 'Computer Science';
 
         $this->resetValidation();
     }

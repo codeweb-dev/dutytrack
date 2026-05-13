@@ -21,6 +21,11 @@ new class extends Component {};
         OJT Assignments
     </flux:sidebar.item>
 
+    <flux:sidebar.item icon="chat-bubble-left-right" :href="route('coordinator.messages')" :current="request()->routeIs('coordinator.messages')"
+        wire:navigate>
+        Messages
+    </flux:sidebar.item>
+
     <flux:sidebar.group expandable icon="chart-bar-square" heading="Monitoring">
         <flux:sidebar.item icon="clipboard-document-check" href="{{ route('coordinator.requirements') }}"
             :current="request()->routeIs('coordinator.requirements')" wire:navigate>

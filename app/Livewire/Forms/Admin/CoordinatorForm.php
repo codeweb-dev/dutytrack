@@ -4,13 +4,14 @@ namespace App\Livewire\Forms\Admin;
 
 use App\Enums\Role as EnumsRole;
 use App\Models\User;
+use App\Support\AuditLogger;
+use App\Support\StaffDirectory;
 use Flux\Flux;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Livewire\Form;
 use Livewire\WithFileUploads;
-use App\Support\AuditLogger;
 
 class CoordinatorForm extends Form
 {
@@ -19,17 +20,27 @@ class CoordinatorForm extends Form
     public ?User $coordinator = null;
 
     public $photo = null;
+
     public ?string $existing_photo_path = null;
+
     public ?string $existing_photo_url = null;
 
     public string $employee_id = '';
+
     public string $first_name = '';
+
     public ?string $middle_name = '';
+
     public string $last_name = '';
+
     public string $email = '';
+
     public ?string $contact_number = '';
+
     public string $password = '';
+
     public string $password_confirmation = '';
+
     public string $department = 'Computer Science';
 
     public function rules(): array
@@ -56,7 +67,7 @@ class CoordinatorForm extends Form
                 Rule::unique('users', 'email')->ignore($userId),
             ],
             'contact_number' => ['nullable', 'string', 'max:20'],
-            'password' => [$this->coordinator ? 'nullable' : 'required', 'string', 'min:8', 'confirmed'],
+            'password' => [$this->coordinator ? 'nullable' : 'required', 'string', 'min:2', 'confirmed'],
             'department' => ['required', 'string', 'max:255'],
         ];
     }
@@ -89,6 +100,48 @@ class CoordinatorForm extends Form
             'contact_number' => 'contact number',
             'department' => 'department',
         ];
+    }
+
+    public function fillRandom(): void
+    {
+        $this->fillFromDirectoryRecord(StaffDirectory::randomCoordinator());
+    }
+
+    public function fillFromStaffDirectory(): bool
+    {
+        $coordinator = StaffDirectory::findCoordinator($this->employee_id);
+
+        if (! $coordinator) {
+            return false;
+        }
+
+        $this->fillFromDirectoryRecord($coordinator);
+
+        return true;
+    }
+
+    public function fillPasswordFromLastName(): void
+    {
+        if ($this->coordinator) {
+            return;
+        }
+
+        $this->password = trim($this->last_name);
+        $this->password_confirmation = trim($this->last_name);
+    }
+
+    private function fillFromDirectoryRecord(array $coordinator): void
+    {
+        $this->employee_id = $coordinator['employee_id'];
+        $this->first_name = $coordinator['first_name'];
+        $this->middle_name = $coordinator['middle_name'];
+        $this->last_name = $coordinator['last_name'];
+        $this->email = $coordinator['email'];
+        $this->contact_number = $coordinator['contact_number'];
+        $this->department = $coordinator['department'];
+        $this->fillPasswordFromLastName();
+
+        $this->resetValidation();
     }
 
     public function setCoordinator(User $coordinator): void
@@ -258,7 +311,7 @@ class CoordinatorForm extends Form
             text: 'The coordinator record has been updated successfully.'
         );
 
-        Flux::modal('edit-coordinator-' . $this->coordinator->id)->close();
+        Flux::modal('edit-coordinator-'.$this->coordinator->id)->close();
     }
 
     public function resetForm(): void
@@ -275,7 +328,7 @@ class CoordinatorForm extends Form
         $this->contact_number = '';
         $this->password = '';
         $this->password_confirmation = '';
-        $this->department = '';
+        $this->department = 'Computer Science';
 
         $this->resetValidation();
     }

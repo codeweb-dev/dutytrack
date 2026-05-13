@@ -10,10 +10,10 @@ return new class extends Migration
     {
         Schema::create('chat_conversations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('ojt_assignment_id')->constrained('ojt_assignments')->cascadeOnDelete();
+            $table->foreignId('ojt_assignment_id')->nullable()->constrained('ojt_assignments')->cascadeOnDelete();
             $table->foreignId('student_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('participant_id')->constrained('users')->cascadeOnDelete();
-            $table->enum('participant_role', ['professor', 'supervisor']);
+            $table->enum('participant_role', ['professor', 'supervisor', 'coordinator']);
             $table->timestamps();
 
             $table->unique(['ojt_assignment_id', 'participant_id', 'participant_role'], 'chat_conversation_unique');

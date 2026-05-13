@@ -20,7 +20,7 @@ new #[Title('Messages')] class extends Component
 
     public string $title = 'Messages';
 
-    public string $description = 'Chat with the student, professor, or supervisor connected to an OJT assignment.';
+    public string $description = 'Chat with the students and OJT contacts connected to your account.';
 
     public ?int $selectedConversationId = null;
 
@@ -239,6 +239,8 @@ new #[Title('Messages')] class extends Component
         $user = Auth::user();
 
         if ($user->hasRole('student')) {
+            $this->ensureCoordinatorConversation($user);
+
             OjtAssignment::query()
                 ->where('student_id', $user->id)
                 ->get()
@@ -246,6 +248,15 @@ new #[Title('Messages')] class extends Component
                     $this->ensureConversation($assignment, $assignment->professor_id, 'professor');
                     $this->ensureConversation($assignment, $assignment->company_supervisor_id, 'supervisor');
                 });
+
+            return;
+        }
+
+        if ($user->hasRole('ojt_coordinator')) {
+            User::query()
+                ->where('coordinator_id', $user->id)
+                ->get()
+                ->each(fn (User $student) => $this->ensureCoordinatorConversation($student, $user->id));
 
             return;
         }
@@ -259,6 +270,26 @@ new #[Title('Messages')] class extends Component
         if ($user->hasRole('company_supervisor')) {
             OjtAssignment::query()->where('company_supervisor_id', $user->id)->get()->each(fn (OjtAssignment $assignment) => $this->ensureConversation($assignment, $user->id, 'supervisor'));
         }
+    }
+
+    protected function ensureCoordinatorConversation(User $student, ?int $coordinatorId = null): void
+    {
+        $coordinatorId ??= $student->coordinator_id;
+
+        if (! $coordinatorId) {
+            return;
+        }
+
+        ChatConversation::query()->firstOrCreate(
+            [
+                'student_id' => $student->id,
+                'participant_id' => $coordinatorId,
+                'participant_role' => 'coordinator',
+            ],
+            [
+                'ojt_assignment_id' => null,
+            ],
+        );
     }
 
     protected function ensureConversation(OjtAssignment $assignment, ?int $participantId, string $role): void
@@ -283,7 +314,7 @@ new #[Title('Messages')] class extends Component
     {
         $user = Auth::user();
 
-        return ChatConversation::query()->when($user->hasRole('student'), fn (Builder $query) => $query->where('student_id', $user->id))->when($user->hasRole('professor'), fn (Builder $query) => $query->where('participant_id', $user->id)->where('participant_role', 'professor'))->when($user->hasRole('company_supervisor'), fn (Builder $query) => $query->where('participant_id', $user->id)->where('participant_role', 'supervisor'));
+        return ChatConversation::query()->when($user->hasRole('student'), fn (Builder $query) => $query->where('student_id', $user->id))->when($user->hasRole('ojt_coordinator'), fn (Builder $query) => $query->where('participant_id', $user->id)->where('participant_role', 'coordinator'))->when($user->hasRole('professor'), fn (Builder $query) => $query->where('participant_id', $user->id)->where('participant_role', 'professor'))->when($user->hasRole('company_supervisor'), fn (Builder $query) => $query->where('participant_id', $user->id)->where('participant_role', 'supervisor'));
     }
 
     protected function authorizeConversation(int $conversationId): ChatConversation
@@ -336,7 +367,15 @@ new #[Title('Messages')] class extends Component
 
     public function roleLabelFor(ChatConversation $conversation): string
     {
-        return (int) $conversation->student_id === (int) Auth::id() ? ($conversation->participant_role === 'supervisor' ? 'Supervisor' : 'Professor') : 'Student';
+        if ((int) $conversation->student_id !== (int) Auth::id()) {
+            return 'Student';
+        }
+
+        return match ($conversation->participant_role) {
+            'supervisor' => 'Supervisor',
+            'coordinator' => 'Coordinator',
+            default => 'Professor',
+        };
     }
 
     public function roleColorFor(ChatConversation $conversation): string
@@ -344,8 +383,21 @@ new #[Title('Messages')] class extends Component
         return match ($this->roleLabelFor($conversation)) {
             'Professor' => 'sky',
             'Supervisor' => 'amber',
+            'Coordinator' => 'red',
             default => 'zinc',
         };
+    }
+
+    public function chatBadgeFor(ChatConversation $conversation): string
+    {
+        return $conversation->participant_role === 'coordinator' ? 'Coordinator Chat' : 'OJT Chat';
+    }
+
+    public function emptyMessageFor(ChatConversation $conversation): string
+    {
+        return $conversation->participant_role === 'coordinator'
+            ? 'Send the first message to your coordinator.'
+            : 'Send the first message for this OJT assignment.';
     }
 
     #[Computed]
@@ -460,7 +512,7 @@ new #[Title('Messages')] class extends Component
         <aside class="flex min-h-0 flex-col border-b border-zinc-200 dark:border-zinc-800 lg:border-b-0 lg:border-r">
             <div class="shrink-0 border-b border-zinc-200 p-4 dark:border-zinc-800">
                 <flux:heading size="lg">Conversations</flux:heading>
-                <flux:text class="mt-1 text-zinc-500">Assignment contacts only</flux:text>
+                <flux:text class="mt-1 text-zinc-500">Your available contacts</flux:text>
             </div>
 
             <div class="min-h-0 flex-1 overflow-y-auto p-2">
@@ -499,7 +551,7 @@ new #[Title('Messages')] class extends Component
                     <div class="p-8 text-center">
                         <flux:icon name="chat-bubble-left-right" class="mx-auto size-10 text-zinc-400" />
                         <flux:heading size="md" class="mt-3">No contacts yet</flux:heading>
-                        <flux:text class="mt-1 text-zinc-500">Messages appear after an OJT assignment connects you.
+                        <flux:text class="mt-1 text-zinc-500">Messages appear after your account is connected to a contact.
                         </flux:text>
                     </div>
                 @endforelse
@@ -528,7 +580,7 @@ new #[Title('Messages')] class extends Component
                     </div>
 
                     <flux:badge :color="$this->roleColorFor($this->selectedConversation)" inset="top bottom">
-                        OJT Chat
+                        {{ $this->chatBadgeFor($this->selectedConversation) }}
                     </flux:badge>
                 </header>
 
@@ -615,7 +667,7 @@ new #[Title('Messages')] class extends Component
                             <div>
                                 <flux:icon name="chat-bubble-left-ellipsis" class="mx-auto size-10 text-zinc-400" />
                                 <flux:heading size="md" class="mt-3">Start the conversation</flux:heading>
-                                <flux:text class="mt-1 text-zinc-500">Send the first message for this OJT assignment.
+                                <flux:text class="mt-1 text-zinc-500">{{ $this->emptyMessageFor($this->selectedConversation) }}
                                 </flux:text>
                             </div>
                         </div>

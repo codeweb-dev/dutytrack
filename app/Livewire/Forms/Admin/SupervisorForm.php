@@ -5,6 +5,7 @@ namespace App\Livewire\Forms\Admin;
 use App\Enums\Role as EnumsRole;
 use App\Models\User;
 use App\Support\AuditLogger;
+use App\Support\StaffDirectory;
 use Flux\Flux;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -19,18 +20,29 @@ class SupervisorForm extends Form
     public ?User $supervisor = null;
 
     public $photo = null;
+
     public ?string $existing_photo_path = null;
+
     public ?string $existing_photo_url = null;
 
     public string $supervisor_id = '';
+
     public string $first_name = '';
+
     public ?string $middle_name = '';
+
     public string $last_name = '';
+
     public string $email = '';
+
     public ?string $contact_number = '';
+
     public string $password = '';
+
     public string $password_confirmation = '';
+
     public string $company_name = '';
+
     public ?string $company_address = '';
 
     public function rules(): array
@@ -57,7 +69,7 @@ class SupervisorForm extends Form
                 Rule::unique('users', 'email')->ignore($userId),
             ],
             'contact_number' => ['nullable', 'string', 'max:20'],
-            'password' => [$this->supervisor ? 'nullable' : 'required', 'string', 'min:8', 'confirmed'],
+            'password' => [$this->supervisor ? 'nullable' : 'required', 'string', 'min:2', 'confirmed'],
             'company_name' => ['required', 'string', 'max:255'],
             'company_address' => ['nullable', 'string', 'max:1000'],
         ];
@@ -74,6 +86,49 @@ class SupervisorForm extends Form
             'company_name' => 'company name',
             'company_address' => 'company address',
         ];
+    }
+
+    public function fillRandom(): void
+    {
+        $this->fillFromDirectoryRecord(StaffDirectory::randomSupervisor());
+    }
+
+    public function fillFromStaffDirectory(): bool
+    {
+        $supervisor = StaffDirectory::findSupervisor($this->supervisor_id);
+
+        if (! $supervisor) {
+            return false;
+        }
+
+        $this->fillFromDirectoryRecord($supervisor);
+
+        return true;
+    }
+
+    public function fillPasswordFromLastName(): void
+    {
+        if ($this->supervisor) {
+            return;
+        }
+
+        $this->password = trim($this->last_name);
+        $this->password_confirmation = trim($this->last_name);
+    }
+
+    private function fillFromDirectoryRecord(array $supervisor): void
+    {
+        $this->supervisor_id = $supervisor['supervisor_id'];
+        $this->first_name = $supervisor['first_name'];
+        $this->middle_name = $supervisor['middle_name'];
+        $this->last_name = $supervisor['last_name'];
+        $this->email = $supervisor['email'];
+        $this->contact_number = $supervisor['contact_number'];
+        $this->company_name = $supervisor['company_name'];
+        $this->company_address = $supervisor['company_address'];
+        $this->fillPasswordFromLastName();
+
+        $this->resetValidation();
     }
 
     protected function fullName(): string
@@ -263,7 +318,7 @@ class SupervisorForm extends Form
             text: 'The supervisor has been updated successfully.'
         );
 
-        Flux::modal('edit-supervisor-' . $this->supervisor->id)->close();
+        Flux::modal('edit-supervisor-'.$this->supervisor->id)->close();
     }
 
     public function resetForm(): void

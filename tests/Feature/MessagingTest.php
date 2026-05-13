@@ -85,6 +85,105 @@ test('students can message their assigned professor and supervisor', function ()
     Event::assertDispatched(ConversationMessageSent::class);
 });
 
+test('students can message the coordinator who created them before an ojt assignment exists', function () {
+    Event::fake([ConversationMessageSent::class]);
+
+    $coordinator = createMessagingUser(AppRole::OJTCOORDINATOR, ['name' => 'Student Coordinator']);
+    $student = createMessagingUser(AppRole::STUDENT, [
+        'name' => 'Coordinator Chat Student',
+        'coordinator_id' => $coordinator->id,
+    ]);
+
+    $this->actingAs($student)
+        ->get(route('student.messages'))
+        ->assertOk()
+        ->assertSee('Student Coordinator')
+        ->assertSee('Coordinator');
+
+    $conversation = ChatConversation::query()
+        ->where('student_id', $student->id)
+        ->where('participant_id', $coordinator->id)
+        ->where('participant_role', 'coordinator')
+        ->firstOrFail();
+
+    expect($conversation->ojt_assignment_id)->toBeNull();
+
+    Livewire::test('pages::messages')
+        ->call('selectConversation', $conversation->id)
+        ->set('body', 'Good afternoon, coordinator.')
+        ->call('sendMessage')
+        ->assertHasNoErrors();
+
+    expect(ChatMessage::query()
+        ->where('chat_conversation_id', $conversation->id)
+        ->where('sender_id', $student->id)
+        ->where('body', 'Good afternoon, coordinator.')
+        ->exists())->toBeTrue();
+
+    Event::assertDispatched(ConversationMessageSent::class);
+});
+
+test('coordinators can message students they created only', function () {
+    $coordinator = createMessagingUser(AppRole::OJTCOORDINATOR, ['name' => 'Messaging Coordinator']);
+    $otherCoordinator = createMessagingUser(AppRole::OJTCOORDINATOR, ['name' => 'Other Messaging Coordinator']);
+    $student = createMessagingUser(AppRole::STUDENT, [
+        'name' => 'Owned Coordinator Student',
+        'coordinator_id' => $coordinator->id,
+    ]);
+    $otherStudent = createMessagingUser(AppRole::STUDENT, [
+        'name' => 'Other Coordinator Student',
+        'coordinator_id' => $otherCoordinator->id,
+    ]);
+
+    ChatConversation::query()->create([
+        'student_id' => $otherStudent->id,
+        'participant_id' => $otherCoordinator->id,
+        'participant_role' => 'coordinator',
+    ]);
+
+    $this->actingAs($coordinator)
+        ->get(route('coordinator.messages'))
+        ->assertOk()
+        ->assertSee('Owned Coordinator Student')
+        ->assertDontSee('Other Coordinator Student');
+
+    $conversation = ChatConversation::query()
+        ->where('student_id', $student->id)
+        ->where('participant_id', $coordinator->id)
+        ->where('participant_role', 'coordinator')
+        ->firstOrFail();
+
+    Livewire::test('pages::messages')
+        ->call('selectConversation', $conversation->id)
+        ->set('body', 'Please check your requirements.')
+        ->call('sendMessage')
+        ->assertHasNoErrors();
+
+    expect(ChatMessage::query()
+        ->where('chat_conversation_id', $conversation->id)
+        ->where('sender_id', $coordinator->id)
+        ->where('body', 'Please check your requirements.')
+        ->exists())->toBeTrue();
+});
+
+test('coordinators cannot open conversations for students they did not create', function () {
+    $coordinator = createMessagingUser(AppRole::OJTCOORDINATOR);
+    $otherCoordinator = createMessagingUser(AppRole::OJTCOORDINATOR);
+    $student = createMessagingUser(AppRole::STUDENT, ['coordinator_id' => $otherCoordinator->id]);
+
+    $conversation = ChatConversation::query()->create([
+        'student_id' => $student->id,
+        'participant_id' => $otherCoordinator->id,
+        'participant_role' => 'coordinator',
+    ]);
+
+    $this->actingAs($coordinator);
+
+    Livewire::test('pages::messages')
+        ->call('selectConversation', $conversation->id)
+        ->assertForbidden();
+});
+
 test('professors can reply to assigned students only', function () {
     $student = createMessagingUser(AppRole::STUDENT, ['name' => 'Professor Chat Student']);
     $otherStudent = createMessagingUser(AppRole::STUDENT, ['name' => 'Other Chat Student']);

@@ -14,6 +14,21 @@ new class extends Component {
         $this->form->store();
         $this->dispatch('professor-saved');
     }
+
+    public function fillRandom(): void
+    {
+        $this->form->fillRandom();
+    }
+
+    public function updatedFormEmployeeId(): void
+    {
+        $this->form->fillFromStaffDirectory();
+    }
+
+    public function updatedFormLastName(): void
+    {
+        $this->form->fillPasswordFromLastName();
+    }
 };
 ?>
 
@@ -24,8 +39,16 @@ new class extends Component {
 
     <flux:modal name="create-professor" flyout variant="floating" class="md:w-2xl">
         <form wire:submit="save" class="space-y-6">
-            <flux:heading size="lg">Create Professor</flux:heading>
-            <flux:subheading>Fill in the details to add a new professor.</flux:subheading>
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <flux:heading size="lg">Create Professor</flux:heading>
+                    <flux:subheading>Fill in the details to add a new professor.</flux:subheading>
+                </div>
+
+                <flux:button type="button" wire:click="fillRandom" icon="sparkles" variant="ghost">
+                    Random
+                </flux:button>
+            </div>
 
             <flux:fieldset>
                 <flux:legend>Professor Information</flux:legend>
@@ -35,14 +58,15 @@ new class extends Component {
                         <x-custom-file-upload model="form.photo" label="Upload profile photo" accept="image/*" />
                     </div>
 
-                    <flux:input wire:model="form.employee_id" label="Employee ID" placeholder="EMP-0001"
+                    <flux:input wire:model.live.debounce.300ms="form.employee_id" label="Employee ID" placeholder="PROF-2001"
                         description:trailing="Employee ID can be found on the employee's ID card." />
 
                     <div class="grid grid-cols-3 gap-x-4 gap-y-6">
                         <flux:input wire:model="form.first_name" label="First Name" placeholder="John" />
                         <flux:input wire:model="form.middle_name" label="Middle Name" badge="Optional"
                             placeholder="Doe" />
-                        <flux:input wire:model="form.last_name" label="Last Name" placeholder="Smith" />
+                        <flux:input wire:model.live.debounce.300ms="form.last_name" label="Last Name"
+                            placeholder="Smith" />
                     </div>
 
                     <div class="grid grid-cols-2 gap-x-4 gap-y-6">

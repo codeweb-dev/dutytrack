@@ -64,7 +64,7 @@
                             <flux:table.cell>
                                 <flux:button size="sm" icon="arrow-down-tray"
                                     href="{{ route('supervisor.evaluations.download', $evaluation) }}" target="_blank">
-                                    Excel
+                                    Docs
                                 </flux:button>
                             </flux:table.cell>
                         </flux:table.row>

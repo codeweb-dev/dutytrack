@@ -68,7 +68,7 @@
                                 <flux:button size="sm" icon="arrow-down-tray"
                                     wire:key="download-{{ $evaluation->id }}"
                                     href="{{ route('professor.evaluations.download', $evaluation) }}" target="_blank">
-                                    Excel
+                                    Docs
                                 </flux:button>
                             </flux:table.cell>
                         </flux:table.row>

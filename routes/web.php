@@ -1,10 +1,9 @@
 <?php
 
-use App\Exports\EvaluationExport;
 use App\Models\Evaluation;
+use App\Support\EvaluationDocument;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use Maatwebsite\Excel\Facades\Excel;
 
 Route::view('/', 'welcome')->name('home');
 
@@ -66,11 +65,7 @@ Route::group(['middleware' => ['role:professor']], function () {
     Route::get('/professor/evaluations/{evaluation}/download', function (Evaluation $evaluation) {
         abort_unless($evaluation->evaluator_id === Auth::id() && $evaluation->evaluator_type === 'professor', 403);
 
-        $evaluation->load(['student.studentProfile', 'evaluator', 'assignment']);
-
-        $filename = 'practicum-evaluation-'.$evaluation->id.'.xlsx';
-
-        return Excel::download(new EvaluationExport($evaluation), $filename);
+        return EvaluationDocument::download($evaluation);
     })->name('professor.evaluations.download');
 });
 
@@ -85,11 +80,7 @@ Route::group(['middleware' => ['role:company_supervisor']], function () {
     Route::get('/supervisor/evaluations/{evaluation}/download', function (Evaluation $evaluation) {
         abort_unless($evaluation->evaluator_id === Auth::id() && $evaluation->evaluator_type === 'company_supervisor', 403);
 
-        $evaluation->load(['student.studentProfile', 'evaluator', 'assignment']);
-
-        $filename = 'practicum-evaluation-'.$evaluation->id.'.xlsx';
-
-        return Excel::download(new EvaluationExport($evaluation), $filename);
+        return EvaluationDocument::download($evaluation);
     })->name('supervisor.evaluations.download');
 });
 
@@ -107,11 +98,7 @@ Route::group(['middleware' => ['role:student']], function () {
     Route::get('/student/evaluations/{evaluation}/download', function (Evaluation $evaluation) {
         abort_unless($evaluation->student_id === Auth::id(), 403);
 
-        $evaluation->load(['student.studentProfile', 'evaluator', 'assignment']);
-
-        $filename = 'practicum-evaluation-'.$evaluation->id.'.xlsx';
-
-        return Excel::download(new EvaluationExport($evaluation), $filename);
+        return EvaluationDocument::download($evaluation);
     })->name('student.evaluations.download');
 });
 

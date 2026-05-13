@@ -52,10 +52,15 @@ test('students can view and download their submitted practicum evaluations', fun
         ->assertSee('My Evaluation Records')
         ->assertSee('Evaluation Professor')
         ->assertSee('Student Evaluation Coordinator')
-        ->assertSee('100.0');
+        ->assertSee('100.0')
+        ->assertSee('Docs');
 
     $this->actingAs($student)
         ->get(route('student.evaluations.download', $evaluation))
         ->assertOk()
-        ->assertHeader('content-disposition');
+        ->assertHeader('content-type', 'application/msword; charset=UTF-8')
+        ->assertHeader('content-disposition', 'attachment; filename="practicum-evaluation-'.$evaluation->id.'.doc"')
+        ->assertSee('(Practicum-Student Evaluation Form)', false)
+        ->assertSee('data:image/jpeg;base64', false)
+        ->assertSee('EULOGIO &ldquo;AMANG&rdquo; RODRIGUEZ', false);
 });

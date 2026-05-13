@@ -82,7 +82,7 @@
 
     <div class="border-t border-gray-100 dark:border-zinc-800">
         <div
-            class="max-w-5xl mx-auto px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-2
+            class="max-w-6xl mx-auto px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-2
             opacity-0 translate-y-4
             intersect:opacity-100 intersect:translate-y-0
             transition-all duration-500 delay-100 ease-out

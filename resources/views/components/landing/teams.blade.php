@@ -19,13 +19,12 @@
         <div class="opacity-0 translate-y-8
             intersect:opacity-100 intersect:translate-y-0
             transition-all duration-600 ease-out intersect-once mb-5">
-
             <div class="relative bg-white dark:bg-zinc-900 rounded-3xl border border-gray-100 dark:border-zinc-800 overflow-hidden p-8 flex flex-col lg:flex-row items-center lg:items-start gap-8">
                 <div class="absolute top-0 right-0 w-80 h-80 rounded-full pointer-events-none opacity-5 dark:opacity-10"
                     style="background: radial-gradient(circle, #DC2626, transparent 70%); transform: translate(30%, -30%);"></div>
 
                 <div class="relative shrink-0">
-                    <img src="{{ asset('teams/allen.png') }}" class="w-32 h-32 rounded-2xl object-cover object-center" />
+                    <img src="{{ asset('teams/allen.png') }}" class="w-52 h-52 rounded-2xl object-cover object-center" />
 
                     <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-white dark:bg-zinc-900 rounded-full flex items-center justify-center shadow-md border border-gray-100 dark:border-zinc-700">
                         <flux:icon.check-badge class="size-6 text-red-500" />
@@ -33,8 +32,8 @@
                 </div>
 
                 <div class="flex-1 text-center lg:text-left">
-                    <h3 class="text-2xl font-extrabold text-gray-900 dark:text-white mb-1">Allen I. Labrague</h3>
-                    <p class="text-sm text-red-600 dark:text-red-400 uppercase mb-4">Leader & Solo Developer</p>
+                    <h3 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-1">Allen I. Labrague</h3>
+                    <p class="text-md text-red-600 dark:text-red-400 uppercase mb-4">Leader & Solo Developer</p>
                     <p class="text-sm text-gray-500 dark:text-zinc-400 leading-relaxed max-w-lg mb-6">
                         Built DutyTrack from the ground up — from the database architecture to the last pixel of the UI.
                         Handles everything so students and supervisors don't have to.

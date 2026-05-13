@@ -2,6 +2,7 @@
 
 use App\Enums\Role as AppRole;
 use App\Models\AttendanceLog;
+use App\Models\AttendanceSubmission;
 use App\Models\DutyHourLog;
 use App\Models\OjtAssignment;
 use App\Models\User;
@@ -137,6 +138,87 @@ test('students can bypass attendance time for testing', function () {
     expect($dutyHourLog)->not->toBeNull();
     expect($dutyHourLog->status)->toBe('pending');
     expect((float) $dutyHourLog->hours_rendered)->toBe(1.0);
+});
+
+test('students submit accomplishments after completed attendance and download report docs', function () {
+    Carbon::setTestNow(Carbon::parse('2026-04-30 09:00:00'));
+
+    $student = createStudentWithAssignment();
+    $assignment = OjtAssignment::query()->where('student_id', $student->id)->firstOrFail();
+
+    $attendance = AttendanceLog::query()->create([
+        'student_id' => $student->id,
+        'ojt_assignment_id' => $assignment->id,
+        'attendance_date' => '2026-04-30',
+        'morning_time_in' => '2026-04-30 08:00:00',
+        'morning_time_out' => '2026-04-30 12:00:00',
+        'afternoon_time_in' => '2026-04-30 13:00:00',
+        'afternoon_time_out' => '2026-04-30 17:00:00',
+        'hours_rendered' => 8,
+        'status' => 'present',
+    ]);
+
+    $this->actingAs($student)
+        ->get(route('student.reports-submissions'))
+        ->assertOk()
+        ->assertSee('Reports / Submissions')
+        ->assertSee('Apr 30, 2026')
+        ->assertSee('Download Docs');
+
+    $this->actingAs($student);
+
+    Livewire::test('pages::student.reports-submissions')
+        ->call('openSubmissionModal', $attendance->id)
+        ->set('accomplishment', 'Prepared deployment checklist and encoded inventory updates.')
+        ->call('saveSubmission')
+        ->assertHasNoErrors();
+
+    $submission = AttendanceSubmission::query()->where('attendance_log_id', $attendance->id)->first();
+
+    expect($submission)->not->toBeNull();
+    expect($submission->student_id)->toBe($student->id);
+    expect($submission->accomplishment)->toBe('Prepared deployment checklist and encoded inventory updates.');
+
+    $this->get(route('student.reports-submissions.download', [
+        'from' => '2026-04-01',
+        'to' => '2026-04-30',
+    ]))
+        ->assertOk()
+        ->assertHeader('content-type', 'application/msword; charset=UTF-8')
+        ->assertSee('ACCOMPLISHMENT', false)
+        ->assertSee('Prepared deployment checklist and encoded inventory updates.', false)
+        ->assertSee('Photos', false);
+});
+
+test('professors can read assigned student report submissions', function () {
+    $student = createStudentWithAssignment();
+    $assignment = OjtAssignment::query()->where('student_id', $student->id)->firstOrFail();
+    $professor = $assignment->professor;
+
+    $attendance = AttendanceLog::query()->create([
+        'student_id' => $student->id,
+        'ojt_assignment_id' => $assignment->id,
+        'attendance_date' => '2026-04-30',
+        'morning_time_in' => '2026-04-30 08:00:00',
+        'morning_time_out' => '2026-04-30 12:00:00',
+        'afternoon_time_in' => '2026-04-30 13:00:00',
+        'afternoon_time_out' => '2026-04-30 17:00:00',
+        'hours_rendered' => 8,
+        'status' => 'present',
+    ]);
+
+    AttendanceSubmission::query()->create([
+        'attendance_log_id' => $attendance->id,
+        'student_id' => $student->id,
+        'ojt_assignment_id' => $assignment->id,
+        'accomplishment' => 'Configured workstation and documented tasks.',
+    ]);
+
+    $this->actingAs($professor)
+        ->get(route('professor.reports-submissions'))
+        ->assertOk()
+        ->assertSee($student->name)
+        ->assertSee('Configured workstation and documented tasks.');
 });
 
 test('students can view their own duty hours page', function () {

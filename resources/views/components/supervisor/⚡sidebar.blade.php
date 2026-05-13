@@ -31,7 +31,8 @@ new class extends Component {};
         Messages
     </flux:sidebar.item>
 
-    <flux:sidebar.item icon="document-text" href="#">
+    <flux:sidebar.item icon="document-text" href="{{ route('supervisor.reports-submissions') }}"
+        :current="request()->routeIs('supervisor.reports-submissions')" wire:navigate>
         Reports / Submissions
     </flux:sidebar.item>
 

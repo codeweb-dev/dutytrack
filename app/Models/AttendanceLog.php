@@ -97,6 +97,11 @@ class AttendanceLog extends Model
         return $this->hasOne(DutyHourLog::class, 'attendance_log_id');
     }
 
+    public function submission()
+    {
+        return $this->hasOne(AttendanceSubmission::class);
+    }
+
     public function reviewer()
     {
         return $this->belongsTo(User::class, 'reviewed_by');

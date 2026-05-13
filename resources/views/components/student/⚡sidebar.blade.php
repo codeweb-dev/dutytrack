@@ -31,9 +31,10 @@ new class extends Component {};
         Messages
     </flux:sidebar.item>
 
-    {{-- <flux:sidebar.item icon="document-text" href="#">
+    <flux:sidebar.item icon="document-text" href="{{ route('student.reports-submissions') }}" :current="request()->routeIs('student.reports-submissions')"
+        wire:navigate>
         Reports / Submissions
-    </flux:sidebar.item> --}}
+    </flux:sidebar.item>
 
     <flux:sidebar.group expandable icon="squares-2x2" heading="Productivity">
         <flux:sidebar.item icon="rectangle-stack" href="{{ route('student.tasks') }}" :current="request()->routeIs('student.tasks', 'student.kanban')"

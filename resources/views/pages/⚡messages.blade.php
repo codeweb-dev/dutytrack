@@ -14,12 +14,8 @@ use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-new #[Title('Messages')] class extends Component
-{
-    public array $breadcrumbs = [
-        ['logo' => 'logo.png', 'href' => '/dashboard'],
-        ['label' => 'Messages'],
-    ];
+new #[Title('Messages')] class extends Component {
+    public array $breadcrumbs = [['logo' => 'logo.png', 'href' => '/dashboard'], ['label' => 'Messages']];
 
     public string $title = 'Messages';
 
@@ -30,6 +26,10 @@ new #[Title('Messages')] class extends Component
     public ?int $latestMessageId = null;
 
     public string $body = '';
+
+    public ?int $editingMessageId = null;
+
+    public string $editingBody = '';
 
     public function mount(): void
     {
@@ -59,11 +59,15 @@ new #[Title('Messages')] class extends Component
 
     public function sendMessage(): void
     {
-        $this->validate([
-            'body' => ['required', 'string', 'max:2000'],
-        ], [], [
-            'body' => 'message',
-        ]);
+        $this->validate(
+            [
+                'body' => ['required', 'string', 'max:2000'],
+            ],
+            [],
+            [
+                'body' => 'message',
+            ],
+        );
 
         abort_unless($this->selectedConversationId, 404);
 
@@ -87,20 +91,78 @@ new #[Title('Messages')] class extends Component
         $this->dispatch('message-sent');
     }
 
+    public function startEditingMessage(int $messageId): void
+    {
+        $message = $this->authorizeOwnMessage($messageId);
+
+        $this->editingMessageId = $message->id;
+        $this->editingBody = $message->body;
+        $this->resetValidation();
+    }
+
+    public function cancelEditingMessage(): void
+    {
+        $this->editingMessageId = null;
+        $this->editingBody = '';
+    }
+
+    public function saveMessageEdit(): void
+    {
+        $this->validate(
+            [
+                'editingMessageId' => ['required', 'integer'],
+                'editingBody' => ['required', 'string', 'max:2000'],
+            ],
+            [],
+            [
+                'editingBody' => 'message',
+            ],
+        );
+
+        $message = $this->authorizeOwnMessage((int) $this->editingMessageId);
+
+        $message->update([
+            'body' => trim($this->editingBody),
+        ]);
+
+        $this->cancelEditingMessage();
+        unset($this->selectedConversation, $this->chatMessages, $this->conversations);
+    }
+
+    public function deleteMessage(int $messageId): void
+    {
+        $message = $this->authorizeOwnMessage($messageId);
+        $conversation = $message->conversation;
+
+        $message->delete();
+        $conversation?->touch();
+
+        if ($this->editingMessageId === $messageId) {
+            $this->cancelEditingMessage();
+        }
+
+        $this->latestMessageId = $this->selectedConversationId ? $this->latestMessageIdFor($this->selectedConversationId) : null;
+
+        unset($this->selectedConversation, $this->chatMessages, $this->conversations);
+    }
+
     public function sendTyping(): void
     {
-        if (! $this->selectedConversationId) {
+        if (!$this->selectedConversationId) {
             return;
         }
 
         $conversation = $this->authorizeConversation($this->selectedConversationId);
 
-        ChatTypingIndicator::query()->updateOrCreate([
-            'chat_conversation_id' => $conversation->id,
-            'user_id' => Auth::id(),
-        ], [
-            'expires_at' => now()->addSeconds(3),
-        ]);
+        ChatTypingIndicator::query()->updateOrCreate(
+            [
+                'chat_conversation_id' => $conversation->id,
+                'user_id' => Auth::id(),
+            ],
+            [
+                'expires_at' => now()->addSeconds(3),
+            ],
+        );
 
         broadcast(new ConversationTypingStarted($conversation, (int) Auth::id(), Auth::user()?->name ?? 'Someone'));
     }
@@ -117,11 +179,11 @@ new #[Title('Messages')] class extends Component
         $conversationId = (int) ($payload['conversation_id'] ?? 0);
         $userId = (int) ($payload['user_id'] ?? 0);
 
-        if (! $conversationId || $userId === (int) Auth::id()) {
+        if (!$conversationId || $userId === (int) Auth::id()) {
             return;
         }
 
-        if (! $this->conversationQuery()->whereKey($conversationId)->exists()) {
+        if (!$this->conversationQuery()->whereKey($conversationId)->exists()) {
             return;
         }
 
@@ -134,7 +196,7 @@ new #[Title('Messages')] class extends Component
     {
         $conversationId = (int) ($payload['conversation_id'] ?? 0);
 
-        if (! $conversationId || ! $this->conversationQuery()->whereKey($conversationId)->exists()) {
+        if (!$conversationId || !$this->conversationQuery()->whereKey($conversationId)->exists()) {
             return;
         }
 
@@ -153,7 +215,7 @@ new #[Title('Messages')] class extends Component
         $this->pruneExpiredTypingIndicators();
         unset($this->conversations, $this->typingUsers);
 
-        if (! $this->selectedConversationId) {
+        if (!$this->selectedConversationId) {
             return;
         }
 
@@ -187,49 +249,39 @@ new #[Title('Messages')] class extends Component
         }
 
         if ($user->hasRole('professor')) {
-            OjtAssignment::query()
-                ->where('professor_id', $user->id)
-                ->get()
-                ->each(fn (OjtAssignment $assignment) => $this->ensureConversation($assignment, $user->id, 'professor'));
+            OjtAssignment::query()->where('professor_id', $user->id)->get()->each(fn(OjtAssignment $assignment) => $this->ensureConversation($assignment, $user->id, 'professor'));
 
             return;
         }
 
         if ($user->hasRole('company_supervisor')) {
-            OjtAssignment::query()
-                ->where('company_supervisor_id', $user->id)
-                ->get()
-                ->each(fn (OjtAssignment $assignment) => $this->ensureConversation($assignment, $user->id, 'supervisor'));
+            OjtAssignment::query()->where('company_supervisor_id', $user->id)->get()->each(fn(OjtAssignment $assignment) => $this->ensureConversation($assignment, $user->id, 'supervisor'));
         }
     }
 
     protected function ensureConversation(OjtAssignment $assignment, ?int $participantId, string $role): void
     {
-        if (! $participantId) {
+        if (!$participantId) {
             return;
         }
 
-        ChatConversation::query()->firstOrCreate([
-            'ojt_assignment_id' => $assignment->id,
-            'participant_id' => $participantId,
-            'participant_role' => $role,
-        ], [
-            'student_id' => $assignment->student_id,
-        ]);
+        ChatConversation::query()->firstOrCreate(
+            [
+                'ojt_assignment_id' => $assignment->id,
+                'participant_id' => $participantId,
+                'participant_role' => $role,
+            ],
+            [
+                'student_id' => $assignment->student_id,
+            ],
+        );
     }
 
     protected function conversationQuery(): Builder
     {
         $user = Auth::user();
 
-        return ChatConversation::query()
-            ->when($user->hasRole('student'), fn (Builder $query) => $query->where('student_id', $user->id))
-            ->when($user->hasRole('professor'), fn (Builder $query) => $query
-                ->where('participant_id', $user->id)
-                ->where('participant_role', 'professor'))
-            ->when($user->hasRole('company_supervisor'), fn (Builder $query) => $query
-                ->where('participant_id', $user->id)
-                ->where('participant_role', 'supervisor'));
+        return ChatConversation::query()->when($user->hasRole('student'), fn(Builder $query) => $query->where('student_id', $user->id))->when($user->hasRole('professor'), fn(Builder $query) => $query->where('participant_id', $user->id)->where('participant_role', 'professor'))->when($user->hasRole('company_supervisor'), fn(Builder $query) => $query->where('participant_id', $user->id)->where('participant_role', 'supervisor'));
     }
 
     protected function authorizeConversation(int $conversationId): ChatConversation
@@ -239,6 +291,16 @@ new #[Title('Messages')] class extends Component
         abort_unless($this->conversationQuery()->whereKey($conversationId)->exists(), 403);
 
         return $conversation->load(['student.studentProfile', 'participant', 'latestMessage.sender']);
+    }
+
+    protected function authorizeOwnMessage(int $messageId): ChatMessage
+    {
+        $message = ChatMessage::query()->with('conversation')->findOrFail($messageId);
+
+        abort_unless((int) $message->sender_id === (int) Auth::id(), 403);
+        abort_unless($this->conversationQuery()->whereKey($message->chat_conversation_id)->exists(), 403);
+
+        return $message;
     }
 
     protected function markConversationRead(int $conversationId): void
@@ -252,39 +314,27 @@ new #[Title('Messages')] class extends Component
 
     protected function clearMyTypingIndicator(int $conversationId): void
     {
-        ChatTypingIndicator::query()
-            ->where('chat_conversation_id', $conversationId)
-            ->where('user_id', Auth::id())
-            ->delete();
+        ChatTypingIndicator::query()->where('chat_conversation_id', $conversationId)->where('user_id', Auth::id())->delete();
     }
 
     protected function pruneExpiredTypingIndicators(): void
     {
-        ChatTypingIndicator::query()
-            ->where('expires_at', '<=', now())
-            ->delete();
+        ChatTypingIndicator::query()->where('expires_at', '<=', now())->delete();
     }
 
     protected function latestMessageIdFor(int $conversationId): ?int
     {
-        return ChatMessage::query()
-            ->where('chat_conversation_id', $conversationId)
-            ->latest('id')
-            ->value('id');
+        return ChatMessage::query()->where('chat_conversation_id', $conversationId)->latest('id')->value('id');
     }
 
     public function peerFor(ChatConversation $conversation): ?User
     {
-        return (int) $conversation->student_id === (int) Auth::id()
-            ? $conversation->participant
-            : $conversation->student;
+        return (int) $conversation->student_id === (int) Auth::id() ? $conversation->participant : $conversation->student;
     }
 
     public function roleLabelFor(ChatConversation $conversation): string
     {
-        return (int) $conversation->student_id === (int) Auth::id()
-            ? ($conversation->participant_role === 'supervisor' ? 'Supervisor' : 'Professor')
-            : 'Student';
+        return (int) $conversation->student_id === (int) Auth::id() ? ($conversation->participant_role === 'supervisor' ? 'Supervisor' : 'Professor') : 'Student';
     }
 
     public function roleColorFor(ChatConversation $conversation): string
@@ -302,19 +352,17 @@ new #[Title('Messages')] class extends Component
         return $this->conversationQuery()
             ->with(['student.studentProfile', 'participant', 'latestMessage.sender'])
             ->withCount([
-                'messages as unread_count' => fn (Builder $query) => $query
-                    ->where('sender_id', '!=', Auth::id())
-                    ->whereNull('read_at'),
+                'messages as unread_count' => fn(Builder $query) => $query->where('sender_id', '!=', Auth::id())->whereNull('read_at'),
             ])
             ->get()
-            ->sortByDesc(fn (ChatConversation $conversation) => $conversation->latestMessage?->created_at ?? $conversation->updated_at)
+            ->sortByDesc(fn(ChatConversation $conversation) => $conversation->latestMessage?->created_at ?? $conversation->updated_at)
             ->values();
     }
 
     #[Computed]
     public function selectedConversation(): ?ChatConversation
     {
-        if (! $this->selectedConversationId) {
+        if (!$this->selectedConversationId) {
             return null;
         }
 
@@ -324,38 +372,25 @@ new #[Title('Messages')] class extends Component
     #[Computed]
     public function chatMessages()
     {
-        if (! $this->selectedConversationId) {
+        if (!$this->selectedConversationId) {
             return collect();
         }
 
         $this->authorizeConversation($this->selectedConversationId);
 
-        return ChatMessage::query()
-            ->with('sender')
-            ->where('chat_conversation_id', $this->selectedConversationId)
-            ->oldest()
-            ->get();
+        return ChatMessage::query()->with('sender')->where('chat_conversation_id', $this->selectedConversationId)->oldest()->get();
     }
 
     #[Computed]
     public function typingUsers()
     {
-        if (! $this->selectedConversationId) {
+        if (!$this->selectedConversationId) {
             return collect();
         }
 
         $this->authorizeConversation($this->selectedConversationId);
 
-        return ChatTypingIndicator::query()
-            ->with('user')
-            ->where('chat_conversation_id', $this->selectedConversationId)
-            ->where('user_id', '!=', Auth::id())
-            ->where('expires_at', '>', now())
-            ->latest('updated_at')
-            ->get()
-            ->pluck('user')
-            ->filter()
-            ->values();
+        return ChatTypingIndicator::query()->with('user')->where('chat_conversation_id', $this->selectedConversationId)->where('user_id', '!=', Auth::id())->where('expires_at', '>', now())->latest('updated_at')->get()->pluck('user')->filter()->values();
     }
 };
 ?>
@@ -414,8 +449,8 @@ new #[Title('Messages')] class extends Component
     destroy() {
         this.cleanup();
     },
-}" x-init="subscribe()"
-    x-on:livewire:navigating.window="cleanup()">
+}"
+    x-init="subscribe()" x-on:livewire:navigating.window="cleanup()">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
     <div wire:poll.visible.1500ms="refreshMessages"
@@ -442,12 +477,14 @@ new #[Title('Messages')] class extends Component
                                 </span>
 
                                 @if ($conversation->unread_count > 0)
-                                    <flux:badge color="red" size="sm" inset="top bottom">{{ $conversation->unread_count }}</flux:badge>
+                                    <flux:badge color="red" size="sm" inset="top bottom">
+                                        {{ $conversation->unread_count }}</flux:badge>
                                 @endif
                             </span>
 
                             <span class="mt-1 flex items-center gap-2">
-                                <flux:badge :color="$this->roleColorFor($conversation)" size="sm" inset="top bottom">
+                                <flux:badge :color="$this->roleColorFor($conversation)" size="sm"
+                                    inset="top bottom">
                                     {{ $this->roleLabelFor($conversation) }}
                                 </flux:badge>
                                 <span class="truncate text-xs text-zinc-500">
@@ -460,7 +497,8 @@ new #[Title('Messages')] class extends Component
                     <div class="p-8 text-center">
                         <flux:icon name="chat-bubble-left-right" class="mx-auto size-10 text-zinc-400" />
                         <flux:heading size="md" class="mt-3">No contacts yet</flux:heading>
-                        <flux:text class="mt-1 text-zinc-500">Messages appear after an OJT assignment connects you.</flux:text>
+                        <flux:text class="mt-1 text-zinc-500">Messages appear after an OJT assignment connects you.
+                        </flux:text>
                     </div>
                 @endforelse
             </div>
@@ -492,8 +530,7 @@ new #[Title('Messages')] class extends Component
                     </flux:badge>
                 </header>
 
-                <div class="flex-1 space-y-4 overflow-y-auto bg-zinc-50 p-4 dark:bg-zinc-950/40"
-                    x-data
+                <div class="flex-1 space-y-4 overflow-y-auto bg-zinc-50 p-4 dark:bg-zinc-950/40" x-data
                     x-on:message-sent.window="$nextTick(() => $el.scrollTop = $el.scrollHeight)"
                     x-on:message-received.window="$nextTick(() => $el.scrollTop = $el.scrollHeight)"
                     x-init="$nextTick(() => $el.scrollTop = $el.scrollHeight)">
@@ -506,13 +543,68 @@ new #[Title('Messages')] class extends Component
                                     :src="$message->sender?->profile_photo_path ? $message->sender->profilePhotoUrl() : null" />
                             @endunless
 
-                            <div class="max-w-[min(34rem,80%)]">
-                                <div
-                                    class="rounded-lg px-4 py-3 text-sm shadow-sm {{ $mine ? 'bg-red-600 text-white' : 'border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-white' }}">
-                                    {{ $message->body }}
+                            <div class="group max-w-[min(34rem,80%)]">
+                                <div class="flex items-center gap-2 {{ $mine ? 'flex-row-reverse' : '' }}">
+                                    @if ($editingMessageId === $message->id)
+                                        <div
+                                            class="min-w-[min(28rem,70vw)] rounded-lg border border-zinc-200 bg-white p-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+                                            <flux:textarea wire:model="editingBody" rows="auto" class="text-sm" />
+                                            <div class="mt-3 flex justify-end gap-2">
+                                                <flux:button type="button" size="sm" variant="ghost"
+                                                    wire:click="cancelEditingMessage">
+                                                    Cancel
+                                                </flux:button>
+                                                <flux:button type="button" size="sm" variant="primary"
+                                                    icon="check" wire:click="saveMessageEdit">
+                                                    Save
+                                                </flux:button>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <div
+                                            class="rounded-lg px-4 py-3 text-sm shadow-sm {{ $mine ? 'bg-red-600 text-white' : 'border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-white' }}">
+                                            {{ $message->body }}
+                                        </div>
+                                    @endif
+
+                                    @if ($mine && $editingMessageId !== $message->id)
+                                        <div class="flex shrink-0 items-center gap-1">
+                                            <flux:button type="button" size="sm" variant="ghost"
+                                                icon="pencil-square" title="Edit message"
+                                                wire:click="startEditingMessage({{ $message->id }})" />
+                                            <flux:modal.trigger name="delete-message-{{ $message->id }}">
+                                                <flux:button type="button" size="sm" variant="ghost"
+                                                    icon="trash" />
+                                            </flux:modal.trigger>
+                                        </div>
+                                    @endif
+
+                                    <flux:modal name="delete-message-{{ $message->id }}" class="min-w-[22rem]">
+                                        <div class="space-y-6">
+                                            <div>
+                                                <flux:heading size="lg">Delete message?</flux:heading>
+                                                <flux:text class="mt-2">
+                                                    You're about to delete this message.<br>
+                                                    This action cannot be reversed.
+                                                </flux:text>
+                                            </div>
+                                            <div class="flex gap-2">
+                                                <flux:spacer />
+                                                <flux:modal.close>
+                                                    <flux:button variant="ghost">Cancel</flux:button>
+                                                </flux:modal.close>
+                                                <flux:button wire:click="deleteMessage({{ $message->id }})"
+                                                    variant="danger">Delete message
+                                                </flux:button>
+                                            </div>
+                                        </div>
+                                    </flux:modal>
                                 </div>
                                 <div class="mt-1 text-xs text-zinc-500 {{ $mine ? 'text-right' : '' }}">
                                     {{ $message->created_at->format('M d, g:i A') }}
+                                    @if ($message->updated_at->gt($message->created_at))
+                                        <span> · edited</span>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -521,7 +613,8 @@ new #[Title('Messages')] class extends Component
                             <div>
                                 <flux:icon name="chat-bubble-left-ellipsis" class="mx-auto size-10 text-zinc-400" />
                                 <flux:heading size="md" class="mt-3">Start the conversation</flux:heading>
-                                <flux:text class="mt-1 text-zinc-500">Send the first message for this OJT assignment.</flux:text>
+                                <flux:text class="mt-1 text-zinc-500">Send the first message for this OJT assignment.
+                                </flux:text>
                             </div>
                         </div>
                     @endforelse
@@ -536,8 +629,8 @@ new #[Title('Messages')] class extends Component
 
                 <form wire:submit="sendMessage" class="shrink-0 border-t border-zinc-200 p-4 dark:border-zinc-800">
                     <div class="flex items-center gap-3">
-                        <flux:textarea wire:model="body" rows="auto" placeholder="Type your message..." class="flex-1"
-                            x-on:input.debounce.250ms="sendTyping()" />
+                        <flux:textarea wire:model="body" rows="auto" placeholder="Type your message..."
+                            class="flex-1" x-on:input.debounce.250ms="sendTyping()" />
                         <flux:button type="submit" variant="primary" icon="paper-airplane" />
                     </div>
                 </form>
@@ -546,7 +639,8 @@ new #[Title('Messages')] class extends Component
                     <div>
                         <flux:icon name="chat-bubble-left-right" class="mx-auto size-12 text-zinc-400" />
                         <flux:heading size="lg" class="mt-3">Select a conversation</flux:heading>
-                        <flux:text class="mt-1 text-zinc-500">Choose an assignment contact to start messaging.</flux:text>
+                        <flux:text class="mt-1 text-zinc-500">Choose an assignment contact to start messaging.
+                        </flux:text>
                     </div>
                 </div>
             @endif

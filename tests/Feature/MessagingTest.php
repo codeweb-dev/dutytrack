@@ -176,6 +176,55 @@ test('supervisors can message their assigned students', function () {
         ->exists())->toBeTrue();
 });
 
+test('users can edit and delete their own messages only', function () {
+    $student = createMessagingUser(AppRole::STUDENT, ['name' => 'Message Owner Student']);
+    $professor = createMessagingUser(AppRole::PROFESSOR, ['name' => 'Message Owner Professor']);
+
+    $assignment = createMessagingAssignment($student, $professor);
+
+    $conversation = ChatConversation::query()->create([
+        'ojt_assignment_id' => $assignment->id,
+        'student_id' => $student->id,
+        'participant_id' => $professor->id,
+        'participant_role' => 'professor',
+    ]);
+
+    $studentMessage = ChatMessage::query()->create([
+        'chat_conversation_id' => $conversation->id,
+        'sender_id' => $student->id,
+        'body' => 'Original student message.',
+    ]);
+
+    $professorMessage = ChatMessage::query()->create([
+        'chat_conversation_id' => $conversation->id,
+        'sender_id' => $professor->id,
+        'body' => 'Professor message.',
+    ]);
+
+    $this->actingAs($student);
+
+    Livewire::test('pages::messages')
+        ->call('selectConversation', $conversation->id)
+        ->call('startEditingMessage', $studentMessage->id)
+        ->set('editingBody', 'Edited student message.')
+        ->call('saveMessageEdit')
+        ->assertHasNoErrors();
+
+    expect($studentMessage->refresh()->body)->toBe('Edited student message.');
+
+    Livewire::test('pages::messages')
+        ->call('selectConversation', $conversation->id)
+        ->call('deleteMessage', $studentMessage->id)
+        ->assertHasNoErrors();
+
+    expect(ChatMessage::query()->whereKey($studentMessage->id)->exists())->toBeFalse();
+
+    Livewire::test('pages::messages')
+        ->call('selectConversation', $conversation->id)
+        ->call('startEditingMessage', $professorMessage->id)
+        ->assertForbidden();
+});
+
 test('typing indicators show for the other participant', function () {
     Event::fake([ConversationTypingStarted::class]);
 

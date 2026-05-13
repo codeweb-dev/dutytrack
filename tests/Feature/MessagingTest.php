@@ -211,6 +211,7 @@ test('users can edit and delete their own messages only', function () {
         ->assertHasNoErrors();
 
     expect($studentMessage->refresh()->body)->toBe('Edited student message.');
+    expect($studentMessage->edited_at)->not->toBeNull();
 
     Livewire::test('pages::messages')
         ->call('selectConversation', $conversation->id)
@@ -223,6 +224,43 @@ test('users can edit and delete their own messages only', function () {
         ->call('selectConversation', $conversation->id)
         ->call('startEditingMessage', $professorMessage->id)
         ->assertForbidden();
+});
+
+test('messages show edited label only after an actual edit', function () {
+    $student = createMessagingUser(AppRole::STUDENT, ['name' => 'Edited Label Student']);
+    $professor = createMessagingUser(AppRole::PROFESSOR, ['name' => 'Edited Label Professor']);
+
+    $assignment = createMessagingAssignment($student, $professor);
+
+    $conversation = ChatConversation::query()->create([
+        'ojt_assignment_id' => $assignment->id,
+        'student_id' => $student->id,
+        'participant_id' => $professor->id,
+        'participant_role' => 'professor',
+    ]);
+
+    $message = ChatMessage::query()->create([
+        'chat_conversation_id' => $conversation->id,
+        'sender_id' => $student->id,
+        'body' => 'Fresh message.',
+    ]);
+
+    $this->actingAs($student);
+
+    Livewire::test('pages::messages')
+        ->call('selectConversation', $conversation->id)
+        ->assertSee('Fresh message.')
+        ->assertDontSee('edited');
+
+    $message->update([
+        'body' => 'Actually edited.',
+        'edited_at' => now(),
+    ]);
+
+    Livewire::test('pages::messages')
+        ->call('selectConversation', $conversation->id)
+        ->assertSee('Actually edited.')
+        ->assertSee('edited');
 });
 
 test('typing indicators show for the other participant', function () {

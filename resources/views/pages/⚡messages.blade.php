@@ -14,7 +14,8 @@ use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-new #[Title('Messages')] class extends Component {
+new #[Title('Messages')] class extends Component
+{
     public array $breadcrumbs = [['logo' => 'logo.png', 'href' => '/dashboard'], ['label' => 'Messages']];
 
     public string $title = 'Messages';
@@ -123,6 +124,7 @@ new #[Title('Messages')] class extends Component {
 
         $message->update([
             'body' => trim($this->editingBody),
+            'edited_at' => now(),
         ]);
 
         $this->cancelEditingMessage();
@@ -148,7 +150,7 @@ new #[Title('Messages')] class extends Component {
 
     public function sendTyping(): void
     {
-        if (!$this->selectedConversationId) {
+        if (! $this->selectedConversationId) {
             return;
         }
 
@@ -179,11 +181,11 @@ new #[Title('Messages')] class extends Component {
         $conversationId = (int) ($payload['conversation_id'] ?? 0);
         $userId = (int) ($payload['user_id'] ?? 0);
 
-        if (!$conversationId || $userId === (int) Auth::id()) {
+        if (! $conversationId || $userId === (int) Auth::id()) {
             return;
         }
 
-        if (!$this->conversationQuery()->whereKey($conversationId)->exists()) {
+        if (! $this->conversationQuery()->whereKey($conversationId)->exists()) {
             return;
         }
 
@@ -196,7 +198,7 @@ new #[Title('Messages')] class extends Component {
     {
         $conversationId = (int) ($payload['conversation_id'] ?? 0);
 
-        if (!$conversationId || !$this->conversationQuery()->whereKey($conversationId)->exists()) {
+        if (! $conversationId || ! $this->conversationQuery()->whereKey($conversationId)->exists()) {
             return;
         }
 
@@ -215,7 +217,7 @@ new #[Title('Messages')] class extends Component {
         $this->pruneExpiredTypingIndicators();
         unset($this->conversations, $this->typingUsers);
 
-        if (!$this->selectedConversationId) {
+        if (! $this->selectedConversationId) {
             return;
         }
 
@@ -249,19 +251,19 @@ new #[Title('Messages')] class extends Component {
         }
 
         if ($user->hasRole('professor')) {
-            OjtAssignment::query()->where('professor_id', $user->id)->get()->each(fn(OjtAssignment $assignment) => $this->ensureConversation($assignment, $user->id, 'professor'));
+            OjtAssignment::query()->where('professor_id', $user->id)->get()->each(fn (OjtAssignment $assignment) => $this->ensureConversation($assignment, $user->id, 'professor'));
 
             return;
         }
 
         if ($user->hasRole('company_supervisor')) {
-            OjtAssignment::query()->where('company_supervisor_id', $user->id)->get()->each(fn(OjtAssignment $assignment) => $this->ensureConversation($assignment, $user->id, 'supervisor'));
+            OjtAssignment::query()->where('company_supervisor_id', $user->id)->get()->each(fn (OjtAssignment $assignment) => $this->ensureConversation($assignment, $user->id, 'supervisor'));
         }
     }
 
     protected function ensureConversation(OjtAssignment $assignment, ?int $participantId, string $role): void
     {
-        if (!$participantId) {
+        if (! $participantId) {
             return;
         }
 
@@ -281,7 +283,7 @@ new #[Title('Messages')] class extends Component {
     {
         $user = Auth::user();
 
-        return ChatConversation::query()->when($user->hasRole('student'), fn(Builder $query) => $query->where('student_id', $user->id))->when($user->hasRole('professor'), fn(Builder $query) => $query->where('participant_id', $user->id)->where('participant_role', 'professor'))->when($user->hasRole('company_supervisor'), fn(Builder $query) => $query->where('participant_id', $user->id)->where('participant_role', 'supervisor'));
+        return ChatConversation::query()->when($user->hasRole('student'), fn (Builder $query) => $query->where('student_id', $user->id))->when($user->hasRole('professor'), fn (Builder $query) => $query->where('participant_id', $user->id)->where('participant_role', 'professor'))->when($user->hasRole('company_supervisor'), fn (Builder $query) => $query->where('participant_id', $user->id)->where('participant_role', 'supervisor'));
     }
 
     protected function authorizeConversation(int $conversationId): ChatConversation
@@ -352,17 +354,17 @@ new #[Title('Messages')] class extends Component {
         return $this->conversationQuery()
             ->with(['student.studentProfile', 'participant', 'latestMessage.sender'])
             ->withCount([
-                'messages as unread_count' => fn(Builder $query) => $query->where('sender_id', '!=', Auth::id())->whereNull('read_at'),
+                'messages as unread_count' => fn (Builder $query) => $query->where('sender_id', '!=', Auth::id())->whereNull('read_at'),
             ])
             ->get()
-            ->sortByDesc(fn(ChatConversation $conversation) => $conversation->latestMessage?->created_at ?? $conversation->updated_at)
+            ->sortByDesc(fn (ChatConversation $conversation) => $conversation->latestMessage?->created_at ?? $conversation->updated_at)
             ->values();
     }
 
     #[Computed]
     public function selectedConversation(): ?ChatConversation
     {
-        if (!$this->selectedConversationId) {
+        if (! $this->selectedConversationId) {
             return null;
         }
 
@@ -372,7 +374,7 @@ new #[Title('Messages')] class extends Component {
     #[Computed]
     public function chatMessages()
     {
-        if (!$this->selectedConversationId) {
+        if (! $this->selectedConversationId) {
             return collect();
         }
 
@@ -384,7 +386,7 @@ new #[Title('Messages')] class extends Component {
     #[Computed]
     public function typingUsers()
     {
-        if (!$this->selectedConversationId) {
+        if (! $this->selectedConversationId) {
             return collect();
         }
 
@@ -602,7 +604,7 @@ new #[Title('Messages')] class extends Component {
                                 </div>
                                 <div class="mt-1 text-xs text-zinc-500 {{ $mine ? 'text-right' : '' }}">
                                     {{ $message->created_at->format('M d, g:i A') }}
-                                    @if ($message->updated_at->gt($message->created_at))
+                                    @if ($message->edited_at)
                                         <span> · edited</span>
                                     @endif
                                 </div>

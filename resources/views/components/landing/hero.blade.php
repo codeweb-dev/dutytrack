@@ -46,8 +46,7 @@
     </h1>
 
     <p class="anim-sub text-lg text-gray-500 dark:text-zinc-400 max-w-2xl mx-auto mb-9 mt-6 leading-relaxed">
-        A centralized dashboard that allows administrators,
-        supervisors, and students to monitor attendance,
+        A centralized dashboard that allows academic staffs to monitor attendance,
         track duty hours, manage tasks, and evaluate
         internship performance.
     </p>

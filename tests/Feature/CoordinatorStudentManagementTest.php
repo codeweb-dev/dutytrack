@@ -6,6 +6,7 @@ use App\Models\DutyHourLog;
 use App\Models\OjtAssignment;
 use App\Models\StudentRequirement;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Role as PermissionRole;
 
@@ -121,10 +122,35 @@ test('student information autofills from a known student id in the coordinator c
     Livewire::test('coordinator.student-management.create')
         ->set('form.student_id', '2316-02373C')
         ->assertSet('form.first_name', 'ALLEN')
-        ->assertSet('form.middle_name', 'INGRAHAM')
+        ->assertSet('form.middle_name', 'I')
         ->assertSet('form.last_name', 'LABRAGUE')
         ->assertSet('form.email', 'labrague@gmail.com')
-        ->assertSet('form.contact_number', '09156862513');
+        ->assertSet('form.contact_number', '09156862513')
+        ->assertSet('form.password', 'LABRAGUE')
+        ->assertSet('form.password_confirmation', 'LABRAGUE');
+});
+
+test('student create flow autofills password from last name and accepts three characters', function () {
+    $coordinator = createCoordinator();
+
+    $this->actingAs($coordinator);
+
+    Livewire::test('coordinator.student-management.create')
+        ->set('form.student_id', '2026-0003')
+        ->set('form.first_name', 'Mika')
+        ->set('form.last_name', 'Tan')
+        ->assertSet('form.password', 'Tan')
+        ->assertSet('form.password_confirmation', 'Tan')
+        ->set('form.email', 'mika.tan@example.com')
+        ->set('form.course', 'BSIT')
+        ->set('form.ojt_required_hours', 600)
+        ->call('save')
+        ->assertHasNoErrors();
+
+    $student = User::query()->where('email', 'mika.tan@example.com')->first();
+
+    expect($student)->not->toBeNull();
+    expect(Hash::check('Tan', $student->password))->toBeTrue();
 });
 
 test('students can mark a missing physical requirement as submitted', function () {

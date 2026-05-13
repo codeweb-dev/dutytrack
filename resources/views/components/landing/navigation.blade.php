@@ -1,13 +1,13 @@
 <nav x-data="{ scrolled: false }" 
     class="anim-nav sticky top-0 z-50 backdrop-blur-xs transition-all duration-300">
-    <div class="max-w-6xl mx-auto w-full">
+    <div class="max-w-7xl mx-auto w-full">
         <div class="flex items-center justify-between px-12 py-2 w-full rounded-b-xl">
             <div class="flex items-center gap-2 font-bold text-lg text-gray-900 dark:text-white">
                 <img src="{{ asset('logo.png') }}" alt="Duty Track Logo" width="40" height="40" />
                 <div>Duty Track</div>
             </div>
 
-            <div class="hidden md:flex items-center text-sm gap-6">
+            <div class="hidden md:flex items-center text-base gap-6">
                 <a href="#home"
                     class="text-gray-700 dark:text-zinc-300 hover:text-gray-900 dark:hover:text-white transition-colors">
                     Home

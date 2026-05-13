@@ -32,9 +32,9 @@
                             'Students time in and out through the platform. DutyTrack automatically logs timestamps, calculates hours, and flags any discrepancies — no manual entry needed from supervisors.',
                     ],
                     [
-                        'q' => 'Do supervisors need to install anything?',
+                        'q' => 'Do academic staffs need to install anything?',
                         'a' =>
-                            'No. DutyTrack is fully web-based. Supervisors and administrators can access everything from any browser without installing any software.',
+                            'No. DutyTrack is fully web-based. Academic staffs can access everything from any browser without installing any software.',
                     ],
                     [
                         'q' => 'How are OJT duty hours calculated?',

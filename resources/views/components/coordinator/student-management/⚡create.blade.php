@@ -25,6 +25,11 @@ new class extends Component {
         $this->form->fillFromStudentDirectory();
     }
 
+    public function updatedFormLastName(): void
+    {
+        $this->form->fillPasswordFromLastName();
+    }
+
     public function nextStep(): void
     {
         $this->currentStep = min($this->currentStep + 1, 4);
@@ -177,7 +182,8 @@ new class extends Component {
                             <flux:input wire:model="form.first_name" label="First name" placeholder="John" />
                             <flux:input wire:model="form.middle_name" label="Middle name" badge="Optional"
                                 placeholder="Doe" />
-                            <flux:input wire:model="form.last_name" label="Last name" placeholder="Smith" />
+                            <flux:input wire:model.live.debounce.300ms="form.last_name" label="Last name"
+                                placeholder="Smith" />
                         </div>
 
                         <div class="grid grid-cols-2 gap-x-4 gap-y-6">

@@ -73,7 +73,7 @@ class StudentForm extends Form
                 Rule::unique('users', 'email')->ignore($userId),
             ],
             'contact_number' => ['nullable', 'string', 'max:20'],
-            'password' => [$this->student ? 'nullable' : 'required', 'string', 'min:8', 'confirmed'],
+            'password' => [$this->student ? 'nullable' : 'required', 'string', 'min:3', 'confirmed'],
             'course' => ['required', 'string', 'max:50'],
             'ojt_required_hours' => ['nullable', 'integer', 'min:0'],
         ];
@@ -147,8 +147,21 @@ class StudentForm extends Form
         $this->last_name = $student['last_name'];
         $this->email = $student['email'];
         $this->contact_number = $student['contact_number'];
+        $this->fillPasswordFromLastName();
 
         return true;
+    }
+
+    public function fillPasswordFromLastName(): void
+    {
+        if ($this->student) {
+            return;
+        }
+
+        $lastName = trim($this->last_name);
+
+        $this->password = $lastName;
+        $this->password_confirmation = $lastName;
     }
 
     public function setStudent(User $student): void

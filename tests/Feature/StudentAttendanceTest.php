@@ -140,6 +140,30 @@ test('students can bypass attendance time for testing', function () {
     expect((float) $dutyHourLog->hours_rendered)->toBe(1.0);
 });
 
+test('student full day attendance bypass starts at seven am', function () {
+    Carbon::setTestNow(Carbon::parse('2026-04-30 09:00:00'));
+
+    $student = createStudentWithAssignment();
+
+    $this->actingAs($student);
+
+    Livewire::test('pages::student.attendance')
+        ->call('bypassAttendance', 480)
+        ->assertHasNoErrors();
+
+    $attendance = AttendanceLog::query()->where('student_id', $student->id)->first();
+    $dutyHourLog = DutyHourLog::query()->where('attendance_log_id', $attendance->id)->first();
+
+    expect($attendance)->not->toBeNull();
+    expect($attendance->morning_time_in->format('H:i'))->toBe('07:00');
+    expect($attendance->morning_time_out->format('H:i'))->toBe('12:00');
+    expect($attendance->afternoon_time_in->format('H:i'))->toBe('13:00');
+    expect($attendance->afternoon_time_out->format('H:i'))->toBe('16:00');
+    expect((float) $attendance->hours_rendered)->toBe(8.0);
+    expect($attendance->status)->toBe('present');
+    expect((float) $dutyHourLog->hours_rendered)->toBe(8.0);
+});
+
 test('students submit accomplishments after completed attendance and download report docs', function () {
     Carbon::setTestNow(Carbon::parse('2026-04-30 09:00:00'));
 

@@ -413,10 +413,18 @@ new #[Title('My Attendance')] class extends Component
             return;
         }
 
-        $timeOut = now();
-        $timeIn = $timeOut->copy()->subMinutes($minutes);
-        $morningTimeOut = $minutes >= 480 ? $timeIn->copy()->addHours(4) : $timeOut->copy();
-        $afternoonTimeIn = $minutes >= 480 ? $timeOut->copy()->subHours(4) : $timeOut->copy();
+        if ($minutes === 480) {
+            $timeIn = now()->setTime(7, 0);
+            $morningTimeOut = now()->setTime(12, 0);
+            $afternoonTimeIn = now()->setTime(13, 0);
+            $timeOut = now()->setTime(16, 0);
+        } else {
+            $timeOut = now();
+            $timeIn = $timeOut->copy()->subMinutes($minutes);
+            $morningTimeOut = $timeOut->copy();
+            $afternoonTimeIn = $timeOut->copy();
+        }
+
         $hours = round($minutes / 60, 2);
 
         if (! $attendance) {

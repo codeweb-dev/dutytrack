@@ -42,12 +42,12 @@ new class extends Component {};
         </flux:sidebar.item>
     </flux:sidebar.group>
 
-    <flux:sidebar.group expandable icon="check-badge" heading="Reviews">
-        {{-- <flux:sidebar.item icon="hand-thumb-up" :badge="$this->managedEvaluationsCount" href="#">
+    {{-- <flux:sidebar.group expandable icon="check-badge" heading="Reviews">
+        <flux:sidebar.item icon="hand-thumb-up" :badge="$this->managedEvaluationsCount" href="#">
             Exaltations
-        </flux:sidebar.item> --}}
+        </flux:sidebar.item>
         <flux:sidebar.item icon="document-text" href="#">
             Reports
         </flux:sidebar.item>
-    </flux:sidebar.group>
+    </flux:sidebar.group> --}}
 </flux:sidebar.nav>

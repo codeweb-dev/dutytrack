@@ -131,6 +131,33 @@ test('coordinator can create an external assignment for their own student', func
     expect($assignment->professor_id)->toBeNull();
 });
 
+test('coordinator can switch from internal to external before saving an assignment', function () {
+    $coordinator = createCoordinatorForAssignments();
+    $student = createManagedStudent($coordinator);
+    $professor = createProfessor();
+    $supervisor = createCompanySupervisor();
+
+    $this->actingAs($coordinator);
+
+    Livewire::test('coordinator.ojt-assignments.create')
+        ->set('form.student_id', $student->id)
+        ->set('form.ojt_type', 'internal')
+        ->set('form.professor_id', $professor->id)
+        ->set('form.ojt_type', 'external')
+        ->assertSet('form.professor_id', null)
+        ->set('form.company_supervisor_id', $supervisor->id)
+        ->set('form.status', 'active')
+        ->call('save')
+        ->assertHasNoErrors();
+
+    $assignment = OjtAssignment::query()->where('student_id', $student->id)->first();
+
+    expect($assignment)->not->toBeNull();
+    expect($assignment->ojt_type)->toBe('external');
+    expect($assignment->company_supervisor_id)->toBe($supervisor->id);
+    expect($assignment->professor_id)->toBeNull();
+});
+
 test('coordinator cannot assign another coordinators student', function () {
     $coordinator = createCoordinatorForAssignments();
     $otherCoordinator = createCoordinatorForAssignments(['email' => 'other-coordinator@example.com']);

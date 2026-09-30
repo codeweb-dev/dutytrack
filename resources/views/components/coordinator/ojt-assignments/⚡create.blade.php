@@ -95,7 +95,8 @@ new class extends Component
                 </flux:text>
 
                 @if ($form->ojt_type === 'internal')
-                    <flux:select wire:model="form.professor_id" label="Professor">
+                    <flux:select wire:key="create-internal-professor-select" wire:model.live="form.professor_id"
+                        label="Professor">
                         <option value="">Select professor</option>
                         @foreach ($this->professors as $professor)
                             <option value="{{ $professor->id }}">
@@ -104,7 +105,8 @@ new class extends Component
                         @endforeach
                     </flux:select>
                 @else
-                    <flux:select wire:model="form.company_supervisor_id" label="Company Supervisor">
+                    <flux:select wire:key="create-external-supervisor-select"
+                        wire:model.live="form.company_supervisor_id" label="Company Supervisor">
                         <option value="">Select company supervisor</option>
                         @foreach ($this->companySupervisors as $supervisor)
                             <option value="{{ $supervisor->id }}">

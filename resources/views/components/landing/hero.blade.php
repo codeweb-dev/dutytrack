@@ -7,7 +7,7 @@
             </div>
         </div>
 
-        <div class="anim-icon anim-from-left-2 absolute left-[12%] top-60 w-20 h-20 bg-white dark:bg-zinc-800 rounded-2xl shadow-lg dark:shadow-zinc-900 flex items-center justify-center"
+        <div class="anim-icon anim-from-left-2 absolute left-[12%] top-70 w-20 h-20 bg-white dark:bg-zinc-800 rounded-2xl shadow-lg dark:shadow-zinc-900 flex items-center justify-center"
             style="--rot:-12deg;">
             <div class="bg-gray-100 dark:bg-zinc-700 w-16 h-16 rounded-md flex items-center justify-center">
                 <flux:icon.computer-desktop class="size-10 text-red-600 dark:text-red-400" />
@@ -21,7 +21,7 @@
             </div>
         </div>
 
-        <div class="anim-icon anim-from-right-2 absolute right-[12%] top-60 w-20 h-20 bg-white dark:bg-zinc-800 rounded-2xl shadow-lg dark:shadow-zinc-900 flex items-center justify-center"
+        <div class="anim-icon anim-from-right-2 absolute right-[12%] top-70 w-20 h-20 bg-white dark:bg-zinc-800 rounded-2xl shadow-lg dark:shadow-zinc-900 flex items-center justify-center"
             style="--rot:12deg;">
             <div class="bg-gray-100 dark:bg-zinc-700 w-16 h-16 rounded-md flex items-center justify-center">
                 <flux:icon.clock class="size-10 text-red-600 dark:text-red-400" />
@@ -30,11 +30,11 @@
     </div>
 
     <h1
-        class="text-5xl lg:text-7xl font-extrabold tracking-tight leading-[1.15] max-w-4xl mx-auto mb-2 text-gray-900 dark:text-white">
-        <span class="anim-word">Track</span>&#32;<span class="anim-word">OJT</span>&#32;<span
-            class="anim-word">Attendance,</span>
+        class="text-5xl lg:text-5xl font-extrabold tracking-tight leading-[1.15] max-w-4xl mx-auto mb-2 text-gray-900 dark:text-white">
+        <span class="anim-word text-7xl mb-3">Duty Track : </span>&#32;<span class="anim-word">A web-based OJT Tracking and</span>&#32;<span
+            class="anim-word">Duty Hours,</span>
         <br>
-        <span class="anim-word">Tasks,</span>&#32;<span class="anim-word">and</span>&#32;<span
+        <span class="anim-word">Monitoring System,</span>&#32;<span class="anim-word">and</span>&#32;<span
             class="anim-word relative inline-block">
             Productivity
             <svg class="absolute -bottom-2 left-0 w-full overflow-visible" height="10" viewBox="0 0 200 10"

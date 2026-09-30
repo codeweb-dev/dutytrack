@@ -2,3 +2,10 @@ API_KEY=AIzaSyDBL8CErTuQf3nZ4rLdGwdFtVeINVKxAeg
 NAME=DutyTrack
 PROJECT_NAME=projects/434917087324
 PROJECT_NUMBER=434917087324
+
+i wanna do is migrate from laravel to next js can you do is give me a detailed prompt to migrate to next js and the database is supabase check the whole website and the function and the design system and techstack is review all the whole system
+
+Next js
+Lucide React Icon
+Shadcn 
+etc.

@@ -79,5 +79,6 @@ test('students can view the student dashboard', function () {
         ->get(route('student.dashboard'))
         ->assertOk()
         ->assertSee('Weekly Logged Hours')
-        ->assertSee('Recent Attendance');
+        ->assertSee('Recent Attendance')
+        ->assertSee('height: 0%', false);
 });

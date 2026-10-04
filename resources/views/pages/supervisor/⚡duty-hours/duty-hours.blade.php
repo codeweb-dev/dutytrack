@@ -1,7 +1,7 @@
 <div class="flex flex-col gap-6">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
+    <div class="duty-metrics duty-hours-metrics grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
         <flux:card class="p-4">
             <flux:heading>Rendered Hours</flux:heading>
             <flux:text class="mt-2">{{ \App\Support\HourFormatter::format($this->summary['rendered_hours']) }}</flux:text>
@@ -32,12 +32,12 @@
         <div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
             <h2 class="text-xl font-semibold">
                 Assigned Duty Hour Records
-                <flux:badge color="red" inset="top bottom">{{ $this->dutyHourLogs->total() }}</flux:badge>
+                <flux:badge color="green" inset="top bottom">{{ $this->dutyHourLogs->total() }}</flux:badge>
             </h2>
 
             <div class="flex items-center gap-3">
                 <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
-                    placeholder="Search student..." clearable />
+                    aria-label="Search student..." placeholder="Search student..." clearable />
 
                 <flux:modal.trigger name="filter-supervisor-duty-hours">
                     <flux:button icon="funnel">Filter</flux:button>

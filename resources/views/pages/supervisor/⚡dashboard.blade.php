@@ -116,7 +116,7 @@ new #[Title('Company Supervisor Dashboard')] class extends Component
 
         return $items
             ->map(function (array $item) use ($max) {
-                $item['height'] = max(($item['value'] / $max) * 100, $item['value'] > 0 ? 18 : 8);
+                $item['height'] = $item['value'] > 0 ? max(($item['value'] / $max) * 100, 18) : 0;
 
                 return $item;
             })
@@ -151,7 +151,7 @@ new #[Title('Company Supervisor Dashboard')] class extends Component
             [
                 'label' => 'Cancelled',
                 'value' => (clone $baseQuery)->where('status', 'cancelled')->count(),
-                'bar' => 'bg-red-400',
+                'bar' => 'bg-forest',
                 'percentage' => round(((clone $baseQuery)->where('status', 'cancelled')->count() / $total) * 100),
             ],
         ];
@@ -193,7 +193,7 @@ new #[Title('Company Supervisor Dashboard')] class extends Component
 <div class="flex flex-col gap-8">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$this->title" :description="$description" />
 
-    <section class="grid gap-4 xl:grid-cols-3">
+    <section class="duty-metrics grid gap-4 xl:grid-cols-3">
         @foreach ($this->topCards as $card)
             <flux:card>
                 <div class="flex items-start justify-between gap-4">
@@ -228,16 +228,17 @@ new #[Title('Company Supervisor Dashboard')] class extends Component
                     </flux:text>
                 </div>
 
-                <flux:badge color="red" inset="top bottom">This Week</flux:badge>
+                <flux:badge color="green" inset="top bottom">This Week</flux:badge>
             </div>
 
             <div class="mt-8">
                 <flux:card class="flex h-135 items-end gap-6 rounded-2xl px-6 pb-6 pt-8">
                     @foreach ($this->weeklyAttendance as $item)
                         <div class="flex min-w-0 flex-1 flex-col items-center gap-3">
-                            <div class="flex h-52 w-full items-end justify-center">
-                                <div class="w-full max-w-16 rounded-full bg-red-400/60"
-                                    style="height: {{ $item['height'] }}%">
+                            <div class="flex h-52 w-full flex-col items-center justify-end gap-1">
+                                <span class="text-xs font-semibold text-zinc-700 dark:text-zinc-200">{{ $item['value'] }}</span>
+                                <div class="w-full max-w-16 rounded-full bg-forest/75"
+                                    style="height: {{ $item['height'] }}%" aria-label="{{ $item['label'] }}: {{ $item['value'] }} attendance logs">
                                 </div>
                             </div>
 
@@ -259,7 +260,7 @@ new #[Title('Company Supervisor Dashboard')] class extends Component
                     </flux:text>
                 </div>
 
-                <flux:badge color="red" inset="top bottom">Overview</flux:badge>
+                <flux:badge color="green" inset="top bottom">Overview</flux:badge>
             </div>
 
             <div class="mt-8 space-y-5">
@@ -320,7 +321,7 @@ new #[Title('Company Supervisor Dashboard')] class extends Component
 
             <div class="w-full lg:max-w-sm">
                 <flux:input wire:model.live.debounce.300ms="studentSearch" icon="magnifying-glass"
-                    placeholder="Search trainee, email, ID, or course..." clearable />
+                    aria-label="Search trainee, email, ID, or course..." placeholder="Search trainee, email, ID, or course..." clearable />
             </div>
         </div>
 

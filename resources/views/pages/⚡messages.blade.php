@@ -338,10 +338,10 @@ new #[Title('Messages')] class extends Component
 };
 ?>
 
-<div class="flex h-[calc(100vh-7rem)] min-h-0 flex-col gap-6 overflow-hidden">
+<div class="duty-messages flex min-h-[calc(100vh-9rem)] flex-col gap-6 lg:h-[calc(100vh-11rem)] lg:overflow-hidden">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
-    <div class="grid min-h-0 flex-1 overflow-hidden rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 lg:grid-cols-[20rem_1fr]">
+    <div class="grid min-h-0 flex-1 overflow-hidden rounded-[20px] border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900 lg:grid-cols-[20rem_1fr]">
         <aside class="flex min-h-0 flex-col border-b border-zinc-200 dark:border-zinc-800 lg:border-b-0 lg:border-r">
             <div class="shrink-0 border-b border-zinc-200 p-4 dark:border-zinc-800">
                 <flux:heading size="lg">Conversations</flux:heading>
@@ -353,7 +353,7 @@ new #[Title('Messages')] class extends Component
                     @php($peer = $this->peerFor($conversation))
 
                     <button type="button" wire:click="selectConversation({{ $conversation->id }})"
-                        class="flex w-full items-center gap-3 rounded-lg p-3 text-left transition hover:bg-zinc-100 dark:hover:bg-zinc-800 {{ $selectedConversationId === $conversation->id ? 'bg-zinc-100 dark:bg-zinc-800' : '' }}">
+                        class="flex w-full items-center gap-3 rounded-xl p-3 text-left transition hover:bg-sage/40 dark:hover:bg-zinc-800 {{ $selectedConversationId === $conversation->id ? 'bg-sage/60 dark:bg-forest/30' : '' }}">
                         <flux:avatar size="sm" :name="$peer?->name ?? 'Contact'"
                             :src="$peer?->profile_photo_path ? $peer->profilePhotoUrl() : null" />
 
@@ -452,7 +452,7 @@ new #[Title('Messages')] class extends Component
                                         </div>
                                     @else
                                         <div
-                                            class="rounded-lg px-4 py-3 text-sm shadow-sm {{ $mine ? 'bg-red-600 text-white' : 'border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-white' }}">
+                                            class="rounded-lg px-4 py-3 text-sm shadow-sm {{ $mine ? 'bg-forest text-white' : 'border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-white' }}">
                                             {{ $message->deleted_at ? 'This message was deleted.' : $message->body }}
                                         </div>
                                     @endif
@@ -514,7 +514,7 @@ new #[Title('Messages')] class extends Component
 
                 <form wire:submit="sendMessage" class="shrink-0 border-t border-zinc-200 p-4 dark:border-zinc-800">
                     <div class="flex items-center gap-3">
-                        <flux:textarea wire:model="body" rows="auto" placeholder="Type your message..." class="flex-1" />
+                        <flux:textarea wire:model="body" rows="auto" label="Message" placeholder="Type your message..." class="flex-1" />
                         <flux:button type="submit" variant="primary" icon="paper-airplane" />
                     </div>
                 </form>

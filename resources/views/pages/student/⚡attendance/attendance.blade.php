@@ -1,7 +1,7 @@
 <div class="flex flex-col gap-6">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
-    <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+    <section class="duty-metrics duty-attendance-metrics grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         <flux:card class="p-4">
             <flux:heading>Total Records</flux:heading>
             <div class="mt-2 text-3xl font-semibold text-zinc-950 dark:text-white">{{ $this->summary['total'] }}</div>
@@ -41,7 +41,7 @@
             <div class="flex items-start justify-between gap-4">
                 <div>
                     <flux:heading size="lg">Today</flux:heading>
-                    <flux:text class="mt-2">{{ now()->format('F d, Y') }}</flux:text>
+                    <flux:text class="mt-2">{{ now()->format('F d, Y') }} · Philippine time (PHT)</flux:text>
                 </div>
 
                 @if ($this->todayAttendance)
@@ -57,28 +57,28 @@
                 <flux:card class="p-4">
                     <flux:heading>Morning In</flux:heading>
                     <div class="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white">
-                        {{ $this->todayAttendance?->displayMorningTimeIn()?->format('h:i A') ?? '' }}
+                        {{ $this->todayAttendance?->displayMorningTimeIn()?->format('h:i A') ?? 'Not recorded' }}
                     </div>
                 </flux:card>
 
                 <flux:card class="p-4">
                     <flux:heading>Morning Out</flux:heading>
                     <div class="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white">
-                        {{ $this->todayAttendance?->displayMorningTimeOut()?->format('h:i A') ?? '' }}
+                        {{ $this->todayAttendance?->displayMorningTimeOut()?->format('h:i A') ?? 'Not recorded' }}
                     </div>
                 </flux:card>
 
                 <flux:card class="p-4">
                     <flux:heading>Afternoon In</flux:heading>
                     <div class="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white">
-                        {{ $this->todayAttendance?->displayAfternoonTimeIn()?->format('h:i A') ?? '' }}
+                        {{ $this->todayAttendance?->displayAfternoonTimeIn()?->format('h:i A') ?? 'Not recorded' }}
                     </div>
                 </flux:card>
 
                 <flux:card class="p-4">
                     <flux:heading>Afternoon Out</flux:heading>
                     <div class="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white">
-                        {{ $this->todayAttendance?->displayAfternoonTimeOut()?->format('h:i A') ?? '' }}
+                        {{ $this->todayAttendance?->displayAfternoonTimeOut()?->format('h:i A') ?? 'Not recorded' }}
                     </div>
                 </flux:card>
             </div>
@@ -191,7 +191,7 @@
                                 @if ($time_in_location_accuracy)
                                     <span>±{{ $time_in_location_accuracy }}m</span>
                                 @endif
-                                <a class="font-medium text-red-600 hover:underline dark:text-red-400"
+                                <a class="font-medium text-forest hover:underline dark:text-sage"
                                     href="{{ $this->mapUrl($time_in_latitude, $time_in_longitude) }}" target="_blank">
                                     Open map
                                 </a>
@@ -229,7 +229,7 @@
                                         @if ($time_in_location_accuracy)
                                             <span>±{{ $time_in_location_accuracy }}m</span>
                                         @endif
-                                        <a class="font-medium text-red-600 hover:underline dark:text-red-400"
+                                        <a class="font-medium text-forest hover:underline dark:text-sage"
                                             href="{{ $this->mapUrl($time_in_latitude, $time_in_longitude) }}"
                                             target="_blank">
                                             Open map

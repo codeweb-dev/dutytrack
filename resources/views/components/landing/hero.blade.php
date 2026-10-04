@@ -1,60 +1,22 @@
-<section class="relative text-center pt-16 pb-0 px-6 mt-8" id="home">
-    <div class="absolute inset-x-0 top-16 pointer-events-none hidden lg:block">
-        <div class="anim-icon anim-from-left-1 absolute left-[9%] top-8 w-20 h-20 bg-white dark:bg-zinc-800 rounded-2xl shadow-lg dark:shadow-zinc-900 flex items-center justify-center"
-            style="--rot:-12deg;">
-            <div class="bg-gray-100 dark:bg-zinc-700 w-16 h-16 rounded-md flex items-center justify-center">
-                <flux:icon.user class="size-10 text-red-600 dark:text-red-400" />
+<section class="px-5 pb-12 pt-16 sm:pt-24 lg:px-8" id="home">
+    <div class="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(360px,0.85fr)]">
+        <div>
+            <span class="inline-flex rounded-full bg-sage px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-zinc-900">College practicum, clearly managed</span>
+            <h1 class="mt-7 max-w-4xl text-5xl font-semibold leading-[1.1] tracking-tight text-zinc-950 dark:text-white sm:text-6xl xl:text-7xl">Every OJT milestone, <span class="text-forest dark:text-sage">in view.</span></h1>
+            <p class="mt-6 max-w-2xl text-lg leading-8 text-zinc-600 dark:text-zinc-300">Track placement, attendance, approved duty hours, requirements, reports, and evaluations in one shared workspace for students and their mentors.</p>
+            <div class="mt-9 flex flex-wrap items-center gap-4">
+                <a href="{{ route(auth()->check() ? 'dashboard' : 'login') }}" class="inline-flex min-h-12 items-center rounded-xl bg-forest px-7 font-semibold text-white hover:bg-zinc-800">{{ auth()->check() ? 'Open dashboard' : 'Sign in to DutyTrack' }}</a>
+                <a href="#benefits" class="inline-flex min-h-12 items-center font-semibold text-forest dark:text-sage">Explore the workflow <span aria-hidden="true" class="ml-2">→</span></a>
             </div>
         </div>
-
-        <div class="anim-icon anim-from-left-2 absolute left-[12%] top-70 w-20 h-20 bg-white dark:bg-zinc-800 rounded-2xl shadow-lg dark:shadow-zinc-900 flex items-center justify-center"
-            style="--rot:-12deg;">
-            <div class="bg-gray-100 dark:bg-zinc-700 w-16 h-16 rounded-md flex items-center justify-center">
-                <flux:icon.computer-desktop class="size-10 text-red-600 dark:text-red-400" />
+        <div class="grid gap-3 rounded-[24px] border border-zinc-200 bg-surface p-5 dark:border-zinc-700 dark:bg-zinc-900 sm:p-7" aria-label="DutyTrack workflow preview">
+            <div class="flex items-center justify-between gap-3 border-b border-zinc-200 pb-4 dark:border-zinc-700"><span class="text-sm font-semibold uppercase tracking-widest text-zinc-500">Your practicum path</span><span class="rounded-full bg-sage px-3 py-1 text-xs font-semibold text-zinc-900">Stay on track</span></div>
+            <div class="grid gap-3 sm:grid-cols-2">
+                <div class="rounded-2xl bg-powder p-5 text-zinc-900"><flux:icon name="briefcase" class="size-6" /><h2 class="mt-5 font-semibold">Placement</h2><p class="mt-1 text-sm">Know your assignment and contacts.</p></div>
+                <div class="rounded-2xl bg-butter p-5 text-zinc-900"><flux:icon name="clock" class="size-6" /><h2 class="mt-5 font-semibold">Duty hours</h2><p class="mt-1 text-sm">Follow rendered and approved time.</p></div>
+                <div class="rounded-2xl bg-lavender p-5 text-zinc-900"><flux:icon name="clipboard-document-check" class="size-6" /><h2 class="mt-5 font-semibold">Requirements</h2><p class="mt-1 text-sm">See what needs submission or review.</p></div>
+                <div class="rounded-2xl bg-sage p-5 text-zinc-900"><flux:icon name="check-badge" class="size-6" /><h2 class="mt-5 font-semibold">Evaluation</h2><p class="mt-1 text-sm">Keep feedback close to progress.</p></div>
             </div>
         </div>
-
-        <div class="anim-icon anim-from-right-1 absolute right-[9%] top-6 w-20 h-20 bg-white dark:bg-zinc-800 rounded-2xl shadow-lg dark:shadow-zinc-900 flex items-center justify-center"
-            style="--rot:12deg;">
-            <div class="bg-gray-100 dark:bg-zinc-700 w-16 h-16 rounded-md flex items-center justify-center">
-                <flux:icon.calendar-date-range class="size-10 text-red-600 dark:text-red-400" />
-            </div>
-        </div>
-
-        <div class="anim-icon anim-from-right-2 absolute right-[12%] top-70 w-20 h-20 bg-white dark:bg-zinc-800 rounded-2xl shadow-lg dark:shadow-zinc-900 flex items-center justify-center"
-            style="--rot:12deg;">
-            <div class="bg-gray-100 dark:bg-zinc-700 w-16 h-16 rounded-md flex items-center justify-center">
-                <flux:icon.clock class="size-10 text-red-600 dark:text-red-400" />
-            </div>
-        </div>
-    </div>
-
-    <h1
-        class="text-5xl lg:text-5xl font-extrabold tracking-tight leading-[1.15] max-w-4xl mx-auto mb-2 text-gray-900 dark:text-white">
-        <span class="anim-word text-7xl mb-3">Duty Track : </span>&#32;<span class="anim-word">A web-based OJT Tracking and</span>&#32;<span
-            class="anim-word">Duty Hours,</span>
-        <br>
-        <span class="anim-word">Monitoring System,</span>&#32;<span class="anim-word">and</span>&#32;<span
-            class="anim-word relative inline-block">
-            Productivity
-            <svg class="absolute -bottom-2 left-0 w-full overflow-visible" height="10" viewBox="0 0 200 10"
-                preserveAspectRatio="none">
-                <path class="anim-underline" d="M0 6 Q50 1 100 6 Q150 11 200 6" fill="none" stroke="#dc2626"
-                    stroke-width="3" stroke-linecap="round" />
-            </svg>
-        </span>
-    </h1>
-
-    <p class="anim-sub text-lg text-gray-500 dark:text-zinc-400 max-w-2xl mx-auto mb-9 mt-6 leading-relaxed">
-        A centralized dashboard that allows academic staffs to monitor attendance,
-        track duty hours, manage tasks, and evaluate
-        internship performance.
-    </p>
-
-    <div class="anim-cta flex flex-col items-center gap-3 mb-16">
-        <a href="{{ route('login') }}"
-            class="bg-red-600 hover:bg-red-700 text-white px-8 py-3.5 rounded-xl text-base font-semibold transition-all shadow-lg shadow-red-200 dark:shadow-red-900/50 hover:shadow-red-300 hover:-translate-y-0.5 no-underline">
-            Start Using DutyTrack
-        </a>
     </div>
 </section>

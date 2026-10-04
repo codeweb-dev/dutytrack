@@ -1,4 +1,4 @@
-<section class="py-24 px-6 bg-gray-100 dark:bg-zinc-950" id="benefits">
+<section class="py-24 px-6 bg-canvas dark:bg-zinc-950" id="benefits">
     <div class="max-w-6xl mx-auto">
         <div class="text-center mb-16">
             <div
@@ -7,7 +7,7 @@
                 intersect:opacity-100 intersect:translate-y-0
                 transition-all duration-500 ease-out
                 intersect-once">
-                <flux:badge rounded icon="sparkles" color="red">Benefits</flux:badge>
+                <flux:badge rounded icon="sparkles" color="green">Benefits</flux:badge>
             </div>
             <h2
                 class="text-4xl lg:text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight mb-4
@@ -82,15 +82,15 @@
             @endphp
 
             @foreach ($benefits as $benefit)
-                <div class="bg-white dark:bg-zinc-900 rounded-2xl p-6 border border-gray-100 dark:border-zinc-800 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200
+                <div class="bg-surface dark:bg-zinc-900 rounded-2xl p-6 border border-gray-100 dark:border-zinc-800 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200
                     opacity-0 translate-y-8
                     intersect:opacity-100 intersect:translate-y-0
                     intersect-once"
                     style="transition-duration: 500ms; transition-delay: {{ $benefit['delay'] }}ms;">
                     <div class="flex items-center gap-4 mb-4">
                         <div
-                            class="w-12 h-12 rounded-xl bg-red-50 dark:bg-red-950/40 flex items-center justify-center">
-                            <svg class="size-6 text-red-500 dark:text-red-400" viewBox="0 0 24 24" fill="none"
+                            class="w-12 h-12 rounded-xl bg-sage dark:bg-zinc-900/40 flex items-center justify-center">
+                            <svg class="size-6 text-forest dark:text-sage" viewBox="0 0 24 24" fill="none"
                                 stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                                 {!! $benefit['icon'] !!}
                             </svg>

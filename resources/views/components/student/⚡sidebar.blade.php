@@ -6,7 +6,7 @@ new class extends Component {};
 ?>
 
 <flux:sidebar.nav>
-    <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')"
+    <flux:sidebar.item icon="home" :href="route('student.dashboard')" :current="request()->routeIs('student.dashboard')"
         wire:navigate>
         Dashboard
     </flux:sidebar.item>
@@ -50,7 +50,7 @@ new class extends Component {};
             Pomodoro Timer
         </flux:sidebar.item>
         <flux:sidebar.item icon="fire" href="{{ route('student.pet-streak') }}" :current="request()->routeIs('student.pet-streak')"
-            wire:navigate badge="In Progress" badgeColor="red">
+            wire:navigate>
             Pet Streak
         </flux:sidebar.item>
     </flux:sidebar.group>

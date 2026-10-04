@@ -6,7 +6,7 @@ new class extends Component {};
 ?>
 
 <flux:sidebar.nav>
-    <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')"
+    <flux:sidebar.item icon="home" :href="route('coordinator.dashboard')" :current="request()->routeIs('coordinator.dashboard')"
         wire:navigate>
         Dashboard
     </flux:sidebar.item>

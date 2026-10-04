@@ -118,7 +118,7 @@ new class extends Component {
 
                         <div class="flex min-w-0 flex-1 flex-col items-center text-center">
                             <button type="button" wire:click="goToStep({{ $stepNumber }})"
-                                class="{{ $isActive ? 'bg-white text-zinc-950 ring-white' : ($isPast ? 'bg-red-600 text-white ring-red-500' : 'bg-zinc-700 text-zinc-200 ring-zinc-600') }} flex h-14 w-14 items-center justify-center rounded-full ring-2 transition">
+                                class="{{ $isActive ? 'bg-white text-zinc-950 ring-white' : ($isPast ? 'bg-forest text-white ring-forest' : 'bg-zinc-700 text-zinc-200 ring-zinc-600') }} flex h-14 w-14 items-center justify-center rounded-full ring-2 transition">
                                 <flux:icon :name="$step['icon']" class="size-6" />
                             </button>
 
@@ -129,7 +129,7 @@ new class extends Component {
 
                         @if (!$loop->last)
                             <div
-                                class="{{ $currentStep > $stepNumber ? 'bg-red-500' : 'bg-zinc-700' }} mt-7 h-px w-10 md:w-16">
+                                class="{{ $currentStep > $stepNumber ? 'bg-forest' : 'bg-zinc-700' }} mt-7 h-px w-10 md:w-16">
                             </div>
                         @endif
                     @endforeach

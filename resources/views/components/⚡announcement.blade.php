@@ -70,7 +70,7 @@ new class extends Component {
 
         <div class="flex flex-col gap-3 md:flex-row md:items-center">
             <flux:input wire:model.live.debounce.300ms="search" icon="magnifying-glass"
-                placeholder="Search announcements..." clearable class="flex-1" />
+                aria-label="Search announcements..." placeholder="Search announcements..." clearable class="flex-1" />
 
             <flux:select wire:model.live="type" class="md:w-52">
                 <option value="all">All Types</option>

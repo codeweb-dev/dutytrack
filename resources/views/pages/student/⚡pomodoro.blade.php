@@ -7,7 +7,7 @@ new class extends Component
     public array $breadcrumbs = [['logo' => 'logo.png', 'href' => '/dashboard'], ['label' => 'Productivity', 'href' => '#'], ['label' => 'Pomodoro Timer']];
 
     public string $title = 'Pomodoro Timer';
-    public string $description = 'Stay focused with a clean study timer built in the Flux style.';
+    public string $description = 'Make time for focused OJT work and short breaks.';
 };
 ?>
 
@@ -31,7 +31,7 @@ new class extends Component
                                     type="button"
                                     x-on:click="switchMode(preset.key)"
                                     x-bind:class="mode === preset.key
-                                        ? 'border-transparent bg-zinc-950 text-white shadow-lg shadow-zinc-950/15 dark:bg-white dark:text-zinc-950'
+                                        ? 'border-transparent bg-zinc-950 text-white dark:bg-white dark:text-zinc-950'
                                         : 'border-zinc-200/80 bg-white/80 text-zinc-600 hover:border-zinc-300 hover:text-zinc-950 dark:border-white/10 dark:bg-white/5 dark:text-zinc-300 dark:hover:border-white/20 dark:hover:text-white'"
                                     class="inline-flex items-center gap-2 rounded-2xl border px-4 py-2 text-sm font-medium transition"
                                 >
@@ -89,23 +89,16 @@ new class extends Component
                                     cx="120"
                                     cy="120"
                                     r="96"
-                                    class="fill-none stroke-[url(#timerGradient)] transition-all duration-500"
+                                    class="fill-none stroke-forest transition-all duration-500 dark:stroke-sage"
                                     stroke-width="18"
                                     stroke-linecap="round"
                                     stroke-dasharray="603.19"
                                     x-bind:stroke-dashoffset="603.19 - (603.19 * progress)"
                                 />
-                                <defs>
-                                    <linearGradient id="timerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                        <stop offset="0%" stop-color="#f87171"></stop>
-                                        <stop offset="55%" stop-color="#60a5fa"></stop>
-                                        <stop offset="100%" stop-color="#34d399"></stop>
-                                    </linearGradient>
-                                </defs>
                             </svg>
 
                             <div class="absolute inset-0 flex flex-col items-center justify-center rounded-full">
-                                <div class="mb-4 inline-flex items-center gap-2 rounded-full border border-zinc-200/70 bg-white/75 px-3 py-1 text-xs font-medium uppercase tracking-[0.22em] text-zinc-500 backdrop-blur dark:border-white/10 dark:bg-white/5 dark:text-zinc-300">
+                                <div class="mb-4 inline-flex items-center gap-2 rounded-full border border-zinc-200/70 bg-white/75 px-3 py-1 text-xs font-medium uppercase tracking-[0.22em] text-zinc-500 dark:border-white/10 dark:bg-white/5 dark:text-zinc-300">
                                     <span class="size-2.5 rounded-full" x-bind:class="activeDot"></span>
                                     <span x-text="isRunning ? 'In session' : 'Ready to focus'"></span>
                                 </div>
@@ -123,7 +116,7 @@ new class extends Component
                     <div class="space-y-5">
                         <flux:card class="dark:bg-white/5">
                             <div class="flex flex-wrap gap-3">
-                                <flux:button x-on:click="toggleTimer()" color="red" variant="primary">
+                                <flux:button x-on:click="toggleTimer()" variant="primary">
                                     <flux:icon icon="play" x-show="!isRunning" class="size-4" />
                                     <flux:icon icon="pause" x-show="isRunning" class="size-4" />
                                     <span x-text="isRunning ? 'Pause Session' : 'Start Session'"></span>
@@ -172,7 +165,7 @@ new class extends Component
                                     type="button"
                                     x-on:click="switchMode(preset.key)"
                                     x-bind:class="mode === preset.key
-                                        ? 'border-transparent bg-zinc-950 text-white shadow-lg shadow-zinc-950/15 dark:bg-white dark:text-zinc-950'
+                                        ? 'border-transparent bg-zinc-950 text-white dark:bg-white dark:text-zinc-950'
                                         : 'border-zinc-200/80 bg-white/80 text-zinc-700 hover:border-zinc-300 dark:border-white/10 dark:bg-white/5 dark:text-zinc-300 dark:hover:border-white/20'"
                                     class="rounded-xl border p-4 text-left transition"
                                 >
@@ -201,7 +194,7 @@ new class extends Component
                                 <div
                                     class="flex size-8 items-center justify-center rounded-full text-xs font-semibold"
                                     x-bind:class="index === activeTimelineIndex
-                                        ? 'bg-red-500 text-white'
+                                        ? 'bg-forest text-white'
                                         : 'bg-zinc-200 text-zinc-700 dark:bg-white/10 dark:text-zinc-300'"
                                     x-text="index + 1"
                                 ></div>
@@ -262,7 +255,7 @@ new class extends Component
                         minutes: 25,
                         seconds: 1500,
                         description: 'Deep work for your current priority.',
-                        dot: 'bg-red-400'
+                        dot: 'bg-forest'
                     },
                     {
                         key: 'short_break',
@@ -342,7 +335,7 @@ new class extends Component
 
                 get activeDot() {
                     const preset = this.presets.find((item) => item.key === this.mode);
-                    return preset ? preset.dot : 'bg-red-400';
+                    return preset ? preset.dot : 'bg-forest';
                 },
 
                 get activeTimelineIndex() {

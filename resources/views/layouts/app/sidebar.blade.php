@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
     @include('partials.head')
 </head>
 
-<body class="min-h-screen bg-white dark:bg-zinc-800">
-    <flux:sidebar sticky collapsible class="border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
+<body class="duty-app min-h-screen">
+    <flux:sidebar sticky collapsible class="duty-sidebar">
         <flux:sidebar.header>
             <x-app-logo :sidebar="true" href="{{ route('dashboard') }}" wire:navigate />
 
@@ -34,7 +34,7 @@
 
         @if ($user->hasRole('student'))
             <div class="in-data-flux-sidebar-collapsed-desktop:hidden">
-                <flux:callout icon="fire" color="red">
+                <flux:callout icon="fire" color="amber">
                     <flux:callout.heading>Your pet is waiting 🐶</flux:callout.heading>
 
                     <flux:callout.text>
@@ -52,19 +52,23 @@
         <x-desktop-user-menu class="hidden lg:block" :name="auth()->user()->name" />
     </flux:sidebar>
 
-    <flux:header class="block! bg-white lg:bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700">
-        <div class="flex items-center justify-between mt-1">
-            <flux:spacer class="hidden md:block" />
+    <flux:header class="duty-topbar block!">
+        <div class="flex items-center justify-between gap-4">
 
-            <flux:sidebar.toggle class="md:hidden" icon="bars-2" inset="left" />
+            <div class="flex min-w-0 items-center gap-3">
+                <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" aria-label="Open navigation" />
+                <div class="min-w-0">
+                    <div class="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">DutyTrack workspace</div>
+                    <div class="truncate text-sm font-semibold text-zinc-900 dark:text-white">{{ ucwords(str_replace(['.', '-'], [' / ', ' '], request()->route()?->getName() ?? 'Dashboard')) }}</div>
+                </div>
+            </div>
 
             <div class="flex items-center gap-3">
-                <flux:button icon="megaphone" variant="subtle" :href="route('announcements')" wire:navigate />
+                <flux:button icon="megaphone" variant="subtle" :href="route('announcements')" aria-label="Announcements" wire:navigate />
 
-                <flux:button x-data x-on:click="$flux.dark = ! $flux.dark" icon="moon" variant="subtle"
-                    aria-label="Toggle dark mode" />
+                <flux:button x-data x-on:click="$flux.dark = ! $flux.dark" icon="moon" variant="subtle" aria-label="Toggle light and dark appearance" />
 
-                <flux:button icon="cog-6-tooth" variant="subtle" :href="route('profile.edit')" />
+                <flux:button icon="cog-6-tooth" variant="subtle" :href="route('profile.edit')" aria-label="Settings" wire:navigate />
 
                 <flux:separator vertical class="my-5" />
 

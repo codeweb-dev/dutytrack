@@ -27,12 +27,12 @@
         <div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
             <h2 class="text-xl font-semibold">
                 Requirement Tracking
-                <flux:badge color="red" inset="top bottom">{{ $this->students->total() }}</flux:badge>
+                <flux:badge color="green" inset="top bottom">{{ $this->students->total() }}</flux:badge>
             </h2>
 
             <div>
                 <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
-                    placeholder="Search students..." clearable />
+                    aria-label="Search students..." placeholder="Search students..." clearable />
             </div>
         </div>
 

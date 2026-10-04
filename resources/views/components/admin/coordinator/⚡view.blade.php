@@ -17,7 +17,7 @@ new class extends Component {
     </div>
 
     <div
-        class="overflow-hidden rounded-3xl border border-zinc-200 bg-linear-to-r from-zinc-50 to-white dark:border-zinc-800 dark:from-zinc-900 dark:to-zinc-950">
+        class="overflow-hidden rounded-3xl border border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
         <div class="flex flex-col gap-6 p-6 md:flex-row md:items-center">
             <flux:avatar size="xl" :src="$coordinator->profile_photo_url" :name="$coordinator->name" />
 
@@ -27,7 +27,7 @@ new class extends Component {
                         {{ $coordinator->name }}
                     </h3>
 
-                    <flux:badge icon="check-badge" color="red" inset="top bottom">
+                    <flux:badge icon="check-badge" color="green" inset="top bottom">
                         OJT Coordinator
                     </flux:badge>
                 </div>

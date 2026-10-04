@@ -5,12 +5,12 @@
         <div class="flex items-center justify-between">
             <h2 class="text-xl font-semibold">
                 All Professors
-                <flux:badge color="red" inset="top bottom">{{ $this->professors->total() }}</flux:badge>
+                <flux:badge color="green" inset="top bottom">{{ $this->professors->total() }}</flux:badge>
             </h2>
 
             <div class="flex items-center gap-3">
                 <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
-                    placeholder="Search professors..." clearable />
+                    aria-label="Search professors..." placeholder="Search professors..." clearable />
 
                 <livewire:admin.professors.create />
             </div>
@@ -69,7 +69,7 @@
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                <flux:badge size="sm" color="red" inset="top bottom">
+                                <flux:badge size="sm" color="green" inset="top bottom">
                                     Professor
                                 </flux:badge>
                             </flux:table.cell>

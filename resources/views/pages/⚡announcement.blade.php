@@ -141,7 +141,7 @@ new #[Title('Announcements')] #[Layout('layouts::announcement')] class extends C
             <div class="flex justify-end gap-4 flex-col md:flex-row md:items-center">
                 <div>
                     <flux:input wire:model.live.debounce.300ms="search" icon="magnifying-glass"
-                        placeholder="Search announcements..." clearable class="flex-1" />
+                        aria-label="Search announcements..." placeholder="Search announcements..." clearable class="flex-1" />
                 </div>
 
                 <flux:select wire:model.live="type" class="md:w-32">

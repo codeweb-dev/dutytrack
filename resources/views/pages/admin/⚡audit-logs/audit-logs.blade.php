@@ -5,12 +5,12 @@
         <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <h2 class="text-xl font-semibold">
                 All Audit Logs
-                <flux:badge color="red" inset="top bottom">{{ $this->auditLogs->total() }}</flux:badge>
+                <flux:badge color="green" inset="top bottom">{{ $this->auditLogs->total() }}</flux:badge>
             </h2>
 
             <div class="flex flex-col gap-3 md:flex-row md:items-center">
                 <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
-                    placeholder="Search audit logs..." clearable />
+                    aria-label="Search audit logs..." placeholder="Search audit logs..." clearable />
 
                 <flux:select wire:model.live="module" placeholder="All modules" class="min-w-44">
                     <option value="">All modules</option>

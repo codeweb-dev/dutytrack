@@ -2,10 +2,10 @@
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
     <div class="mt-8 space-y-4">
-        <div class="relative flex w-full gap-3 overflow-x-auto pb-2">
+        <div class="duty-board relative flex w-full gap-4 overflow-x-auto pb-4">
             @foreach ($this->displayColumns() as $column)
                 <article wire:key="student-kanban-column-{{ str($column['title'])->slug() }}"
-                    class="w-80 shrink-0 rounded-lg bg-zinc-200 p-3 dark:bg-zinc-900">
+                    class="duty-board-column w-80 shrink-0 rounded-2xl p-3">
                     <header class="flex items-start justify-between gap-3 px-1 pb-4 pt-2">
                         <div class="space-y-2">
                             <flux:heading size="lg">
@@ -30,7 +30,7 @@
                     <div class="flex min-h-24 flex-1 flex-col gap-3" wire:sort="sortTask"
                         wire:sort:group="student-tasks" wire:sort:group-id="{{ $column['status'] }}">
                         @foreach ($column['tasks'] as $task)
-                            <div class="flex h-full w-full flex-col rounded-lg border border-neutral-300 bg-white dark:border-neutral-700 dark:bg-zinc-800"
+                            <div class="duty-task-card flex h-full w-full flex-col rounded-xl border p-0"
                                 wire:key="student-task-{{ $task->id }}" wire:sort:item="{{ $task->id }}">
                                 <div class="p-4">
                                     <div class="mb-3 flex items-start justify-between gap-3">

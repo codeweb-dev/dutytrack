@@ -15,10 +15,7 @@ new class extends Component {
 
     <div>
         <section
-            class="relative overflow-hidden rounded-[2rem] border border-zinc-200/70 bg-white p-5 shadow-[0_30px_80px_-45px_rgba(15,23,42,0.45)] dark:border-white/10 dark:bg-zinc-900">
-            <div aria-hidden="true"
-                class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(251,191,36,0.16),_transparent_28%),radial-gradient(circle_at_top_right,_rgba(96,165,250,0.16),_transparent_30%),radial-gradient(circle_at_bottom,_rgba(52,211,153,0.18),_transparent_38%)] dark:bg-[radial-gradient(circle_at_top_left,_rgba(251,191,36,0.14),_transparent_28%),radial-gradient(circle_at_top_right,_rgba(96,165,250,0.14),_transparent_30%),radial-gradient(circle_at_bottom,_rgba(52,211,153,0.16),_transparent_38%)]">
-            </div>
+            class="relative overflow-hidden rounded-[2rem] border border-zinc-200/70 bg-white p-5 dark:border-white/10 dark:bg-zinc-900">
 
             <div class="relative flex h-full flex-col gap-6">
                 <div class="flex flex-wrap items-start justify-between gap-4">
@@ -26,7 +23,7 @@ new class extends Component {
                         <div
                             class="inline-flex items-center gap-2 rounded-full border border-amber-300/50 bg-amber-100/80 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-amber-700 dark:border-amber-400/20 dark:bg-amber-400/10 dark:text-amber-200">
                             <span class="size-2 rounded-full bg-amber-500"></span>
-                            Study Companion Active
+                            Practicum companion
                         </div>
 
                         <div class="space-y-2">
@@ -37,7 +34,7 @@ new class extends Component {
                             </h2>
 
                             <p class="max-w-2xl text-sm leading-7 text-zinc-600 dark:text-zinc-300">
-                                Complete your focus sessions and daily work to keep your pet happy, energized, and on a
+                                Complete your focus sessions and OJT work to keep your pet happy, energized, and on a
                                 growing streak.
                             </p>
                         </div>
@@ -75,12 +72,9 @@ new class extends Component {
                 <div class="grid gap-6 lg:grid-cols-[minmax(18rem,24rem)_minmax(0,1fr)]">
                     <div class="mx-auto flex w-full max-w-[24rem] flex-col items-center">
                         <div
-                            class="relative flex h-[24rem] w-full items-end justify-center overflow-hidden rounded-[2rem] border border-zinc-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.95)_0%,rgba(244,244,245,0.95)_100%)] px-6 pb-6 pt-10 dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(39,39,42,0.95)_0%,rgba(24,24,27,0.98)_100%)]">
+                            class="relative flex h-[24rem] w-full items-end justify-center overflow-hidden rounded-[2rem] border border-zinc-200/70 bg-butter/30 px-6 pb-6 pt-10 dark:border-white/10 dark:bg-zinc-800">
                             <div
-                                class="absolute inset-x-0 bottom-0 h-20 bg-[radial-gradient(circle_at_center,_rgba(52,211,153,0.22),_transparent_68%)] dark:bg-[radial-gradient(circle_at_center,_rgba(52,211,153,0.18),_transparent_68%)]">
-                            </div>
-                            <div
-                                class="absolute right-5 top-5 rounded-full border border-white/70 bg-white/70 px-3 py-1 text-xs font-medium text-zinc-600 backdrop-blur dark:border-white/10 dark:bg-white/5 dark:text-zinc-300">
+                                class="absolute right-5 top-5 rounded-full border border-white/70 bg-surface px-3 py-1 text-xs font-medium text-zinc-600 dark:border-white/10 dark:bg-white/5 dark:text-zinc-300">
                                 <span x-text="pet.stage"></span>
                             </div>
 
@@ -90,28 +84,15 @@ new class extends Component {
                                 </div>
 
                                 <svg viewBox="0 0 280 260"
-                                    class="h-[18rem] w-[18rem] drop-shadow-[0_20px_40px_rgba(15,23,42,0.18)]">
-                                    <defs>
-                                        <linearGradient id="petBody" x1="0%" y1="0%" x2="100%"
-                                            y2="100%">
-                                            <stop offset="0%" stop-color="#fbbf24"></stop>
-                                            <stop offset="55%" stop-color="#fb7185"></stop>
-                                            <stop offset="100%" stop-color="#60a5fa"></stop>
-                                        </linearGradient>
-                                        <linearGradient id="petBelly" x1="0%" y1="0%" x2="100%"
-                                            y2="100%">
-                                            <stop offset="0%" stop-color="#fef3c7"></stop>
-                                            <stop offset="100%" stop-color="#fde68a"></stop>
-                                        </linearGradient>
-                                    </defs>
+                                    class="h-[18rem] w-[18rem]">
 
                                     <path d="M89 76 L114 36 L136 86 Z" fill="#f59e0b"></path>
                                     <path d="M191 76 L166 36 L144 86 Z" fill="#f472b6"></path>
 
                                     <ellipse cx="140" cy="154" rx="88" ry="78"
-                                        fill="url(#petBody)"></ellipse>
+                                        fill="#d3c1e5"></ellipse>
                                     <ellipse cx="140" cy="172" rx="46" ry="38"
-                                        fill="url(#petBelly)"></ellipse>
+                                        fill="#f0db85"></ellipse>
 
                                     <circle cx="108" cy="142" r="10" fill="#18181b"></circle>
                                     <circle cx="172" cy="142" r="10" fill="#18181b"></circle>
@@ -160,7 +141,7 @@ new class extends Component {
 
                     <div class="space-y-5">
                         <div
-                            class="rounded-[1.75rem] border border-zinc-200/70 bg-white/80 p-5 backdrop-blur dark:border-white/10 dark:bg-white/5">
+                            class="rounded-[1.75rem] border border-zinc-200/70 bg-surface p-5 dark:border-white/10 dark:bg-white/5">
                             <div class="flex flex-wrap gap-3">
                                 <flux:button x-on:click="completeToday()" color="amber" variant="primary"
                                     icon="check">
@@ -208,7 +189,7 @@ new class extends Component {
                         </div>
 
                         <div
-                            class="rounded-[1.75rem] border border-zinc-200/70 bg-white/80 p-5 backdrop-blur dark:border-white/10 dark:bg-white/5">
+                            class="rounded-[1.75rem] border border-zinc-200/70 bg-surface p-5 dark:border-white/10 dark:bg-white/5">
                             <div class="flex items-center justify-between gap-3">
                                 <div>
                                     <p class="text-base font-semibold text-zinc-950 dark:text-white">Weekly Consistency

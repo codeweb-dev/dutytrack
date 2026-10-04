@@ -24,7 +24,7 @@ new #[Title('Student Dashboard')] class extends Component
     #[Computed]
     public function title(): string
     {
-        return 'Welcome back, '.(Auth::user()?->name ?? 'Professor').' 👋';
+        return 'Welcome back, '.(Auth::user()?->name ?? 'Student').' 👋';
     }
 
     public string $title = 'Student Dashboard';
@@ -124,7 +124,7 @@ new #[Title('Student Dashboard')] class extends Component
 
         return $items
             ->map(function (array $item) use ($max) {
-                $item['height'] = max(($item['value'] / $max) * 100, $item['value'] > 0 ? 18 : 8);
+                $item['height'] = $item['value'] > 0 ? max(($item['value'] / $max) * 100, 18) : 0;
 
                 return $item;
             })
@@ -220,7 +220,12 @@ new #[Title('Student Dashboard')] class extends Component
 <div class="flex flex-col gap-8">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$this->title" :description="$description" />
 
-    <section class="grid gap-4 xl:grid-cols-3">
+    <div class="flex flex-wrap gap-2">
+        <flux:button variant="primary" icon="clock" :href="route('student.attendance')" wire:navigate>Record attendance</flux:button>
+        <flux:button icon="document-text" :href="route('student.reports-submissions')" wire:navigate>Daily report</flux:button>
+    </div>
+
+    <section class="duty-metrics grid gap-4 xl:grid-cols-3">
         @foreach ($this->topCards as $card)
             <flux:card>
                 <div class="flex items-start justify-between gap-4">
@@ -255,16 +260,17 @@ new #[Title('Student Dashboard')] class extends Component
                     </flux:text>
                 </div>
 
-                <flux:badge color="red" inset="top bottom">This Week</flux:badge>
+                <flux:badge color="green" inset="top bottom">This Week</flux:badge>
             </div>
 
             <div class="mt-8">
                 <flux:card class="flex h-92 items-end gap-6 rounded-2xl px-6 pb-6 pt-8">
                     @foreach ($this->weeklyHours as $item)
                         <div class="flex min-w-0 flex-1 flex-col items-center gap-3">
-                            <div class="flex h-52 w-full items-end justify-center">
-                                <div class="w-full max-w-16 rounded-full bg-red-400/60"
-                                    style="height: {{ $item['height'] }}%">
+                            <div class="flex h-52 w-full flex-col items-center justify-end gap-1">
+                                <span class="text-xs font-semibold text-zinc-700 dark:text-zinc-200">{{ $item['value'] }}</span>
+                                <div class="w-full max-w-16 rounded-full bg-forest/75"
+                                    style="height: {{ $item['height'] }}%" aria-label="{{ $item['label'] }}: {{ $item['value'] }} hours">
                                 </div>
                             </div>
 
@@ -304,7 +310,7 @@ new #[Title('Student Dashboard')] class extends Component
                     </flux:text>
                 </div>
 
-                <flux:badge :color="$this->requirementSummary['pending'] === 0 ? 'green' : 'red'" inset="top bottom">
+                <flux:badge :color="$this->requirementSummary['pending'] === 0 ? 'green' : 'amber'" inset="top bottom">
                     {{ $this->requirementSummary['completed'] }}/{{ $this->requirementSummary['total'] }}
                 </flux:badge>
             </div>
@@ -314,7 +320,7 @@ new #[Title('Student Dashboard')] class extends Component
                     @foreach ($this->requirementSteps as $step)
                         <div class="flex min-w-0 flex-1 flex-col items-center text-center">
                             <div
-                                class="{{ $step['is_completed'] ? 'bg-red-600 text-white ring-red-600' : 'bg-white text-zinc-500 ring-zinc-300 dark:bg-zinc-900 dark:text-zinc-300 dark:ring-zinc-700' }} flex size-14 items-center justify-center rounded-full ring-2">
+                                class="{{ $step['is_completed'] ? 'bg-forest text-white ring-forest' : 'bg-white text-zinc-500 ring-zinc-300 dark:bg-zinc-900 dark:text-zinc-300 dark:ring-zinc-700' }} flex size-14 items-center justify-center rounded-full ring-2">
                                 <flux:icon :name="$step['icon']" class="size-6" />
                             </div>
 
@@ -339,7 +345,7 @@ new #[Title('Student Dashboard')] class extends Component
 
                 <div class="flex items-center gap-4 -mt-2">
                     <flux:progress :value="$this->requirementSummary['progress']" />
-                    <span class="text-sm tabular-nums ...">{{ $this->requirementSummary['progress'] }}%</span>
+                    <span class="text-sm tabular-nums">{{ $this->requirementSummary['progress'] }}%</span>
                 </div>
             </flux:field>
 

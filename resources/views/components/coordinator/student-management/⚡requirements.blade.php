@@ -111,7 +111,7 @@ new class extends Component
                             <label class="flex min-w-0 items-start gap-3">
                                 <input type="checkbox" @checked($requirement->is_completed)
                                     wire:click="toggleRequirement({{ $requirement->id }})"
-                                    class="mt-1 size-4 rounded border-zinc-300 text-red-600 focus:ring-red-500 dark:border-zinc-700 dark:bg-zinc-900">
+                                    class="mt-1 size-4 rounded border-zinc-300 text-forest focus:ring-forest dark:border-zinc-700 dark:bg-zinc-900">
 
                                 <span class="min-w-0">
                                     <span class="block text-sm font-medium text-zinc-900 dark:text-white">

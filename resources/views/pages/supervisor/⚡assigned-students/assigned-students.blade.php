@@ -27,12 +27,12 @@
         <div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
             <h2 class="text-xl font-semibold">
                 My Assigned Students
-                <flux:badge color="red" inset="top bottom">{{ $this->assignments->total() }}</flux:badge>
+                <flux:badge color="green" inset="top bottom">{{ $this->assignments->total() }}</flux:badge>
             </h2>
 
             <div class="flex items-center gap-3">
                 <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
-                    placeholder="Search students..." clearable />
+                    aria-label="Search students..." placeholder="Search students..." clearable />
 
                 <flux:modal.trigger name="filter-supervisor-assigned-students">
                     <flux:button icon="funnel">Filter</flux:button>

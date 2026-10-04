@@ -20,7 +20,7 @@ new #[Title('Admin Dashboard')] class extends Component {
 
     public array $breadcrumbs = [['logo' => 'logo.png', 'href' => '/dashboard'], ['label' => 'Admin Dashboard']];
 
-    public string $title = 'Welcome back, Admin👋';
+    public string $title = 'Admin overview';
 
     public string $description = 'Here\'s a summary of the latest platform activity and key metrics at a glance. Dive into the details below to monitor student assignments, attendance trends, and more.';
 
@@ -86,24 +86,6 @@ new #[Title('Admin Dashboard')] class extends Component {
         return (float) $query->sum($valueColumn);
     }
 
-    protected function deltaMeta(float|int $current, float|int $previous): array
-    {
-        $delta = $current - $previous;
-        $positive = $delta >= 0;
-
-        if ((float) $previous === 0.0) {
-            $percent = $current > 0 ? 100 : 0;
-        } else {
-            $percent = round((abs($delta) / $previous) * 100, 1);
-        }
-
-        return [
-            'label' => ($positive ? '+' : '-') . $percent . '%',
-            'color' => $positive ? 'lime' : 'red',
-            'tone' => $positive ? 'bg-lime-50 text-lime-700 ring-lime-200 dark:bg-lime-500/10 dark:text-lime-300 dark:ring-lime-500/20' : 'bg-red-50 text-red-700 ring-red-200 dark:bg-red-500/10 dark:text-red-300 dark:ring-red-500/20',
-        ];
-    }
-
     protected function compactHours(float $value): string
     {
         return HourFormatter::format($value);
@@ -119,7 +101,6 @@ new #[Title('Admin Dashboard')] class extends Component {
         $assignmentPrevious = $this->monthlyCount(OjtAssignment::class, 'created_at', 1);
 
         $reviewCurrent = Evaluation::query()->where('status', 'pending')->count();
-        $reviewPrevious = $this->monthlyCount(Evaluation::class, 'created_at', 1, fn(Builder $query) => $query->where('status', 'pending'));
 
         $hoursCurrent = $this->monthlySum(DutyHourLog::class, 'approved_at', 'approved_hours', 0, fn(Builder $query) => $query->where('status', 'approved')->whereNotNull('approved_at'));
         $hoursPrevious = $this->monthlySum(DutyHourLog::class, 'approved_at', 'approved_hours', 1, fn(Builder $query) => $query->where('status', 'approved')->whereNotNull('approved_at'));
@@ -129,32 +110,28 @@ new #[Title('Admin Dashboard')] class extends Component {
                 'title' => 'Total Students',
                 'value' => number_format($this->roleCount(EnumsRole::STUDENT->value)),
                 'icon' => 'academic-cap',
-                'delta' => $this->deltaMeta($studentCurrent, $studentPrevious),
-                'footnote' => 'Last month: ' . number_format($studentPrevious),
+                'footnote' => 'New this month: '.number_format($studentCurrent).' · last month: '.number_format($studentPrevious),
                 'link' => '/admin/students',
             ],
             [
-                'title' => 'New Assignments',
+                'title' => 'Total Assignments',
                 'value' => number_format(OjtAssignment::query()->count()),
                 'icon' => 'briefcase',
-                'delta' => $this->deltaMeta($assignmentCurrent, $assignmentPrevious),
-                'footnote' => 'Last month: ' . number_format($assignmentPrevious),
+                'footnote' => 'Created this month: '.number_format($assignmentCurrent).' · last month: '.number_format($assignmentPrevious),
                 'link' => '/admin/ojt-assignments',
             ],
             [
                 'title' => 'Pending Reviews',
                 'value' => number_format($reviewCurrent),
                 'icon' => 'clipboard-document-check',
-                'delta' => $this->deltaMeta($reviewCurrent, $reviewPrevious),
-                'footnote' => 'Last month: ' . number_format($reviewPrevious),
+                'footnote' => 'Evaluations awaiting review',
                 'link' => '/admin/evaluations',
             ],
             [
                 'title' => 'Approved Hours',
                 'value' => $this->compactHours((float) DutyHourLog::query()->where('status', 'approved')->sum('approved_hours')),
                 'icon' => 'clock',
-                'delta' => $this->deltaMeta($hoursCurrent, $hoursPrevious),
-                'footnote' => 'Last month: ' . $this->compactHours($hoursPrevious),
+                'footnote' => 'Approved this month: '.$this->compactHours($hoursCurrent).' · last month: '.$this->compactHours($hoursPrevious),
                 'link' => '/admin/duty-hours',
             ],
         ];
@@ -185,7 +162,7 @@ new #[Title('Admin Dashboard')] class extends Component {
 
         return $items
             ->map(function (array $item) use ($max) {
-                $item['height'] = max(($item['value'] / $max) * 100, $item['value'] > 0 ? 18 : 8);
+                $item['height'] = $item['value'] > 0 ? max(($item['value'] / $max) * 100, 18) : 0;
 
                 return $item;
             })
@@ -267,7 +244,7 @@ new #[Title('Admin Dashboard')] class extends Component {
 <div class="flex flex-col gap-8">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
-    <section class="grid gap-4 xl:grid-cols-4">
+    <section class="duty-metrics grid gap-4 xl:grid-cols-4">
         @foreach ($this->topCards as $card)
             <flux:card>
                 <div class="flex items-start justify-between gap-4">
@@ -286,9 +263,6 @@ new #[Title('Admin Dashboard')] class extends Component {
                         {{ $card['value'] }}
                     </div>
 
-                    <flux:badge color="red">
-                        {{ $card['delta']['label'] }}
-                    </flux:badge>
                 </div>
 
                 <div class="flex items-center justify-between mt-6">
@@ -296,9 +270,9 @@ new #[Title('Admin Dashboard')] class extends Component {
                         {{ $card['footnote'] }}
                     </flux:text>
 
-                    {{-- <flux:button href="{{ $card['link'] }}" size="xs" icon:trailing="arrow-up-right" wire:navigate>
-                        View Details
-                    </flux:button> --}}
+                    <flux:button :href="$card['link']" size="sm" variant="ghost" icon:trailing="arrow-up-right" wire:navigate>
+                        View
+                    </flux:button>
                 </div>
             </flux:card>
         @endforeach
@@ -314,16 +288,17 @@ new #[Title('Admin Dashboard')] class extends Component {
                     </flux:text>
                 </div>
 
-                <flux:badge color="red" inset="top bottom">This Week</flux:badge>
+                <flux:badge color="green" inset="top bottom">This Week</flux:badge>
             </div>
 
             <div class="mt-8">
                 <flux:card class="flex h-92 items-end gap-6 px-6 pb-6 pt-8">
                     @foreach ($this->weeklyActivity as $item)
                         <div class="flex min-w-0 flex-1 flex-col items-center gap-3">
-                            <div class="flex h-52 w-full items-end justify-center">
-                                <div class="w-full max-w-16 rounded-full bg-red-400/60"
-                                    style="height: {{ $item['height'] }}%">
+                            <div class="flex h-52 w-full flex-col items-center justify-end gap-1">
+                                <span class="text-xs font-semibold text-zinc-700 dark:text-zinc-200">{{ $item['value'] }}</span>
+                                <div class="w-full max-w-16 rounded-full bg-forest/75"
+                                    style="height: {{ $item['height'] }}%" aria-label="{{ $item['label'] }}: {{ $item['value'] }} attendance logs">
                                 </div>
                             </div>
 
@@ -350,7 +325,7 @@ new #[Title('Admin Dashboard')] class extends Component {
 
                     <div class="flex items-center gap-4 text-zinc-500">
                         <span class="inline-flex items-center gap-2">
-                            <span class="h-3 w-3 rounded-full bg-red-400/60"></span>
+                            <span class="h-3 w-3 rounded-full bg-forest/75"></span>
                             Internal
                         </span>
                         <span class="inline-flex items-center gap-2">
@@ -364,7 +339,7 @@ new #[Title('Admin Dashboard')] class extends Component {
                     @foreach ($this->monthlyAssignmentMix as $item)
                         <div class="flex min-w-0 flex-1 flex-col items-center gap-3">
                             <div class="flex h-52 w-full max-w-14 flex-col justify-end gap-1">
-                                <div class="rounded-2xl bg-red-400/60"
+                                <div class="rounded-2xl bg-forest/75"
                                     style="height: {{ max($item['internal_height'], $item['internal'] > 0 ? 12 : 0) }}%">
                                 </div>
                                 <div class="rounded-2xl bg-zinc-900 dark:bg-zinc-100"
@@ -393,7 +368,7 @@ new #[Title('Admin Dashboard')] class extends Component {
 
             <div class="flex flex-col gap-3 sm:flex-row">
                 <flux:input wire:model.live.debounce.300ms="search" icon="magnifying-glass"
-                    placeholder="Search assignments..." class="sm:w-72" />
+                    aria-label="Search assignments..." placeholder="Search assignments..." class="sm:w-72" />
 
                 <flux:select wire:model.live="status" class="sm:w-44">
                     <option value="">All Status</option>

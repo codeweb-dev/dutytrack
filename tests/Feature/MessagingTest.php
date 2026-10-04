@@ -1,14 +1,11 @@
 <?php
 
 use App\Enums\Role as AppRole;
-use App\Events\ConversationMessageSent;
-use App\Events\ConversationTypingStarted;
 use App\Models\ChatConversation;
 use App\Models\ChatMessage;
-use App\Models\ChatTypingIndicator;
 use App\Models\OjtAssignment;
 use App\Models\User;
-use Illuminate\Support\Facades\Event;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Role as PermissionRole;
 
@@ -49,8 +46,6 @@ function createMessagingAssignment(User $student, ?User $professor = null, ?User
 }
 
 test('students can message their assigned professor and supervisor', function () {
-    Event::fake([ConversationMessageSent::class]);
-
     $student = createMessagingUser(AppRole::STUDENT, ['name' => 'Message Student']);
     $professor = createMessagingUser(AppRole::PROFESSOR, ['name' => 'Assigned Professor']);
     $supervisor = createMessagingUser(AppRole::COMPANYSUPERVISOR, ['name' => 'Assigned Supervisor']);
@@ -82,12 +77,9 @@ test('students can message their assigned professor and supervisor', function ()
         ->where('body', 'Good afternoon, professor.')
         ->exists())->toBeTrue();
 
-    Event::assertDispatched(ConversationMessageSent::class);
 });
 
 test('students can message the coordinator who created them before an ojt assignment exists', function () {
-    Event::fake([ConversationMessageSent::class]);
-
     $coordinator = createMessagingUser(AppRole::OJTCOORDINATOR, ['name' => 'Student Coordinator']);
     $student = createMessagingUser(AppRole::STUDENT, [
         'name' => 'Coordinator Chat Student',
@@ -120,7 +112,6 @@ test('students can message the coordinator who created them before an ojt assign
         ->where('body', 'Good afternoon, coordinator.')
         ->exists())->toBeTrue();
 
-    Event::assertDispatched(ConversationMessageSent::class);
 });
 
 test('coordinators can message students they created only', function () {
@@ -318,11 +309,48 @@ test('users can edit and delete their own messages only', function () {
         ->assertHasNoErrors();
 
     expect(ChatMessage::query()->whereKey($studentMessage->id)->exists())->toBeFalse();
+    $deletedMessage = ChatMessage::withTrashed()->findOrFail($studentMessage->id);
+    expect($deletedMessage->body)->toBe('');
+    expect($deletedMessage->deleted_at)->not->toBeNull();
+
+    Livewire::test('pages::messages')
+        ->call('selectConversation', $conversation->id)
+        ->assertSee('This message was deleted.')
+        ->assertDontSee('Edited student message.')
+        ->assertDontSee(' · edited')
+        ->assertDontSee('wire:click="startEditingMessage('.$studentMessage->id.')"', false)
+        ->assertDontSee('wire:click="deleteMessage('.$studentMessage->id.')"', false);
+
+    expect(fn () => Livewire::test('pages::messages')
+        ->call('selectConversation', $conversation->id)
+        ->call('startEditingMessage', $studentMessage->id))->toThrow(ModelNotFoundException::class);
+
+    expect(fn () => Livewire::test('pages::messages')
+        ->call('selectConversation', $conversation->id)
+        ->set('editingMessageId', $studentMessage->id)
+        ->set('editingBody', 'Restored private text.')
+        ->call('saveMessageEdit'))->toThrow(ModelNotFoundException::class);
+
+    expect(fn () => Livewire::test('pages::messages')
+        ->call('selectConversation', $conversation->id)
+        ->call('deleteMessage', $studentMessage->id))->toThrow(ModelNotFoundException::class);
 
     Livewire::test('pages::messages')
         ->call('selectConversation', $conversation->id)
         ->call('startEditingMessage', $professorMessage->id)
         ->assertForbidden();
+
+    Livewire::test('pages::messages')
+        ->call('selectConversation', $conversation->id)
+        ->call('deleteMessage', $professorMessage->id)
+        ->assertForbidden();
+
+    $this->actingAs($professor);
+
+    Livewire::test('pages::messages')
+        ->call('selectConversation', $conversation->id)
+        ->assertSee('This message was deleted.')
+        ->assertDontSee('Edited student message.');
 });
 
 test('messages show edited label only after an actual edit', function () {
@@ -362,11 +390,9 @@ test('messages show edited label only after an actual edit', function () {
         ->assertSee('edited');
 });
 
-test('typing indicators show for the other participant', function () {
-    Event::fake([ConversationTypingStarted::class]);
-
-    $student = createMessagingUser(AppRole::STUDENT, ['name' => 'Typing Student']);
-    $professor = createMessagingUser(AppRole::PROFESSOR, ['name' => 'Typing Professor']);
+test('manual refresh shows new messages and marks them read', function () {
+    $student = createMessagingUser(AppRole::STUDENT);
+    $professor = createMessagingUser(AppRole::PROFESSOR);
 
     $assignment = createMessagingAssignment($student, $professor);
 
@@ -377,29 +403,58 @@ test('typing indicators show for the other participant', function () {
         'participant_role' => 'professor',
     ]);
 
-    $this->actingAs($student);
-
-    Livewire::test('pages::messages')
-        ->call('selectConversation', $conversation->id)
-        ->call('sendTyping')
-        ->assertHasNoErrors();
-
-    expect(ChatTypingIndicator::query()
-        ->where('chat_conversation_id', $conversation->id)
-        ->where('user_id', $student->id)
-        ->where('expires_at', '>', now())
-        ->exists())->toBeTrue();
-
-    Event::assertDispatched(ConversationTypingStarted::class);
-
     $this->actingAs($professor);
 
+    $chat = Livewire::test('pages::messages')
+        ->call('selectConversation', $conversation->id)
+        ->assertSee('Refresh')
+        ->assertDontSee('wire:poll', false);
+
+    $message = ChatMessage::query()->create([
+        'chat_conversation_id' => $conversation->id,
+        'sender_id' => $student->id,
+        'body' => 'New message after opening.',
+    ]);
+
+    $chat->call('refreshMessages')->assertSee('New message after opening.');
+    expect($message->refresh()->read_at)->not->toBeNull();
+});
+
+test('deleted latest message remains in the preview and unread count ignores it', function () {
+    $student = createMessagingUser(AppRole::STUDENT);
+    $professor = createMessagingUser(AppRole::PROFESSOR);
+    $assignment = createMessagingAssignment($student, $professor);
+    $conversation = ChatConversation::query()->create([
+        'ojt_assignment_id' => $assignment->id,
+        'student_id' => $student->id,
+        'participant_id' => $professor->id,
+        'participant_role' => 'professor',
+    ]);
+    ChatMessage::query()->create([
+        'chat_conversation_id' => $conversation->id,
+        'sender_id' => $student->id,
+        'body' => 'Older message.',
+    ]);
+    $latest = ChatMessage::query()->create([
+        'chat_conversation_id' => $conversation->id,
+        'sender_id' => $student->id,
+        'body' => 'Private latest message.',
+    ]);
+
+    $this->actingAs($student);
     Livewire::test('pages::messages')
         ->call('selectConversation', $conversation->id)
-        ->call('receiveTypingIndicator', [
-            'conversation_id' => $conversation->id,
-            'user_id' => $student->id,
-            'name' => $student->name,
-        ])
-        ->assertSee('Typing Student is typing...');
+        ->call('deleteMessage', $latest->id);
+
+    expect($conversation->fresh()->latestMessage->id)->toBe($latest->id);
+    expect($conversation->messages()->whereNull('read_at')->count())->toBe(1);
+
+    $this->actingAs($professor);
+    $chat = Livewire::test('pages::messages')
+        ->assertSee('This message was deleted.')
+        ->assertSee('Older message.')
+        ->assertDontSee('Private latest message.');
+
+    expect(substr_count($chat->html(), 'This message was deleted.'))->toBe(2);
+    expect($latest->refresh()->read_at)->toBeNull();
 });

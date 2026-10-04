@@ -1,16 +1,13 @@
 <?php
 
-use App\Events\ConversationMessageSent;
-use App\Events\ConversationTypingStarted;
 use App\Models\ChatConversation;
 use App\Models\ChatMessage;
-use App\Models\ChatTypingIndicator;
 use App\Models\OjtAssignment;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Computed;
-use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
@@ -23,8 +20,6 @@ new #[Title('Messages')] class extends Component
     public string $description = 'Chat with the students and OJT contacts connected to your account.';
 
     public ?int $selectedConversationId = null;
-
-    public ?int $latestMessageId = null;
 
     public string $body = '';
 
@@ -40,7 +35,6 @@ new #[Title('Messages')] class extends Component
 
         if ($this->selectedConversationId) {
             $this->markConversationRead($this->selectedConversationId);
-            $this->latestMessageId = $this->latestMessageIdFor($this->selectedConversationId);
         }
     }
 
@@ -52,8 +46,7 @@ new #[Title('Messages')] class extends Component
         $this->body = '';
 
         $this->markConversationRead($conversationId);
-        $this->latestMessageId = $this->latestMessageIdFor($conversationId);
-        unset($this->selectedConversation, $this->chatMessages, $this->conversations, $this->typingUsers);
+        unset($this->selectedConversation, $this->chatMessages, $this->conversations);
 
         $this->dispatch('conversation-selected', conversationId: $conversationId);
     }
@@ -74,7 +67,7 @@ new #[Title('Messages')] class extends Component
 
         $conversation = $this->authorizeConversation($this->selectedConversationId);
 
-        $message = ChatMessage::query()->create([
+        ChatMessage::query()->create([
             'chat_conversation_id' => $conversation->id,
             'sender_id' => Auth::id(),
             'body' => trim($this->body),
@@ -82,12 +75,8 @@ new #[Title('Messages')] class extends Component
 
         $conversation->touch();
 
-        broadcast(new ConversationMessageSent($message));
-
         $this->body = '';
-        $this->latestMessageId = $message->id;
-        $this->clearMyTypingIndicator($conversation->id);
-        unset($this->selectedConversation, $this->chatMessages, $this->conversations, $this->typingUsers);
+        unset($this->selectedConversation, $this->chatMessages, $this->conversations);
 
         $this->dispatch('message-sent');
     }
@@ -136,100 +125,27 @@ new #[Title('Messages')] class extends Component
         $message = $this->authorizeOwnMessage($messageId);
         $conversation = $message->conversation;
 
-        $message->delete();
+        DB::transaction(function () use ($message): void {
+            $message->update(['body' => '']);
+            $message->delete();
+        });
         $conversation?->touch();
 
         if ($this->editingMessageId === $messageId) {
             $this->cancelEditingMessage();
         }
 
-        $this->latestMessageId = $this->selectedConversationId ? $this->latestMessageIdFor($this->selectedConversationId) : null;
-
         unset($this->selectedConversation, $this->chatMessages, $this->conversations);
-    }
-
-    public function sendTyping(): void
-    {
-        if (! $this->selectedConversationId) {
-            return;
-        }
-
-        $conversation = $this->authorizeConversation($this->selectedConversationId);
-
-        ChatTypingIndicator::query()->updateOrCreate(
-            [
-                'chat_conversation_id' => $conversation->id,
-                'user_id' => Auth::id(),
-            ],
-            [
-                'expires_at' => now()->addSeconds(3),
-            ],
-        );
-
-        broadcast(new ConversationTypingStarted($conversation, (int) Auth::id(), Auth::user()?->name ?? 'Someone'));
-    }
-
-    #[On('message-realtime-received')]
-    public function receiveRealtimeMessage(array $payload): void
-    {
-        $this->handleBroadcastedMessage($payload);
-    }
-
-    #[On('message-typing-received')]
-    public function receiveTypingIndicator(array $payload): void
-    {
-        $conversationId = (int) ($payload['conversation_id'] ?? 0);
-        $userId = (int) ($payload['user_id'] ?? 0);
-
-        if (! $conversationId || $userId === (int) Auth::id()) {
-            return;
-        }
-
-        if (! $this->conversationQuery()->whereKey($conversationId)->exists()) {
-            return;
-        }
-
-        if ($this->selectedConversationId === $conversationId) {
-            unset($this->typingUsers);
-        }
-    }
-
-    public function handleBroadcastedMessage(array $payload): void
-    {
-        $conversationId = (int) ($payload['conversation_id'] ?? 0);
-
-        if (! $conversationId || ! $this->conversationQuery()->whereKey($conversationId)->exists()) {
-            return;
-        }
-
-        if ($this->selectedConversationId === $conversationId) {
-            $this->markConversationRead($conversationId);
-            $this->latestMessageId = (int) ($payload['message_id'] ?? $this->latestMessageIdFor($conversationId));
-        }
-
-        unset($this->selectedConversation, $this->chatMessages, $this->conversations, $this->typingUsers);
-
-        $this->dispatch('message-received');
     }
 
     public function refreshMessages(): void
     {
-        $this->pruneExpiredTypingIndicators();
-        unset($this->conversations, $this->typingUsers);
-
-        if (! $this->selectedConversationId) {
-            return;
+        if ($this->selectedConversationId) {
+            $this->authorizeConversation($this->selectedConversationId);
+            $this->markConversationRead($this->selectedConversationId);
         }
 
-        $latestMessageId = $this->latestMessageIdFor($this->selectedConversationId);
-
-        if ($latestMessageId === $this->latestMessageId) {
-            return;
-        }
-
-        $this->markConversationRead($this->selectedConversationId);
-        $this->latestMessageId = $latestMessageId;
-        unset($this->selectedConversation, $this->chatMessages, $this->typingUsers);
+        unset($this->selectedConversation, $this->chatMessages, $this->conversations);
 
         $this->dispatch('message-received');
     }
@@ -345,21 +261,6 @@ new #[Title('Messages')] class extends Component
             ->update(['read_at' => now()]);
     }
 
-    protected function clearMyTypingIndicator(int $conversationId): void
-    {
-        ChatTypingIndicator::query()->where('chat_conversation_id', $conversationId)->where('user_id', Auth::id())->delete();
-    }
-
-    protected function pruneExpiredTypingIndicators(): void
-    {
-        ChatTypingIndicator::query()->where('expires_at', '<=', now())->delete();
-    }
-
-    protected function latestMessageIdFor(int $conversationId): ?int
-    {
-        return ChatMessage::query()->where('chat_conversation_id', $conversationId)->latest('id')->value('id');
-    }
-
     public function peerFor(ChatConversation $conversation): ?User
     {
         return (int) $conversation->student_id === (int) Auth::id() ? $conversation->participant : $conversation->student;
@@ -432,83 +333,15 @@ new #[Title('Messages')] class extends Component
 
         $this->authorizeConversation($this->selectedConversationId);
 
-        return ChatMessage::query()->with('sender')->where('chat_conversation_id', $this->selectedConversationId)->oldest()->get();
-    }
-
-    #[Computed]
-    public function typingUsers()
-    {
-        if (! $this->selectedConversationId) {
-            return collect();
-        }
-
-        $this->authorizeConversation($this->selectedConversationId);
-
-        return ChatTypingIndicator::query()->with('user')->where('chat_conversation_id', $this->selectedConversationId)->where('user_id', '!=', Auth::id())->where('expires_at', '>', now())->latest('updated_at')->get()->pluck('user')->filter()->values();
+        return ChatMessage::query()->withTrashed()->with('sender')->where('chat_conversation_id', $this->selectedConversationId)->oldest()->get();
     }
 };
 ?>
 
-<div class="flex h-[calc(100vh-7rem)] min-h-0 flex-col gap-6 overflow-hidden" x-data="{
-    userChannel: null,
-    handler: null,
-    typingHandler: null,
-    lastTypingAt: 0,
-    userId: @js(auth()->id()),
-    subscribe() {
-        const connect = () => {
-            if (!window.Echo) {
-                window.setTimeout(connect, 150);
-                return;
-            }
-
-            this.handler = (payload) => {
-                window.Livewire?.dispatch('message-realtime-received', { payload });
-            };
-
-            this.typingHandler = (payload) => {
-                window.Livewire?.dispatch('message-typing-received', { payload });
-            };
-
-            this.userChannel = window.Echo.private(`messages.user.${this.userId}`);
-            this.userChannel.listen('.message.sent', this.handler);
-            this.userChannel.listen('.typing.started', this.typingHandler);
-        };
-
-        connect();
-    },
-    sendTyping() {
-        const now = Date.now();
-
-        if (now - this.lastTypingAt < 1000) {
-            return;
-        }
-
-        this.lastTypingAt = now;
-        $wire.sendTyping();
-    },
-    cleanup() {
-        if (this.userChannel && this.handler) {
-            this.userChannel.stopListening('.message.sent', this.handler);
-        }
-
-        if (this.userChannel && this.typingHandler) {
-            this.userChannel.stopListening('.typing.started', this.typingHandler);
-        }
-
-        if (window.Echo) {
-            window.Echo.leave(`messages.user.${this.userId}`);
-        }
-    },
-    destroy() {
-        this.cleanup();
-    },
-}"
-    x-init="subscribe()" x-on:livewire:navigating.window="cleanup()">
+<div class="flex h-[calc(100vh-7rem)] min-h-0 flex-col gap-6 overflow-hidden">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
-    <div wire:poll.visible.1500ms="refreshMessages"
-        class="grid min-h-0 flex-1 overflow-hidden rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 lg:grid-cols-[20rem_1fr]">
+    <div class="grid min-h-0 flex-1 overflow-hidden rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 lg:grid-cols-[20rem_1fr]">
         <aside class="flex min-h-0 flex-col border-b border-zinc-200 dark:border-zinc-800 lg:border-b-0 lg:border-r">
             <div class="shrink-0 border-b border-zinc-200 p-4 dark:border-zinc-800">
                 <flux:heading size="lg">Conversations</flux:heading>
@@ -542,7 +375,7 @@ new #[Title('Messages')] class extends Component
                                     {{ $this->roleLabelFor($conversation) }}
                                 </flux:badge>
                                 <span class="truncate text-xs text-zinc-500">
-                                    {{ $conversation->latestMessage?->body ?? 'No messages yet.' }}
+                                    {{ $conversation->latestMessage?->deleted_at ? 'This message was deleted.' : ($conversation->latestMessage?->body ?? 'No messages yet.') }}
                                 </span>
                             </span>
                         </span>
@@ -579,9 +412,12 @@ new #[Title('Messages')] class extends Component
                         </div>
                     </div>
 
-                    <flux:badge :color="$this->roleColorFor($this->selectedConversation)" inset="top bottom">
-                        {{ $this->chatBadgeFor($this->selectedConversation) }}
-                    </flux:badge>
+                    <div class="flex items-center gap-2">
+                        <flux:button type="button" size="sm" wire:click="refreshMessages">Refresh</flux:button>
+                        <flux:badge :color="$this->roleColorFor($this->selectedConversation)" inset="top bottom">
+                            {{ $this->chatBadgeFor($this->selectedConversation) }}
+                        </flux:badge>
+                    </div>
                 </header>
 
                 <div class="flex-1 space-y-4 overflow-y-auto bg-zinc-50 p-4 dark:bg-zinc-950/40" x-data
@@ -617,11 +453,11 @@ new #[Title('Messages')] class extends Component
                                     @else
                                         <div
                                             class="rounded-lg px-4 py-3 text-sm shadow-sm {{ $mine ? 'bg-red-600 text-white' : 'border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-white' }}">
-                                            {{ $message->body }}
+                                            {{ $message->deleted_at ? 'This message was deleted.' : $message->body }}
                                         </div>
                                     @endif
 
-                                    @if ($mine && $editingMessageId !== $message->id)
+                                    @if ($mine && ! $message->deleted_at && $editingMessageId !== $message->id)
                                         <div class="flex shrink-0 items-center gap-1">
                                             <flux:button type="button" size="sm" variant="ghost"
                                                 icon="pencil-square" title="Edit message"
@@ -633,6 +469,7 @@ new #[Title('Messages')] class extends Component
                                         </div>
                                     @endif
 
+                                    @if ($mine && ! $message->deleted_at)
                                     <flux:modal name="delete-message-{{ $message->id }}" class="min-w-[22rem]">
                                         <div class="space-y-6">
                                             <div>
@@ -653,10 +490,11 @@ new #[Title('Messages')] class extends Component
                                             </div>
                                         </div>
                                     </flux:modal>
+                                    @endif
                                 </div>
                                 <div class="mt-1 text-xs text-zinc-500 {{ $mine ? 'text-right' : '' }}">
                                     {{ $message->created_at->format('M d, g:i A') }}
-                                    @if ($message->edited_at)
+                                    @if ($message->edited_at && ! $message->deleted_at)
                                         <span> · edited</span>
                                     @endif
                                 </div>
@@ -674,17 +512,9 @@ new #[Title('Messages')] class extends Component
                     @endforelse
                 </div>
 
-                @if ($this->typingUsers->isNotEmpty())
-                    <div
-                        class="shrink-0 border-t border-zinc-200 px-4 py-2 text-xs font-medium text-zinc-500 dark:border-zinc-800">
-                        {{ $this->typingUsers->count() === 1 ? $this->typingUsers->first()->name . ' is typing...' : 'Several people are typing...' }}
-                    </div>
-                @endif
-
                 <form wire:submit="sendMessage" class="shrink-0 border-t border-zinc-200 p-4 dark:border-zinc-800">
                     <div class="flex items-center gap-3">
-                        <flux:textarea wire:model="body" rows="auto" placeholder="Type your message..."
-                            class="flex-1" x-on:input.debounce.250ms="sendTyping()" />
+                        <flux:textarea wire:model="body" rows="auto" placeholder="Type your message..." class="flex-1" />
                         <flux:button type="submit" variant="primary" icon="paper-airplane" />
                     </div>
                 </form>

@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ChatMessage extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'chat_conversation_id',
         'sender_id',
@@ -19,6 +22,7 @@ class ChatMessage extends Model
         return [
             'read_at' => 'datetime',
             'edited_at' => 'datetime',
+            'deleted_at' => 'datetime',
         ];
     }
 

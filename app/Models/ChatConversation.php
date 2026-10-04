@@ -35,11 +35,6 @@ class ChatConversation extends Model
 
     public function latestMessage()
     {
-        return $this->hasOne(ChatMessage::class)->latestOfMany();
-    }
-
-    public function typingIndicators()
-    {
-        return $this->hasMany(ChatTypingIndicator::class);
+        return $this->hasOne(ChatMessage::class)->withTrashed()->latestOfMany();
     }
 }

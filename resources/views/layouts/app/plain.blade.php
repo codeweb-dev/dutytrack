@@ -6,7 +6,7 @@
 </head>
 
 <body class="duty-app min-h-screen">
-    <flux:header class="block! bg-white lg:bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700">
+    <flux:header class="duty-topbar block!">
         <div class="flex items-center justify-between mt-1">
             <flux:spacer />
 
@@ -14,9 +14,6 @@
 
             <div class="flex items-center gap-3">
                 <flux:button icon="megaphone" variant="subtle" :href="route('announcements')" wire:navigate />
-
-                <flux:button x-data x-on:click="$flux.dark = ! $flux.dark" icon="moon" variant="subtle"
-                    aria-label="Toggle dark mode" />
 
                 <flux:button icon="cog-6-tooth" variant="subtle" :href="route('profile.edit')" />
 

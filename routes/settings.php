@@ -11,7 +11,7 @@ Route::middleware(['auth'])->group(function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::livewire('settings/password', 'pages::settings.password')->name('user-password.edit');
-    Route::livewire('settings/appearance', 'pages::settings.appearance')->name('appearance.edit');
+    Route::redirect('settings/appearance', 'settings/profile');
 
     Route::livewire('settings/two-factor', 'pages::settings.two-factor')
         ->middleware(

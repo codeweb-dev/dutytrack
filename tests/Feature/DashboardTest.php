@@ -23,11 +23,13 @@ test('admins can view the admin dashboard', function () {
     $admin = User::factory()->create();
     $admin->assignRole(Role::ADMIN->value);
 
-    $this->actingAs($admin)
+    $response = $this->actingAs($admin)
         ->get(route('admin.dashboard'))
         ->assertOk()
         ->assertSee('Weekly Activity')
         ->assertSee('Recent Assignments');
+
+    expect(substr_count($response->getContent(), 'attendance logs"'))->toBe(7);
 });
 
 test('coordinators can view the coordinator dashboard', function () {

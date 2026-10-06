@@ -52,23 +52,25 @@
                 <flux:table.rows>
                     @foreach ($this->students as $student)
                         <flux:table.row :key="$student->id">
-                            <flux:table.cell class="flex items-center gap-3">
-                                <flux:avatar size="md" :src="$student->profile_photo_url"
-                                    :name="$student->name" />
+                            <flux:table.cell>
+                                <div class="flex items-center gap-3">
+                                    <flux:avatar size="md" :src="$student->profile_photo_url"
+                                        :name="$student->name" />
 
-                                <div class="flex flex-col">
-                                    <span class="font-medium">{{ $student->name }}</span>
-                                    <div class="flex items-center gap-1">
-                                        <flux:text class="text-xs">{{ $student->email }}</flux:text>
-                                        <flux:text class="text-xs">•</flux:text>
-                                        <flux:text class="text-xs">
-                                            {{ $student->contact_number ? '+63 ' . $student->contact_number : 'No contact number' }}
+                                    <div class="flex flex-col">
+                                        <span class="font-medium">{{ $student->name }}</span>
+                                        <div class="flex items-center gap-1">
+                                            <flux:text class="text-xs">{{ $student->email }}</flux:text>
+                                            <flux:text class="text-xs">•</flux:text>
+                                            <flux:text class="text-xs">
+                                                {{ $student->contact_number ? '+63 ' . $student->contact_number : 'No contact number' }}
+                                            </flux:text>
+                                        </div>
+                                        <flux:text class="text-xs text-zinc-500">
+                                            Coordinator: {{ $student->coordinator?->name ?? 'Unassigned' }} |
+                                            {{ $student->coordinator?->professorProfile->department ?? '' }}
                                         </flux:text>
                                     </div>
-                                    <flux:text class="text-xs text-zinc-500">
-                                        Coordinator: {{ $student->coordinator?->name ?? 'Unassigned' }} |
-                                        {{ $student->coordinator?->professorProfile->department ?? '' }}
-                                    </flux:text>
                                 </div>
                             </flux:table.cell>
 

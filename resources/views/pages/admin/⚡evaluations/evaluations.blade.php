@@ -1,7 +1,7 @@
 <div class="flex flex-col gap-6">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
+    <div class="duty-metrics grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
         <flux:card class="p-4">
             <flux:heading>Total Evaluations</flux:heading>
             <flux:text class="mt-2">{{ $this->summary['total'] }}</flux:text>

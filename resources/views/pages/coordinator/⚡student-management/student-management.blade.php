@@ -58,18 +58,20 @@
                 <flux:table.rows>
                     @foreach ($this->students as $student)
                         <flux:table.row :key="$student->id">
-                            <flux:table.cell class="flex items-center gap-3">
-                                <flux:avatar size="md" :src="$student->profile_photo_url"
-                                    :name="$student->name" />
+                            <flux:table.cell>
+                                <div class="flex items-center gap-3">
+                                    <flux:avatar size="md" :src="$student->profile_photo_url"
+                                        :name="$student->name" />
 
-                                <div class="flex flex-col">
-                                    <span class="font-medium">{{ $student->name }}</span>
-                                    <div>
-                                        <span class="text-xs text-zinc-500">{{ $student->email }}</span>
-                                        <span class="text-xs text-zinc-500">
-                                            •
-                                            {{ $student->contact_number ? '+63 ' . $student->contact_number : 'No contact number' }}
-                                        </span>
+                                    <div class="flex flex-col">
+                                        <span class="font-medium">{{ $student->name }}</span>
+                                        <div>
+                                            <span class="text-xs text-zinc-500">{{ $student->email }}</span>
+                                            <span class="text-xs text-zinc-500">
+                                                •
+                                                {{ $student->contact_number ? '+63 ' . $student->contact_number : 'No contact number' }}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             </flux:table.cell>

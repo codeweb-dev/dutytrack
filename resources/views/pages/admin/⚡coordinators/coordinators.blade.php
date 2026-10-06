@@ -50,13 +50,15 @@
                 <flux:table.rows>
                     @foreach ($this->coordinators as $coordinator)
                         <flux:table.row :key="$coordinator->id">
-                            <flux:table.cell class="flex items-center gap-3">
-                                <flux:avatar size="md" :src="$coordinator->profile_photo_url"
-                                    :name="$coordinator->name" />
+                            <flux:table.cell>
+                                <div class="flex items-center gap-3">
+                                    <flux:avatar size="md" :src="$coordinator->profile_photo_url"
+                                        :name="$coordinator->name" />
 
-                                <div class="flex flex-col">
-                                    <span class="font-medium">{{ $coordinator->name }}</span>
-                                    <span class="text-xs text-zinc-500">{{ $coordinator->email }}</span>
+                                    <div class="flex flex-col">
+                                        <span class="font-medium">{{ $coordinator->name }}</span>
+                                        <span class="text-xs text-zinc-500">{{ $coordinator->email }}</span>
+                                    </div>
                                 </div>
                             </flux:table.cell>
 

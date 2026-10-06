@@ -6,12 +6,9 @@
 </head>
 
 <body class="duty-app min-h-screen">
-    <flux:sidebar sticky collapsible class="duty-sidebar">
+    <flux:sidebar sticky collapsible="mobile" class="duty-sidebar">
         <flux:sidebar.header>
             <x-app-logo :sidebar="true" href="{{ route('dashboard') }}" wire:navigate />
-
-            <flux:sidebar.collapse
-                class="in-data-flux-sidebar-on-desktop:not-in-data-flux-sidebar-collapsed-desktop:-mr-2" />
         </flux:sidebar.header>
 
         @php
@@ -54,23 +51,12 @@
 
     <flux:header class="duty-topbar block!">
         <div class="flex items-center justify-between gap-4">
+            <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" aria-label="Open navigation" />
 
-            <div class="flex min-w-0 items-center gap-3">
-                <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" aria-label="Open navigation" />
-                <div class="min-w-0">
-                    <div class="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">DutyTrack workspace</div>
-                    <div class="truncate text-sm font-semibold text-zinc-900 dark:text-white">{{ ucwords(str_replace(['.', '-'], [' / ', ' '], request()->route()?->getName() ?? 'Dashboard')) }}</div>
-                </div>
-            </div>
-
-            <div class="flex items-center gap-3">
+            <div class="ml-auto flex items-center gap-3">
                 <flux:button icon="megaphone" variant="subtle" :href="route('announcements')" aria-label="Announcements" wire:navigate />
 
-                <flux:button x-data x-on:click="$flux.dark = ! $flux.dark" icon="moon" variant="subtle" aria-label="Toggle light and dark appearance" />
-
                 <flux:button icon="cog-6-tooth" variant="subtle" :href="route('profile.edit')" aria-label="Settings" wire:navigate />
-
-                <flux:separator vertical class="my-5" />
 
                 <flux:navbar>
                     <flux:spacer />

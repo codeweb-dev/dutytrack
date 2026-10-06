@@ -12,14 +12,14 @@
                 <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
                     aria-label="Search audit logs..." placeholder="Search audit logs..." clearable />
 
-                <flux:select wire:model.live="module" placeholder="All modules" class="min-w-44">
+                <flux:select wire:model.live="module" placeholder="All modules" aria-label="Filter audit logs by module" class="min-w-44">
                     <option value="">All modules</option>
                     @foreach ($this->modules as $moduleOption)
                         <option value="{{ $moduleOption }}">{{ $moduleOption }}</option>
                     @endforeach
                 </flux:select>
 
-                <flux:select wire:model.live="action" placeholder="All actions" class="min-w-40">
+                <flux:select wire:model.live="action" placeholder="All actions" aria-label="Filter audit logs by action" class="min-w-40">
                     <option value="">All actions</option>
                     @foreach ($this->actions as $actionOption)
                         <option value="{{ $actionOption }}">{{ str($actionOption)->replace('_', ' ')->title() }}

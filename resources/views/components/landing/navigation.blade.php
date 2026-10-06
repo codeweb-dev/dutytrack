@@ -11,7 +11,6 @@
             <a href="#teams" class="hover:text-forest dark:hover:text-sage">Team</a>
         </div>
         <div class="flex items-center gap-2">
-            <flux:button x-data x-on:click="$flux.dark = ! $flux.dark" icon="moon" variant="subtle" aria-label="Toggle light and dark appearance" />
             <a href="{{ route(auth()->check() ? 'dashboard' : 'login') }}" class="inline-flex min-h-11 items-center justify-center rounded-xl bg-forest px-5 text-sm font-semibold text-white hover:bg-zinc-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest">
                 {{ auth()->check() ? 'Dashboard' : 'Sign in' }}
             </a>

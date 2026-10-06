@@ -144,7 +144,7 @@ new #[Title('Announcements')] #[Layout('layouts::announcement')] class extends C
                         aria-label="Search announcements..." placeholder="Search announcements..." clearable class="flex-1" />
                 </div>
 
-                <flux:select wire:model.live="type" class="md:w-32">
+                <flux:select wire:model.live="type" aria-label="Filter announcements by type" class="md:w-32">
                     <option value="all">All Types</option>
                     <option value="info">Info</option>
                     <option value="warning">Warning</option>

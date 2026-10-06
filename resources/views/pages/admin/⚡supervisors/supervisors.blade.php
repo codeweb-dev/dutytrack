@@ -51,13 +51,15 @@
                 <flux:table.rows>
                     @foreach ($this->supervisors as $supervisor)
                         <flux:table.row :key="$supervisor->id">
-                            <flux:table.cell class="flex items-center gap-3">
-                                <flux:avatar size="md" :src="$supervisor->profile_photo_url"
-                                    :name="$supervisor->name" />
+                            <flux:table.cell>
+                                <div class="flex items-center gap-3">
+                                    <flux:avatar size="md" :src="$supervisor->profile_photo_url"
+                                        :name="$supervisor->name" />
 
-                                <div class="flex flex-col">
-                                    <span class="font-medium">{{ $supervisor->name }}</span>
-                                    <span class="text-xs text-zinc-500">{{ $supervisor->email }}</span>
+                                    <div class="flex flex-col">
+                                        <span class="font-medium">{{ $supervisor->name }}</span>
+                                        <span class="text-xs text-zinc-500">{{ $supervisor->email }}</span>
+                                    </div>
                                 </div>
                             </flux:table.cell>
 

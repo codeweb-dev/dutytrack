@@ -95,13 +95,15 @@
                 <flux:table.rows>
                     @foreach ($this->dutyHourLogs as $log)
                         <flux:table.row :key="$log->id">
-                            <flux:table.cell class="flex items-center gap-3">
-                                <flux:avatar size="md" :src="$log->student?->profile_photo_url"
-                                    :name="$log->student?->name" />
+                            <flux:table.cell>
+                                <div class="flex items-center gap-3">
+                                    <flux:avatar size="md" :src="$log->student?->profile_photo_url"
+                                        :name="$log->student?->name" />
 
-                                <div class="flex flex-col">
-                                    <span class="font-medium">{{ $log->student?->name ?? '' }}</span>
-                                    <span class="text-xs text-zinc-500">{{ $log->student?->email ?? '' }}</span>
+                                    <div class="flex flex-col">
+                                        <span class="font-medium">{{ $log->student?->name ?? '' }}</span>
+                                        <span class="text-xs text-zinc-500">{{ $log->student?->email ?? '' }}</span>
+                                    </div>
                                 </div>
                             </flux:table.cell>
 

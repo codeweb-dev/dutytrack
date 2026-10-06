@@ -17,9 +17,9 @@
                 </span>
             </a>
             <div class="relative z-20 mt-auto max-w-xl">
-                <p class="mb-5 text-sm font-semibold uppercase tracking-[0.18em] text-[#B9CDB5]">One clear OJT journey</p>
+                <p class="mb-5 text-sm font-semibold uppercase tracking-[0.18em] text-forest">One clear OJT journey</p>
                 <h1 class="text-4xl font-semibold leading-tight xl:text-5xl">Placement, attendance, hours, and feedback in one place.</h1>
-                <p class="mt-5 max-w-lg text-base leading-7 text-[#DDE9DF]">DutyTrack keeps students, coordinators, professors, and company supervisors connected throughout practicum.</p>
+                <p class="mt-5 max-w-lg text-base leading-7 text-zinc-600">DutyTrack keeps students, coordinators, professors, and company supervisors connected throughout practicum.</p>
             </div>
         </div>
         <div class="flex min-h-svh items-center px-6 py-10 sm:px-10 lg:px-16">

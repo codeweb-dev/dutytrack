@@ -1,7 +1,7 @@
 <div class="flex flex-col gap-6">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
+    <div class="duty-metrics grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
         <flux:card class="p-4">
             <flux:heading class="flex items-center gap-2">Total Assignments</flux:heading>
             <flux:text class="mt-2">{{ $this->summary['total'] }}</flux:text>
@@ -127,17 +127,19 @@
                         @endphp
 
                         <flux:table.row :key="$assignment->id">
-                            <flux:table.cell class="flex items-center gap-3">
-                                <flux:avatar size="md" :src="$assignment->student?->profile_photo_url"
-                                    :name="$assignment->student?->name" />
+                            <flux:table.cell>
+                                <div class="flex items-center gap-3">
+                                    <flux:avatar size="md" :src="$assignment->student?->profile_photo_url"
+                                        :name="$assignment->student?->name" />
 
-                                <div class="flex flex-col">
-                                    <span class="font-medium">
-                                        {{ $assignment->student?->name ?? trim(($assignment->student?->first_name ?? '') . ' ' . ($assignment->student?->last_name ?? '')) }}
-                                    </span>
-                                    <span class="text-xs text-zinc-500">
-                                        {{ $assignment->student?->email }}
-                                    </span>
+                                    <div class="flex flex-col">
+                                        <span class="font-medium">
+                                            {{ $assignment->student?->name ?? trim(($assignment->student?->first_name ?? '') . ' ' . ($assignment->student?->last_name ?? '')) }}
+                                        </span>
+                                        <span class="text-xs text-zinc-500">
+                                            {{ $assignment->student?->email }}
+                                        </span>
+                                    </div>
                                 </div>
                             </flux:table.cell>
 

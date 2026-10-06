@@ -115,7 +115,6 @@ new #[Title('Coordinator Dashboard')] class extends Component
     {
         $days = collect(range(6, 0, -1))
             ->map(fn (int $offset) => now()->subDays($offset)->startOfDay())
-            ->push(now()->startOfDay())
             ->values();
 
         $counts = $this->managedAttendanceQuery()
@@ -163,13 +162,13 @@ new #[Title('Coordinator Dashboard')] class extends Component
             [
                 'label' => 'Completed',
                 'value' => $this->managedAssignmentsQuery()->where('status', 'completed')->count(),
-                'bar' => 'bg-sky-400',
+                'bar' => 'bg-teal-500',
                 'percentage' => round(($this->managedAssignmentsQuery()->where('status', 'completed')->count() / $total) * 100),
             ],
             [
                 'label' => 'Cancelled',
                 'value' => $this->managedAssignmentsQuery()->where('status', 'cancelled')->count(),
-                'bar' => 'bg-forest',
+                'bar' => 'bg-rose-500',
                 'percentage' => round(($this->managedAssignmentsQuery()->where('status', 'cancelled')->count() / $total) * 100),
             ],
         ];
@@ -216,7 +215,7 @@ new #[Title('Coordinator Dashboard')] class extends Component
 <div class="flex flex-col gap-8">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$this->title" :description="$description" />
 
-    <section class="duty-metrics grid gap-4 xl:grid-cols-4">
+    <section class="duty-metrics grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         @foreach ($this->topCards as $card)
             <flux:card>
                 <div class="flex items-start justify-between gap-4">
@@ -255,12 +254,12 @@ new #[Title('Coordinator Dashboard')] class extends Component
             </div>
 
             <div class="mt-8">
-                <flux:card class="flex h-92 items-end gap-6 rounded-2xl px-6 pb-6 pt-8">
+                <flux:card class="flex h-64 items-end gap-3 rounded-2xl px-4 pb-4 pt-6 sm:gap-6 sm:px-6">
                     @foreach ($this->weeklyAttendance as $item)
                         <div class="flex min-w-0 flex-1 flex-col items-center gap-3">
-                            <div class="flex h-52 w-full flex-col items-center justify-end gap-1">
+                            <div class="flex h-40 w-full flex-col items-center justify-end gap-1">
                                 <span class="text-xs font-semibold text-zinc-700 dark:text-zinc-200">{{ $item['value'] }}</span>
-                                <div class="w-full max-w-16 rounded-full bg-forest/75"
+                                <div class="w-full max-w-16 rounded-full bg-forest"
                                     style="height: {{ $item['height'] }}%" aria-label="{{ $item['label'] }}: {{ $item['value'] }} attendance logs">
                                 </div>
                             </div>

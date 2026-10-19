@@ -1,10 +1,8 @@
 <?php
 
 use App\Models\AttendanceLog;
-use App\Models\DutyHourLog;
 use App\Models\Evaluation;
 use App\Models\OjtAssignment;
-use App\Support\HourFormatter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
@@ -53,24 +51,11 @@ new #[Title('Professor Dashboard')] class extends Component
         });
     }
 
-    protected function professorDutyHoursQuery(): Builder
-    {
-        return DutyHourLog::query()->whereHas('assignment', function (Builder $query) {
-            $query->where('professor_id', $this->professorId());
-        });
-    }
-
-    protected function compactHours(float $value): string
-    {
-        return HourFormatter::format($value);
-    }
 
     #[Computed]
     public function topCards(): array
     {
         $assignments = $this->professorAssignmentsQuery();
-        $attendance = $this->professorAttendanceQuery();
-        $dutyHours = $this->professorDutyHoursQuery();
 
         return [
             [
@@ -84,12 +69,6 @@ new #[Title('Professor Dashboard')] class extends Component
                 'value' => number_format((clone $assignments)->where('status', 'pending')->count()),
                 'icon' => 'clipboard-document-check',
                 'footnote' => number_format((clone $assignments)->where('status', 'completed')->count()).' already completed',
-            ],
-            [
-                'title' => 'Approved Hours',
-                'value' => $this->compactHours((float) (clone $dutyHours)->where('status', 'approved')->sum('approved_hours')),
-                'icon' => 'clock',
-                'footnote' => number_format((clone $dutyHours)->count()).' duty-hour entries tracked',
             ],
         ];
     }
@@ -195,7 +174,7 @@ new #[Title('Professor Dashboard')] class extends Component
 <div class="flex flex-col gap-8">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$this->title" :description="$description" />
 
-    <section class="duty-metrics grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+    <section class="duty-metrics grid gap-4 md:grid-cols-2 xl:grid-cols-2">
         @foreach ($this->topCards as $card)
             <flux:card>
                 <div class="flex items-start justify-between gap-4">

@@ -2,7 +2,6 @@
 
 use App\Enums\Role as AppRole;
 use App\Models\AttendanceLog;
-use App\Models\DutyHourLog;
 use App\Models\OjtAssignment;
 use App\Models\StudentRequirement;
 use App\Models\User;
@@ -210,50 +209,6 @@ test('coordinators can monitor requirements for their own students', function ()
         ->assertSee('Requirement Monitoring')
         ->assertSee($ownedStudent->name)
         ->assertDontSee($otherStudent->name);
-});
-
-test('coordinators can view duty hours for all students', function () {
-    $coordinatorA = createCoordinator(['name' => 'Coordinator Duty A']);
-    $coordinatorB = createCoordinator(['name' => 'Coordinator Duty B']);
-
-    $ownedStudent = createStudentForCoordinator($coordinatorA, ['name' => 'Coordinator Owned Duty Student']);
-    $otherStudent = createStudentForCoordinator($coordinatorB, ['name' => 'Coordinator Other Duty Student']);
-
-    $ownedAssignment = OjtAssignment::query()->create([
-        'student_id' => $ownedStudent->id,
-        'ojt_type' => 'internal',
-        'status' => 'active',
-    ]);
-
-    $otherAssignment = OjtAssignment::query()->create([
-        'student_id' => $otherStudent->id,
-        'ojt_type' => 'external',
-        'status' => 'active',
-    ]);
-
-    DutyHourLog::query()->create([
-        'student_id' => $ownedStudent->id,
-        'ojt_assignment_id' => $ownedAssignment->id,
-        'log_date' => '2026-04-30',
-        'hours_rendered' => 4,
-        'status' => 'pending',
-    ]);
-
-    DutyHourLog::query()->create([
-        'student_id' => $otherStudent->id,
-        'ojt_assignment_id' => $otherAssignment->id,
-        'log_date' => '2026-04-30',
-        'hours_rendered' => 3,
-        'status' => 'approved',
-        'approved_hours' => 3,
-    ]);
-
-    $this->actingAs($coordinatorA)
-        ->get(route('coordinator.duty-hours'))
-        ->assertOk()
-        ->assertSee('Duty Hours Monitoring')
-        ->assertSee($ownedStudent->name)
-        ->assertSee($otherStudent->name);
 });
 
 test('coordinators can monitor attendance for their own students', function () {

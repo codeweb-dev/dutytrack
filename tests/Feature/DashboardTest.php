@@ -80,7 +80,17 @@ test('students can view the student dashboard', function () {
     $this->actingAs($student)
         ->get(route('student.dashboard'))
         ->assertOk()
-        ->assertSee('Weekly Logged Hours')
+        ->assertSee('OJT Student Requirements')
         ->assertSee('Recent Attendance')
-        ->assertSee('height: 0%', false);
+        ->assertDontSee('Weekly Logged Hours')
+        ->assertDontSee('Approved Hours');
+});
+
+test('duty hour storage and routes have been removed', function () {
+    expect(\Illuminate\Support\Facades\Schema::hasTable('duty_hour_logs'))->toBeFalse();
+
+    foreach (['admin', 'coordinator', 'professor', 'supervisor', 'student'] as $role) {
+        expect(\Illuminate\Support\Facades\Route::has($role.'.duty-hours'))->toBeFalse();
+        $this->get('/'.$role.'/duty-hours')->assertNotFound();
+    }
 });

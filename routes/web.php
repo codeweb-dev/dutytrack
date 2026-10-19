@@ -37,7 +37,6 @@ Route::group(['middleware' => ['role:admin']], function () {
 
     // Monitoring & reports
     Route::livewire('/admin/attendance', 'pages::admin.attendance')->name('admin.attendance');
-    Route::livewire('/admin/duty-hours', 'pages::admin.duty-hours')->name('admin.duty-hours');
     Route::livewire('/admin/ojt-assignments', 'pages::admin.ojt-assignments')->name('admin.ojt-assignments');
     Route::livewire('/admin/evaluations', 'pages::admin.evaluations')->name('admin.evaluations');
 
@@ -53,14 +52,12 @@ Route::group(['middleware' => ['role:ojt_coordinator']], function () {
     Route::livewire('/coordinator/ojt-assignments', 'pages::coordinator.ojt-assignments')->name('coordinator.ojt-assignments');
     Route::livewire('/coordinator/requirements', 'pages::coordinator.requirements')->name('coordinator.requirements');
     Route::livewire('/coordinator/attendance', 'pages::coordinator.attendance')->name('coordinator.attendance');
-    Route::livewire('/coordinator/duty-hours', 'pages::coordinator.duty-hours')->name('coordinator.duty-hours');
     Route::livewire('/coordinator/messages', 'pages::messages')->name('coordinator.messages');
 });
 
 Route::group(['middleware' => ['role:professor']], function () {
     Route::livewire('/professor/dashboard', 'pages::professor.dashboard')->name('professor.dashboard');
     Route::livewire('/professor/assigned-students', 'pages::professor.assigned-students')->name('professor.assigned-students');
-    Route::livewire('/professor/duty-hours', 'pages::professor.duty-hours')->name('professor.duty-hours');
     Route::livewire('/professor/evaluations', 'pages::professor.evaluations')->name('professor.evaluations');
     Route::livewire('/professor/reports-submissions', 'pages::professor.reports-submissions')->name('professor.reports-submissions');
     Route::livewire('/professor/tasks', 'pages::professor.tasks')->name('professor.tasks');
@@ -76,7 +73,6 @@ Route::group(['middleware' => ['role:professor']], function () {
 Route::group(['middleware' => ['role:company_supervisor']], function () {
     Route::livewire('/supervisor/dashboard', 'pages::supervisor.dashboard')->name('supervisor.dashboard');
     Route::livewire('/supervisor/assigned-students', 'pages::supervisor.assigned-students')->name('supervisor.assigned-students');
-    Route::livewire('/supervisor/duty-hours', 'pages::supervisor.duty-hours')->name('supervisor.duty-hours');
     Route::livewire('/supervisor/evaluations', 'pages::supervisor.evaluations')->name('supervisor.evaluations');
     Route::livewire('/supervisor/reports-submissions', 'pages::supervisor.reports-submissions')->name('supervisor.reports-submissions');
     Route::livewire('/supervisor/tasks', 'pages::supervisor.tasks')->name('supervisor.tasks');
@@ -92,7 +88,6 @@ Route::group(['middleware' => ['role:company_supervisor']], function () {
 Route::group(['middleware' => ['role:student']], function () {
     Route::livewire('/student/dashboard', 'pages::student.dashboard')->name('student.dashboard');
     Route::livewire('/student/attendance', 'pages::student.attendance')->name('student.attendance');
-    Route::livewire('/student/duty-hours', 'pages::student.duty-hours')->name('student.duty-hours');
     Route::livewire('/student/evaluations', 'pages::student.evaluations')->name('student.evaluations');
     Route::livewire('/student/reports-submissions', 'pages::student.reports-submissions')->name('student.reports-submissions');
     Route::livewire('/student/tasks', 'pages::student.tasks')->name('student.tasks');

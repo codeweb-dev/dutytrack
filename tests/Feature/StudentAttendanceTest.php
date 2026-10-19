@@ -3,7 +3,6 @@
 use App\Enums\Role as AppRole;
 use App\Models\AttendanceLog;
 use App\Models\AttendanceSubmission;
-use App\Models\DutyHourLog;
 use App\Models\OjtAssignment;
 use App\Models\User;
 use Illuminate\Support\Carbon;
@@ -107,12 +106,6 @@ test('students can record morning and afternoon attendance', function () {
     expect($attendance->afternoon_time_out->format('H:i'))->toBe('17:00');
     expect((float) $attendance->hours_rendered)->toBe(9.0);
 
-    $dutyHourLog = DutyHourLog::query()->where('attendance_log_id', $attendance->id)->first();
-
-    expect($dutyHourLog)->not->toBeNull();
-    expect($dutyHourLog->status)->toBe('pending');
-    expect((float) $dutyHourLog->hours_rendered)->toBe(9.0);
-    expect((float) $dutyHourLog->approved_hours)->toBe(0.0);
 });
 
 test('students can bypass attendance time for testing', function () {
@@ -127,7 +120,6 @@ test('students can bypass attendance time for testing', function () {
         ->assertHasNoErrors();
 
     $attendance = AttendanceLog::query()->where('student_id', $student->id)->first();
-    $dutyHourLog = DutyHourLog::query()->where('attendance_log_id', $attendance->id)->first();
 
     expect($attendance)->not->toBeNull();
     expect($attendance->morning_time_in->format('H:i'))->toBe('08:00');
@@ -135,9 +127,6 @@ test('students can bypass attendance time for testing', function () {
     expect($attendance->afternoon_time_in->format('H:i'))->toBe('09:00');
     expect($attendance->afternoon_time_out->format('H:i'))->toBe('09:00');
     expect((float) $attendance->hours_rendered)->toBe(1.0);
-    expect($dutyHourLog)->not->toBeNull();
-    expect($dutyHourLog->status)->toBe('pending');
-    expect((float) $dutyHourLog->hours_rendered)->toBe(1.0);
 });
 
 test('student full day attendance bypass starts at seven am', function () {
@@ -152,7 +141,6 @@ test('student full day attendance bypass starts at seven am', function () {
         ->assertHasNoErrors();
 
     $attendance = AttendanceLog::query()->where('student_id', $student->id)->first();
-    $dutyHourLog = DutyHourLog::query()->where('attendance_log_id', $attendance->id)->first();
 
     expect($attendance)->not->toBeNull();
     expect($attendance->morning_time_in->format('H:i'))->toBe('07:00');
@@ -161,7 +149,6 @@ test('student full day attendance bypass starts at seven am', function () {
     expect($attendance->afternoon_time_out->format('H:i'))->toBe('16:00');
     expect((float) $attendance->hours_rendered)->toBe(8.0);
     expect($attendance->status)->toBe('present');
-    expect((float) $dutyHourLog->hours_rendered)->toBe(8.0);
 });
 
 test('students submit accomplishments after completed attendance and download report docs', function () {
@@ -243,24 +230,6 @@ test('professors can read assigned student report submissions', function () {
         ->assertOk()
         ->assertSee($student->name)
         ->assertSee('Configured workstation and documented tasks.');
-});
-
-test('students can view their own duty hours page', function () {
-    Carbon::setTestNow(Carbon::parse('2026-04-30 09:00:00'));
-
-    $student = createStudentWithAssignment();
-
-    $this->actingAs($student);
-
-    Livewire::test('pages::student.attendance')
-        ->call('bypassAttendance', 60)
-        ->assertHasNoErrors();
-
-    $this->get(route('student.duty-hours'))
-        ->assertOk()
-        ->assertSee('My Duty Hours')
-        ->assertSee('1 hr')
-        ->assertSee('Pending');
 });
 
 test('student attendance renders saved location with laravel maps leaflet', function () {

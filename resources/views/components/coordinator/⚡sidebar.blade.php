@@ -36,10 +36,6 @@ new class extends Component {};
             :current="request()->routeIs('coordinator.attendance')" wire:navigate>
             Attendance
         </flux:sidebar.item>
-        <flux:sidebar.item icon="clock" href="{{ route('coordinator.duty-hours') }}"
-            :current="request()->routeIs('coordinator.duty-hours')" wire:navigate>
-            Duty Hours
-        </flux:sidebar.item>
     </flux:sidebar.group>
 
     {{-- <flux:sidebar.group expandable icon="check-badge" heading="Reviews">

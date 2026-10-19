@@ -4,7 +4,6 @@ use App\Enums\Role as EnumsRole;
 use App\Models\Announcement;
 use App\Models\AttendanceLog;
 use App\Models\AuditLog;
-use App\Models\DutyHourLog;
 use App\Models\Evaluation;
 use App\Models\OjtAssignment;
 use App\Models\User;

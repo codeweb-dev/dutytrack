@@ -482,7 +482,6 @@ body.duty-app, body.duty-auth, body.duty-public { background: var(--duty-canvas)
 @media (max-width: 1023px) {
     .duty-messages > .grid { min-height: 760px; grid-template-rows: minmax(180px, 250px) minmax(450px, 1fr); }
 }
-.duty-hours-metrics > [data-flux-card] > [data-flux-heading] + [data-flux-text] { font-size: 2.1rem; }
 @media (max-width: 640px) {
     [data-flux-button]:not([data-flux-sidebar-item]) { min-height: 44px; }
 }

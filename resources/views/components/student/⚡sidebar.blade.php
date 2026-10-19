@@ -16,10 +16,6 @@ new class extends Component {};
         Attendance
     </flux:sidebar.item>
 
-    <flux:sidebar.item icon="clock" :href="route('student.duty-hours')" :current="request()->routeIs('student.duty-hours')"
-        wire:navigate>
-        Duty Hours
-    </flux:sidebar.item>
 
     <flux:sidebar.item icon="check-badge" :href="route('student.evaluations')" :current="request()->routeIs('student.evaluations')"
         wire:navigate>

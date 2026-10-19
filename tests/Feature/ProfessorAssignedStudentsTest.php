@@ -1,13 +1,10 @@
 <?php
 
 use App\Enums\Role as AppRole;
-use App\Models\AttendanceLog;
-use App\Models\DutyHourLog;
 use App\Models\Evaluation;
 use App\Models\OjtAssignment;
 use App\Models\StudentTask;
 use App\Models\User;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Role as PermissionRole;
 
@@ -91,78 +88,6 @@ test('professors can view only their assigned students', function () {
         ->assertSee('Assigned Students')
         ->assertSee($ownedStudent->name)
         ->assertDontSee($otherStudent->name);
-});
-
-test('professors can approve pending duty hours from duty hours page', function () {
-    $coordinator = createProfessorAssignedStudentCoordinator();
-    $professorA = createProfessorAssignedStudentUser(['name' => 'Professor Duty A']);
-    $professorB = createProfessorAssignedStudentUser(['name' => 'Professor Duty B']);
-
-    $ownedStudent = createProfessorAssignedStudent($coordinator, ['name' => 'Owned Duty Student']);
-    $otherStudent = createProfessorAssignedStudent($coordinator, ['name' => 'Other Duty Student']);
-
-    $ownedAssignment = OjtAssignment::query()->create([
-        'student_id' => $ownedStudent->id,
-        'ojt_type' => 'internal',
-        'professor_id' => $professorA->id,
-        'status' => 'active',
-    ]);
-
-    $otherAssignment = OjtAssignment::query()->create([
-        'student_id' => $otherStudent->id,
-        'ojt_type' => 'internal',
-        'professor_id' => $professorB->id,
-        'status' => 'active',
-    ]);
-
-    $attendance = AttendanceLog::query()->create([
-        'student_id' => $ownedStudent->id,
-        'ojt_assignment_id' => $ownedAssignment->id,
-        'attendance_date' => '2026-04-30',
-        'morning_time_in' => '2026-04-30 08:00:00',
-        'morning_time_out' => '2026-04-30 12:00:00',
-        'hours_rendered' => 4,
-        'status' => 'present',
-    ]);
-
-    $ownedLog = DutyHourLog::query()->create([
-        'student_id' => $ownedStudent->id,
-        'ojt_assignment_id' => $ownedAssignment->id,
-        'attendance_log_id' => $attendance->id,
-        'log_date' => '2026-04-30',
-        'hours_rendered' => 4,
-        'status' => 'pending',
-    ]);
-
-    $otherLog = DutyHourLog::query()->create([
-        'student_id' => $otherStudent->id,
-        'ojt_assignment_id' => $otherAssignment->id,
-        'log_date' => '2026-04-30',
-        'hours_rendered' => 3,
-        'status' => 'pending',
-    ]);
-
-    $this->actingAs($professorA);
-
-    $this->get(route('professor.duty-hours'))
-        ->assertOk()
-        ->assertSee('Duty Hours')
-        ->assertSee('Owned Duty Student')
-        ->assertDontSee('Other Duty Student');
-
-    Livewire::test('pages::professor.duty-hours')
-        ->call('approveDutyHour', $ownedLog->id)
-        ->assertHasNoErrors();
-
-    $ownedLog->refresh();
-
-    expect($ownedLog->status)->toBe('approved');
-    expect((float) $ownedLog->approved_hours)->toBe(4.0);
-    expect($ownedLog->approved_by)->toBe($professorA->id);
-
-    expect(fn () => Livewire::test('pages::professor.duty-hours')
-        ->call('approveDutyHour', $otherLog->id))
-        ->toThrow(ModelNotFoundException::class);
 });
 
 test('professors can assign tasks to their assigned students', function () {

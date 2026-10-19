@@ -67,7 +67,6 @@ new #[Title('Assigned Students')] class extends Component
                 'student.coordinator',
                 'professor',
                 'attendanceLogs',
-                'dutyHourLogs',
             ])
             ->where('company_supervisor_id', Auth::id());
     }

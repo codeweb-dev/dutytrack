@@ -92,11 +92,6 @@ class AttendanceLog extends Model
         return $this->belongsTo(OjtAssignment::class, 'ojt_assignment_id');
     }
 
-    public function dutyHourLog()
-    {
-        return $this->hasOne(DutyHourLog::class, 'attendance_log_id');
-    }
-
     public function submission()
     {
         return $this->hasOne(AttendanceSubmission::class);

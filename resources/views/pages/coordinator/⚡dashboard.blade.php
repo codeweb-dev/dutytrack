@@ -1,11 +1,9 @@
 <?php
 
 use App\Models\AttendanceLog;
-use App\Models\DutyHourLog;
 use App\Models\Evaluation;
 use App\Models\OjtAssignment;
 use App\Models\User;
-use App\Support\HourFormatter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
@@ -61,17 +59,6 @@ new #[Title('Coordinator Dashboard')] class extends Component
         });
     }
 
-    protected function managedDutyHoursQuery(): Builder
-    {
-        return DutyHourLog::query()->whereHas('student', function (Builder $query) {
-            $query->where('coordinator_id', $this->coordinatorId());
-        });
-    }
-
-    protected function compactHours(float $value): string
-    {
-        return HourFormatter::format($value);
-    }
 
     #[Computed]
     public function topCards(): array
@@ -80,7 +67,6 @@ new #[Title('Coordinator Dashboard')] class extends Component
         $assignedStudents = $this->managedAssignmentsQuery()->count();
         $unassignedStudents = max($totalStudents - $assignedStudents, 0);
         $pendingAssignments = $this->managedAssignmentsQuery()->where('status', 'pending')->count();
-        $approvedHours = (float) $this->managedDutyHoursQuery()->where('status', 'approved')->sum('approved_hours');
 
         return [
             [
@@ -100,12 +86,6 @@ new #[Title('Coordinator Dashboard')] class extends Component
                 'value' => number_format($this->managedAssignmentsQuery()->where('status', 'active')->count()),
                 'icon' => 'briefcase',
                 'footnote' => number_format($this->managedAssignmentsQuery()->count()).' total assignment records',
-            ],
-            [
-                'title' => 'Approved Hours',
-                'value' => $this->compactHours($approvedHours),
-                'icon' => 'clock',
-                'footnote' => number_format($this->managedAttendanceQuery()->count()).' attendance logs tracked',
             ],
         ];
     }
@@ -215,7 +195,7 @@ new #[Title('Coordinator Dashboard')] class extends Component
 <div class="flex flex-col gap-8">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$this->title" :description="$description" />
 
-    <section class="duty-metrics grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+    <section class="duty-metrics grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         @foreach ($this->topCards as $card)
             <flux:card>
                 <div class="flex items-start justify-between gap-4">

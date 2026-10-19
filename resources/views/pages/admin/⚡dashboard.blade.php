@@ -2,11 +2,9 @@
 
 use App\Enums\Role as EnumsRole;
 use App\Models\AttendanceLog;
-use App\Models\DutyHourLog;
 use App\Models\Evaluation;
 use App\Models\OjtAssignment;
 use App\Models\User;
-use App\Support\HourFormatter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
@@ -22,7 +20,7 @@ new #[Title('Admin Dashboard')] class extends Component {
 
     public string $title = 'Overview';
 
-    public string $description = 'Track students, assignments, reviews, and approved hours.';
+    public string $description = 'Track students, assignments, and reviews.';
 
     public string $search = '';
 
@@ -74,22 +72,6 @@ new #[Title('Admin Dashboard')] class extends Component {
         return $query->count();
     }
 
-    protected function monthlySum(string $modelClass, string $dateColumn, string $valueColumn, int $monthsAgo = 0, ?\Closure $scope = null): float
-    {
-        [$start, $end] = $this->periodBounds($monthsAgo);
-        $query = $modelClass::query()->whereBetween($dateColumn, [$start, $end]);
-
-        if ($scope) {
-            $scope($query);
-        }
-
-        return (float) $query->sum($valueColumn);
-    }
-
-    protected function compactHours(float $value): string
-    {
-        return HourFormatter::format($value);
-    }
 
     #[Computed]
     public function topCards(): array
@@ -101,9 +83,6 @@ new #[Title('Admin Dashboard')] class extends Component {
         $assignmentPrevious = $this->monthlyCount(OjtAssignment::class, 'created_at', 1);
 
         $reviewCurrent = Evaluation::query()->where('status', 'pending')->count();
-
-        $hoursCurrent = $this->monthlySum(DutyHourLog::class, 'approved_at', 'approved_hours', 0, fn(Builder $query) => $query->where('status', 'approved')->whereNotNull('approved_at'));
-        $hoursPrevious = $this->monthlySum(DutyHourLog::class, 'approved_at', 'approved_hours', 1, fn(Builder $query) => $query->where('status', 'approved')->whereNotNull('approved_at'));
 
         return [
             [
@@ -123,12 +102,6 @@ new #[Title('Admin Dashboard')] class extends Component {
                 'value' => number_format($reviewCurrent),
                 'icon' => 'clipboard-document-check',
                 'footnote' => 'Evaluations awaiting review',
-            ],
-            [
-                'title' => 'Approved Hours',
-                'value' => $this->compactHours((float) DutyHourLog::query()->where('status', 'approved')->sum('approved_hours')),
-                'icon' => 'clock',
-                'footnote' => 'Approved this month: '.$this->compactHours($hoursCurrent).' · last month: '.$this->compactHours($hoursPrevious),
             ],
         ];
     }
@@ -238,7 +211,7 @@ new #[Title('Admin Dashboard')] class extends Component {
 <div class="flex flex-col gap-8">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
-    <section class="duty-metrics grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+    <section class="duty-metrics grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         @foreach ($this->topCards as $card)
             <flux:card>
                 <div class="flex items-start justify-between gap-4">

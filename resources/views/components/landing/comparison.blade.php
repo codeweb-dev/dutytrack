@@ -26,7 +26,7 @@
             <div class="bg-surface dark:bg-zinc-900 rounded-2xl p-8 border border-gray-200 dark:border-zinc-800">
                 <h3 class="text-3xl font-bold text-gray-900 dark:text-white mb-7">Other Tools</h3>
                 <ul class="space-y-4">
-                    @foreach (['Attendance tracked on paper or spreadsheets', 'Duty hours calculated manually', 'Reports take hours to compile', 'Hard to see who is falling behind'] as $item)
+                    @foreach (['Attendance tracked on paper or spreadsheets', 'Tasks tracked manually', 'Reports take hours to compile', 'Hard to see who is falling behind'] as $item)
                         <li class="flex items-center gap-3">
                             <span
                                 class="w-8 h-8 rounded-full border-2 border-gray-300 dark:border-zinc-600 flex items-center justify-center flex-shrink-0">
@@ -50,7 +50,7 @@
                     </div>
                 </div>
                 <ul class="space-y-4">
-                    @foreach (['All your OJT data in one platform', 'Duty hours calculated automatically', 'Reports generated instantly', 'Clear view of every student\'s progress'] as $item)
+                    @foreach (['All your OJT data in one platform', 'Tasks tracked in one place', 'Reports generated instantly', 'Clear view of every student\'s progress'] as $item)
                         <li class="flex items-center gap-3">
                             <span
                                 class="w-8 h-8 rounded-full bg-forest flex items-center justify-center flex-shrink-0">

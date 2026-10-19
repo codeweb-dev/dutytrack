@@ -18,7 +18,7 @@ Do not copy the reference brands, exact layouts, fake metrics, or unrelated feat
 ## Existing product and technical context
 
 - DutyTrack is a Laravel 12, Livewire 4, Blade, Flux UI, Tailwind CSS 4, and Vite application.
-- Its core purpose is to track OJT placement, student requirements, attendance, duty hours, tasks, reports, evaluations, and communication.
+- Its core purpose is to track OJT placement, student requirements, attendance, tasks, reports, evaluations, and communication.
 - The five roles are **Admin, OJT Coordinator, Professor, Company Supervisor, and Student**. Each has different routes and permissions; preserve those boundaries.
 - Existing route definitions are in `routes/web.php` and `routes/settings.php`. Shared shell and role menus live in `resources/views/layouts/app/sidebar.blade.php` and `resources/views/components/{role}/⚡sidebar.blade.php`. Page views live in `resources/views/pages/`. Global styling starts in `resources/css/app.css`.
 - Existing data, calculations, forms, Livewire actions, validation, pagination, uploads, authorization, and document downloads must keep working. This task concerns presentation and interaction quality. Introduce new backend behavior only when needed to make an existing flow usable.
@@ -68,7 +68,6 @@ Use **flat, low sheen colors**: no neon, glossy gradients, glass panels, or heav
 
 - **Dashboard:** lead with required, approved, and remaining OJT hours; placement status; weekly logged hours; requirements progress; and recent attendance. Make the next useful action obvious.
 - **Attendance:** emphasize the current day and the four time events (morning in/out, afternoon in/out). Make location capture and map feedback understandable, including permission or accuracy errors. Keep history and statuses easy to scan.
-- **Duty hours:** show rendered versus approved hours, pending and rejected logs, useful filters, and a clear path from a log to its status.
 - **Requirements and placement:** the student dashboard already shows requirement steps and placement details. Make submitted, awaiting verification, completed, and missing states distinguishable without altering their meaning.
 - **Reports and submissions:** clarify daily accomplishment entry, photo upload and preview, previous submissions, and document download.
 - **Evaluations:** show available results, status, and download actions plainly.
@@ -82,13 +81,13 @@ Use **flat, low sheen colors**: no neon, glossy gradients, glass panels, or heav
 - **Student management:** make search, filters, student details, forms, and actions clear and efficient.
 - **OJT assignments:** distinguish internal and external placement, current status, assigned professor and supervisor, and create or edit actions.
 - **Requirements:** show each student’s submitted, pending, and completed requirements with an obvious review path.
-- **Attendance and duty hours:** present the records, filters, status, and review context in a consistent monitoring pattern.
+- **Attendance:** present the records, filters, status, and review context in a consistent monitoring pattern.
 - **Messages:** use the shared conversation design.
 
 ### Professor and Company Supervisor workspaces
 
 - Give each role its own dashboard content while sharing the same visual language and reusable components.
-- Redesign assigned student lists and detail panels, duty hour review, task assignment and tracking, report submissions, evaluations, and messages.
+- Redesign assigned student lists and detail panels, task assignment and tracking, report submissions, evaluations, and messages.
 - Put student identity, placement, dates, status, and the next review action close together. Distinguish pending from completed work clearly.
 - Preserve role specific permissions and language; do not imply that a professor can perform a supervisor only action, or vice versa.
 
@@ -96,7 +95,7 @@ Use **flat, low sheen colors**: no neon, glossy gradients, glass panels, or heav
 
 - **Dashboard:** present systemwide student, assignment, review, and approved hour metrics with labeled trends and honest time comparisons.
 - **User management:** modernize student, coordinator, professor, and supervisor directories, search and filters, forms, and row actions.
-- **Monitoring:** redesign attendance, duty hours, OJT assignments, and evaluations with dense but readable tables, useful summary panels, clear filters, and review states.
+- **Monitoring:** redesign attendance, OJT assignments, and evaluations with dense but readable tables, useful summary panels, clear filters, and review states.
 - **System management:** make announcement creation and management straightforward; make audit logs easy to scan by actor, action, and time.
 - An admin partners view exists in the repository but has no route in `routes/web.php`; inspect it before deciding whether it belongs in the implemented redesign. Do not expose an unimplemented navigation item.
 
@@ -106,7 +105,7 @@ Use **flat, low sheen colors**: no neon, glossy gradients, glass panels, or heav
 - Keep all forms fully labeled, with visible required states, inline validation, disabled or busy states, and confirmation for destructive actions. Do not hide important actions in hover only controls.
 - Meet WCAG AA contrast for text and controls; maintain visible keyboard focus, logical tab order, semantic headings, accessible dialogs, and touch targets around 44 px where practical.
 - Design empty, loading, error, and success states for every key data surface. Use real data and existing Livewire methods. Never populate the live app with placeholder metrics or dummy records.
-- Make status language and colors consistent across attendance, requirements, duty hours, assignments, tasks, submissions, and evaluations. Respect the actual statuses defined in the models and page logic.
+- Make status language and colors consistent across attendance, requirements, assignments, tasks, submissions, and evaluations. Respect the actual statuses defined in the models and page logic.
 - Keep timezone aware dates and time labels clear for users in the Philippines; avoid ambiguous date formats in important review flows.
 
 ## Implementation instructions

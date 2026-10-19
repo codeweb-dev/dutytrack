@@ -76,7 +76,6 @@
                     <flux:table.column>Student ID</flux:table.column>
                     <flux:table.column>Academic Details</flux:table.column>
                     <flux:table.column>Coordinator</flux:table.column>
-                    <flux:table.column>Hours</flux:table.column>
                     <flux:table.column>Attendance</flux:table.column>
                     <flux:table.column>Status</flux:table.column>
                 </flux:table.columns>
@@ -84,7 +83,6 @@
                 <flux:table.rows>
                     @foreach ($this->assignments as $assignment)
                         @php
-                            $approvedHours = $assignment->dutyHourLogs->where('status', 'approved')->sum('approved_hours');
                             $latestAttendance = $assignment->attendanceLogs->sortByDesc('attendance_date')->first();
                         @endphp
 
@@ -111,10 +109,6 @@
 
                             <flux:table.cell>
                                 {{ $assignment->student?->coordinator?->name ?? '' }}
-                            </flux:table.cell>
-
-                            <flux:table.cell>
-                                {{ \App\Support\HourFormatter::format($approvedHours) }} approved
                             </flux:table.cell>
 
                             <flux:table.cell>

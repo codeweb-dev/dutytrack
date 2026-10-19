@@ -1,7 +1,7 @@
 <div class="flex flex-col gap-6">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
-    <section class="duty-metrics duty-attendance-metrics grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+    <section class="duty-metrics duty-attendance-metrics grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <flux:card class="p-4">
             <flux:heading>Total Records</flux:heading>
             <div class="mt-2 text-3xl font-semibold text-zinc-950 dark:text-white">{{ $this->summary['total'] }}</div>
@@ -25,15 +25,6 @@
             </div>
         </flux:card>
 
-        <flux:card class="p-4">
-            <flux:heading>Approved Hours</flux:heading>
-            <div class="mt-2 text-3xl font-semibold text-zinc-950 dark:text-white">
-                {{ \App\Support\HourFormatter::format($this->summary['approved_hours']) }}
-            </div>
-            <flux:text class="mt-2 text-xs">
-                {{ \App\Support\HourFormatter::format($this->summary['pending_hours']) }} pending
-            </flux:text>
-        </flux:card>
     </section>
 
     <section class="flex flex-col gap-6">
@@ -320,7 +311,6 @@
                         <flux:table.column>Afternoon In</flux:table.column>
                         <flux:table.column>Afternoon Out</flux:table.column>
                         <flux:table.column>Hours</flux:table.column>
-                        <flux:table.column>Duty Hours</flux:table.column>
                         <flux:table.column>Location</flux:table.column>
                         <flux:table.column>Status</flux:table.column>
                     </flux:table.columns>
@@ -338,23 +328,6 @@
                                     {{ \App\Support\HourFormatter::format($log->hours_rendered) }}
                                     @if ($log->overtime_enabled)
                                         <flux:badge size="sm" color="blue" inset="top bottom">OT</flux:badge>
-                                    @endif
-                                </flux:table.cell>
-                                <flux:table.cell>
-                                    @if ($log->dutyHourLog)
-                                        <div class="flex flex-col">
-                                            <span>{{ \App\Support\HourFormatter::format($log->dutyHourLog->approved_hours) }}
-                                                approved</span>
-                                            <div class="mt-1">
-                                                <flux:badge size="sm"
-                                                    :color="$this->dutyBadgeColor($log->dutyHourLog->status)"
-                                                    inset="top bottom">
-                                                    {{ ucfirst($log->dutyHourLog->status) }}
-                                                </flux:badge>
-                                            </div>
-                                        </div>
-                                    @else
-                                        <span class="text-zinc-400"></span>
                                     @endif
                                 </flux:table.cell>
                                 <flux:table.cell>

@@ -2,7 +2,7 @@
     <div class="grid gap-6 rounded-[24px] border border-zinc-200 bg-surface p-5 dark:border-zinc-700 dark:bg-zinc-900 lg:grid-cols-[220px_minmax(0,1fr)] lg:p-7">
         <div class="rounded-2xl bg-zinc-900 p-5 text-white">
             <div class="text-lg font-semibold">DutyTrack</div>
-            <div class="mt-9 space-y-2 text-sm"><div class="rounded-lg bg-sage px-3 py-2 font-semibold text-zinc-900">Overview</div><div class="px-3 py-2 text-zinc-200">Attendance</div><div class="px-3 py-2 text-zinc-200">Duty hours</div><div class="px-3 py-2 text-zinc-200">Requirements</div><div class="px-3 py-2 text-zinc-200">Evaluations</div></div>
+            <div class="mt-9 space-y-2 text-sm"><div class="rounded-lg bg-sage px-3 py-2 font-semibold text-zinc-900">Overview</div><div class="px-3 py-2 text-zinc-200">Attendance</div><div class="px-3 py-2 text-zinc-200">Requirements</div><div class="px-3 py-2 text-zinc-200">Evaluations</div></div>
         </div>
         <div class="min-w-0">
             <p class="text-xs font-semibold uppercase tracking-[0.16em] text-forest dark:text-sage">A clear view for every role</p>

@@ -46,10 +46,6 @@ new class extends Component
             Attendance
         </flux:sidebar.item>
 
-        <flux:sidebar.item icon="clock" href="{{ route('admin.duty-hours') }}" :current="request()->routeIs('admin.duty-hours')" wire:navigate>
-            Duty Hours
-        </flux:sidebar.item>
-
         <flux:sidebar.item icon="briefcase" href="{{ route('admin.ojt-assignments') }}" :current="request()->routeIs('admin.ojt-assignments')" wire:navigate>
             OJT Assignments
         </flux:sidebar.item>

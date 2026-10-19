@@ -58,6 +58,21 @@ test('users with two factor enabled are redirected to two factor challenge', fun
     $this->assertGuest();
 });
 
+test('two factor is disabled and previously enrolled users can log in with their password', function () {
+    expect(Features::canManageTwoFactorAuthentication())->toBeFalse();
+
+    $user = User::factory()->withTwoFactor()->create();
+
+    $this->post(route('login.store'), [
+        'email' => $user->email,
+        'password' => 'password',
+    ])->assertSessionHasNoErrors()->assertRedirect(route('dashboard', absolute: false));
+
+    $this->assertAuthenticatedAs($user);
+    $this->get(route('two-factor.show'))->assertForbidden();
+    $this->get(route('profile.edit'))->assertOk()->assertDontSee('Two-factor auth');
+});
+
 test('users can logout', function () {
     $user = User::factory()->create();
 

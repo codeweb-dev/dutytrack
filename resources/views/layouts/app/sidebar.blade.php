@@ -46,7 +46,6 @@
             </div>
         @endif
 
-        <x-desktop-user-menu class="hidden lg:block" :name="auth()->user()->name" />
     </flux:sidebar>
 
     <flux:header class="duty-topbar block!">

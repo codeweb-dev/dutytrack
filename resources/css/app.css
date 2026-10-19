@@ -392,8 +392,10 @@ html { background: var(--duty-canvas); }
 body.duty-app, body.duty-auth, body.duty-public { background: var(--duty-canvas); color: var(--duty-ink); font-size: 18px; line-height: 1.55; }
 [data-flux-main].duty-main { width: 100%; max-width: 1600px; min-width: 0; margin-inline: auto; padding: clamp(24px, 3vw, 48px); }
 .duty-sidebar { background: #176b45 !important; border-color: #125b39 !important; color: #fff; }
-.duty-sidebar [data-flux-sidebar-brand] { min-height: 52px; margin-bottom: 8px; }
-.duty-sidebar [data-flux-sidebar-brand] > div:last-child { font-size: 21px; font-weight: 700; color: #fff; }
+.duty-sidebar [data-flux-sidebar-header] { flex-shrink: 0; }
+.duty-sidebar [data-flux-sidebar-brand] { width: 100%; min-height: 52px; height: auto; margin-bottom: 0; padding-top: 8px !important; padding-bottom: 0 !important; flex-direction: column; align-items: center; gap: 8px; }
+.duty-sidebar [data-flux-sidebar-brand] > div:first-child { width: 112px; height: 112px; min-width: 112px; overflow: visible; }
+.duty-sidebar [data-flux-sidebar-brand] > div:last-child { width: 100%; padding-bottom: 8px; text-align: center; font-size: 21px; font-weight: 700; color: #fff; }
 .duty-sidebar [data-flux-sidebar-item], .duty-sidebar [data-flux-sidebar-group] > button { color: #fff !important; min-height: 50px; border-radius: 10px; }
 .duty-sidebar [data-flux-sidebar-item] [data-content], .duty-sidebar [data-flux-sidebar-group] > button span { font-size: 18px; }
 .duty-sidebar [data-flux-sidebar-item]:hover, .duty-sidebar [data-flux-sidebar-group] > button:hover { background: #2d8153 !important; color: #fff !important; }

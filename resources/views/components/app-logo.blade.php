@@ -5,7 +5,7 @@
 @if($sidebar)
     <flux:sidebar.brand name="Duty Track" {{ $attributes }}>
         <x-slot name="logo" class="flex aspect-square size-24 items-center justify-center rounded-md">
-            <x-app-logo-icon class="size-24 fill-current text-white" />
+            <x-app-logo-icon class="size-24 rounded-2xl border-2 border-white/60 bg-white object-contain" />
         </x-slot>
     </flux:sidebar.brand>
 @else

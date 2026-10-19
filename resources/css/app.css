@@ -884,3 +884,34 @@ textarea {
         min-height: 44px;
     }
 }
+
+/* Keep installed windows clear of display cutouts, including landscape. */
+body:is(.duty-app, .duty-auth, .duty-public) {
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.duty-topbar { padding-top: max(12px, env(safe-area-inset-top, 0px)); }
+body.duty-auth, body.duty-public { padding-top: env(safe-area-inset-top, 0px); }
+#pwa-notices {
+    position: fixed;
+    z-index: 40;
+    bottom: max(16px, env(safe-area-inset-bottom, 0px));
+    right: max(16px, env(safe-area-inset-right, 0px));
+    width: min(380px, calc(100vw - 32px));
+    display: grid;
+    gap: 8px;
+}
+.pwa-notice { padding: 16px; border: 1px solid #bdd6c4; border-radius: 16px; background: #fff; color: #183022; box-shadow: 0 4px 20px #18302220; font: 16px/1.5 var(--font-sans); }
+.pwa-notice button { min-height: 44px; padding: 8px 12px; margin-top: 8px; border-radius: 8px; background: #20734a; color: #fff; cursor: pointer; }
+.pwa-notice button + button { margin-left: 8px; background: #edf6ef; color: #183022; }
+.pwa-notice button:focus-visible { outline: 3px solid #183022; outline-offset: 3px; }
+@media (max-width: 640px) {
+    .duty-topbar > div { gap: 4px; }
+    .duty-topbar > div > div { gap: 4px; }
+    [data-flux-input], [data-flux-textarea], [data-flux-select] { font-size: max(16px, 1em); }
+}
+@media (max-width: 640px) {
+    [data-flux-modal] > dialog { min-width: 0; max-width: calc(100vw - 24px); }
+    .duty-topbar [data-flux-button] { min-width: 44px; }
+}

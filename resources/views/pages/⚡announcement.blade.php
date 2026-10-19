@@ -120,7 +120,7 @@ new #[Title('Announcements')] #[Layout('layouts::announcement')] class extends C
         </div>
 
         <div class="mx-auto flex max-w-3xl flex-col items-center text-center">
-            <div class="text-sm font-medium tracking-[0.28em] text-red-500 uppercase">
+            <div class="text-sm font-medium tracking-[0.28em] text-green-500 uppercase">
                 The Changelog
             </div>
 
@@ -141,7 +141,8 @@ new #[Title('Announcements')] #[Layout('layouts::announcement')] class extends C
             <div class="flex justify-end gap-4 flex-col md:flex-row md:items-center">
                 <div>
                     <flux:input wire:model.live.debounce.300ms="search" icon="magnifying-glass"
-                        aria-label="Search announcements..." placeholder="Search announcements..." clearable class="flex-1" />
+                        aria-label="Search announcements..." placeholder="Search announcements..." clearable
+                        class="flex-1" />
                 </div>
 
                 <flux:select wire:model.live="type" aria-label="Filter announcements by type" class="md:w-32">

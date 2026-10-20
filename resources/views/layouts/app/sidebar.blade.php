@@ -27,23 +27,6 @@
 
         <flux:spacer />
 
-        @if ($user->hasRole('student'))
-            <div class="in-data-flux-sidebar-collapsed-desktop:hidden">
-                <flux:callout icon="fire" color="amber">
-                    <flux:callout.heading>Your pet is waiting 🐶</flux:callout.heading>
-
-                    <flux:callout.text>
-                        Build your streak by completing daily OJT activities.
-                        The longer your streak, the happier and stronger your pet becomes!
-
-                        Don’t miss a day — keep your pet growing.
-
-                        <flux:callout.link :href="route('student.pet-streak')">Begin your streak</flux:callout.link>
-                    </flux:callout.text>
-                </flux:callout>
-            </div>
-        @endif
-
     </flux:sidebar>
 
     <flux:header class="duty-topbar block!">

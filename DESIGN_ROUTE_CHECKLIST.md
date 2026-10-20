@@ -7,7 +7,7 @@
 - [x] Coordinator: dashboard, student management, assignments, requirements, attendance, messages.
 - [x] Professor: dashboard, assigned students, evaluations, report submissions, tasks, messages.
 - [x] Supervisor: dashboard, assigned students, evaluations, report submissions, tasks, messages.
-- [x] Student: dashboard, attendance, evaluations, report submissions, tasks, notes, messages, pomodoro, pet streak.
+- [x] Student: dashboard, attendance, evaluations, report submissions, tasks, notes, messages, pomodoro.
 - [x] `/admin/partners` inspected: the view is not routed, so it is not exposed in navigation.
 
 Shared Flux controls, tables, cards, forms, dialogs, colors, focus states, and responsive spacing are styled centrally. Route permissions and Livewire actions remain in place.

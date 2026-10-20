@@ -80,7 +80,6 @@ Route::group(['middleware' => ['role:student']], function () {
     Route::livewire('/student/notes', 'pages::student.notes')->name('student.notes');
     Route::livewire('/student/messages', 'pages::messages')->name('student.messages');
     Route::livewire('/student/pomodoro', 'pages::student.pomodoro')->name('student.pomodoro');
-    Route::livewire('/student/pet', 'pages::student.pet-streak')->name('student.pet-streak');
 
     Route::get('/student/evaluations/{evaluation}/download', function (Evaluation $evaluation) {
         abort_unless($evaluation->student_id === Auth::id(), 403);

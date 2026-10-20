@@ -73,7 +73,7 @@ Use **flat, low sheen colors**: no neon, glossy gradients, glass panels, or heav
 - **Evaluations:** show available results, status, and download actions plainly.
 - **Tasks:** modernize the existing kanban board with matte colored columns or cards, priority and due date chips, assignee details, clear drag handle, and responsive horizontal scrolling. Preserve existing sorting and status behavior.
 - **Notes:** make the existing searchable list and editor feel like an inviting personal workspace. Use color for selected or pinned notes without inventing folders unless implemented and requested.
-- **Pomodoro and pet streak:** keep these student productivity screens playful but visually part of DutyTrack. Make timer controls, progress, streak, and rewards accessible and readable.
+- **Pomodoro:** keep the student productivity screen playful but visually part of DutyTrack. Make timer controls and progress accessible and readable.
 
 ### OJT Coordinator workspace
 

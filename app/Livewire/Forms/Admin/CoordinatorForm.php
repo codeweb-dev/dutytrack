@@ -102,11 +102,6 @@ class CoordinatorForm extends Form
         ];
     }
 
-    public function fillRandom(): void
-    {
-        $this->fillFromDirectoryRecord(StaffDirectory::randomCoordinator());
-    }
-
     public function fillFromStaffDirectory(): bool
     {
         $coordinator = StaffDirectory::findCoordinator($this->employee_id);

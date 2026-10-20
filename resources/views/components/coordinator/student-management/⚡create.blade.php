@@ -178,12 +178,14 @@ new class extends Component {
                             placeholder="2316-02373C"
                             description:trailing="Student ID can be found on the student's ID card." />
 
-                        <div class="grid grid-cols-3 gap-x-4 gap-y-6">
+                        <div class="grid grid-cols-2 gap-x-4 gap-y-6">
                             <flux:input wire:model="form.first_name" label="First name" placeholder="John" />
                             <flux:input wire:model="form.middle_name" label="Middle name" badge="Optional"
                                 placeholder="Doe" />
-                            <flux:input wire:model.live.debounce.300ms="form.last_name" label="Last name"
-                                placeholder="Smith" />
+                            <div class="col-span-2">
+                                <flux:input wire:model.live.debounce.300ms="form.last_name" label="Last name"
+                                    placeholder="Smith" />
+                            </div>
                         </div>
 
                         <div class="grid grid-cols-2 gap-x-4 gap-y-6">

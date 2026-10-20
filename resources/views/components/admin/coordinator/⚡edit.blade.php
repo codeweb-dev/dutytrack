@@ -40,10 +40,12 @@ new class extends Component {
             <flux:input wire:model="form.employee_id" label="Employee ID" placeholder="EMP-0001"
                 description:trailing="Employee ID can be found on the employee's ID card." />
 
-            <div class="grid grid-cols-3 gap-x-4 gap-y-6">
+            <div class="grid grid-cols-2 gap-x-4 gap-y-6">
                 <flux:input wire:model="form.first_name" label="First Name" placeholder="John" />
                 <flux:input wire:model="form.middle_name" label="Middle Name" badge="Optional" placeholder="Doe" />
-                <flux:input wire:model="form.last_name" label="Last Name" placeholder="Smith" />
+                <div class="col-span-2">
+                    <flux:input wire:model="form.last_name" label="Last Name" placeholder="Smith" />
+                </div>
             </div>
 
             <div class="grid grid-cols-2 gap-x-4 gap-y-6">

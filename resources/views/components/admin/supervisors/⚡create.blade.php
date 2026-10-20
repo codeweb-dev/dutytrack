@@ -15,11 +15,6 @@ new class extends Component {
         $this->dispatch('supervisor-saved');
     }
 
-    public function fillRandom(): void
-    {
-        $this->form->fillRandom();
-    }
-
     public function updatedFormSupervisorId(): void
     {
         $this->form->fillFromStaffDirectory();
@@ -45,9 +40,6 @@ new class extends Component {
                     <flux:subheading>Fill in the details to add a new supervisor.</flux:subheading>
                 </div>
 
-                <flux:button type="button" wire:click="fillRandom" icon="sparkles" variant="ghost">
-                    Random
-                </flux:button>
             </div>
 
             <flux:fieldset>
@@ -61,12 +53,14 @@ new class extends Component {
                     <flux:input wire:model.live.debounce.300ms="form.supervisor_id" label="Supervisor ID" placeholder="SUP-3001"
                         description:trailing="Supervisor ID can be found on the supervisor record." />
 
-                    <div class="grid grid-cols-3 gap-x-4 gap-y-6">
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-6">
                         <flux:input wire:model="form.first_name" label="First Name" placeholder="John" />
                         <flux:input wire:model="form.middle_name" label="Middle Name" badge="Optional"
                             placeholder="Doe" />
-                        <flux:input wire:model.live.debounce.300ms="form.last_name" label="Last Name"
-                            placeholder="Smith" />
+                        <div class="col-span-2">
+                            <flux:input wire:model.live.debounce.300ms="form.last_name" label="Last Name"
+                                placeholder="Smith" />
+                        </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-x-4 gap-y-6">

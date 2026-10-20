@@ -92,11 +92,6 @@ class SupervisorForm extends Form
         ];
     }
 
-    public function fillRandom(): void
-    {
-        $this->fillFromDirectoryRecord(StaffDirectory::randomSupervisor());
-    }
-
     public function fillFromStaffDirectory(): bool
     {
         $supervisor = StaffDirectory::findSupervisor($this->supervisor_id);

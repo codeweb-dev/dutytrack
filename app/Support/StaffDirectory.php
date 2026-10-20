@@ -28,21 +28,6 @@ class StaffDirectory
         return self::findById(self::SUPERVISORS, 'supervisor_id', $supervisorId, 'supervisor');
     }
 
-    public static function randomCoordinator(): array
-    {
-        return self::withAccount(self::pick(self::COORDINATORS), 'coordinator');
-    }
-
-    public static function randomSupervisor(): array
-    {
-        return self::withAccount(self::pick(self::SUPERVISORS), 'supervisor');
-    }
-
-    private static function pick(array $records): array
-    {
-        return $records[array_rand($records)];
-    }
-
     private static function findById(array $records, string $idKey, string $id, string $role): ?array
     {
         $id = strtoupper(trim($id));

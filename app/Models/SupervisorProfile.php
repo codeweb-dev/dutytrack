@@ -11,6 +11,7 @@ class SupervisorProfile extends Model
         'supervisor_id',
         'company_name',
         'company_address',
+        'position_department',
     ];
 
     public function user()

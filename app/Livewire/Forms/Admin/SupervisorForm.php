@@ -45,6 +45,8 @@ class SupervisorForm extends Form
 
     public ?string $company_address = '';
 
+    public ?string $position_department = '';
+
     public function rules(): array
     {
         $userId = $this->supervisor?->id;
@@ -72,6 +74,7 @@ class SupervisorForm extends Form
             'password' => [$this->supervisor ? 'nullable' : 'required', 'string', 'min:2', 'confirmed'],
             'company_name' => ['required', 'string', 'max:255'],
             'company_address' => ['nullable', 'string', 'max:1000'],
+            'position_department' => ['nullable', 'string', 'max:255'],
         ];
     }
 
@@ -85,6 +88,7 @@ class SupervisorForm extends Form
             'contact_number' => 'contact number',
             'company_name' => 'company name',
             'company_address' => 'company address',
+            'position_department' => 'position and department',
         ];
     }
 
@@ -155,6 +159,7 @@ class SupervisorForm extends Form
             'supervisor_id' => $user?->supervisorProfile?->supervisor_id,
             'company_name' => $user?->supervisorProfile?->company_name,
             'company_address' => $user?->supervisorProfile?->company_address,
+            'position_department' => $user?->supervisorProfile?->position_department,
         ];
     }
 
@@ -176,6 +181,7 @@ class SupervisorForm extends Form
         $this->contact_number = $supervisor->contact_number ?? '';
         $this->company_name = $supervisor->supervisorProfile?->company_name ?? '';
         $this->company_address = $supervisor->supervisorProfile?->company_address ?? '';
+        $this->position_department = $supervisor->supervisorProfile?->position_department ?? '';
 
         $this->password = '';
         $this->password_confirmation = '';
@@ -213,6 +219,7 @@ class SupervisorForm extends Form
                 'supervisor_id' => $this->supervisor_id,
                 'company_name' => $this->company_name,
                 'company_address' => $this->company_address ?: null,
+                'position_department' => $this->position_department ?: null,
             ]);
 
             $user = $user->fresh('supervisorProfile');
@@ -290,6 +297,7 @@ class SupervisorForm extends Form
                 'supervisor_id' => $this->supervisor_id,
                 'company_name' => $this->company_name,
                 'company_address' => $this->company_address ?: null,
+                'position_department' => $this->position_department ?: null,
             ]);
 
             $user = $user->fresh('supervisorProfile');
@@ -337,6 +345,7 @@ class SupervisorForm extends Form
         $this->password_confirmation = '';
         $this->company_name = '';
         $this->company_address = '';
+        $this->position_department = '';
 
         $this->resetValidation();
     }

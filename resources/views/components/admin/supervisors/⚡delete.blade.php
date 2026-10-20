@@ -79,6 +79,13 @@ new class extends Component {
         </div>
 
         <div class="rounded-2xl bg-zinc-50 p-4 dark:bg-zinc-800/50">
+            <div class="text-xs uppercase tracking-wide text-zinc-400">Position and Department</div>
+            <div class="mt-2 text-sm font-semibold text-zinc-900 dark:text-white">
+                {{ $supervisor->supervisorProfile?->position_department ?? '' }}
+            </div>
+        </div>
+
+        <div class="rounded-2xl bg-zinc-50 p-4 dark:bg-zinc-800/50">
             <div class="text-xs uppercase tracking-wide text-zinc-400">Contact Number</div>
             <div class="mt-2 text-sm font-semibold text-zinc-900 dark:text-white">
                 {{ $supervisor->contact_number ? '+63 ' . $supervisor->contact_number : 'N/A' }}

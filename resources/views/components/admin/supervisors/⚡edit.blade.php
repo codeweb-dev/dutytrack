@@ -72,6 +72,9 @@ new class extends Component {
 
             <flux:input wire:model="form.company_name" label="Company / Institution" placeholder="ABC Corporation" />
 
+            <flux:input wire:model="form.position_department" label="Position and Department"
+                placeholder="e.g. HR Manager, Human Resources" />
+
             <flux:textarea wire:model="form.company_address" label="Company Address" placeholder="Enter company address"
                 rows="4" />
         </div>

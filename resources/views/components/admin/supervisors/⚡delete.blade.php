@@ -72,7 +72,7 @@ new class extends Component {
 
     <div class="grid gap-4 md:grid-cols-2">
         <div class="rounded-2xl bg-zinc-50 p-4 dark:bg-zinc-800/50">
-            <div class="text-xs uppercase tracking-wide text-zinc-400">Company Name</div>
+            <div class="text-xs uppercase tracking-wide text-zinc-400">Company / Institution</div>
             <div class="mt-2 text-sm font-semibold text-zinc-900 dark:text-white">
                 {{ $supervisor->supervisorProfile?->company_name ?? '' }}
             </div>

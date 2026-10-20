@@ -40,7 +40,7 @@
 
                     <flux:table.column sortable :sorted="$sortBy === 'company_name'" :direction="$sortDirection"
                         wire:click="sort('company_name')">
-                        Company
+                        Company / Institution
                     </flux:table.column>
 
                     <flux:table.column>Contact</flux:table.column>

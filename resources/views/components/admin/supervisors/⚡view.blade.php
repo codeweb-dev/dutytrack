@@ -77,13 +77,13 @@ new class extends Component {
         <div class="rounded-3xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
             <div class="mb-4">
                 <h4 class="text-sm font-semibold uppercase tracking-wide text-zinc-500">
-                    Company Information
+                    Company / Institution Information
                 </h4>
             </div>
 
             <div class="space-y-4">
                 <div class="flex items-start justify-between gap-4 border-b border-zinc-100 pb-3 dark:border-zinc-800">
-                    <span class="text-sm text-zinc-500">Company Name</span>
+                    <span class="text-sm text-zinc-500">Company / Institution</span>
                     <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
                         {{ $supervisor->supervisorProfile?->company_name ?? '' }}
                     </span>
@@ -115,7 +115,7 @@ new class extends Component {
             </div>
 
             <div class="rounded-2xl bg-zinc-50 p-4 dark:bg-zinc-800/50">
-                <div class="text-xs uppercase tracking-wide text-zinc-400">Company</div>
+                <div class="text-xs uppercase tracking-wide text-zinc-400">Company / Institution</div>
                 <div class="mt-2 text-base font-semibold text-zinc-900 dark:text-white">
                     {{ $supervisor->supervisorProfile?->company_name ?? '' }}
                 </div>

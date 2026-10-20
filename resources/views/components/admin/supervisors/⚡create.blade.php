@@ -92,7 +92,7 @@ new class extends Component {
                             placeholder="Confirm password" viewable />
                     </div>
 
-                    <flux:input wire:model="form.company_name" label="Company Name" placeholder="ABC Corporation" />
+                    <flux:input wire:model="form.company_name" label="Company / Institution" placeholder="ABC Corporation" />
 
                     <flux:textarea wire:model="form.company_address" label="Company Address"
                         placeholder="Enter company address" rows="4" />

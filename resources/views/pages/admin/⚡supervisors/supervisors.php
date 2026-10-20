@@ -53,6 +53,8 @@ new #[Title('Supervisors')] class extends Component {
     {
         $query = User::query()
             ->with('supervisorProfile')
+            ->withCount('companySupervisorAssignments')
+            ->with('companySupervisorAssignments.student.studentProfile')
             ->whereHas('roles', function (Builder $query) {
                 $query->where('name', EnumsRole::SUPERVISOR->value);
             })

@@ -45,6 +45,8 @@
 
                     <flux:table.column>Contact</flux:table.column>
 
+                    <flux:table.column>Assigned Students</flux:table.column>
+
                     <flux:table.column>Actions</flux:table.column>
                 </flux:table.columns>
 
@@ -78,6 +80,39 @@
 
                             <flux:table.cell>
                                 {{ $supervisor->contact_number ? '+63 ' . $supervisor->contact_number : 'No contact number' }}
+                            </flux:table.cell>
+
+                            <flux:table.cell>
+                                <flux:modal.trigger :name="'assigned-students-'.$supervisor->id">
+                                    <flux:button variant="ghost" size="sm" class="font-medium">
+                                        {{ $supervisor->company_supervisor_assignments_count }}
+                                    </flux:button>
+                                </flux:modal.trigger>
+
+                                <flux:modal :name="'assigned-students-'.$supervisor->id" class="md:w-xl">
+                                    <div class="space-y-4">
+                                        <flux:heading size="lg">Assigned Students</flux:heading>
+
+                                        @if ($supervisor->companySupervisorAssignments->isEmpty())
+                                            <flux:text>No students are assigned to this supervisor.</flux:text>
+                                        @else
+                                            <flux:table>
+                                                <flux:table.columns>
+                                                    <flux:table.column>Student</flux:table.column>
+                                                    <flux:table.column>Course</flux:table.column>
+                                                </flux:table.columns>
+                                                <flux:table.rows>
+                                                    @foreach ($supervisor->companySupervisorAssignments as $assignment)
+                                                        <flux:table.row :key="$assignment->id">
+                                                            <flux:table.cell>{{ $assignment->student?->name }}</flux:table.cell>
+                                                            <flux:table.cell>{{ $assignment->student?->studentProfile?->course ?? '' }}</flux:table.cell>
+                                                        </flux:table.row>
+                                                    @endforeach
+                                                </flux:table.rows>
+                                            </flux:table>
+                                        @endif
+                                    </div>
+                                </flux:modal>
                             </flux:table.cell>
 
                             <flux:table.cell>

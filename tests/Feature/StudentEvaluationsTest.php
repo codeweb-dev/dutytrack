@@ -22,20 +22,20 @@ test('students can view and download their submitted practicum evaluations', fun
         'name' => 'Evaluated Student',
         'coordinator_id' => $coordinator->id,
     ]);
-    $professor = User::factory()->professor()->create(['name' => 'Evaluation Professor']);
+    $mentor = User::factory()->companySupervisor()->create(['name' => 'Evaluation Mentor']);
 
     $assignment = OjtAssignment::query()->create([
         'student_id' => $student->id,
         'ojt_type' => 'internal',
-        'professor_id' => $professor->id,
+        'company_supervisor_id' => $mentor->id,
         'status' => 'active',
     ]);
 
     $evaluation = Evaluation::query()->create([
         'student_id' => $student->id,
         'ojt_assignment_id' => $assignment->id,
-        'evaluator_id' => $professor->id,
-        'evaluator_type' => 'professor',
+        'evaluator_id' => $mentor->id,
+        'evaluator_type' => 'company_supervisor',
         'evaluation_date' => '2026-05-11',
         'inclusive_from' => '2026-05-01',
         'inclusive_to' => '2026-05-31',
@@ -50,7 +50,7 @@ test('students can view and download their submitted practicum evaluations', fun
         ->get(route('student.evaluations'))
         ->assertOk()
         ->assertSee('My Evaluation Records')
-        ->assertSee('Evaluation Professor')
+        ->assertSee('Evaluation Mentor')
         ->assertSee('Student Evaluation Coordinator')
         ->assertSee('100.0')
         ->assertSee('Docs');

@@ -17,7 +17,7 @@ class AccomplishmentReportDocument
         $toDate = $to ? Carbon::parse($to)->endOfDay() : null;
 
         $logs = AttendanceLog::query()
-            ->with(['submission', 'assignment.professor', 'assignment.companySupervisor'])
+            ->with(['submission', 'assignment.companySupervisor'])
             ->where('student_id', $student->id)
             ->whereNotNull('afternoon_time_out')
             ->when($fromDate, fn ($query) => $query->whereDate('attendance_date', '>=', $fromDate))
@@ -47,8 +47,7 @@ class AccomplishmentReportDocument
     {
         $assignment = $logs->first()?->assignment;
 
-        return $assignment?->professor?->name
-            ?? $assignment?->companySupervisor?->name
+        return $assignment?->companySupervisor?->name
             ?? '';
     }
 

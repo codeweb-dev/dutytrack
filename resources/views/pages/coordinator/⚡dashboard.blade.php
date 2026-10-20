@@ -173,7 +173,7 @@ new #[Title('Coordinator Dashboard')] class extends Component
     public function recentStudents(): LengthAwarePaginator
     {
         return $this->managedStudentsQuery()
-            ->with(['studentProfile', 'ojtAssignment.professor', 'ojtAssignment.companySupervisor'])
+            ->with(['studentProfile', 'ojtAssignment.companySupervisor'])
             ->when($this->studentSearch !== '', function (Builder $query) {
                 $search = '%'.$this->studentSearch.'%';
 
@@ -358,9 +358,7 @@ new #[Title('Coordinator Dashboard')] class extends Component
                             @php
                                 $assignment = $student->ojtAssignment;
                                 $assignee =
-                                    $assignment?->ojt_type === 'internal'
-                                        ? $assignment?->professor?->name
-                                        : $assignment?->companySupervisor?->name;
+                                    $assignment?->companySupervisor?->name;
                             @endphp
 
                             <flux:table.row :key="$student->id">

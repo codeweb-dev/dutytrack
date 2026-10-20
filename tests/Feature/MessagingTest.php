@@ -34,47 +34,46 @@ function createMessagingUser(AppRole $role, array $attributes = []): User
     return $user;
 }
 
-function createMessagingAssignment(User $student, ?User $professor = null, ?User $supervisor = null): OjtAssignment
+function createMessagingAssignment(User $student, ?User $mentor = null, ?User $supervisor = null): OjtAssignment
 {
     return OjtAssignment::query()->create([
         'student_id' => $student->id,
         'ojt_type' => $supervisor ? 'external' : 'internal',
-        'professor_id' => $professor?->id,
-        'company_supervisor_id' => $supervisor?->id,
+        'company_supervisor_id' => $supervisor?->id ?? $mentor?->id,
         'status' => 'active',
     ]);
 }
 
-test('students can message their assigned professor and supervisor', function () {
+test('students can message only their assigned supervisor', function () {
     $student = createMessagingUser(AppRole::STUDENT, ['name' => 'Message Student']);
-    $professor = createMessagingUser(AppRole::PROFESSOR, ['name' => 'Assigned Professor']);
-    $supervisor = createMessagingUser(AppRole::COMPANYSUPERVISOR, ['name' => 'Assigned Supervisor']);
-    $otherProfessor = createMessagingUser(AppRole::PROFESSOR, ['name' => 'Other Professor']);
+    $mentor = createMessagingUser(AppRole::SUPERVISOR, ['name' => 'Assigned Mentor']);
+    $supervisor = createMessagingUser(AppRole::SUPERVISOR, ['name' => 'Assigned Supervisor']);
+    $otherMentor = createMessagingUser(AppRole::SUPERVISOR, ['name' => 'Other Mentor']);
 
-    createMessagingAssignment($student, $professor, $supervisor);
+    createMessagingAssignment($student, $mentor);
 
     $this->actingAs($student)
         ->get(route('student.messages'))
         ->assertOk()
-        ->assertSee('Assigned Professor')
-        ->assertSee('Assigned Supervisor')
-        ->assertDontSee('Other Professor');
+        ->assertSee('Assigned Mentor')
+        ->assertDontSee('Assigned Supervisor')
+        ->assertDontSee('Other Mentor');
 
     $conversation = ChatConversation::query()
         ->where('student_id', $student->id)
-        ->where('participant_id', $professor->id)
+        ->where('participant_id', $mentor->id)
         ->firstOrFail();
 
     Livewire::test('pages::messages')
         ->call('selectConversation', $conversation->id)
-        ->set('body', 'Good afternoon, professor.')
+        ->set('body', 'Good afternoon, mentor.')
         ->call('sendMessage')
         ->assertHasNoErrors();
 
     expect(ChatMessage::query()
         ->where('chat_conversation_id', $conversation->id)
         ->where('sender_id', $student->id)
-        ->where('body', 'Good afternoon, professor.')
+        ->where('body', 'Good afternoon, mentor.')
         ->exists())->toBeTrue();
 
 });
@@ -175,31 +174,31 @@ test('coordinators cannot open conversations for students they did not create', 
         ->assertForbidden();
 });
 
-test('professors can reply to assigned students only', function () {
-    $student = createMessagingUser(AppRole::STUDENT, ['name' => 'Professor Chat Student']);
+test('mentors can reply to assigned students only', function () {
+    $student = createMessagingUser(AppRole::STUDENT, ['name' => 'Mentor Chat Student']);
     $otherStudent = createMessagingUser(AppRole::STUDENT, ['name' => 'Other Chat Student']);
-    $professor = createMessagingUser(AppRole::PROFESSOR, ['name' => 'Messaging Professor']);
-    $otherProfessor = createMessagingUser(AppRole::PROFESSOR, ['name' => 'Other Messaging Professor']);
+    $mentor = createMessagingUser(AppRole::SUPERVISOR, ['name' => 'Messaging Mentor']);
+    $otherMentor = createMessagingUser(AppRole::SUPERVISOR, ['name' => 'Other Messaging Mentor']);
 
-    createMessagingAssignment($student, $professor);
-    $otherAssignment = createMessagingAssignment($otherStudent, $otherProfessor);
+    createMessagingAssignment($student, $mentor);
+    $otherAssignment = createMessagingAssignment($otherStudent, $otherMentor);
 
     ChatConversation::query()->create([
         'ojt_assignment_id' => $otherAssignment->id,
         'student_id' => $otherStudent->id,
-        'participant_id' => $otherProfessor->id,
-        'participant_role' => 'professor',
+        'participant_id' => $otherMentor->id,
+        'participant_role' => 'supervisor',
     ]);
 
-    $this->actingAs($professor)
-        ->get(route('professor.messages'))
+    $this->actingAs($mentor)
+        ->get(route('supervisor.messages'))
         ->assertOk()
-        ->assertSee('Professor Chat Student')
+        ->assertSee('Mentor Chat Student')
         ->assertDontSee('Other Chat Student');
 
     $conversation = ChatConversation::query()
         ->where('student_id', $student->id)
-        ->where('participant_id', $professor->id)
+        ->where('participant_id', $mentor->id)
         ->firstOrFail();
 
     Livewire::test('pages::messages')
@@ -210,26 +209,26 @@ test('professors can reply to assigned students only', function () {
 
     expect(ChatMessage::query()
         ->where('chat_conversation_id', $conversation->id)
-        ->where('sender_id', $professor->id)
+        ->where('sender_id', $mentor->id)
         ->where('body', 'Please submit your report today.')
         ->exists())->toBeTrue();
 });
 
-test('professors cannot open conversations for students not assigned to them', function () {
+test('mentors cannot open conversations for students not assigned to them', function () {
     $student = createMessagingUser(AppRole::STUDENT);
-    $professor = createMessagingUser(AppRole::PROFESSOR);
-    $otherProfessor = createMessagingUser(AppRole::PROFESSOR);
+    $mentor = createMessagingUser(AppRole::SUPERVISOR);
+    $otherMentor = createMessagingUser(AppRole::SUPERVISOR);
 
-    $assignment = createMessagingAssignment($student, $otherProfessor);
+    $assignment = createMessagingAssignment($student, $otherMentor);
 
     $conversation = ChatConversation::query()->create([
         'ojt_assignment_id' => $assignment->id,
         'student_id' => $student->id,
-        'participant_id' => $otherProfessor->id,
-        'participant_role' => 'professor',
+        'participant_id' => $otherMentor->id,
+        'participant_role' => 'supervisor',
     ]);
 
-    $this->actingAs($professor);
+    $this->actingAs($mentor);
 
     Livewire::test('pages::messages')
         ->call('selectConversation', $conversation->id)
@@ -238,7 +237,7 @@ test('professors cannot open conversations for students not assigned to them', f
 
 test('supervisors can message their assigned students', function () {
     $student = createMessagingUser(AppRole::STUDENT, ['name' => 'Supervisor Chat Student']);
-    $supervisor = createMessagingUser(AppRole::COMPANYSUPERVISOR, ['name' => 'Messaging Supervisor']);
+    $supervisor = createMessagingUser(AppRole::SUPERVISOR, ['name' => 'Messaging Supervisor']);
 
     createMessagingAssignment($student, null, $supervisor);
 
@@ -268,15 +267,15 @@ test('supervisors can message their assigned students', function () {
 
 test('users can edit and delete their own messages only', function () {
     $student = createMessagingUser(AppRole::STUDENT, ['name' => 'Message Owner Student']);
-    $professor = createMessagingUser(AppRole::PROFESSOR, ['name' => 'Message Owner Professor']);
+    $mentor = createMessagingUser(AppRole::SUPERVISOR, ['name' => 'Message Owner Mentor']);
 
-    $assignment = createMessagingAssignment($student, $professor);
+    $assignment = createMessagingAssignment($student, $mentor);
 
     $conversation = ChatConversation::query()->create([
         'ojt_assignment_id' => $assignment->id,
         'student_id' => $student->id,
-        'participant_id' => $professor->id,
-        'participant_role' => 'professor',
+        'participant_id' => $mentor->id,
+        'participant_role' => 'supervisor',
     ]);
 
     $studentMessage = ChatMessage::query()->create([
@@ -285,10 +284,10 @@ test('users can edit and delete their own messages only', function () {
         'body' => 'Original student message.',
     ]);
 
-    $professorMessage = ChatMessage::query()->create([
+    $mentorMessage = ChatMessage::query()->create([
         'chat_conversation_id' => $conversation->id,
-        'sender_id' => $professor->id,
-        'body' => 'Professor message.',
+        'sender_id' => $mentor->id,
+        'body' => 'Mentor message.',
     ]);
 
     $this->actingAs($student);
@@ -337,15 +336,15 @@ test('users can edit and delete their own messages only', function () {
 
     Livewire::test('pages::messages')
         ->call('selectConversation', $conversation->id)
-        ->call('startEditingMessage', $professorMessage->id)
+        ->call('startEditingMessage', $mentorMessage->id)
         ->assertForbidden();
 
     Livewire::test('pages::messages')
         ->call('selectConversation', $conversation->id)
-        ->call('deleteMessage', $professorMessage->id)
+        ->call('deleteMessage', $mentorMessage->id)
         ->assertForbidden();
 
-    $this->actingAs($professor);
+    $this->actingAs($mentor);
 
     Livewire::test('pages::messages')
         ->call('selectConversation', $conversation->id)
@@ -355,15 +354,15 @@ test('users can edit and delete their own messages only', function () {
 
 test('messages show edited label only after an actual edit', function () {
     $student = createMessagingUser(AppRole::STUDENT, ['name' => 'Edited Label Student']);
-    $professor = createMessagingUser(AppRole::PROFESSOR, ['name' => 'Edited Label Professor']);
+    $mentor = createMessagingUser(AppRole::SUPERVISOR, ['name' => 'Edited Label Mentor']);
 
-    $assignment = createMessagingAssignment($student, $professor);
+    $assignment = createMessagingAssignment($student, $mentor);
 
     $conversation = ChatConversation::query()->create([
         'ojt_assignment_id' => $assignment->id,
         'student_id' => $student->id,
-        'participant_id' => $professor->id,
-        'participant_role' => 'professor',
+        'participant_id' => $mentor->id,
+        'participant_role' => 'supervisor',
     ]);
 
     $message = ChatMessage::query()->create([
@@ -392,18 +391,18 @@ test('messages show edited label only after an actual edit', function () {
 
 test('manual refresh shows new messages and marks them read', function () {
     $student = createMessagingUser(AppRole::STUDENT);
-    $professor = createMessagingUser(AppRole::PROFESSOR);
+    $mentor = createMessagingUser(AppRole::SUPERVISOR);
 
-    $assignment = createMessagingAssignment($student, $professor);
+    $assignment = createMessagingAssignment($student, $mentor);
 
     $conversation = ChatConversation::query()->create([
         'ojt_assignment_id' => $assignment->id,
         'student_id' => $student->id,
-        'participant_id' => $professor->id,
-        'participant_role' => 'professor',
+        'participant_id' => $mentor->id,
+        'participant_role' => 'supervisor',
     ]);
 
-    $this->actingAs($professor);
+    $this->actingAs($mentor);
 
     $chat = Livewire::test('pages::messages')
         ->call('selectConversation', $conversation->id)
@@ -422,13 +421,13 @@ test('manual refresh shows new messages and marks them read', function () {
 
 test('deleted latest message remains in the preview and unread count ignores it', function () {
     $student = createMessagingUser(AppRole::STUDENT);
-    $professor = createMessagingUser(AppRole::PROFESSOR);
-    $assignment = createMessagingAssignment($student, $professor);
+    $mentor = createMessagingUser(AppRole::SUPERVISOR);
+    $assignment = createMessagingAssignment($student, $mentor);
     $conversation = ChatConversation::query()->create([
         'ojt_assignment_id' => $assignment->id,
         'student_id' => $student->id,
-        'participant_id' => $professor->id,
-        'participant_role' => 'professor',
+        'participant_id' => $mentor->id,
+        'participant_role' => 'supervisor',
     ]);
     ChatMessage::query()->create([
         'chat_conversation_id' => $conversation->id,
@@ -449,7 +448,7 @@ test('deleted latest message remains in the preview and unread count ignores it'
     expect($conversation->fresh()->latestMessage->id)->toBe($latest->id);
     expect($conversation->messages()->whereNull('read_at')->count())->toBe(1);
 
-    $this->actingAs($professor);
+    $this->actingAs($mentor);
     $chat = Livewire::test('pages::messages')
         ->assertSee('This message was deleted.')
         ->assertSee('Older message.')

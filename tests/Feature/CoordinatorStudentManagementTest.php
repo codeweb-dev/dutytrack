@@ -218,23 +218,23 @@ test('coordinators can monitor attendance for their own students', function () {
     $ownedStudent = createStudentForCoordinator($coordinatorA, ['name' => 'Attendance Owned Student']);
     $otherStudent = createStudentForCoordinator($coordinatorB, ['name' => 'Attendance Other Student']);
 
-    $professor = User::factory()->create([
-        'name' => 'Attendance Professor',
-        'email' => 'attendance-professor@example.com',
+    $mentor = User::factory()->create([
+        'name' => 'Attendance Mentor',
+        'email' => 'attendance-mentor@example.com',
     ]);
-    $professor->assignRole(AppRole::PROFESSOR->value);
+    $mentor->assignRole(AppRole::SUPERVISOR->value);
 
     $ownedAssignment = OjtAssignment::query()->create([
         'student_id' => $ownedStudent->id,
         'ojt_type' => 'internal',
-        'professor_id' => $professor->id,
+        'company_supervisor_id' => $mentor->id,
         'status' => 'active',
     ]);
 
     $otherAssignment = OjtAssignment::query()->create([
         'student_id' => $otherStudent->id,
         'ojt_type' => 'internal',
-        'professor_id' => $professor->id,
+        'company_supervisor_id' => $mentor->id,
         'status' => 'active',
     ]);
 

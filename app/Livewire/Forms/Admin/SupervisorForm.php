@@ -207,7 +207,7 @@ class SupervisorForm extends Form
                 'status' => 'active',
             ]);
 
-            $user->assignRole(EnumsRole::COMPANYSUPERVISOR->value);
+            $user->assignRole(EnumsRole::SUPERVISOR->value);
 
             $user->supervisorProfile()->create([
                 'supervisor_id' => $this->supervisor_id,
@@ -218,11 +218,11 @@ class SupervisorForm extends Form
             $user = $user->fresh('supervisorProfile');
 
             AuditLogger::log(
-                module: 'Company Supervisors',
+                module: 'Supervisors',
                 action: 'created',
                 target: $user,
                 targetLabel: $user->name,
-                description: 'Created a Company Supervisor account.',
+                description: 'Created a Supervisor account.',
                 newValues: $this->supervisorAuditData($user),
             );
         });
@@ -284,7 +284,7 @@ class SupervisorForm extends Form
                 ]);
             }
 
-            $user->syncRoles([EnumsRole::COMPANYSUPERVISOR->value]);
+            $user->syncRoles([EnumsRole::SUPERVISOR->value]);
 
             $user->supervisorProfile()->update([
                 'supervisor_id' => $this->supervisor_id,
@@ -295,11 +295,11 @@ class SupervisorForm extends Form
             $user = $user->fresh('supervisorProfile');
 
             AuditLogger::log(
-                module: 'Company Supervisors',
+                module: 'Supervisors',
                 action: 'updated',
                 target: $user,
                 targetLabel: $user->name,
-                description: 'Updated a Company Supervisor account.',
+                description: 'Updated a Supervisor account.',
                 oldValues: $oldValues,
                 newValues: $this->supervisorAuditData($user),
                 meta: [

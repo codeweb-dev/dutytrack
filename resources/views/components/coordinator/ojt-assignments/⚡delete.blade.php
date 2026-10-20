@@ -12,7 +12,7 @@ new class extends Component
 
     public function mount(OjtAssignment $assignment): void
     {
-        $assignment->load(['student.studentProfile', 'professor', 'companySupervisor']);
+        $assignment->load(['student.studentProfile', 'companySupervisor']);
 
         abort_unless((int) $assignment->student?->coordinator_id === (int) auth()->id(), 403);
 
@@ -22,19 +22,16 @@ new class extends Component
     public function delete(): void
     {
         DB::transaction(function () {
-            $assignment = $this->assignment->load(['student.studentProfile', 'professor', 'companySupervisor']);
+            $assignment = $this->assignment->load(['student.studentProfile', 'companySupervisor']);
 
             abort_unless((int) $assignment->student?->coordinator_id === (int) auth()->id(), 403);
 
-            $assignee = $assignment->ojt_type === 'internal'
-                ? $assignment->professor?->name
-                : $assignment->companySupervisor?->name;
+            $assignee = $assignment->companySupervisor?->name;
 
             $oldValues = [
                 'student_name' => $assignment->student?->name,
                 'student_number' => $assignment->student?->studentProfile?->student_id,
                 'ojt_type' => $assignment->ojt_type,
-                'professor_name' => $assignment->professor?->name,
                 'company_supervisor_name' => $assignment->companySupervisor?->name,
                 'status' => $assignment->status,
                 'remarks' => $assignment->remarks,
@@ -98,7 +95,7 @@ new class extends Component
                 <div class="rounded-2xl bg-zinc-50 p-4 dark:bg-zinc-800/50">
                     <div class="text-xs uppercase tracking-wide text-zinc-400">Assigned To</div>
                     <div class="mt-2 text-sm font-semibold text-zinc-900 dark:text-white">
-                        {{ $assignment->ojt_type === 'internal' ? ($assignment->professor?->name ?? '') : ($assignment->companySupervisor?->name ?? '') }}
+                        {{ $assignment->companySupervisor?->name ?? '' }}
                     </div>
                 </div>
 

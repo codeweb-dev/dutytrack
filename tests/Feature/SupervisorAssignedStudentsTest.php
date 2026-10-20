@@ -20,7 +20,7 @@ function createSupervisorAssignedStudentUser(array $attributes = []): User
     ensureSupervisorAssignedStudentRolesExist();
 
     $supervisor = User::factory()->create($attributes);
-    $supervisor->assignRole(AppRole::COMPANYSUPERVISOR->value);
+    $supervisor->assignRole(AppRole::SUPERVISOR->value);
 
     return $supervisor;
 }
@@ -60,10 +60,10 @@ function createSupervisorAssignedStudent(User $coordinator, array $attributes = 
     return $student;
 }
 
-test('company supervisors can view only their assigned students', function () {
+test('supervisors can view only their assigned students', function () {
     $coordinator = createSupervisorAssignedStudentCoordinator();
-    $supervisorA = createSupervisorAssignedStudentUser(['name' => 'Company Supervisor Assigned A']);
-    $supervisorB = createSupervisorAssignedStudentUser(['name' => 'Company Supervisor Assigned B']);
+    $supervisorA = createSupervisorAssignedStudentUser(['name' => 'Supervisor Assigned A']);
+    $supervisorB = createSupervisorAssignedStudentUser(['name' => 'Supervisor Assigned B']);
 
     $ownedStudent = createSupervisorAssignedStudent($coordinator, ['name' => 'Owned Supervisor Trainee']);
     $otherStudent = createSupervisorAssignedStudent($coordinator, ['name' => 'Other Supervisor Trainee']);
@@ -90,7 +90,7 @@ test('company supervisors can view only their assigned students', function () {
         ->assertDontSee($otherStudent->name);
 });
 
-test('company supervisors can assign tasks to their assigned trainees', function () {
+test('supervisors can assign tasks to their assigned trainees', function () {
     $coordinator = createSupervisorAssignedStudentCoordinator();
     $supervisor = createSupervisorAssignedStudentUser(['name' => 'Supervisor Task Owner']);
     $studentA = createSupervisorAssignedStudent($coordinator, ['name' => 'Supervisor Task Student A']);
@@ -139,7 +139,7 @@ test('company supervisors can assign tasks to their assigned trainees', function
         ->assertSee('Prepare deployment checklist');
 });
 
-test('company supervisors cannot assign tasks to trainees not assigned to them', function () {
+test('supervisors cannot assign tasks to trainees not assigned to them', function () {
     $coordinator = createSupervisorAssignedStudentCoordinator();
     $supervisorA = createSupervisorAssignedStudentUser(['name' => 'Supervisor Task A']);
     $supervisorB = createSupervisorAssignedStudentUser(['name' => 'Supervisor Task B']);
@@ -164,7 +164,7 @@ test('company supervisors cannot assign tasks to trainees not assigned to them',
     expect(StudentTask::query()->where('student_id', $student->id)->exists())->toBeFalse();
 });
 
-test('company supervisors can drag grouped task cards between columns', function () {
+test('supervisors can drag grouped task cards between columns', function () {
     $coordinator = createSupervisorAssignedStudentCoordinator();
     $supervisor = createSupervisorAssignedStudentUser(['name' => 'Supervisor Group Sort']);
     $studentA = createSupervisorAssignedStudent($coordinator, ['name' => 'Supervisor Group Sort A']);
@@ -234,9 +234,9 @@ test('company supervisors can drag grouped task cards between columns', function
     expect($existingReviewTask->refresh()->sort_order)->toBe(1);
 });
 
-test('company supervisors can submit practicum evaluations for assigned trainees', function () {
+test('supervisors can submit practicum evaluations for assigned trainees', function () {
     $coordinator = createSupervisorAssignedStudentCoordinator(['name' => 'Supervisor Evaluation Coordinator']);
-    $supervisor = createSupervisorAssignedStudentUser(['name' => 'Company Supervisor Evaluator']);
+    $supervisor = createSupervisorAssignedStudentUser(['name' => 'Supervisor Evaluator']);
     $student = createSupervisorAssignedStudent($coordinator, ['name' => 'Supervisor Evaluation Student']);
 
     $assignment = OjtAssignment::query()->create([
@@ -267,9 +267,9 @@ test('company supervisors can submit practicum evaluations for assigned trainees
     expect($evaluation->status)->toBe('submitted');
 });
 
-test('company supervisors can submit multiple practicum evaluations for one assigned trainee', function () {
+test('supervisors can submit multiple practicum evaluations for one assigned trainee', function () {
     $coordinator = createSupervisorAssignedStudentCoordinator(['name' => 'Supervisor Multiple Evaluation Coordinator']);
-    $supervisor = createSupervisorAssignedStudentUser(['name' => 'Company Supervisor Multiple Evaluator']);
+    $supervisor = createSupervisorAssignedStudentUser(['name' => 'Supervisor Multiple Evaluator']);
     $student = createSupervisorAssignedStudent($coordinator, ['name' => 'Supervisor Multiple Evaluation Student']);
 
     $assignment = OjtAssignment::query()->create([

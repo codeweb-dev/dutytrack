@@ -68,7 +68,7 @@
                                         </div>
                                         <flux:text class="text-xs text-zinc-500">
                                             Coordinator: {{ $student->coordinator?->name ?? 'Unassigned' }} |
-                                            {{ $student->coordinator?->professorProfile->department ?? '' }}
+                                            {{ $student->coordinator?->coordinatorProfile->department ?? '' }}
                                         </flux:text>
                                     </div>
                                 </div>

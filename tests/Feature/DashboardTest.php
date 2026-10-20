@@ -45,24 +45,11 @@ test('coordinators can view the coordinator dashboard', function () {
         ->assertSee('Recent Students');
 });
 
-test('professors can view the professor dashboard', function () {
-    PermissionRole::findOrCreate(Role::PROFESSOR->value, 'web');
-
-    $professor = User::factory()->create();
-    $professor->assignRole(Role::PROFESSOR->value);
-
-    $this->actingAs($professor)
-        ->get(route('professor.dashboard'))
-        ->assertOk()
-        ->assertSee('Weekly Attendance')
-        ->assertSee('Recent Advisees');
-});
-
-test('company supervisors can view the supervisor dashboard', function () {
-    PermissionRole::findOrCreate(Role::COMPANYSUPERVISOR->value, 'web');
+test('supervisors can view the supervisor dashboard', function () {
+    PermissionRole::findOrCreate(Role::SUPERVISOR->value, 'web');
 
     $supervisor = User::factory()->create();
-    $supervisor->assignRole(Role::COMPANYSUPERVISOR->value);
+    $supervisor->assignRole(Role::SUPERVISOR->value);
 
     $this->actingAs($supervisor)
         ->get(route('supervisor.dashboard'))
@@ -89,7 +76,7 @@ test('students can view the student dashboard', function () {
 test('duty hour storage and routes have been removed', function () {
     expect(\Illuminate\Support\Facades\Schema::hasTable('duty_hour_logs'))->toBeFalse();
 
-    foreach (['admin', 'coordinator', 'professor', 'supervisor', 'student'] as $role) {
+    foreach (['admin', 'coordinator', 'supervisor', 'student'] as $role) {
         expect(\Illuminate\Support\Facades\Route::has($role.'.duty-hours'))->toBeFalse();
         $this->get('/'.$role.'/duty-hours')->assertNotFound();
     }

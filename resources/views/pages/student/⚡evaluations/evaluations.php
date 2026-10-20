@@ -32,8 +32,7 @@ new #[Title('Evaluations')] class extends Component
     public function evaluatorLabel(string $type): string
     {
         return match ($type) {
-            'professor' => 'Professor',
-            'company_supervisor' => 'Company Supervisor',
+            'company_supervisor' => 'Supervisor',
             default => ucfirst(str_replace('_', ' ', $type)),
         };
     }

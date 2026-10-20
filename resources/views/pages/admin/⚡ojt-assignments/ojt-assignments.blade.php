@@ -66,9 +66,9 @@
                     class="max-sm:flex-col">
                     <flux:radio value="" icon="squares-2x2" label="All Types" description="All OJT assignments" />
                     <flux:radio value="internal" icon="building-office-2" label="Internal"
-                        description="Assigned to professor" />
+                        description="Internal OJT" />
                     <flux:radio value="external" icon="briefcase" label="External"
-                        description="Assigned to company supervisor" />
+                        description="Assigned to supervisor" />
                 </flux:radio.group>
 
                 <flux:radio.group wire:model.live="status" label="Assignment Status" variant="pills">
@@ -121,9 +121,7 @@
                     @foreach ($this->assignments as $assignment)
                         @php
                             $supervisor =
-                                $assignment->ojt_type === 'internal'
-                                    ? $assignment->professor
-                                    : $assignment->companySupervisor;
+                                $assignment->companySupervisor;
                         @endphp
 
                         <flux:table.row :key="$assignment->id">

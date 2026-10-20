@@ -56,11 +56,11 @@ new #[Title('OJT Coordinators Management')] class extends Component {
     public function coordinators(): LengthAwarePaginator
     {
         $query = User::query()
-            ->with('professorProfile')
+            ->with('coordinatorProfile')
             ->whereHas('roles', function (Builder $roleQuery) {
                 $roleQuery->where('name', EnumsRole::OJTCOORDINATOR->value);
             })
-            ->leftJoin('professor_profiles', 'users.id', '=', 'professor_profiles.user_id')
+            ->leftJoin('coordinator_profiles', 'users.id', '=', 'coordinator_profiles.user_id')
             ->select('users.*');
 
         if ($this->search !== '') {
@@ -72,15 +72,15 @@ new #[Title('OJT Coordinators Management')] class extends Component {
                     ->orWhere('users.last_name', 'like', $search)
                     ->orWhere('users.email', 'like', $search)
                     ->orWhere('users.contact_number', 'like', $search)
-                    ->orWhere('professor_profiles.employee_id', 'like', $search)
-                    ->orWhere('professor_profiles.department', 'like', $search);
+                    ->orWhere('coordinator_profiles.employee_id', 'like', $search)
+                    ->orWhere('coordinator_profiles.department', 'like', $search);
             });
         }
 
         $allowedSorts = [
             'name' => 'users.name',
-            'employee_id' => 'professor_profiles.employee_id',
-            'department' => 'professor_profiles.department',
+            'employee_id' => 'coordinator_profiles.employee_id',
+            'department' => 'coordinator_profiles.department',
         ];
 
         $sortColumn = $allowedSorts[$this->sortBy] ?? 'users.name';

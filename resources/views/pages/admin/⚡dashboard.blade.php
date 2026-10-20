@@ -179,7 +179,7 @@ new #[Title('Admin Dashboard')] class extends Component {
     public function recentAssignments(): LengthAwarePaginator
     {
         return OjtAssignment::query()
-            ->with(['student.studentProfile', 'student.coordinator', 'professor', 'companySupervisor'])
+            ->with(['student.studentProfile', 'student.coordinator', 'companySupervisor'])
             ->when($this->search !== '', function (Builder $query) {
                 $search = '%' . $this->search . '%';
 
@@ -192,9 +192,6 @@ new #[Title('Admin Dashboard')] class extends Component {
                                 ->orWhereHas('studentProfile', function (Builder $profileQuery) use ($search) {
                                     $profileQuery->where('student_id', 'like', $search);
                                 });
-                        })
-                        ->orWhereHas('professor', function (Builder $professorQuery) use ($search) {
-                            $professorQuery->where('name', 'like', $search);
                         })
                         ->orWhereHas('companySupervisor', function (Builder $supervisorQuery) use ($search) {
                             $supervisorQuery->where('name', 'like', $search);
@@ -321,7 +318,7 @@ new #[Title('Admin Dashboard')] class extends Component {
             <div>
                 <flux:heading size="lg">Recent Assignments</flux:heading>
                 <flux:text class="mt-2">
-                    Latest student deployments across coordinators, professors, and company supervisors.
+                    Latest student deployments across coordinators and supervisors.
                 </flux:text>
             </div>
 
@@ -363,9 +360,7 @@ new #[Title('Admin Dashboard')] class extends Component {
                         @foreach ($this->recentAssignments as $assignment)
                             @php
                                 $assignee =
-                                    $assignment->ojt_type === 'internal'
-                                        ? $assignment->professor
-                                        : $assignment->companySupervisor;
+                                    $assignment->companySupervisor;
                             @endphp
 
                             <flux:table.row :key="$assignment->id">

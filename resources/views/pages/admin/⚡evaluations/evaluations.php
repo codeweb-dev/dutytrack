@@ -18,7 +18,7 @@ new #[Title('Evaluation Monitoring')] class extends Component {
     ];
 
     public string $title = 'Evaluation Monitoring';
-    public string $description = 'Track submitted student evaluations from professors and company supervisors.';
+    public string $description = 'Track submitted student evaluations from supervisors.';
 
     public string $search = '';
     public string $ojt_type = '';
@@ -149,7 +149,7 @@ new #[Title('Evaluation Monitoring')] class extends Component {
     public function evaluators()
     {
         return User::query()
-            ->role(['professor', 'company_supervisor'])
+            ->role('supervisor')
             ->orderBy('first_name')
             ->get();
     }

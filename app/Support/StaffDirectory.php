@@ -11,13 +11,6 @@ class StaffDirectory
         ['employee_id' => 'COORD-1004', 'first_name' => 'Jerome', 'middle_name' => 'L', 'last_name' => 'Navarro', 'contact_number' => '09451234567', 'department' => 'Computer Science'],
     ];
 
-    private const PROFESSORS = [
-        ['employee_id' => 'PROF-2001', 'first_name' => 'Rafael', 'middle_name' => 'B', 'last_name' => 'Mendoza', 'contact_number' => '09172345678', 'department' => 'Computer Science'],
-        ['employee_id' => 'PROF-2002', 'first_name' => 'Camille', 'middle_name' => 'A', 'last_name' => 'Dela Cruz', 'contact_number' => '09282345678', 'department' => 'Computer Science'],
-        ['employee_id' => 'PROF-2003', 'first_name' => 'Leonardo', 'middle_name' => 'F', 'last_name' => 'Reyes', 'contact_number' => '09392345678', 'department' => 'Computer Science'],
-        ['employee_id' => 'PROF-2004', 'first_name' => 'Nerissa', 'middle_name' => 'G', 'last_name' => 'Flores', 'contact_number' => '09462345678', 'department' => 'Computer Science'],
-    ];
-
     private const SUPERVISORS = [
         ['supervisor_id' => 'SUP-3001', 'first_name' => 'Patricia', 'middle_name' => 'S', 'last_name' => 'Uy', 'contact_number' => '09173456789', 'company_name' => 'TechNova Solutions', 'company_address' => 'Cebu IT Park, Lahug, Cebu City'],
         ['supervisor_id' => 'SUP-3002', 'first_name' => 'Michael', 'middle_name' => 'R', 'last_name' => 'Tan', 'contact_number' => '09283456789', 'company_name' => 'BrightWorks Systems', 'company_address' => 'North Reclamation Area, Mandaue City'],
@@ -30,11 +23,6 @@ class StaffDirectory
         return self::findById(self::COORDINATORS, 'employee_id', $employeeId, 'coordinator');
     }
 
-    public static function findProfessor(string $employeeId): ?array
-    {
-        return self::findById(self::PROFESSORS, 'employee_id', $employeeId, 'professor');
-    }
-
     public static function findSupervisor(string $supervisorId): ?array
     {
         return self::findById(self::SUPERVISORS, 'supervisor_id', $supervisorId, 'supervisor');
@@ -43,11 +31,6 @@ class StaffDirectory
     public static function randomCoordinator(): array
     {
         return self::withAccount(self::pick(self::COORDINATORS), 'coordinator');
-    }
-
-    public static function randomProfessor(): array
-    {
-        return self::withAccount(self::pick(self::PROFESSORS), 'professor');
     }
 
     public static function randomSupervisor(): array

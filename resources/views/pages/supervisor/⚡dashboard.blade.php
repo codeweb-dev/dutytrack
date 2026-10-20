@@ -12,11 +12,11 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-new #[Title('Company Supervisor Dashboard')] class extends Component
+new #[Title('Supervisor Dashboard')] class extends Component
 {
     use WithPagination;
 
-    public array $breadcrumbs = [['logo' => 'logo.png', 'href' => '/dashboard'], ['label' => 'Company Supervisor Dashboard']];
+    public array $breadcrumbs = [['logo' => 'logo.png', 'href' => '/dashboard'], ['label' => 'Supervisor Dashboard']];
 
     #[Computed]
     public function title(): string
@@ -150,7 +150,7 @@ new #[Title('Company Supervisor Dashboard')] class extends Component
     public function recentTrainees(): LengthAwarePaginator
     {
         return $this->supervisorAssignmentsQuery()
-            ->with(['student.studentProfile', 'student.coordinator', 'professor'])
+            ->with(['student.studentProfile', 'student.coordinator', 'companySupervisor'])
             ->when($this->studentSearch !== '', function (Builder $query) {
                 $search = '%'.$this->studentSearch.'%';
 
@@ -310,7 +310,6 @@ new #[Title('Company Supervisor Dashboard')] class extends Component
                     <flux:table.column>Student</flux:table.column>
                     <flux:table.column>Program</flux:table.column>
                     <flux:table.column>Coordinator</flux:table.column>
-                    <flux:table.column>Professor</flux:table.column>
                     <flux:table.column>Status</flux:table.column>
                 </flux:table.columns>
 
@@ -335,10 +334,6 @@ new #[Title('Company Supervisor Dashboard')] class extends Component
 
                             <flux:table.cell>
                                 {{ $assignment->student?->coordinator?->name ?? '' }}
-                            </flux:table.cell>
-
-                            <flux:table.cell>
-                                {{ $assignment->professor?->name ?? '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>

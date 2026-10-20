@@ -63,11 +63,11 @@
                             </flux:table.cell>
 
                             <flux:table.cell class="whitespace-nowrap font-medium">
-                                {{ $coordinator->professorProfile?->employee_id ?? '' }}
+                                {{ $coordinator->coordinatorProfile?->employee_id ?? '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ $coordinator->professorProfile?->department ?? '' }}
+                                {{ $coordinator->coordinatorProfile?->department ?? '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>

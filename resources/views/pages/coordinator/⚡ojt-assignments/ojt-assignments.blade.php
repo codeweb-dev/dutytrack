@@ -94,9 +94,7 @@
                     @foreach ($this->assignments as $assignment)
                         @php
                             $assignee =
-                                $assignment->ojt_type === 'internal'
-                                    ? $assignment->professor
-                                    : $assignment->companySupervisor;
+                                $assignment->companySupervisor;
                         @endphp
 
                         <flux:table.row :key="$assignment->id">
@@ -126,7 +124,7 @@
                                 <div class="flex flex-col">
                                     <span>{{ $assignee?->name ?? '' }}</span>
                                     <span class="text-xs text-zinc-500">
-                                        {{ $assignment->ojt_type === 'internal' ? 'Professor' : 'Company Supervisor' }}
+                                        {{ $assignment->ojt_type === 'internal' ? 'Supervisor' : 'Supervisor' }}
                                     </span>
                                 </div>
                             </flux:table.cell>

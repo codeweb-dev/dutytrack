@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Spatie\Permission\Models\Role;
-use Illuminate\Database\Seeder;
 use App\Enums\Role as EnumsRole;
+use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Role;
 
 class RoleSeeder extends Seeder
 {
@@ -17,9 +17,8 @@ class RoleSeeder extends Seeder
         $roles = [
             EnumsRole::ADMIN->value,
             EnumsRole::OJTCOORDINATOR->value,
-            EnumsRole::COMPANYSUPERVISOR->value,
+            EnumsRole::SUPERVISOR->value,
             EnumsRole::STUDENT->value,
-            EnumsRole::PROFESSOR->value,
         ];
 
         foreach ($roles as $role) {

@@ -100,7 +100,7 @@ new #[Title('Attendance Monitoring')] class extends Component
     protected function baseAttendanceQuery(): Builder
     {
         return AttendanceLog::query()
-            ->with(['student.studentProfile', 'assignment.professor', 'assignment.companySupervisor'])
+            ->with(['student.studentProfile', 'assignment.companySupervisor'])
             ->whereHas('student', function (Builder $query) {
                 $query->where('coordinator_id', Auth::id());
             });
@@ -134,8 +134,7 @@ new #[Title('Attendance Monitoring')] class extends Component
             ->when($this->supervisor_id !== '', function (Builder $query) {
                 $query->whereHas('assignment', function (Builder $assignmentQuery) {
                     $assignmentQuery
-                        ->where('professor_id', $this->supervisor_id)
-                        ->orWhere('company_supervisor_id', $this->supervisor_id);
+                        ->where('company_supervisor_id', $this->supervisor_id);
                 });
             })
             ->when($this->status !== '', function (Builder $query) {
@@ -176,10 +175,7 @@ new #[Title('Attendance Monitoring')] class extends Component
         return User::query()
             ->where(function (Builder $query) {
                 $query
-                    ->whereHas('professorAssignments.student', function (Builder $studentQuery) {
-                        $studentQuery->where('coordinator_id', Auth::id());
-                    })
-                    ->orWhereHas('companySupervisorAssignments.student', function (Builder $studentQuery) {
+                    ->whereHas('companySupervisorAssignments.student', function (Builder $studentQuery) {
                         $studentQuery->where('coordinator_id', Auth::id());
                     });
             })

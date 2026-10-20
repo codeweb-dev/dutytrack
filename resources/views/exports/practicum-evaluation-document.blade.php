@@ -5,7 +5,7 @@
     $profile = $student?->studentProfile;
     $evaluator = $evaluation->evaluator;
     $ratings = $evaluation->ratings ?? [];
-    $evaluatorType = $evaluation->evaluator_type === 'company_supervisor' ? 'Company Supervisor' : 'Professor';
+    $evaluatorType = 'Supervisor';
 @endphp
 <!DOCTYPE html>
 <html>

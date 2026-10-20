@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use App\Enums\Role;
-use App\Models\ProfessorProfile;
 use App\Models\StudentProfile;
 use App\Models\SupervisorProfile;
 use App\Models\User;
@@ -73,26 +72,6 @@ class UserFactory extends Factory
             });
     }
 
-    public function professor(): static
-    {
-        return $this
-            ->state(fn (array $attributes) => [
-                'status' => 'Active',
-            ])
-            ->afterCreating(function (User $user): void {
-                $user->assignRole(Role::PROFESSOR->value);
-
-                ProfessorProfile::query()->firstOrCreate(
-                    ['user_id' => $user->id],
-                    [
-                        'employee_id' => 'PRF-'.str_pad((string) $user->id, 4, '0', STR_PAD_LEFT),
-                        'department' => 'Computer Studies',
-                        'position' => 'Professor',
-                    ],
-                );
-            });
-    }
-
     public function companySupervisor(): static
     {
         return $this
@@ -100,7 +79,7 @@ class UserFactory extends Factory
                 'status' => 'Active',
             ])
             ->afterCreating(function (User $user): void {
-                $user->assignRole(Role::COMPANYSUPERVISOR->value);
+                $user->assignRole(Role::SUPERVISOR->value);
 
                 SupervisorProfile::query()->firstOrCreate(
                     ['user_id' => $user->id],

@@ -57,9 +57,9 @@
                     class="max-sm:flex-col">
                     <flux:radio value="" icon="squares-2x2" label="All Types" description="All OJT types" />
                     <flux:radio value="internal" icon="building-office-2" label="Internal"
-                        description="Professor evaluation" />
+                        description="Supervisor evaluation" />
                     <flux:radio value="external" icon="briefcase" label="External"
-                        description="Company supervisor evaluation" />
+                        description="Supervisor evaluation" />
                 </flux:radio.group>
 
                 <flux:radio.group wire:model.live="status" label="Status" variant="pills">

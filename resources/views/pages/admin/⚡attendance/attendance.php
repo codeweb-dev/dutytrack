@@ -96,7 +96,7 @@ new #[Title('Attendance Monitoring')] class extends Component
     public function attendanceLogs(): LengthAwarePaginator
     {
         return AttendanceLog::query()
-            ->with(['student', 'assignment.professor', 'assignment.companySupervisor', 'student.studentProfile'])
+            ->with(['student', 'assignment.companySupervisor', 'student.studentProfile'])
             ->when($this->search !== '', function ($query) {
                 $search = '%'.$this->search.'%';
 
@@ -113,7 +113,7 @@ new #[Title('Attendance Monitoring')] class extends Component
             })
             ->when($this->supervisor_id !== '', function ($query) {
                 $query->whereHas('assignment', function ($assignmentQuery) {
-                    $assignmentQuery->where('professor_id', $this->supervisor_id)->orWhere('company_supervisor_id', $this->supervisor_id);
+                    $assignmentQuery->where('company_supervisor_id', $this->supervisor_id);
                 });
             })
             ->when($this->status !== '', function ($query) {
@@ -139,7 +139,7 @@ new #[Title('Attendance Monitoring')] class extends Component
             })
             ->when($this->supervisor_id !== '', function ($query) {
                 $query->whereHas('assignment', function ($assignmentQuery) {
-                    $assignmentQuery->where('professor_id', $this->supervisor_id)->orWhere('company_supervisor_id', $this->supervisor_id);
+                    $assignmentQuery->where('company_supervisor_id', $this->supervisor_id);
                 });
             })
             ->when($this->status !== '', function ($query) {
@@ -163,7 +163,7 @@ new #[Title('Attendance Monitoring')] class extends Component
     public function supervisors()
     {
         return User::query()
-            ->role(['professor', 'company_supervisor'])
+            ->role('supervisor')
             ->orderBy('first_name', 'asc')
             ->get();
     }

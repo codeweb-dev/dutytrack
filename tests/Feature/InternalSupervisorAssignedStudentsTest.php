@@ -8,26 +8,26 @@ use App\Models\User;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Role as PermissionRole;
 
-function ensureProfessorAssignedStudentRolesExist(): void
+function ensureMentorAssignedStudentRolesExist(): void
 {
     foreach (AppRole::cases() as $role) {
         PermissionRole::findOrCreate($role->value, 'web');
     }
 }
 
-function createProfessorAssignedStudentUser(array $attributes = []): User
+function createMentorAssignedStudentUser(array $attributes = []): User
 {
-    ensureProfessorAssignedStudentRolesExist();
+    ensureMentorAssignedStudentRolesExist();
 
-    $professor = User::factory()->create($attributes);
-    $professor->assignRole(AppRole::PROFESSOR->value);
+    $mentor = User::factory()->create($attributes);
+    $mentor->assignRole(AppRole::SUPERVISOR->value);
 
-    return $professor;
+    return $mentor;
 }
 
-function createProfessorAssignedStudentCoordinator(array $attributes = []): User
+function createMentorAssignedStudentCoordinator(array $attributes = []): User
 {
-    ensureProfessorAssignedStudentRolesExist();
+    ensureMentorAssignedStudentRolesExist();
 
     $coordinator = User::factory()->create($attributes);
     $coordinator->assignRole(AppRole::OJTCOORDINATOR->value);
@@ -35,17 +35,17 @@ function createProfessorAssignedStudentCoordinator(array $attributes = []): User
     return $coordinator;
 }
 
-function createProfessorAssignedStudent(User $coordinator, array $attributes = []): User
+function createMentorAssignedStudent(User $coordinator, array $attributes = []): User
 {
-    ensureProfessorAssignedStudentRolesExist();
+    ensureMentorAssignedStudentRolesExist();
 
     $sequence = fake()->unique()->numerify('####');
 
     $student = User::factory()->create(array_merge([
-        'name' => "Professor Assigned Student {$sequence}",
-        'first_name' => "ProfessorAssigned{$sequence}",
+        'name' => "Mentor Assigned Student {$sequence}",
+        'first_name' => "MentorAssigned{$sequence}",
         'last_name' => 'Student',
-        'email' => "professor-assigned-student-{$sequence}@example.com",
+        'email' => "mentor-assigned-student-{$sequence}@example.com",
         'coordinator_id' => $coordinator->id,
     ], $attributes));
 
@@ -60,54 +60,54 @@ function createProfessorAssignedStudent(User $coordinator, array $attributes = [
     return $student;
 }
 
-test('professors can view only their assigned students', function () {
-    $coordinator = createProfessorAssignedStudentCoordinator();
-    $professorA = createProfessorAssignedStudentUser(['name' => 'Professor Assigned A']);
-    $professorB = createProfessorAssignedStudentUser(['name' => 'Professor Assigned B']);
+test('mentors can view only their assigned students', function () {
+    $coordinator = createMentorAssignedStudentCoordinator();
+    $mentorA = createMentorAssignedStudentUser(['name' => 'Mentor Assigned A']);
+    $mentorB = createMentorAssignedStudentUser(['name' => 'Mentor Assigned B']);
 
-    $ownedStudent = createProfessorAssignedStudent($coordinator, ['name' => 'Owned Professor Advisee']);
-    $otherStudent = createProfessorAssignedStudent($coordinator, ['name' => 'Other Professor Advisee']);
+    $ownedStudent = createMentorAssignedStudent($coordinator, ['name' => 'Owned Mentor Advisee']);
+    $otherStudent = createMentorAssignedStudent($coordinator, ['name' => 'Other Mentor Advisee']);
 
     OjtAssignment::query()->create([
         'student_id' => $ownedStudent->id,
         'ojt_type' => 'internal',
-        'professor_id' => $professorA->id,
+        'company_supervisor_id' => $mentorA->id,
         'status' => 'active',
     ]);
 
     OjtAssignment::query()->create([
         'student_id' => $otherStudent->id,
         'ojt_type' => 'internal',
-        'professor_id' => $professorB->id,
+        'company_supervisor_id' => $mentorB->id,
         'status' => 'active',
     ]);
 
-    $this->actingAs($professorA)
-        ->get(route('professor.assigned-students'))
+    $this->actingAs($mentorA)
+        ->get(route('supervisor.assigned-students'))
         ->assertOk()
         ->assertSee('Assigned Students')
         ->assertSee($ownedStudent->name)
         ->assertDontSee($otherStudent->name);
 });
 
-test('professors can assign tasks to their assigned students', function () {
-    $coordinator = createProfessorAssignedStudentCoordinator();
-    $professor = createProfessorAssignedStudentUser(['name' => 'Professor Task Owner']);
-    $studentA = createProfessorAssignedStudent($coordinator, ['name' => 'Professor Task Student A']);
-    $studentB = createProfessorAssignedStudent($coordinator, ['name' => 'Professor Task Student B']);
+test('mentors can assign tasks to their assigned students', function () {
+    $coordinator = createMentorAssignedStudentCoordinator();
+    $mentor = createMentorAssignedStudentUser(['name' => 'Mentor Task Owner']);
+    $studentA = createMentorAssignedStudent($coordinator, ['name' => 'Mentor Task Student A']);
+    $studentB = createMentorAssignedStudent($coordinator, ['name' => 'Mentor Task Student B']);
 
     foreach ([$studentA, $studentB] as $student) {
         OjtAssignment::query()->create([
             'student_id' => $student->id,
             'ojt_type' => 'internal',
-            'professor_id' => $professor->id,
+            'company_supervisor_id' => $mentor->id,
             'status' => 'active',
         ]);
     }
 
-    $this->actingAs($professor);
+    $this->actingAs($mentor);
 
-    $component = Livewire::test('pages::professor.tasks')
+    $component = Livewire::test('pages::supervisor.tasks')
         ->set('student_ids', [$studentA->id, $studentB->id])
         ->set('task_title', 'Prepare weekly accomplishment report')
         ->set('task_description', 'Summarize completed OJT activities for this week.')
@@ -119,7 +119,7 @@ test('professors can assign tasks to their assigned students', function () {
     $task = StudentTask::query()->where('student_id', $studentA->id)->first();
 
     expect($task)->not->toBeNull();
-    expect($task->assigned_by)->toBe($professor->id);
+    expect($task->assigned_by)->toBe($mentor->id);
     expect($task->title)->toBe('Prepare weekly accomplishment report');
     expect($task->priority)->toBe('high');
 
@@ -134,22 +134,22 @@ test('professors can assign tasks to their assigned students', function () {
     expect($pendingColumn['tasks']->first()['students'])->toHaveCount(2);
 });
 
-test('professors cannot assign tasks to students not assigned to them', function () {
-    $coordinator = createProfessorAssignedStudentCoordinator();
-    $professorA = createProfessorAssignedStudentUser(['name' => 'Professor Task A']);
-    $professorB = createProfessorAssignedStudentUser(['name' => 'Professor Task B']);
-    $student = createProfessorAssignedStudent($coordinator, ['name' => 'Other Professor Task Student']);
+test('mentors cannot assign tasks to students not assigned to them', function () {
+    $coordinator = createMentorAssignedStudentCoordinator();
+    $mentorA = createMentorAssignedStudentUser(['name' => 'Mentor Task A']);
+    $mentorB = createMentorAssignedStudentUser(['name' => 'Mentor Task B']);
+    $student = createMentorAssignedStudent($coordinator, ['name' => 'Other Mentor Task Student']);
 
     OjtAssignment::query()->create([
         'student_id' => $student->id,
         'ojt_type' => 'internal',
-        'professor_id' => $professorB->id,
+        'company_supervisor_id' => $mentorB->id,
         'status' => 'active',
     ]);
 
-    $this->actingAs($professorA);
+    $this->actingAs($mentorA);
 
-    Livewire::test('pages::professor.tasks')
+    Livewire::test('pages::supervisor.tasks')
         ->set('student_ids', [$student->id])
         ->set('task_title', 'Should not be assigned')
         ->set('priority', 'normal')
@@ -159,21 +159,21 @@ test('professors cannot assign tasks to students not assigned to them', function
     expect(StudentTask::query()->where('student_id', $student->id)->exists())->toBeFalse();
 });
 
-test('students can see tasks assigned by their professor', function () {
-    $coordinator = createProfessorAssignedStudentCoordinator();
-    $professor = createProfessorAssignedStudentUser(['name' => 'Professor Visible Task']);
-    $student = createProfessorAssignedStudent($coordinator, ['name' => 'Student Visible Task']);
+test('students can see tasks assigned by their mentor', function () {
+    $coordinator = createMentorAssignedStudentCoordinator();
+    $mentor = createMentorAssignedStudentUser(['name' => 'Mentor Visible Task']);
+    $student = createMentorAssignedStudent($coordinator, ['name' => 'Student Visible Task']);
 
     $assignment = OjtAssignment::query()->create([
         'student_id' => $student->id,
         'ojt_type' => 'internal',
-        'professor_id' => $professor->id,
+        'company_supervisor_id' => $mentor->id,
         'status' => 'active',
     ]);
 
     StudentTask::query()->create([
         'student_id' => $student->id,
-        'assigned_by' => $professor->id,
+        'assigned_by' => $mentor->id,
         'ojt_assignment_id' => $assignment->id,
         'title' => 'Submit daily task evidence',
         'description' => 'Upload screenshots and short notes.',
@@ -186,24 +186,24 @@ test('students can see tasks assigned by their professor', function () {
         ->assertOk()
         ->assertSee('Tasks')
         ->assertSee('Submit daily task evidence')
-        ->assertSee($professor->name);
+        ->assertSee($mentor->name);
 });
 
 test('students can drag tasks between kanban columns', function () {
-    $coordinator = createProfessorAssignedStudentCoordinator();
-    $professor = createProfessorAssignedStudentUser(['name' => 'Professor Sort Task']);
-    $student = createProfessorAssignedStudent($coordinator, ['name' => 'Student Sort Task']);
+    $coordinator = createMentorAssignedStudentCoordinator();
+    $mentor = createMentorAssignedStudentUser(['name' => 'Mentor Sort Task']);
+    $student = createMentorAssignedStudent($coordinator, ['name' => 'Student Sort Task']);
 
     $assignment = OjtAssignment::query()->create([
         'student_id' => $student->id,
         'ojt_type' => 'internal',
-        'professor_id' => $professor->id,
+        'company_supervisor_id' => $mentor->id,
         'status' => 'active',
     ]);
 
     $pendingTask = StudentTask::query()->create([
         'student_id' => $student->id,
-        'assigned_by' => $professor->id,
+        'assigned_by' => $mentor->id,
         'ojt_assignment_id' => $assignment->id,
         'title' => 'Pending task',
         'priority' => 'normal',
@@ -213,7 +213,7 @@ test('students can drag tasks between kanban columns', function () {
 
     $doneTask = StudentTask::query()->create([
         'student_id' => $student->id,
-        'assigned_by' => $professor->id,
+        'assigned_by' => $mentor->id,
         'ojt_assignment_id' => $assignment->id,
         'title' => 'Done task',
         'priority' => 'normal',
@@ -233,31 +233,31 @@ test('students can drag tasks between kanban columns', function () {
     expect($doneTask->refresh()->sort_order)->toBe(1);
 });
 
-test('professors can drag grouped task cards between columns', function () {
-    $coordinator = createProfessorAssignedStudentCoordinator();
-    $professor = createProfessorAssignedStudentUser(['name' => 'Professor Group Sort']);
-    $studentA = createProfessorAssignedStudent($coordinator, ['name' => 'Group Sort Student A']);
-    $studentB = createProfessorAssignedStudent($coordinator, ['name' => 'Group Sort Student B']);
-    $studentC = createProfessorAssignedStudent($coordinator, ['name' => 'Group Sort Student C']);
+test('mentors can drag grouped task cards between columns', function () {
+    $coordinator = createMentorAssignedStudentCoordinator();
+    $mentor = createMentorAssignedStudentUser(['name' => 'Mentor Group Sort']);
+    $studentA = createMentorAssignedStudent($coordinator, ['name' => 'Group Sort Student A']);
+    $studentB = createMentorAssignedStudent($coordinator, ['name' => 'Group Sort Student B']);
+    $studentC = createMentorAssignedStudent($coordinator, ['name' => 'Group Sort Student C']);
 
     $assignmentA = OjtAssignment::query()->create([
         'student_id' => $studentA->id,
         'ojt_type' => 'internal',
-        'professor_id' => $professor->id,
+        'company_supervisor_id' => $mentor->id,
         'status' => 'active',
     ]);
 
     $assignmentB = OjtAssignment::query()->create([
         'student_id' => $studentB->id,
         'ojt_type' => 'internal',
-        'professor_id' => $professor->id,
+        'company_supervisor_id' => $mentor->id,
         'status' => 'active',
     ]);
 
     $assignmentC = OjtAssignment::query()->create([
         'student_id' => $studentC->id,
         'ojt_type' => 'internal',
-        'professor_id' => $professor->id,
+        'company_supervisor_id' => $mentor->id,
         'status' => 'active',
     ]);
 
@@ -266,7 +266,7 @@ test('professors can drag grouped task cards between columns', function () {
     foreach ([[$studentA, $assignmentA], [$studentB, $assignmentB]] as [$student, $assignment]) {
         StudentTask::query()->create([
             'student_id' => $student->id,
-            'assigned_by' => $professor->id,
+            'assigned_by' => $mentor->id,
             'ojt_assignment_id' => $assignment->id,
             'task_group_id' => $groupId,
             'title' => 'Grouped sortable task',
@@ -278,7 +278,7 @@ test('professors can drag grouped task cards between columns', function () {
 
     $existingReviewTask = StudentTask::query()->create([
         'student_id' => $studentC->id,
-        'assigned_by' => $professor->id,
+        'assigned_by' => $mentor->id,
         'ojt_assignment_id' => $assignmentC->id,
         'title' => 'Existing review task',
         'priority' => 'normal',
@@ -286,9 +286,9 @@ test('professors can drag grouped task cards between columns', function () {
         'sort_order' => 0,
     ]);
 
-    $this->actingAs($professor);
+    $this->actingAs($mentor);
 
-    Livewire::test('pages::professor.tasks')
+    Livewire::test('pages::supervisor.tasks')
         ->call('sortTaskCard', $groupId, 0, 'in_review')
         ->assertHasNoErrors();
 
@@ -303,21 +303,21 @@ test('professors can drag grouped task cards between columns', function () {
     expect($existingReviewTask->refresh()->sort_order)->toBe(1);
 });
 
-test('professors can submit practicum evaluations for assigned students', function () {
-    $coordinator = createProfessorAssignedStudentCoordinator(['name' => 'Professor Evaluation Coordinator']);
-    $professor = createProfessorAssignedStudentUser(['name' => 'Professor Evaluator']);
-    $student = createProfessorAssignedStudent($coordinator, ['name' => 'Professor Evaluation Student']);
+test('mentors can submit practicum evaluations for assigned students', function () {
+    $coordinator = createMentorAssignedStudentCoordinator(['name' => 'Mentor Evaluation Coordinator']);
+    $mentor = createMentorAssignedStudentUser(['name' => 'Mentor Evaluator']);
+    $student = createMentorAssignedStudent($coordinator, ['name' => 'Mentor Evaluation Student']);
 
     $assignment = OjtAssignment::query()->create([
         'student_id' => $student->id,
         'ojt_type' => 'internal',
-        'professor_id' => $professor->id,
+        'company_supervisor_id' => $mentor->id,
         'status' => 'active',
     ]);
 
-    $this->actingAs($professor);
+    $this->actingAs($mentor);
 
-    Livewire::test('pages::professor.evaluations')
+    Livewire::test('pages::supervisor.evaluations')
         ->call('openEvaluationModal', $assignment->id)
         ->set('inclusive_from', '2026-05-01')
         ->set('inclusive_to', '2026-05-31')
@@ -329,28 +329,28 @@ test('professors can submit practicum evaluations for assigned students', functi
 
     expect($evaluation)->not->toBeNull();
     expect($evaluation->student_id)->toBe($student->id);
-    expect($evaluation->evaluator_id)->toBe($professor->id);
-    expect($evaluation->evaluator_type)->toBe('professor');
-    expect($evaluation->cooperating_program)->toBe('Professor Evaluation Coordinator');
+    expect($evaluation->evaluator_id)->toBe($mentor->id);
+    expect($evaluation->evaluator_type)->toBe('company_supervisor');
+    expect($evaluation->cooperating_program)->toBe('Mentor Evaluation Coordinator');
     expect((float) $evaluation->rating)->toBe(100.0);
     expect($evaluation->status)->toBe('submitted');
 });
 
-test('professors can submit multiple practicum evaluations for one assigned student', function () {
-    $coordinator = createProfessorAssignedStudentCoordinator(['name' => 'Professor Multiple Evaluation Coordinator']);
-    $professor = createProfessorAssignedStudentUser(['name' => 'Professor Multiple Evaluator']);
-    $student = createProfessorAssignedStudent($coordinator, ['name' => 'Professor Multiple Evaluation Student']);
+test('mentors can submit multiple practicum evaluations for one assigned student', function () {
+    $coordinator = createMentorAssignedStudentCoordinator(['name' => 'Mentor Multiple Evaluation Coordinator']);
+    $mentor = createMentorAssignedStudentUser(['name' => 'Mentor Multiple Evaluator']);
+    $student = createMentorAssignedStudent($coordinator, ['name' => 'Mentor Multiple Evaluation Student']);
 
     $assignment = OjtAssignment::query()->create([
         'student_id' => $student->id,
         'ojt_type' => 'internal',
-        'professor_id' => $professor->id,
+        'company_supervisor_id' => $mentor->id,
         'status' => 'active',
     ]);
 
-    $this->actingAs($professor);
+    $this->actingAs($mentor);
 
-    Livewire::test('pages::professor.evaluations')
+    Livewire::test('pages::supervisor.evaluations')
         ->call('openEvaluationModal', $assignment->id)
         ->set('inclusive_from', '2026-05-01')
         ->set('inclusive_to', '2026-05-15')
@@ -366,7 +366,7 @@ test('professors can submit multiple practicum evaluations for one assigned stud
     $evaluations = Evaluation::query()
         ->where('student_id', $student->id)
         ->where('ojt_assignment_id', $assignment->id)
-        ->where('evaluator_id', $professor->id)
+        ->where('evaluator_id', $mentor->id)
         ->orderBy('inclusive_from')
         ->get();
 

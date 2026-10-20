@@ -31,12 +31,8 @@ new class extends Component
             OJT Coordinators
         </flux:sidebar.item>
 
-        <flux:sidebar.item icon="user-circle" href="{{ route('admin.professors') }}" :current="request()->routeIs('admin.professors')" wire:navigate>
-            Professors
-        </flux:sidebar.item>
-
         <flux:sidebar.item icon="building-office-2" href="{{ route('admin.supervisors') }}" :current="request()->routeIs('admin.supervisors')" wire:navigate>
-            Company Supervisors
+            Supervisors
         </flux:sidebar.item>
     </flux:sidebar.group>
 

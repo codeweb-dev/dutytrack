@@ -48,24 +48,6 @@ function createManagedStudent(User $coordinator, array $attributes = []): User
     return $student;
 }
 
-function createProfessor(array $attributes = []): User
-{
-    ensureAssignmentRolesExist();
-
-    $sequence = fake()->unique()->numerify('####');
-
-    $professor = User::factory()->create(array_merge([
-        'name' => "Professor {$sequence}",
-        'first_name' => "Professor{$sequence}",
-        'last_name' => 'Faculty',
-        'email' => "professor-{$sequence}@example.com",
-    ], $attributes));
-
-    $professor->assignRole(AppRole::PROFESSOR->value);
-
-    return $professor;
-}
-
 function createCompanySupervisor(array $attributes = []): User
 {
     ensureAssignmentRolesExist();
@@ -79,7 +61,7 @@ function createCompanySupervisor(array $attributes = []): User
         'email' => "supervisor-{$sequence}@example.com",
     ], $attributes));
 
-    $supervisor->assignRole(AppRole::COMPANYSUPERVISOR->value);
+    $supervisor->assignRole(AppRole::SUPERVISOR->value);
 
     return $supervisor;
 }
@@ -87,14 +69,14 @@ function createCompanySupervisor(array $attributes = []): User
 test('coordinator can create an internal assignment for their own student', function () {
     $coordinator = createCoordinatorForAssignments();
     $student = createManagedStudent($coordinator);
-    $professor = createProfessor();
+    $supervisor = createCompanySupervisor();
 
     $this->actingAs($coordinator);
 
     Livewire::test('coordinator.ojt-assignments.create')
         ->set('form.student_id', $student->id)
         ->set('form.ojt_type', 'internal')
-        ->set('form.professor_id', $professor->id)
+        ->set('form.company_supervisor_id', $supervisor->id)
         ->set('form.status', 'active')
         ->set('form.remarks', 'Assigned to faculty adviser.')
         ->call('save')
@@ -104,8 +86,7 @@ test('coordinator can create an internal assignment for their own student', func
 
     expect($assignment)->not->toBeNull();
     expect($assignment->ojt_type)->toBe('internal');
-    expect($assignment->professor_id)->toBe($professor->id);
-    expect($assignment->company_supervisor_id)->toBeNull();
+    expect($assignment->company_supervisor_id)->toBe($supervisor->id);
 });
 
 test('coordinator can create an external assignment for their own student', function () {
@@ -134,7 +115,6 @@ test('coordinator can create an external assignment for their own student', func
 test('coordinator can switch from internal to external before saving an assignment', function () {
     $coordinator = createCoordinatorForAssignments();
     $student = createManagedStudent($coordinator);
-    $professor = createProfessor();
     $supervisor = createCompanySupervisor();
 
     $this->actingAs($coordinator);
@@ -142,9 +122,8 @@ test('coordinator can switch from internal to external before saving an assignme
     Livewire::test('coordinator.ojt-assignments.create')
         ->set('form.student_id', $student->id)
         ->set('form.ojt_type', 'internal')
-        ->set('form.professor_id', $professor->id)
+        ->set('form.company_supervisor_id', $supervisor->id)
         ->set('form.ojt_type', 'external')
-        ->assertSet('form.professor_id', null)
         ->set('form.company_supervisor_id', $supervisor->id)
         ->set('form.status', 'active')
         ->call('save')
@@ -162,14 +141,14 @@ test('coordinator cannot assign another coordinators student', function () {
     $coordinator = createCoordinatorForAssignments();
     $otherCoordinator = createCoordinatorForAssignments(['email' => 'other-coordinator@example.com']);
     $otherStudent = createManagedStudent($otherCoordinator);
-    $professor = createProfessor();
+    $supervisor = createCompanySupervisor();
 
     $this->actingAs($coordinator);
 
     Livewire::test('coordinator.ojt-assignments.create')
         ->set('form.student_id', $otherStudent->id)
         ->set('form.ojt_type', 'internal')
-        ->set('form.professor_id', $professor->id)
+        ->set('form.company_supervisor_id', $supervisor->id)
         ->set('form.status', 'active')
         ->call('save')
         ->assertForbidden();
@@ -177,22 +156,16 @@ test('coordinator cannot assign another coordinators student', function () {
     expect(OjtAssignment::query()->where('student_id', $otherStudent->id)->exists())->toBeFalse();
 });
 
-test('coordinator cannot assign both a professor and a company supervisor to one student', function () {
+test('coordinator cannot assign a student account as supervisor', function () {
     $coordinator = createCoordinatorForAssignments();
     $student = createManagedStudent($coordinator);
-    $professor = createProfessor();
-    $supervisor = createCompanySupervisor();
-
     $this->actingAs($coordinator);
 
     Livewire::test('coordinator.ojt-assignments.create')
         ->set('form.student_id', $student->id)
-        ->set('form.ojt_type', 'internal')
-        ->set('form.professor_id', $professor->id)
-        ->set('form.company_supervisor_id', $supervisor->id)
-        ->set('form.status', 'active')
+        ->set('form.company_supervisor_id', $student->id)
         ->call('save')
-        ->assertHasErrors(['form.company_supervisor_id']);
+        ->assertForbidden();
 
     expect(OjtAssignment::query()->where('student_id', $student->id)->exists())->toBeFalse();
 });

@@ -22,34 +22,13 @@ new class extends Component
     }
 
     #[Computed]
-    public function professors()
-    {
-        return User::query()
-            ->with('professorProfile')
-            ->role('professor')
-            ->orderBy('first_name')
-            ->get();
-    }
-
-    #[Computed]
     public function companySupervisors()
     {
         return User::query()
             ->with('supervisorProfile')
-            ->role('company_supervisor')
+            ->role('supervisor')
             ->orderBy('first_name')
             ->get();
-    }
-
-    public function updatedFormOjtType(string $value): void
-    {
-        if ($value === 'internal') {
-            $this->form->company_supervisor_id = null;
-        }
-
-        if ($value === 'external') {
-            $this->form->professor_id = null;
-        }
     }
 
     public function save(): void
@@ -69,7 +48,7 @@ new class extends Component
         <form wire:submit="save" class="space-y-6">
             <div>
                 <flux:heading size="lg">Create OJT Assignment</flux:heading>
-                <flux:subheading class="mt-2">Assign one of your students to exactly one assignee: either a professor or a company supervisor.</flux:subheading>
+                <flux:subheading class="mt-2">Assign one of your students to a supervisor.</flux:subheading>
             </div>
 
             <div class="grid gap-6">
@@ -85,36 +64,24 @@ new class extends Component
                 <flux:radio.group wire:model.live="form.ojt_type" label="OJT Type" variant="cards" :indicator="false"
                     class="max-sm:flex-col">
                     <flux:radio value="internal" icon="academic-cap" label="Internal"
-                        description="Assign to a professor" />
+                        description="Internal OJT" />
                     <flux:radio value="external" icon="briefcase" label="External"
-                        description="Assign to a company supervisor" />
+                        description="External OJT" />
                 </flux:radio.group>
 
                 <flux:text>
                     A student can only have one assignee for an OJT assignment.
                 </flux:text>
 
-                @if ($form->ojt_type === 'internal')
-                    <flux:select wire:key="create-internal-professor-select" wire:model.live="form.professor_id"
-                        label="Professor">
-                        <option value="">Select professor</option>
-                        @foreach ($this->professors as $professor)
-                            <option value="{{ $professor->id }}">
-                                {{ $professor->name }}
-                            </option>
-                        @endforeach
-                    </flux:select>
-                @else
                     <flux:select wire:key="create-external-supervisor-select"
-                        wire:model.live="form.company_supervisor_id" label="Company Supervisor">
-                        <option value="">Select company supervisor</option>
-                        @foreach ($this->companySupervisors as $supervisor)
-                            <option value="{{ $supervisor->id }}">
-                                {{ $supervisor->name }}{{ $supervisor->supervisorProfile?->company_name ? ' - ' . $supervisor->supervisorProfile->company_name : '' }}
-                            </option>
-                        @endforeach
-                    </flux:select>
-                @endif
+                    wire:model.live="form.company_supervisor_id" label="Supervisor">
+                    <option value="">Select supervisor</option>
+                    @foreach ($this->companySupervisors as $supervisor)
+                        <option value="{{ $supervisor->id }}">
+                            {{ $supervisor->name }}{{ $supervisor->supervisorProfile?->company_name ? ' - ' . $supervisor->supervisorProfile->company_name : '' }}
+                        </option>
+                    @endforeach
+                </flux:select>
 
                 <flux:select wire:model="form.status" label="Status">
                     <option value="pending">Pending</option>

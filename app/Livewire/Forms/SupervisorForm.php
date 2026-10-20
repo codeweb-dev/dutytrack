@@ -19,16 +19,25 @@ class SupervisorForm extends Form
     public ?User $supervisor = null;
 
     public $photo = null;
+
     public ?string $existing_photo_path = null;
+
     public ?string $existing_photo_url = null;
 
     public string $supervisor_id = '';
+
     public string $full_name = '';
+
     public string $email = '';
+
     public ?string $contact_number = '';
+
     public string $password = '';
+
     public string $password_confirmation = '';
+
     public string $company_name = '';
+
     public ?string $company_address = '';
 
     public function rules(): array
@@ -133,7 +142,7 @@ class SupervisorForm extends Form
                 'status' => 'active',
             ]);
 
-            $user->assignRole(EnumsRole::COMPANYSUPERVISOR->value);
+            $user->assignRole(EnumsRole::SUPERVISOR->value);
 
             $user->supervisorProfile()->create([
                 'supervisor_id' => $this->supervisor_id,
@@ -144,11 +153,11 @@ class SupervisorForm extends Form
             $user = $user->fresh('supervisorProfile');
 
             AuditLogger::log(
-                module: 'Company Supervisors',
+                module: 'Supervisors',
                 action: 'created',
                 target: $user,
                 targetLabel: $user->name,
-                description: 'Created a Company Supervisor account.',
+                description: 'Created a Supervisor account.',
                 newValues: $this->supervisorAuditData($user),
             );
         });
@@ -206,7 +215,7 @@ class SupervisorForm extends Form
                 ]);
             }
 
-            $user->syncRoles([EnumsRole::COMPANYSUPERVISOR->value]);
+            $user->syncRoles([EnumsRole::SUPERVISOR->value]);
 
             $user->supervisorProfile()->update([
                 'supervisor_id' => $this->supervisor_id,
@@ -217,11 +226,11 @@ class SupervisorForm extends Form
             $user = $user->fresh('supervisorProfile');
 
             AuditLogger::log(
-                module: 'Company Supervisors',
+                module: 'Supervisors',
                 action: 'updated',
                 target: $user,
                 targetLabel: $user->name,
-                description: 'Updated a Company Supervisor account.',
+                description: 'Updated a Supervisor account.',
                 oldValues: $oldValues,
                 newValues: $this->supervisorAuditData($user),
                 meta: [
@@ -240,7 +249,7 @@ class SupervisorForm extends Form
             text: 'The supervisor has been updated successfully.'
         );
 
-        Flux::modal('edit-supervisor-' . $this->supervisor->id)->close();
+        Flux::modal('edit-supervisor-'.$this->supervisor->id)->close();
     }
 
     public function resetForm(): void

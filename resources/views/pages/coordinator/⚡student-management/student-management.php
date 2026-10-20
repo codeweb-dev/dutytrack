@@ -61,7 +61,7 @@ new #[Title('Students')] class extends Component
     public function students(): LengthAwarePaginator
     {
         $query = User::query()
-            ->with(['studentProfile', 'coordinator', 'professorProfile'])
+            ->with(['studentProfile', 'coordinator', 'coordinatorProfile'])
             ->whereHas('roles', function (Builder $query) {
                 $query->where('name', EnumsRole::STUDENT->value);
             })

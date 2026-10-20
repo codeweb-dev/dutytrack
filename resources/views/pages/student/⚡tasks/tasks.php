@@ -17,7 +17,7 @@ new class extends Component
 
     public string $title = 'Tasks';
 
-    public string $description = 'Track tasks assigned by your professor and update their progress as you work.';
+    public string $description = 'Track tasks assigned by your supervisor and update their progress as you work.';
 
     public function priorityColor(?string $priority): string
     {

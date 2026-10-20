@@ -161,7 +161,6 @@ new #[Title('Messages')] class extends Component
                 ->where('student_id', $user->id)
                 ->get()
                 ->each(function (OjtAssignment $assignment): void {
-                    $this->ensureConversation($assignment, $assignment->professor_id, 'professor');
                     $this->ensureConversation($assignment, $assignment->company_supervisor_id, 'supervisor');
                 });
 
@@ -177,13 +176,7 @@ new #[Title('Messages')] class extends Component
             return;
         }
 
-        if ($user->hasRole('professor')) {
-            OjtAssignment::query()->where('professor_id', $user->id)->get()->each(fn (OjtAssignment $assignment) => $this->ensureConversation($assignment, $user->id, 'professor'));
-
-            return;
-        }
-
-        if ($user->hasRole('company_supervisor')) {
+        if ($user->hasRole('supervisor')) {
             OjtAssignment::query()->where('company_supervisor_id', $user->id)->get()->each(fn (OjtAssignment $assignment) => $this->ensureConversation($assignment, $user->id, 'supervisor'));
         }
     }
@@ -230,7 +223,7 @@ new #[Title('Messages')] class extends Component
     {
         $user = Auth::user();
 
-        return ChatConversation::query()->when($user->hasRole('student'), fn (Builder $query) => $query->where('student_id', $user->id))->when($user->hasRole('ojt_coordinator'), fn (Builder $query) => $query->where('participant_id', $user->id)->where('participant_role', 'coordinator'))->when($user->hasRole('professor'), fn (Builder $query) => $query->where('participant_id', $user->id)->where('participant_role', 'professor'))->when($user->hasRole('company_supervisor'), fn (Builder $query) => $query->where('participant_id', $user->id)->where('participant_role', 'supervisor'));
+        return ChatConversation::query()->when($user->hasRole('student'), fn (Builder $query) => $query->where('student_id', $user->id))->when($user->hasRole('ojt_coordinator'), fn (Builder $query) => $query->where('participant_id', $user->id)->where('participant_role', 'coordinator'))->when($user->hasRole('supervisor'), fn (Builder $query) => $query->where('participant_id', $user->id)->where('participant_role', 'supervisor'));
     }
 
     protected function authorizeConversation(int $conversationId): ChatConversation
@@ -275,14 +268,13 @@ new #[Title('Messages')] class extends Component
         return match ($conversation->participant_role) {
             'supervisor' => 'Supervisor',
             'coordinator' => 'Coordinator',
-            default => 'Professor',
+            default => 'Supervisor',
         };
     }
 
     public function roleColorFor(ChatConversation $conversation): string
     {
         return match ($this->roleLabelFor($conversation)) {
-            'Professor' => 'sky',
             'Supervisor' => 'amber',
             'Coordinator' => 'red',
             default => 'zinc',

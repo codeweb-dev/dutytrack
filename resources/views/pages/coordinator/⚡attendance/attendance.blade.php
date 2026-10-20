@@ -118,9 +118,7 @@
                         @php
                             $assignment = $log->assignment;
                             $supervisor =
-                                $assignment?->ojt_type === 'internal'
-                                    ? $assignment?->professor
-                                    : $assignment?->companySupervisor;
+                                $assignment?->companySupervisor;
                         @endphp
 
                         <flux:table.row :key="$log->id">

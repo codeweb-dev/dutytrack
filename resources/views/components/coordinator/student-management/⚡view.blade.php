@@ -65,7 +65,7 @@ new class extends Component
                         <div class="text-xs uppercase tracking-wide text-zinc-400">
                             Assigned Coordinator</div>
                         <div class="mt-1 font-medium text-zinc-900 dark:text-white">
-                            {{ $student->coordinator?->name ?? 'Unassigned' }} | {{ $student->coordinator?->professorProfile->department ?? '' }}
+                            {{ $student->coordinator?->name ?? 'Unassigned' }} | {{ $student->coordinator?->coordinatorProfile->department ?? '' }}
                         </div>
                     </div>
                 </div>

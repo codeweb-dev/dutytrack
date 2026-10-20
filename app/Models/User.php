@@ -136,14 +136,9 @@ class User extends Authenticatable
         return $this->hasOne(SupervisorProfile::class);
     }
 
-    public function professorProfile()
+    public function coordinatorProfile()
     {
-        return $this->hasOne(ProfessorProfile::class);
-    }
-
-    public function professorAssignments()
-    {
-        return $this->hasMany(OjtAssignment::class, 'professor_id');
+        return $this->hasOne(CoordinatorProfile::class);
     }
 
     public function companySupervisorAssignments()

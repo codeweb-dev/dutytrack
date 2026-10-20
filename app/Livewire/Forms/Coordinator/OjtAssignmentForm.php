@@ -19,8 +19,6 @@ class OjtAssignmentForm extends Form
 
     public string $ojt_type = 'internal';
 
-    public ?int $professor_id = null;
-
     public ?int $company_supervisor_id = null;
 
     public string $status = 'active';
@@ -39,17 +37,8 @@ class OjtAssignmentForm extends Form
                 Rule::unique('ojt_assignments', 'student_id')->ignore($assignmentId),
             ],
             'ojt_type' => ['required', Rule::in(['internal', 'external'])],
-            'professor_id' => [
-                Rule::requiredIf($this->ojt_type === 'internal'),
-                Rule::prohibitedIf($this->ojt_type === 'external'),
-                'nullable',
-                'integer',
-                Rule::exists('users', 'id'),
-            ],
             'company_supervisor_id' => [
-                Rule::requiredIf($this->ojt_type === 'external'),
-                Rule::prohibitedIf($this->ojt_type === 'internal'),
-                'nullable',
+                'required',
                 'integer',
                 Rule::exists('users', 'id'),
             ],
@@ -63,16 +52,7 @@ class OjtAssignmentForm extends Form
         return [
             'student_id' => 'student',
             'ojt_type' => 'OJT type',
-            'professor_id' => 'professor',
-            'company_supervisor_id' => 'company supervisor',
-        ];
-    }
-
-    public function messages(): array
-    {
-        return [
-            'professor_id.prohibited' => 'A professor cannot be assigned when the OJT type is external.',
-            'company_supervisor_id.prohibited' => 'A company supervisor cannot be assigned when the OJT type is internal.',
+            'company_supervisor_id' => 'supervisor',
         ];
     }
 
@@ -103,19 +83,6 @@ class OjtAssignmentForm extends Form
         return $student;
     }
 
-    protected function ensureProfessor(?int $professorId = null): User
-    {
-        $professorId ??= $this->professor_id;
-
-        abort_unless($professorId, 403);
-
-        $professor = User::query()->findOrFail($professorId);
-
-        abort_unless($professor->hasRole('professor'), 403);
-
-        return $professor;
-    }
-
     protected function ensureCompanySupervisor(?int $supervisorId = null): User
     {
         $supervisorId ??= $this->company_supervisor_id;
@@ -124,7 +91,7 @@ class OjtAssignmentForm extends Form
 
         $supervisor = User::query()->findOrFail($supervisorId);
 
-        abort_unless($supervisor->hasRole('company_supervisor'), 403);
+        abort_unless($supervisor->hasRole('supervisor'), 403);
 
         return $supervisor;
     }
@@ -133,7 +100,6 @@ class OjtAssignmentForm extends Form
     {
         $assignment ??= $this->assignment?->load([
             'student.studentProfile',
-            'professor',
             'companySupervisor',
         ]);
 
@@ -142,8 +108,6 @@ class OjtAssignmentForm extends Form
             'student_name' => $assignment?->student?->name,
             'student_number' => $assignment?->student?->studentProfile?->student_id,
             'ojt_type' => $assignment?->ojt_type,
-            'professor_id' => $assignment?->professor_id,
-            'professor_name' => $assignment?->professor?->name,
             'company_supervisor_id' => $assignment?->company_supervisor_id,
             'company_supervisor_name' => $assignment?->companySupervisor?->name,
             'status' => $assignment?->status,
@@ -154,9 +118,7 @@ class OjtAssignmentForm extends Form
     protected function assignmentLabel(OjtAssignment $assignment): string
     {
         $studentName = $assignment->student?->name ?? 'Student';
-        $assignee = $assignment->ojt_type === 'internal'
-            ? ($assignment->professor?->name ?? 'Professor')
-            : ($assignment->companySupervisor?->name ?? 'Company Supervisor');
+        $assignee = $assignment->companySupervisor?->name ?? 'Supervisor';
 
         return $studentName.' -> '.$assignee;
     }
@@ -165,7 +127,6 @@ class OjtAssignmentForm extends Form
     {
         $assignment->load([
             'student.studentProfile',
-            'professor',
             'companySupervisor',
         ]);
 
@@ -174,7 +135,6 @@ class OjtAssignmentForm extends Form
         $this->assignment = $assignment;
         $this->student_id = $assignment->student_id;
         $this->ojt_type = $assignment->ojt_type;
-        $this->professor_id = $assignment->professor_id;
         $this->company_supervisor_id = $assignment->company_supervisor_id;
         $this->status = $assignment->status;
         $this->remarks = $assignment->remarks;
@@ -188,27 +148,19 @@ class OjtAssignmentForm extends Form
 
         $student = $this->ensureManagedStudent();
 
-        if ($this->ojt_type === 'internal') {
-            $this->ensureProfessor();
-            $this->company_supervisor_id = null;
-        } else {
-            $this->ensureCompanySupervisor();
-            $this->professor_id = null;
-        }
+        $this->ensureCompanySupervisor();
 
         DB::transaction(function () use ($student) {
             $assignment = OjtAssignment::create([
                 'student_id' => $student->id,
                 'ojt_type' => $this->ojt_type,
-                'professor_id' => $this->ojt_type === 'internal' ? $this->professor_id : null,
-                'company_supervisor_id' => $this->ojt_type === 'external' ? $this->company_supervisor_id : null,
+                'company_supervisor_id' => $this->company_supervisor_id,
                 'status' => $this->status,
                 'remarks' => $this->remarks ?: null,
             ]);
 
             $assignment = $assignment->fresh([
                 'student.studentProfile',
-                'professor',
                 'companySupervisor',
             ]);
 
@@ -245,18 +197,11 @@ class OjtAssignmentForm extends Form
 
         $student = $this->ensureManagedStudent();
 
-        if ($this->ojt_type === 'internal') {
-            $this->ensureProfessor();
-            $this->company_supervisor_id = null;
-        } else {
-            $this->ensureCompanySupervisor();
-            $this->professor_id = null;
-        }
+        $this->ensureCompanySupervisor();
 
         DB::transaction(function () use ($student) {
             $assignment = $this->assignment->load([
                 'student.studentProfile',
-                'professor',
                 'companySupervisor',
             ]);
 
@@ -265,15 +210,13 @@ class OjtAssignmentForm extends Form
             $assignment->update([
                 'student_id' => $student->id,
                 'ojt_type' => $this->ojt_type,
-                'professor_id' => $this->ojt_type === 'internal' ? $this->professor_id : null,
-                'company_supervisor_id' => $this->ojt_type === 'external' ? $this->company_supervisor_id : null,
+                'company_supervisor_id' => $this->company_supervisor_id,
                 'status' => $this->status,
                 'remarks' => $this->remarks ?: null,
             ]);
 
             $assignment = $assignment->fresh([
                 'student.studentProfile',
-                'professor',
                 'companySupervisor',
             ]);
 
@@ -302,7 +245,6 @@ class OjtAssignmentForm extends Form
         $this->assignment = null;
         $this->student_id = null;
         $this->ojt_type = 'internal';
-        $this->professor_id = null;
         $this->company_supervisor_id = null;
         $this->status = 'active';
         $this->remarks = null;

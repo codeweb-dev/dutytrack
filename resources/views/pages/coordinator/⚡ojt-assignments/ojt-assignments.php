@@ -23,7 +23,7 @@ new #[Title('OJT Assignments')] class extends Component
 
     public string $title = 'OJT Assignments';
 
-    public string $description = 'Assign your students to a professor or company supervisor, one assignment per student.';
+    public string $description = 'Assign your students to a supervisor, one assignment per student.';
 
     public string $search = '';
 
@@ -86,7 +86,6 @@ new #[Title('OJT Assignments')] class extends Component
             ->with([
                 'student.studentProfile',
                 'student.coordinator',
-                'professor',
                 'companySupervisor',
             ])
             ->whereHas('student', fn (Builder $query) => $query->where('coordinator_id', $coordinatorId))
@@ -104,9 +103,6 @@ new #[Title('OJT Assignments')] class extends Component
                             $profileQuery->where('student_id', 'like', $search)
                                 ->orWhere('course', 'like', $search);
                         });
-                    })->orWhereHas('professor', function (Builder $professorQuery) use ($search) {
-                        $professorQuery->where('name', 'like', $search)
-                            ->orWhere('email', 'like', $search);
                     })->orWhereHas('companySupervisor', function (Builder $supervisorQuery) use ($search) {
                         $supervisorQuery->where('name', 'like', $search)
                             ->orWhere('email', 'like', $search);
@@ -140,9 +136,6 @@ new #[Title('OJT Assignments')] class extends Component
                             $profileQuery->where('student_id', 'like', $search)
                                 ->orWhere('course', 'like', $search);
                         });
-                    })->orWhereHas('professor', function (Builder $professorQuery) use ($search) {
-                        $professorQuery->where('name', 'like', $search)
-                            ->orWhere('email', 'like', $search);
                     })->orWhereHas('companySupervisor', function (Builder $supervisorQuery) use ($search) {
                         $supervisorQuery->where('name', 'like', $search)
                             ->orWhere('email', 'like', $search);

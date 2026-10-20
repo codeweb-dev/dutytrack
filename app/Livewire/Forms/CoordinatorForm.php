@@ -4,13 +4,13 @@ namespace App\Livewire\Forms;
 
 use App\Enums\Role as EnumsRole;
 use App\Models\User;
+use App\Support\AuditLogger;
 use Flux\Flux;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Livewire\Form;
 use Livewire\WithFileUploads;
-use App\Support\AuditLogger;
 
 class CoordinatorForm extends Form
 {
@@ -19,23 +19,33 @@ class CoordinatorForm extends Form
     public ?User $coordinator = null;
 
     public $photo = null;
+
     public ?string $existing_photo_path = null;
+
     public ?string $existing_photo_url = null;
 
     public string $employee_id = '';
+
     public string $first_name = '';
+
     public ?string $middle_name = '';
+
     public string $last_name = '';
+
     public string $email = '';
+
     public ?string $contact_number = '';
+
     public string $password = '';
+
     public string $password_confirmation = '';
+
     public string $department = '';
 
     public function rules(): array
     {
         $userId = $this->coordinator?->id;
-        $profileId = $this->coordinator?->professorProfile?->id;
+        $profileId = $this->coordinator?->coordinatorProfile?->id;
 
         return [
             'photo' => ['nullable', 'image', 'max:2048'],
@@ -43,7 +53,7 @@ class CoordinatorForm extends Form
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('professor_profiles', 'employee_id')->ignore($profileId),
+                Rule::unique('coordinator_profiles', 'employee_id')->ignore($profileId),
             ],
             'first_name' => ['required', 'string', 'max:255'],
             'middle_name' => ['nullable', 'string', 'max:255'],
@@ -63,7 +73,7 @@ class CoordinatorForm extends Form
 
     protected function coordinatorAuditData(?User $user = null): array
     {
-        $user ??= $this->coordinator?->load('professorProfile');
+        $user ??= $this->coordinator?->load('coordinatorProfile');
 
         return [
             'name' => $user?->name,
@@ -73,9 +83,9 @@ class CoordinatorForm extends Form
             'email' => $user?->email,
             'contact_number' => $user?->contact_number,
             'status' => $user?->status,
-            'employee_id' => $user?->professorProfile?->employee_id,
-            'department' => $user?->professorProfile?->department,
-            'position' => $user?->professorProfile?->position,
+            'employee_id' => $user?->coordinatorProfile?->employee_id,
+            'department' => $user?->coordinatorProfile?->department,
+            'position' => $user?->coordinatorProfile?->position,
         ];
     }
 
@@ -93,7 +103,7 @@ class CoordinatorForm extends Form
 
     public function setCoordinator(User $coordinator): void
     {
-        $coordinator->load('professorProfile');
+        $coordinator->load('coordinatorProfile');
 
         $this->coordinator = $coordinator;
         $this->existing_photo_path = $coordinator->profile_photo_path;
@@ -101,13 +111,13 @@ class CoordinatorForm extends Form
             ? Storage::url($coordinator->profile_photo_path)
             : null;
 
-        $this->employee_id = $coordinator->professorProfile?->employee_id ?? '';
+        $this->employee_id = $coordinator->coordinatorProfile?->employee_id ?? '';
         $this->first_name = $coordinator->first_name ?? '';
         $this->middle_name = $coordinator->middle_name ?? '';
         $this->last_name = $coordinator->last_name ?? '';
         $this->email = $coordinator->email ?? '';
         $this->contact_number = $coordinator->contact_number ?? '';
-        $this->department = $coordinator->professorProfile?->department ?? '';
+        $this->department = $coordinator->coordinatorProfile?->department ?? '';
 
         $this->password = '';
         $this->password_confirmation = '';
@@ -145,13 +155,13 @@ class CoordinatorForm extends Form
 
             $user->assignRole(EnumsRole::OJTCOORDINATOR->value);
 
-            $user->professorProfile()->create([
+            $user->coordinatorProfile()->create([
                 'employee_id' => $this->employee_id,
                 'department' => $this->department,
                 'position' => 'OJT Coordinator',
             ]);
 
-            $user = $user->fresh('professorProfile');
+            $user = $user->fresh('coordinatorProfile');
 
             AuditLogger::log(
                 module: 'OJT Coordinators',
@@ -183,7 +193,7 @@ class CoordinatorForm extends Form
         $this->validate();
 
         DB::transaction(function () {
-            $user = $this->coordinator->load('professorProfile');
+            $user = $this->coordinator->load('coordinatorProfile');
 
             $oldValues = $this->coordinatorAuditData($user);
 
@@ -226,13 +236,13 @@ class CoordinatorForm extends Form
 
             $user->syncRoles([EnumsRole::OJTCOORDINATOR->value]);
 
-            $user->professorProfile()->update([
+            $user->coordinatorProfile()->update([
                 'employee_id' => $this->employee_id,
                 'department' => $this->department,
                 'position' => 'OJT Coordinator',
             ]);
 
-            $user = $user->fresh('professorProfile');
+            $user = $user->fresh('coordinatorProfile');
 
             AuditLogger::log(
                 module: 'OJT Coordinators',
@@ -249,7 +259,7 @@ class CoordinatorForm extends Form
             );
         });
 
-        $this->coordinator = $this->coordinator->fresh(['professorProfile']);
+        $this->coordinator = $this->coordinator->fresh(['coordinatorProfile']);
         $this->setCoordinator($this->coordinator);
 
         Flux::toast(
@@ -258,7 +268,7 @@ class CoordinatorForm extends Form
             text: 'The coordinator record has been updated successfully.'
         );
 
-        Flux::modal('edit-coordinator-' . $this->coordinator->id)->close();
+        Flux::modal('edit-coordinator-'.$this->coordinator->id)->close();
     }
 
     public function resetForm(): void

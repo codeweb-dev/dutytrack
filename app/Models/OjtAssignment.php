@@ -9,7 +9,6 @@ class OjtAssignment extends Model
     protected $fillable = [
         'student_id',
         'ojt_type',
-        'professor_id',
         'company_supervisor_id',
         'status',
         'remarks',
@@ -23,11 +22,6 @@ class OjtAssignment extends Model
     public function student()
     {
         return $this->belongsTo(User::class, 'student_id');
-    }
-
-    public function professor()
-    {
-        return $this->belongsTo(User::class, 'professor_id');
     }
 
     public function companySupervisor()

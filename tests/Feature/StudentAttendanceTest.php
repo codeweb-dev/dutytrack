@@ -21,12 +21,12 @@ function createStudentWithAssignment(): User
     ensureStudentAttendanceRolesExist();
 
     $student = User::factory()->student()->create();
-    $professor = User::factory()->professor()->create();
+    $mentor = User::factory()->companySupervisor()->create();
 
     OjtAssignment::create([
         'student_id' => $student->id,
         'ojt_type' => 'internal',
-        'professor_id' => $professor->id,
+        'company_supervisor_id' => $mentor->id,
         'status' => 'active',
     ]);
 
@@ -201,10 +201,10 @@ test('students submit accomplishments after completed attendance and download re
         ->assertSee('Photos', false);
 });
 
-test('professors can read assigned student report submissions', function () {
+test('mentors can read assigned student report submissions', function () {
     $student = createStudentWithAssignment();
     $assignment = OjtAssignment::query()->where('student_id', $student->id)->firstOrFail();
-    $professor = $assignment->professor;
+    $mentor = $assignment->companySupervisor;
 
     $attendance = AttendanceLog::query()->create([
         'student_id' => $student->id,
@@ -225,8 +225,8 @@ test('professors can read assigned student report submissions', function () {
         'accomplishment' => 'Configured workstation and documented tasks.',
     ]);
 
-    $this->actingAs($professor)
-        ->get(route('professor.reports-submissions'))
+    $this->actingAs($mentor)
+        ->get(route('supervisor.reports-submissions'))
         ->assertOk()
         ->assertSee($student->name)
         ->assertSee('Configured workstation and documented tasks.');

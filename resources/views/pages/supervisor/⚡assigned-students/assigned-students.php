@@ -21,7 +21,7 @@ new #[Title('Assigned Students')] class extends Component
 
     public string $title = 'Assigned Students';
 
-    public string $description = 'View the students assigned to you for external OJT supervision.';
+    public string $description = 'View the students assigned to you for OJT supervision.';
 
     public string $search = '';
 
@@ -65,7 +65,6 @@ new #[Title('Assigned Students')] class extends Component
             ->with([
                 'student.studentProfile',
                 'student.coordinator',
-                'professor',
                 'attendanceLogs',
             ])
             ->where('company_supervisor_id', Auth::id());

@@ -37,7 +37,7 @@ new #[Title('Student Dashboard')] class extends Component
     public function currentStudent(): User
     {
         return User::query()
-            ->with(['studentProfile', 'coordinator', 'ojtAssignment.professor', 'ojtAssignment.companySupervisor'])
+            ->with(['studentProfile', 'coordinator', 'ojtAssignment.companySupervisor'])
             ->findOrFail($this->studentId());
     }
 
@@ -71,7 +71,6 @@ new #[Title('Student Dashboard')] class extends Component
             'course' => $this->currentStudent->studentProfile?->course ?? '',
             'student_id' => $this->currentStudent->studentProfile?->student_id ?? '',
             'coordinator' => $this->currentStudent->coordinator?->name ?? 'Not assigned yet',
-            'professor' => $assignment?->professor?->name ?? 'Not assigned yet',
             'supervisor' => $assignment?->companySupervisor?->name ?? 'Not assigned yet',
             'type' => $assignment ? ucfirst($assignment->ojt_type) : 'No assignment yet',
             'status' => $assignment ? ucfirst($assignment->status) : 'Unassigned',

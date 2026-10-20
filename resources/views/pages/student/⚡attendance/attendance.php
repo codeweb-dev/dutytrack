@@ -454,7 +454,7 @@ new #[Title('My Attendance')] class extends Component
     public function assignment(): ?OjtAssignment
     {
         return OjtAssignment::query()
-            ->with(['professor', 'companySupervisor'])
+            ->with(['companySupervisor'])
             ->where('student_id', $this->studentId())
             ->latest()
             ->first();

@@ -82,7 +82,6 @@ new #[Title('OJT Assignment Monitoring')] class extends Component
         return OjtAssignment::query()
             ->with([
                 'student.studentProfile',
-                'professor',
                 'companySupervisor',
             ])
             ->when($this->search !== '', function ($query) {
@@ -102,8 +101,7 @@ new #[Title('OJT Assignment Monitoring')] class extends Component
             ->when($this->ojt_type !== '', fn ($query) => $query->where('ojt_type', $this->ojt_type))
             ->when($this->status !== '', fn ($query) => $query->where('status', $this->status))
             ->when($this->supervisor_id !== '', function ($query) {
-                $query->where('professor_id', $this->supervisor_id)
-                    ->orWhere('company_supervisor_id', $this->supervisor_id);
+                $query->where('company_supervisor_id', $this->supervisor_id);
             })
             ->latest('created_at')
             ->paginate(10);
@@ -131,8 +129,7 @@ new #[Title('OJT Assignment Monitoring')] class extends Component
             ->when($this->status !== '', fn ($query) => $query->where('status', $this->status))
             ->when($this->supervisor_id !== '', function ($query) {
                 $query->where(function ($nested) {
-                    $nested->where('professor_id', $this->supervisor_id)
-                        ->orWhere('company_supervisor_id', $this->supervisor_id);
+                    $nested->where('company_supervisor_id', $this->supervisor_id);
                 });
             });
 
@@ -149,7 +146,7 @@ new #[Title('OJT Assignment Monitoring')] class extends Component
     public function supervisors()
     {
         return User::query()
-            ->role(['professor', 'company_supervisor'])
+            ->role('supervisor')
             ->orderBy('first_name')
             ->get();
     }

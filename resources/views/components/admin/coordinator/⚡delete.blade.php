@@ -12,7 +12,7 @@ new class extends Component {
     public function delete(): void
     {
         DB::transaction(function () {
-            $coordinator = $this->coordinator->load('professorProfile');
+            $coordinator = $this->coordinator->load('coordinatorProfile');
 
             if ($coordinator->profile_photo_path) {
                 Storage::disk('public')->delete($coordinator->profile_photo_path);
@@ -50,7 +50,7 @@ new class extends Component {
                     {{ $coordinator->email }}
                 </div>
                 <div class="mt-1 text-sm text-zinc-400">
-                    Employee ID: {{ $coordinator->professorProfile?->employee_id ?? '' }}
+                    Employee ID: {{ $coordinator->coordinatorProfile?->employee_id ?? '' }}
                 </div>
             </div>
         </div>

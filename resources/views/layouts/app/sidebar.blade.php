@@ -19,9 +19,7 @@
             <livewire:admin.sidebar />
         @elseif($user->hasRole('ojt_coordinator'))
             <livewire:coordinator.sidebar />
-        @elseif($user->hasRole('professor'))
-            <livewire:professor.sidebar />
-        @elseif($user->hasRole('company_supervisor'))
+        @elseif($user->hasRole('supervisor'))
             <livewire:supervisor.sidebar />
         @elseif($user->hasRole('student'))
             <livewire:student.sidebar />

@@ -19,8 +19,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return match (true) {
             $user->hasRole('admin') => redirect()->route('admin.dashboard'),
             $user->hasRole('ojt_coordinator') => redirect()->route('coordinator.dashboard'),
-            $user->hasRole('professor') => redirect()->route('professor.dashboard'),
-            $user->hasRole('company_supervisor') => redirect()->route('supervisor.dashboard'),
+            $user->hasRole('supervisor') => redirect()->route('supervisor.dashboard'),
             $user->hasRole('student') => redirect()->route('student.dashboard'),
             default => abort(403),
         };
@@ -35,7 +34,6 @@ Route::group(['middleware' => ['role:admin']], function () {
     // User Management
     Route::livewire('/admin/students', 'pages::admin.students')->name('admin.students');
     Route::livewire('/admin/coordinators', 'pages::admin.coordinators')->name('admin.coordinators');
-    Route::livewire('/admin/professors', 'pages::admin.professors')->name('admin.professors');
     Route::livewire('/admin/supervisors', 'pages::admin.supervisors')->name('admin.supervisors');
 
     // Monitoring & reports
@@ -58,22 +56,7 @@ Route::group(['middleware' => ['role:ojt_coordinator']], function () {
     Route::livewire('/coordinator/messages', 'pages::messages')->name('coordinator.messages');
 });
 
-Route::group(['middleware' => ['role:professor']], function () {
-    Route::livewire('/professor/dashboard', 'pages::professor.dashboard')->name('professor.dashboard');
-    Route::livewire('/professor/assigned-students', 'pages::professor.assigned-students')->name('professor.assigned-students');
-    Route::livewire('/professor/evaluations', 'pages::professor.evaluations')->name('professor.evaluations');
-    Route::livewire('/professor/reports-submissions', 'pages::professor.reports-submissions')->name('professor.reports-submissions');
-    Route::livewire('/professor/tasks', 'pages::professor.tasks')->name('professor.tasks');
-    Route::livewire('/professor/messages', 'pages::messages')->name('professor.messages');
-
-    Route::get('/professor/evaluations/{evaluation}/download', function (Evaluation $evaluation) {
-        abort_unless($evaluation->evaluator_id === Auth::id() && $evaluation->evaluator_type === 'professor', 403);
-
-        return EvaluationDocument::download($evaluation);
-    })->name('professor.evaluations.download');
-});
-
-Route::group(['middleware' => ['role:company_supervisor']], function () {
+Route::group(['middleware' => ['role:supervisor']], function () {
     Route::livewire('/supervisor/dashboard', 'pages::supervisor.dashboard')->name('supervisor.dashboard');
     Route::livewire('/supervisor/assigned-students', 'pages::supervisor.assigned-students')->name('supervisor.assigned-students');
     Route::livewire('/supervisor/evaluations', 'pages::supervisor.evaluations')->name('supervisor.evaluations');

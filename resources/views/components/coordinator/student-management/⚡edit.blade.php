@@ -35,17 +35,6 @@ new class extends Component
         $this->dispatch('student-saved');
     }
 
-    public function incrementHours(): void
-    {
-        $this->form->ojt_required_hours = (int) ($this->form->ojt_required_hours ?? 0) + 10;
-    }
-
-    public function decrementHours(): void
-    {
-        $current = (int) ($this->form->ojt_required_hours ?? 0);
-
-        $this->form->ojt_required_hours = max(0, $current - 10);
-    }
 };
 ?>
 
@@ -109,27 +98,13 @@ new class extends Component
 
                 <div
                     class="rounded-2xl border border-zinc-200 bg-zinc-50 px-6 py-8 dark:border-zinc-700 dark:bg-zinc-900">
-                    <div class="flex items-center justify-between">
-                        <button type="button" wire:click="decrementHours"
-                            class="flex h-14 w-14 items-center justify-center rounded-full border border-zinc-300 bg-white text-2xl text-zinc-700 transition hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white dark:hover:bg-zinc-700"
-                            @disabled(($form->ojt_required_hours ?? 0) <= 0)>
-                            <flux:icon name="minus" />
-                        </button>
+                    <div class="flex flex-col items-center">
+                        <flux:input type="number" min="0" step="1" wire:model="form.ojt_required_hours"
+                            class="w-40 text-center text-4xl font-bold" />
 
-                        <div class="text-center">
-                            <div class="text-4xl font-bold leading-none text-zinc-900 dark:text-white">
-                                {{ \App\Support\HourFormatter::format($form->ojt_required_hours ?: 0) }}
-                            </div>
-
-                            <div class="mt-2 text-sm uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                                Hours Required
-                            </div>
+                        <div class="mt-2 text-sm uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                            Hours Required
                         </div>
-
-                        <button type="button" wire:click="incrementHours"
-                            class="flex h-14 w-14 items-center justify-center rounded-full border border-zinc-300 bg-white text-2xl text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white dark:hover:bg-zinc-700">
-                            <flux:icon name="plus" />
-                        </button>
                     </div>
                 </div>
 

@@ -5,34 +5,34 @@ use Livewire\Component;
 new class extends Component {};
 ?>
 
-<flux:sidebar.nav>
-    <flux:sidebar.item icon="home" :href="route('supervisor.dashboard')" :current="request()->routeIs('supervisor.dashboard')"
+<flux:sidebar.nav data-tour="main-navigation">
+    <flux:sidebar.item icon="home" data-tour="nav-dashboard" :href="route('supervisor.dashboard')" :current="request()->routeIs('supervisor.dashboard')"
         wire:navigate>
         Dashboard
     </flux:sidebar.item>
 
-    <flux:sidebar.item icon="academic-cap" href="{{ route('supervisor.assigned-students') }}"
+    <flux:sidebar.item icon="academic-cap" data-tour="nav-assigned-students" href="{{ route('supervisor.assigned-students') }}"
         :current="request()->routeIs('supervisor.assigned-students')" wire:navigate>
         Assigned Students
     </flux:sidebar.item>
 
 
-    <flux:sidebar.item icon="rectangle-stack" href="{{ route('supervisor.tasks') }}"
+    <flux:sidebar.item icon="rectangle-stack" data-tour="nav-tasks" href="{{ route('supervisor.tasks') }}"
         :current="request()->routeIs('supervisor.tasks')" wire:navigate>
         Tasks
     </flux:sidebar.item>
 
-    <flux:sidebar.item icon="chat-bubble-left-right" href="{{ route('supervisor.messages') }}"
+    <flux:sidebar.item icon="chat-bubble-left-right" data-tour="nav-messages" href="{{ route('supervisor.messages') }}"
         :current="request()->routeIs('supervisor.messages')" wire:navigate>
         Messages
     </flux:sidebar.item>
 
-    <flux:sidebar.item icon="document-text" href="{{ route('supervisor.reports-submissions') }}"
+    <flux:sidebar.item icon="document-text" data-tour="nav-reports" href="{{ route('supervisor.reports-submissions') }}"
         :current="request()->routeIs('supervisor.reports-submissions')" wire:navigate>
         Reports / Submissions
     </flux:sidebar.item>
 
-    <flux:sidebar.item icon="check-badge" href="{{ route('supervisor.evaluations') }}"
+    <flux:sidebar.item icon="check-badge" data-tour="nav-evaluations" href="{{ route('supervisor.evaluations') }}"
         :current="request()->routeIs('supervisor.evaluations')" wire:navigate>
         Evaluations
     </flux:sidebar.item>

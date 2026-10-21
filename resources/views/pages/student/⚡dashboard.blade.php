@@ -148,14 +148,14 @@ new #[Title('Student Dashboard')] class extends Component
 ?>
 
 <div class="flex flex-col gap-8">
-    <x-page-header :breadcrumbs="$breadcrumbs" :title="$this->title" :description="$description" />
+    <div data-tour="dashboard-overview"><x-page-header :breadcrumbs="$breadcrumbs" :title="$this->title" :description="$description" /></div>
 
     <div class="flex flex-wrap gap-2">
         <flux:button variant="primary" icon="clock" :href="route('student.attendance')" wire:navigate>Record attendance</flux:button>
         <flux:button icon="document-text" :href="route('student.reports-submissions')" wire:navigate>Daily report</flux:button>
     </div>
 
-    <section class="duty-metrics grid gap-4 md:grid-cols-2 xl:grid-cols-1">
+    <section class="duty-metrics grid gap-4 md:grid-cols-2 xl:grid-cols-1" data-tour="dashboard-metrics">
         @foreach ($this->topCards as $card)
             <flux:card>
                 <div class="flex items-start justify-between gap-4">
@@ -180,7 +180,7 @@ new #[Title('Student Dashboard')] class extends Component
         @endforeach
     </section>
 
-    <section class="grid gap-4">
+    <section class="grid gap-4" data-tour="dashboard-workflow">
         <flux:card>
             <div class="flex items-start justify-between gap-4">
                 <div>

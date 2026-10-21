@@ -31,12 +31,12 @@
 
     <flux:header class="duty-topbar block!">
         <div class="flex items-center justify-between gap-4">
-            <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" aria-label="Open navigation" />
+            <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" aria-label="Open navigation" data-tour="mobile-navigation-toggle" />
 
             <div class="ml-auto flex items-center gap-3">
-                <flux:button icon="megaphone" variant="subtle" :href="route('announcements')" aria-label="Announcements" wire:navigate />
+                <flux:button icon="megaphone" variant="subtle" :href="route('announcements')" aria-label="Announcements" wire:navigate data-tour="topbar-announcements" />
 
-                <flux:button icon="cog-6-tooth" variant="subtle" :href="route('profile.edit')" aria-label="Settings" wire:navigate />
+                <flux:button icon="cog-6-tooth" variant="subtle" :href="route('profile.edit')" aria-label="Settings" wire:navigate data-tour="account-settings" />
 
                 <flux:navbar>
                     <flux:spacer />
@@ -44,7 +44,8 @@
                     <flux:dropdown position="top" align="start">
                         <flux:profile
                             :avatar="auth()->user()->profile_photo_path ? auth()->user()->profilePhotoUrl() : null"
-                            :initials="!auth()->user()->profile_photo_path ? auth()->user()->initials() : null" />
+                            :initials="!auth()->user()->profile_photo_path ? auth()->user()->initials() : null"
+                            data-tour="profile-menu" />
 
                         <flux:menu>
                             <flux:menu.radio.group>
@@ -60,6 +61,12 @@
                                     </div>
                                 </div>
                             </flux:menu.radio.group>
+
+                            <flux:menu.separator />
+
+                            <flux:menu.item as="button" type="button" icon="question-mark-circle" wire:click="$dispatch('onboarding-replay')">
+                                Take a Tour
+                            </flux:menu.item>
 
                             <flux:menu.separator />
 
@@ -85,6 +92,8 @@
         </div>
     </flux:header>
     {{ $slot }}
+
+    <livewire:onboarding-tour />
 
     @fluxScripts
 

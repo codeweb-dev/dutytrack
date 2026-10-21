@@ -206,9 +206,9 @@ new #[Title('Admin Dashboard')] class extends Component {
 ?>
 
 <div class="flex flex-col gap-8">
-    <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
+    <div data-tour="dashboard-overview"><x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" /></div>
 
-    <section class="duty-metrics grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+    <section class="duty-metrics grid gap-4 md:grid-cols-2 xl:grid-cols-3" data-tour="dashboard-metrics">
         @foreach ($this->topCards as $card)
             <flux:card>
                 <div class="flex items-start justify-between gap-4">
@@ -234,7 +234,7 @@ new #[Title('Admin Dashboard')] class extends Component {
         @endforeach
     </section>
 
-    <section class="grid gap-4 xl:grid-cols-[minmax(0,1.4fr)_minmax(340px,0.9fr)]">
+    <section class="grid gap-4 xl:grid-cols-[minmax(0,1.4fr)_minmax(340px,0.9fr)]" data-tour="dashboard-workflow">
         <flux:card>
             <div class="flex items-start justify-between gap-4">
                 <div>

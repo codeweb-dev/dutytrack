@@ -915,3 +915,61 @@ body.duty-auth, body.duty-public { padding-top: env(safe-area-inset-top, 0px); }
     [data-flux-modal] > dialog { min-width: 0; max-width: calc(100vw - 24px); }
     .duty-topbar [data-flux-button] { min-width: 44px; }
 }
+.duty-tour-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: rgb(9 15 12 / 62%);
+}
+
+.duty-tour-dialog,
+.duty-tour-tooltip {
+    position: fixed;
+    z-index: 70;
+    width: min(100% - 2rem, 28rem);
+    border: 1px solid rgb(228 228 231);
+    border-radius: 1rem;
+    background: white;
+    padding: 1.5rem;
+    box-shadow: 0 24px 70px rgb(0 0 0 / 24%);
+}
+
+.duty-tour-dialog {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.duty-tour-tooltip {
+    width: min(100% - 2rem, 22rem);
+}
+
+.duty-tour-highlight {
+    position: relative !important;
+    z-index: 60 !important;
+    outline: 3px solid white !important;
+    outline-offset: 3px;
+    box-shadow: 0 0 0 9999px rgb(9 15 12 / 62%);
+}
+
+.duty-sidebar.duty-tour-sidebar-active {
+    z-index: 60 !important;
+}
+
+.dark .duty-tour-dialog,
+.dark .duty-tour-tooltip {
+    border-color: rgb(63 63 70);
+    background: rgb(24 24 27);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .duty-tour-dialog,
+    .duty-tour-tooltip {
+        animation: duty-tour-enter 160ms ease-out;
+    }
+}
+
+@keyframes duty-tour-enter {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; }
+}

@@ -83,13 +83,18 @@
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                <flux:modal.trigger :name="'assigned-students-'.$supervisor->id">
-                                    <flux:button variant="ghost" size="sm" class="font-medium">
-                                        {{ $supervisor->company_supervisor_assignments_count }}
-                                    </flux:button>
-                                </flux:modal.trigger>
+                                @if ($supervisor->company_supervisor_assignments_count > 0)
+                                    <flux:modal.trigger :name="'assigned-students-'.$supervisor->id">
+                                        <flux:button variant="ghost" size="sm" class="gap-2 font-medium text-green-800 hover:bg-green-50 hover:text-green-900">
+                                            {{ $supervisor->company_supervisor_assignments_count }}
+                                            <span class="underline underline-offset-4">View</span>
+                                        </flux:button>
+                                    </flux:modal.trigger>
+                                @else
+                                    <span class="px-3 text-zinc-500">0</span>
+                                @endif
 
-                                <flux:modal :name="'assigned-students-'.$supervisor->id" class="md:w-xl">
+                                <flux:modal :name="'assigned-students-'.$supervisor->id" class="md:w-3xl md:!max-w-3xl">
                                     <div class="space-y-4">
                                         <flux:heading size="lg">Assigned Students</flux:heading>
 

@@ -53,13 +53,13 @@ new #[Title('Supervisors')] class extends Component {
     {
         $query = User::query()
             ->with('supervisorProfile')
-            ->withCount('companySupervisorAssignments')
             ->with('companySupervisorAssignments.student.studentProfile')
             ->whereHas('roles', function (Builder $query) {
                 $query->where('name', EnumsRole::SUPERVISOR->value);
             })
             ->leftJoin('supervisor_profiles', 'users.id', '=', 'supervisor_profiles.user_id')
-            ->select('users.*');
+            ->select('users.*')
+            ->withCount('companySupervisorAssignments');
 
         if ($this->search !== '') {
             $search = '%' . $this->search . '%';

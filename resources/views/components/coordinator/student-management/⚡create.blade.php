@@ -2,6 +2,7 @@
 
 use App\Livewire\Forms\Coordinator\StudentForm;
 use App\Models\StudentRequirement;
+use App\Models\User;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -43,6 +44,12 @@ new class extends Component {
     public function goToStep(int $step): void
     {
         $this->currentStep = min(max($step, 1), 4);
+    }
+
+    #[Computed]
+    public function supervisors()
+    {
+        return User::query()->with('supervisorProfile')->role('supervisor')->orderBy('first_name')->get();
     }
 
     #[Computed]
@@ -205,6 +212,18 @@ new class extends Component {
                                 <flux:select.option>BSCS</flux:select.option>
                                 <flux:select.option>BSIT</flux:select.option>
                             </flux:select>
+                        </div>
+
+                        <div>
+                            <flux:select wire:model="form.company_supervisor_id" label="Assigned Supervisor" required>
+                                <option value="">Select supervisor</option>
+                                @foreach ($this->supervisors as $supervisor)
+                                    <option value="{{ $supervisor->id }}">
+                                        {{ $supervisor->name }}{{ $supervisor->supervisorProfile?->company_name ? ' - '.$supervisor->supervisorProfile->company_name : '' }}
+                                    </option>
+                                @endforeach
+                            </flux:select>
+                            <flux:error name="form.company_supervisor_id" />
                         </div>
 
                         <flux:field>

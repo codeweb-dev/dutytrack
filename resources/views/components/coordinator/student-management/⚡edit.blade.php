@@ -3,6 +3,7 @@
 use App\Livewire\Forms\Coordinator\StudentForm;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -13,6 +14,12 @@ new class extends Component
     public StudentForm $form;
 
     public User $student;
+
+    #[Computed]
+    public function supervisors()
+    {
+        return User::query()->with('supervisorProfile')->role('supervisor')->orderBy('first_name')->get();
+    }
 
     public function mount(User $student): void
     {
@@ -91,6 +98,18 @@ new class extends Component
                     <option value="BSCS">BSCS</option>
                     <option value="BSIT">BSIT</option>
                 </flux:select>
+            </div>
+
+            <div>
+                <flux:select wire:model="form.company_supervisor_id" label="Assigned Supervisor" required>
+                    <option value="">Select supervisor</option>
+                    @foreach ($this->supervisors as $supervisor)
+                        <option value="{{ $supervisor->id }}">
+                            {{ $supervisor->name }}{{ $supervisor->supervisorProfile?->company_name ? ' - '.$supervisor->supervisorProfile->company_name : '' }}
+                        </option>
+                    @endforeach
+                </flux:select>
+                <flux:error name="form.company_supervisor_id" />
             </div>
 
             <flux:field>

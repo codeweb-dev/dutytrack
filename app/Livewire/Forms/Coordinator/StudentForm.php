@@ -3,6 +3,7 @@
 namespace App\Livewire\Forms\Coordinator;
 
 use App\Enums\Role as EnumsRole;
+use App\Models\OjtAssignment;
 use App\Models\StudentRequirement;
 use App\Models\User;
 use App\Support\AuditLogger;
@@ -47,6 +48,8 @@ class StudentForm extends Form
 
     public int $ojt_required_hours = 0;
 
+    public ?int $company_supervisor_id = null;
+
     public array $requirementChecks = [];
 
     public function rules(): array
@@ -76,6 +79,7 @@ class StudentForm extends Form
             'password' => [$this->student ? 'nullable' : 'required', 'string', 'min:3', 'confirmed'],
             'course' => ['required', 'string', 'max:50'],
             'ojt_required_hours' => ['nullable', 'integer', 'min:0'],
+            'company_supervisor_id' => ['required', 'integer', Rule::exists('users', 'id')],
         ];
     }
 
@@ -93,7 +97,7 @@ class StudentForm extends Form
 
     protected function studentAuditData(?User $user = null): array
     {
-        $user ??= $this->student?->load('studentProfile', 'coordinator');
+        $user ??= $this->student?->load('studentProfile', 'coordinator', 'ojtAssignment.companySupervisor');
 
         return [
             'name' => $user?->name,
@@ -106,6 +110,8 @@ class StudentForm extends Form
             'student_id' => $user?->studentProfile?->student_id,
             'course' => $user?->studentProfile?->course,
             'ojt_required_hours' => $user?->studentProfile?->ojt_required_hours,
+            'company_supervisor_id' => $user?->ojtAssignment?->company_supervisor_id,
+            'company_supervisor_name' => $user?->ojtAssignment?->companySupervisor?->name,
             'coordinator_id' => $user?->coordinator_id,
             'coordinator_name' => $user?->coordinator?->name,
         ];
@@ -132,6 +138,14 @@ class StudentForm extends Form
         }
 
         abort_unless((int) $student->coordinator_id === (int) $this->coordinator()->id, 403);
+    }
+
+    protected function ensureCompanySupervisor(): void
+    {
+        abort_unless(
+            User::query()->role('supervisor')->whereKey($this->company_supervisor_id)->exists(),
+            403
+        );
     }
 
     public function fillFromStudentDirectory(): bool
@@ -168,7 +182,7 @@ class StudentForm extends Form
     {
         $this->ensureManagedByCurrentCoordinator($student);
 
-        $student->load('studentProfile', 'coordinator');
+        $student->load('studentProfile', 'coordinator', 'ojtAssignment');
 
         $this->student = $student;
         $this->existing_photo_path = $student->profile_photo_path;
@@ -185,6 +199,7 @@ class StudentForm extends Form
         $this->student_id = $student->studentProfile?->student_id ?? '';
         $this->course = $student->studentProfile?->course ?? '';
         $this->ojt_required_hours = (int) ($student->studentProfile?->ojt_required_hours ?? 0);
+        $this->company_supervisor_id = $student->ojtAssignment?->company_supervisor_id;
 
         $this->password = '';
         $this->password_confirmation = '';
@@ -198,6 +213,7 @@ class StudentForm extends Form
         $coordinator = $this->coordinator();
 
         $this->validate();
+        $this->ensureCompanySupervisor();
 
         DB::transaction(function () use ($coordinator) {
             $photoPath = $this->photo
@@ -231,6 +247,13 @@ class StudentForm extends Form
                 'ojt_required_hours' => $this->ojt_required_hours ?: 0,
             ]);
 
+            OjtAssignment::create([
+                'student_id' => $user->id,
+                'ojt_type' => 'internal',
+                'company_supervisor_id' => $this->company_supervisor_id,
+                'status' => 'active',
+            ]);
+
             StudentRequirement::ensureForStudent($user);
 
             $checkedRequirements = array_is_list($this->requirementChecks)
@@ -251,7 +274,7 @@ class StudentForm extends Form
                     ]);
             }
 
-            $user = $user->fresh(['studentProfile', 'coordinator']);
+            $user = $user->fresh(['studentProfile', 'coordinator', 'ojtAssignment.companySupervisor']);
 
             AuditLogger::log(
                 module: 'Students',
@@ -283,9 +306,10 @@ class StudentForm extends Form
         $this->ensureManagedByCurrentCoordinator();
 
         $this->validate();
+        $this->ensureCompanySupervisor();
 
         DB::transaction(function () {
-            $user = $this->student->load('studentProfile', 'coordinator');
+            $user = $this->student->load('studentProfile', 'coordinator', 'ojtAssignment.companySupervisor');
 
             $oldValues = $this->studentAuditData($user);
 
@@ -332,7 +356,18 @@ class StudentForm extends Form
                 'ojt_required_hours' => $this->ojt_required_hours ?: 0,
             ]);
 
-            $user = $user->fresh(['studentProfile', 'coordinator']);
+            if ($user->ojtAssignment) {
+                $user->ojtAssignment->update(['company_supervisor_id' => $this->company_supervisor_id]);
+            } else {
+                OjtAssignment::create([
+                    'student_id' => $user->id,
+                    'ojt_type' => 'internal',
+                    'company_supervisor_id' => $this->company_supervisor_id,
+                    'status' => 'active',
+                ]);
+            }
+
+            $user = $user->fresh(['studentProfile', 'coordinator', 'ojtAssignment.companySupervisor']);
 
             AuditLogger::log(
                 module: 'Students',
@@ -377,6 +412,7 @@ class StudentForm extends Form
         $this->password_confirmation = '';
         $this->course = '';
         $this->ojt_required_hours = 0;
+        $this->company_supervisor_id = null;
         $this->requirementChecks = [];
 
         $this->resetValidation();

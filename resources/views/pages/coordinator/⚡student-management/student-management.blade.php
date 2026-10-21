@@ -44,8 +44,10 @@
 
                     <flux:table.column sortable :sorted="$sortBy === 'course'" :direction="$sortDirection"
                         wire:click="sort('course')">
-                        Academic Details
+                        Program
                     </flux:table.column>
+
+                    <flux:table.column>Assigned Supervisor</flux:table.column>
 
                     <flux:table.column sortable :sorted="$sortBy === 'ojt_required_hours'" :direction="$sortDirection"
                         wire:click="sort('ojt_required_hours')">
@@ -82,6 +84,10 @@
 
                             <flux:table.cell>
                                 {{ $student->studentProfile?->course ?? '' }}
+                            </flux:table.cell>
+
+                            <flux:table.cell>
+                                {{ $student->ojtAssignment?->companySupervisor?->name ?? 'Not assigned' }}
                             </flux:table.cell>
 
                             <flux:table.cell>

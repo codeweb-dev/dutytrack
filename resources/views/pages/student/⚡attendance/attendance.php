@@ -4,18 +4,15 @@ use App\Models\AttendanceLog;
 use App\Models\OjtAssignment;
 use Carbon\CarbonInterface;
 use Flux\Flux;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\Title;
 use Livewire\Component;
-use Livewire\WithPagination;
 
 new #[Title('My Attendance')] class extends Component
 {
-    use WithPagination;
-
     public array $breadcrumbs = [
         ['logo' => 'logo.png', 'href' => '/dashboard'],
         ['label' => 'Attendance'],
@@ -35,9 +32,48 @@ new #[Title('My Attendance')] class extends Component
 
     public bool $overtime_enabled = false;
 
+    #[Locked]
+    public string $calendarMonth;
+
+    #[Locked]
+    public ?string $selectedCalendarDate = null;
+
     public function mount(): void
     {
+        $this->calendarMonth = now()->format('Y-m');
         $this->overtime_enabled = (bool) ($this->todayAttendance?->overtime_enabled ?? false);
+    }
+
+    public function previousCalendarMonth(): void
+    {
+        $this->calendarMonth = Carbon::createFromFormat('!Y-m', $this->calendarMonth)->subMonthNoOverflow()->format('Y-m');
+    }
+
+    public function nextCalendarMonth(): void
+    {
+        $this->calendarMonth = Carbon::createFromFormat('!Y-m', $this->calendarMonth)->addMonthNoOverflow()->format('Y-m');
+    }
+
+    public function showAttendanceDay(mixed $date): void
+    {
+        if (! is_string($date) || ! preg_match('/\A\d{4}-\d{2}-\d{2}\z/', $date)) {
+            return;
+        }
+
+        try {
+            $selectedDate = Carbon::createFromFormat('!Y-m-d', $date);
+        } catch (\Throwable) {
+            return;
+        }
+
+        if (! $selectedDate || $selectedDate->format('Y-m-d') !== $date) {
+            return;
+        }
+
+        $this->selectedCalendarDate = $date;
+        unset($this->selectedAttendance);
+
+        Flux::modal('attendance-day-details')->show();
     }
 
     protected function studentId(): int
@@ -52,7 +88,7 @@ new #[Title('My Attendance')] class extends Component
 
     protected function resetAttendanceState(): void
     {
-        unset($this->todayAttendance, $this->attendanceLogs, $this->summary);
+        unset($this->todayAttendance, $this->calendar, $this->selectedAttendance, $this->summary);
     }
 
     protected function calculateSessionMinutes(?CarbonInterface $timeIn, ?CarbonInterface $timeOut): int
@@ -470,13 +506,43 @@ new #[Title('My Attendance')] class extends Component
     }
 
     #[Computed]
-    public function attendanceLogs(): LengthAwarePaginator
+    public function calendar(): array
     {
+        $month = Carbon::createFromFormat('!Y-m', $this->calendarMonth);
+        $start = $month->copy()->startOfWeek(Carbon::MONDAY);
+        $end = $month->copy()->endOfMonth()->endOfWeek(Carbon::SUNDAY);
+        $attendanceByDate = AttendanceLog::query()
+            ->where('student_id', $this->studentId())
+            ->whereBetween('attendance_date', [$start->toDateString(), $end->toDateString()])
+            ->get(['attendance_date', 'status'])
+            ->keyBy(fn (AttendanceLog $attendance) => $attendance->attendance_date->toDateString());
+
+        $days = [];
+
+        for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
+            $key = $date->toDateString();
+            $days[] = [
+                'date' => $date->copy(),
+                'is_current_month' => $date->format('Y-m') === $month->format('Y-m'),
+                'is_today' => $date->isToday(),
+                'status' => $attendanceByDate->get($key)?->status,
+            ];
+        }
+
+        return ['month' => $month, 'days' => $days];
+    }
+
+    #[Computed]
+    public function selectedAttendance(): ?AttendanceLog
+    {
+        if (! $this->selectedCalendarDate) {
+            return null;
+        }
+
         return AttendanceLog::query()
             ->where('student_id', $this->studentId())
-            ->latest('attendance_date')
-            ->latest('created_at')
-            ->paginate(10);
+            ->whereDate('attendance_date', $this->selectedCalendarDate)
+            ->first();
     }
 
     #[Computed]

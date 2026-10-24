@@ -1,30 +1,87 @@
 <div class="flex flex-col gap-6">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
-    <section class="duty-metrics duty-attendance-metrics grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <flux:card class="p-4">
-            <flux:heading>Total Records</flux:heading>
-            <div class="mt-2 text-3xl font-semibold text-zinc-950 dark:text-white">{{ $this->summary['total'] }}</div>
-        </flux:card>
+    <section class="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(24rem,1fr)]">
+        <flux:card class="p-5">
+            <div class="flex items-center justify-between gap-4">
+                <div>
+                    <flux:heading size="lg">Attendance Calendar</flux:heading>
+                    <flux:text class="mt-1">{{ $this->calendar['month']->format('F Y') }}</flux:text>
+                </div>
+                <div class="flex items-center gap-1">
+                    <flux:button type="button" variant="ghost" icon="chevron-left" aria-label="Previous month"
+                        wire:click="previousCalendarMonth" />
+                    <flux:button type="button" variant="ghost" icon="chevron-right" aria-label="Next month"
+                        wire:click="nextCalendarMonth" />
+                </div>
+            </div>
 
-        <flux:card class="p-4">
-            <flux:heading>Present</flux:heading>
-            <div class="mt-2 text-3xl font-semibold text-zinc-950 dark:text-white">{{ $this->summary['present'] }}</div>
-        </flux:card>
+            <div class="mt-6 grid grid-cols-7 text-center text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                @foreach (['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as $weekday)
+                    <div class="py-2">{{ $weekday }}</div>
+                @endforeach
+            </div>
 
-        <flux:card class="p-4">
-            <flux:heading>Incomplete</flux:heading>
-            <div class="mt-2 text-3xl font-semibold text-zinc-950 dark:text-white">{{ $this->summary['incomplete'] }}
+            <div class="grid grid-cols-7 gap-1">
+                @foreach ($this->calendar['days'] as $day)
+                    <button type="button" wire:key="calendar-day-{{ $day['date']->format('Y-m-d') }}"
+                        wire:click="showAttendanceDay('{{ $day['date']->format('Y-m-d') }}')" @class([
+                        'flex min-h-14 flex-col items-center rounded-xl border border-transparent py-2 text-sm',
+                        'w-full cursor-pointer transition-colors hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest dark:hover:bg-zinc-800/50',
+                        'text-zinc-900 dark:text-white' => $day['is_current_month'],
+                        'text-zinc-400 dark:text-zinc-600' => ! $day['is_current_month'],
+                        'border-forest bg-emerald-50 font-semibold dark:bg-emerald-950/30' => $day['is_today'],
+                    ])
+                        aria-label="View attendance for {{ $day['date']->format('F j, Y') }}{{ $day['status'] ? ': '.ucfirst($day['status']) : '' }}"
+                        title="{{ $day['date']->format('F j, Y') }}{{ $day['status'] ? ' · '.ucfirst($day['status']) : '' }}">
+                        <time datetime="{{ $day['date']->toDateString() }}">{{ $day['date']->format('j') }}</time>
+                        @if ($day['status'])
+                            <span class="sr-only">{{ ucfirst($day['status']) }}</span>
+                            <span @class([
+                                'mt-1 h-2 w-2 rounded-full',
+                                'bg-emerald-600' => $day['status'] === 'present',
+                                'bg-amber-500' => $day['status'] === 'late',
+                                'bg-orange-500' => $day['status'] === 'incomplete',
+                                'bg-red-500' => $day['status'] === 'absent',
+                                'bg-zinc-500' => ! in_array($day['status'], ['present', 'late', 'incomplete', 'absent'], true),
+                            ])></span>
+                        @endif
+                    </button>
+                @endforeach
+            </div>
+
+            <div class="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-xs text-zinc-600 dark:text-zinc-400">
+                @foreach ([['Present', 'bg-emerald-600'], ['Late', 'bg-amber-500'], ['Incomplete', 'bg-orange-500'], ['Absent', 'bg-red-500']] as [$label, $color])
+                    <span class="inline-flex items-center gap-2">
+                        <span class="h-2 w-2 rounded-full {{ $color }}"></span>{{ $label }}
+                    </span>
+                @endforeach
             </div>
         </flux:card>
 
-        <flux:card class="p-4">
-            <flux:heading>Rendered Hours</flux:heading>
-            <div class="mt-2 text-3xl font-semibold text-zinc-950 dark:text-white">
-                {{ \App\Support\HourFormatter::format($this->summary['hours']) }}
-            </div>
-        </flux:card>
+        <section class="duty-metrics duty-attendance-metrics grid gap-4 sm:grid-cols-2">
+            <flux:card class="p-4">
+                <flux:heading>Total Records</flux:heading>
+                <div class="mt-2 text-3xl font-semibold text-zinc-950 dark:text-white">{{ $this->summary['total'] }}</div>
+            </flux:card>
 
+            <flux:card class="p-4">
+                <flux:heading>Present</flux:heading>
+                <div class="mt-2 text-3xl font-semibold text-zinc-950 dark:text-white">{{ $this->summary['present'] }}</div>
+            </flux:card>
+
+            <flux:card class="p-4">
+                <flux:heading>Incomplete</flux:heading>
+                <div class="mt-2 text-3xl font-semibold text-zinc-950 dark:text-white">{{ $this->summary['incomplete'] }}</div>
+            </flux:card>
+
+            <flux:card class="p-4">
+                <flux:heading>Rendered Hours</flux:heading>
+                <div class="mt-2 text-3xl font-semibold text-zinc-950 dark:text-white">
+                    {{ \App\Support\HourFormatter::format($this->summary['hours']) }}
+                </div>
+            </flux:card>
+        </section>
     </section>
 
     <section class="flex flex-col gap-6">
@@ -296,67 +353,82 @@
             </form>
         </flux:card>
 
-        <flux:card>
-            <div>
-                <flux:heading size="lg">Attendance History</flux:heading>
-                <flux:text class="mt-2">Your recorded attendance logs appear here after you clock in.</flux:text>
-            </div>
-
-            <div class="mt-6">
-                <flux:table :paginate="$this->attendanceLogs">
-                    <flux:table.columns>
-                        <flux:table.column>Date</flux:table.column>
-                        <flux:table.column>Morning In</flux:table.column>
-                        <flux:table.column>Morning Out</flux:table.column>
-                        <flux:table.column>Afternoon In</flux:table.column>
-                        <flux:table.column>Afternoon Out</flux:table.column>
-                        <flux:table.column>Hours</flux:table.column>
-                        <flux:table.column>Location</flux:table.column>
-                        <flux:table.column>Status</flux:table.column>
-                    </flux:table.columns>
-
-                    <flux:table.rows>
-                        @forelse ($this->attendanceLogs as $log)
-                            <flux:table.row :key="$log->id">
-                                <flux:table.cell>{{ $log->attendance_date?->format('M d, Y') ?? '' }}
-                                </flux:table.cell>
-                                <flux:table.cell>{{ $log->displayMorningTimeIn()?->format('h:i A') ?? '' }}</flux:table.cell>
-                                <flux:table.cell>{{ $log->displayMorningTimeOut()?->format('h:i A') ?? '' }}</flux:table.cell>
-                                <flux:table.cell>{{ $log->displayAfternoonTimeIn()?->format('h:i A') ?? '' }}</flux:table.cell>
-                                <flux:table.cell>{{ $log->displayAfternoonTimeOut()?->format('h:i A') ?? '' }}</flux:table.cell>
-                                <flux:table.cell>
-                                    {{ \App\Support\HourFormatter::format($log->hours_rendered) }}
-                                    @if ($log->overtime_enabled)
-                                        <flux:badge size="sm" color="blue" inset="top bottom">OT</flux:badge>
-                                    @endif
-                                </flux:table.cell>
-                                <flux:table.cell>
-                                    <div class="flex items-center gap-2">
-                                        @if ($log->timeInMapUrl())
-                                            <flux:button size="sm" variant="ghost" icon="map"
-                                                :href="$log->timeInMapUrl()" target="_blank" />
-                                        @else
-                                            <span class="text-zinc-400">—</span>
-                                        @endif
-                                    </div>
-                                </flux:table.cell>
-                                <flux:table.cell>
-                                    <flux:badge size="sm" :color="$this->badgeColor($log->status)"
-                                        inset="top bottom">
-                                        {{ ucfirst($log->status) }}
-                                    </flux:badge>
-                                </flux:table.cell>
-                            </flux:table.row>
-                        @empty
-                            <flux:table.row>
-                                <flux:table.cell colspan="9" class="py-8 text-center text-zinc-500">
-                                    No attendance records found.
-                                </flux:table.cell>
-                            </flux:table.row>
-                        @endforelse
-                    </flux:table.rows>
-                </flux:table>
-            </div>
-        </flux:card>
     </section>
+
+    <flux:modal name="attendance-day-details" class="md:w-2xl">
+        <div class="space-y-6">
+            <div>
+                <flux:heading size="lg">
+                    {{ $selectedCalendarDate ? \Illuminate\Support\Carbon::parse($selectedCalendarDate)->format('F j, Y') : 'Attendance Details' }}
+                </flux:heading>
+                <flux:text class="mt-2">Daily attendance details.</flux:text>
+            </div>
+
+            @if ($this->selectedAttendance)
+                <div class="flex flex-wrap items-center gap-2">
+                    <flux:badge :color="$this->badgeColor($this->selectedAttendance->status)" inset="top bottom">
+                        {{ ucfirst($this->selectedAttendance->status) }}
+                    </flux:badge>
+                    @if ($this->selectedAttendance->overtime_enabled)
+                        <flux:badge color="blue" inset="top bottom">Overtime enabled</flux:badge>
+                    @endif
+                </div>
+
+                <div class="grid gap-3 sm:grid-cols-2">
+                    @foreach ([
+                        ['Morning In', $this->selectedAttendance->displayMorningTimeIn()],
+                        ['Morning Out', $this->selectedAttendance->displayMorningTimeOut()],
+                        ['Afternoon In', $this->selectedAttendance->displayAfternoonTimeIn()],
+                        ['Afternoon Out', $this->selectedAttendance->displayAfternoonTimeOut()],
+                    ] as [$label, $time])
+                        <flux:card class="p-4">
+                            <flux:heading>{{ $label }}</flux:heading>
+                            <div class="mt-2 text-lg font-semibold text-zinc-950 dark:text-white">
+                                {{ $time?->format('h:i A') ?? 'Not recorded' }}
+                            </div>
+                        </flux:card>
+                    @endforeach
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <flux:heading>Rendered Hours</flux:heading>
+                        <flux:text class="mt-1">{{ \App\Support\HourFormatter::format($this->selectedAttendance->hours_rendered) }}</flux:text>
+                    </div>
+                    <div>
+                        <flux:heading>Remarks</flux:heading>
+                        <flux:text class="mt-1 whitespace-pre-line">{{ $this->selectedAttendance->remarks ?: 'No remarks.' }}</flux:text>
+                    </div>
+                    <div>
+                        <flux:heading>Time-in Location</flux:heading>
+                        @if ($this->selectedAttendance->hasTimeInLocation())
+                            <flux:text class="mt-1">
+                                {{ number_format($this->selectedAttendance->time_in_latitude, 6) }},
+                                {{ number_format($this->selectedAttendance->time_in_longitude, 6) }}
+                                @if ($this->selectedAttendance->time_in_location_accuracy)
+                                    · ±{{ $this->selectedAttendance->time_in_location_accuracy }}m
+                                @endif
+                            </flux:text>
+                            <flux:button class="mt-2" size="sm" variant="ghost" icon="map"
+                                :href="$this->selectedAttendance->timeInMapUrl()" target="_blank">
+                                Open Map
+                            </flux:button>
+                        @else
+                            <flux:text class="mt-1">No location captured.</flux:text>
+                        @endif
+                    </div>
+                </div>
+            @else
+                <flux:callout icon="information-circle">
+                    <flux:callout.text>No attendance record for this date.</flux:callout.text>
+                </flux:callout>
+            @endif
+
+            <div class="flex justify-end">
+                <flux:modal.close>
+                    <flux:button type="button" variant="ghost">Close</flux:button>
+                </flux:modal.close>
+            </div>
+        </div>
+    </flux:modal>
 </div>

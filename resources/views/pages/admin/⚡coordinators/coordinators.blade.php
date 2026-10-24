@@ -33,11 +33,6 @@
                         Coordinator
                     </flux:table.column>
 
-                    <flux:table.column sortable :sorted="$sortBy === 'employee_id'" :direction="$sortDirection"
-                        wire:click="sort('employee_id')">
-                        Employee ID
-                    </flux:table.column>
-
                     <flux:table.column sortable :sorted="$sortBy === 'department'" :direction="$sortDirection"
                         wire:click="sort('department')">
                         Department
@@ -60,10 +55,6 @@
                                         <span class="text-xs text-zinc-500">{{ $coordinator->email }}</span>
                                     </div>
                                 </div>
-                            </flux:table.cell>
-
-                            <flux:table.cell class="whitespace-nowrap font-medium">
-                                {{ $coordinator->coordinatorProfile?->employee_id ?? '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>

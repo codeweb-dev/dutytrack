@@ -72,14 +72,12 @@ new #[Title('OJT Coordinators Management')] class extends Component {
                     ->orWhere('users.last_name', 'like', $search)
                     ->orWhere('users.email', 'like', $search)
                     ->orWhere('users.contact_number', 'like', $search)
-                    ->orWhere('coordinator_profiles.employee_id', 'like', $search)
                     ->orWhere('coordinator_profiles.department', 'like', $search);
             });
         }
 
         $allowedSorts = [
             'name' => 'users.name',
-            'employee_id' => 'coordinator_profiles.employee_id',
             'department' => 'coordinator_profiles.department',
         ];
 

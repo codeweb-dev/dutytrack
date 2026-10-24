@@ -37,9 +37,6 @@ new class extends Component {
                 <x-custom-file-upload model="form.photo" label="Upload profile photo" accept="image/*" :existing="$form->existing_photo_url" />
             </div>
 
-            <flux:input wire:model="form.employee_id" label="Employee ID" placeholder="EMP-0001"
-                description:trailing="Employee ID can be found on the employee's ID card." />
-
             <div class="grid grid-cols-2 gap-x-4 gap-y-6">
                 <flux:input wire:model="form.first_name" label="First Name" placeholder="John" />
                 <flux:input wire:model="form.middle_name" label="Middle Name" badge="Optional" placeholder="Doe" />

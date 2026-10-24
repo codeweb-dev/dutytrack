@@ -8,7 +8,6 @@ class CoordinatorProfile extends Model
 {
     protected $fillable = [
         'user_id',
-        'employee_id',
         'department',
         'position',
     ];

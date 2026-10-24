@@ -27,6 +27,7 @@ test('only the four supported roles are seeded and professor routes are removed'
 test('legacy staff migrate without losing accounts assignments profiles or messages', function () {
     $migration = require database_path('migrations/2026_10_19_000001_consolidate_supervisor_roles.php');
     $migration->down();
+    Schema::table('professor_profiles', fn ($table) => $table->string('employee_id')->nullable()->unique());
 
     PermissionRole::findOrCreate('professor', 'web');
     PermissionRole::findOrCreate('company_supervisor', 'web');

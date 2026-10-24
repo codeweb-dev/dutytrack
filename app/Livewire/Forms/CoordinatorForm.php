@@ -24,8 +24,6 @@ class CoordinatorForm extends Form
 
     public ?string $existing_photo_url = null;
 
-    public string $employee_id = '';
-
     public string $first_name = '';
 
     public ?string $middle_name = '';
@@ -45,16 +43,8 @@ class CoordinatorForm extends Form
     public function rules(): array
     {
         $userId = $this->coordinator?->id;
-        $profileId = $this->coordinator?->coordinatorProfile?->id;
-
         return [
             'photo' => ['nullable', 'image', 'max:2048'],
-            'employee_id' => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('coordinator_profiles', 'employee_id')->ignore($profileId),
-            ],
             'first_name' => ['required', 'string', 'max:255'],
             'middle_name' => ['nullable', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
@@ -83,7 +73,6 @@ class CoordinatorForm extends Form
             'email' => $user?->email,
             'contact_number' => $user?->contact_number,
             'status' => $user?->status,
-            'employee_id' => $user?->coordinatorProfile?->employee_id,
             'department' => $user?->coordinatorProfile?->department,
             'position' => $user?->coordinatorProfile?->position,
         ];
@@ -92,7 +81,6 @@ class CoordinatorForm extends Form
     public function validationAttributes(): array
     {
         return [
-            'employee_id' => 'employee ID',
             'first_name' => 'first name',
             'middle_name' => 'middle name',
             'last_name' => 'last name',
@@ -111,7 +99,6 @@ class CoordinatorForm extends Form
             ? Storage::url($coordinator->profile_photo_path)
             : null;
 
-        $this->employee_id = $coordinator->coordinatorProfile?->employee_id ?? '';
         $this->first_name = $coordinator->first_name ?? '';
         $this->middle_name = $coordinator->middle_name ?? '';
         $this->last_name = $coordinator->last_name ?? '';
@@ -156,7 +143,6 @@ class CoordinatorForm extends Form
             $user->assignRole(EnumsRole::OJTCOORDINATOR->value);
 
             $user->coordinatorProfile()->create([
-                'employee_id' => $this->employee_id,
                 'department' => $this->department,
                 'position' => 'OJT Coordinator',
             ]);
@@ -237,7 +223,6 @@ class CoordinatorForm extends Form
             $user->syncRoles([EnumsRole::OJTCOORDINATOR->value]);
 
             $user->coordinatorProfile()->update([
-                'employee_id' => $this->employee_id,
                 'department' => $this->department,
                 'position' => 'OJT Coordinator',
             ]);
@@ -277,7 +262,6 @@ class CoordinatorForm extends Form
         $this->photo = null;
         $this->existing_photo_path = null;
         $this->existing_photo_url = null;
-        $this->employee_id = '';
         $this->first_name = '';
         $this->middle_name = '';
         $this->last_name = '';

@@ -15,11 +15,6 @@ new class extends Component {
         $this->dispatch('coordinator-saved');
     }
 
-    public function updatedFormEmployeeId(): void
-    {
-        $this->form->fillFromStaffDirectory();
-    }
-
     public function updatedFormLastName(): void
     {
         $this->form->fillPasswordFromLastName();
@@ -49,9 +44,6 @@ new class extends Component {
                     <div class="w-full">
                         <x-custom-file-upload model="form.photo" label="Upload profile photo" accept="image/*" />
                     </div>
-
-                    <flux:input wire:model.live.debounce.300ms="form.employee_id" label="Employee ID" placeholder="COORD-1001"
-                        description:trailing="Employee ID can be found on the employee's ID card." />
 
                     <div class="grid grid-cols-2 gap-x-4 gap-y-6">
                         <flux:input wire:model="form.first_name" label="First Name" placeholder="John" />

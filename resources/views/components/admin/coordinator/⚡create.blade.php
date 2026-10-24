@@ -19,6 +19,11 @@ new class extends Component {
     {
         $this->form->fillPasswordFromLastName();
     }
+
+    public function updatedFormDepartment(): void
+    {
+        $this->form->program = '';
+    }
 };
 ?>
 
@@ -78,21 +83,20 @@ new class extends Component {
                             placeholder="Confirm password" viewable />
                     </div>
 
-                    <flux:input wire:model="form.department" label="Department" readonly />
-
-                    {{-- <flux:select wire:model="form.department" label="Department" placeholder="Select department">
+                    <flux:select wire:model.live="form.department" label="Department" placeholder="Select department">
                         <option value="">Select department</option>
+                        @foreach ($form->departments() as $department)
+                            <option value="{{ $department }}">{{ $department }}</option>
+                        @endforeach
+                    </flux:select>
 
-                        <option value="Industrial Technology">Industrial Technology</option>
-                        <option value="Business Administration">Business Administration</option>
-                        <option value="Criminology">Criminology</option>
-                        <option value="Computer Science">Computer Science</option>
-                        <option value="Hospitality Management">Hospitality Management</option>
-                        <option value="Information Technology">Information Technology</option>
-                        <option value="Office Administration">Office Administration</option>
-                        <option value="Psychology">Psychology</option>
-                        <option value="Teacher Education">Teacher Education</option>
-                    </flux:select> --}}
+                    <flux:select wire:model="form.program" label="Program" placeholder="Select program"
+                        :disabled="! $form->department || empty($form->programs())">
+                        <option value="">Select program</option>
+                        @foreach ($form->programs() as $program)
+                            <option value="{{ $program }}">{{ $program }}</option>
+                        @endforeach
+                    </flux:select>
                 </div>
             </flux:fieldset>
 

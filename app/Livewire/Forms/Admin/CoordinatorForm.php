@@ -38,7 +38,21 @@ class CoordinatorForm extends Form
 
     public string $password_confirmation = '';
 
-    public string $department = 'Computer Science';
+    public string $department = 'Computer Studies';
+
+    public string $program = '';
+
+    public function departments(): array
+    {
+        return ['Computer Studies'];
+    }
+
+    public function programs(): array
+    {
+        return $this->department === 'Computer Studies'
+            ? ['Computer Science', 'Information Technology']
+            : [];
+    }
 
     public function rules(): array
     {
@@ -57,7 +71,8 @@ class CoordinatorForm extends Form
             ],
             'contact_number' => ['nullable', 'string', 'max:20'],
             'password' => [$this->coordinator ? 'nullable' : 'required', 'string', 'min:2', 'confirmed'],
-            'department' => ['required', 'string', 'max:255'],
+            'department' => ['required', 'string', Rule::in($this->departments())],
+            'program' => [Rule::requiredIf($this->department === 'Computer Studies'), 'nullable', 'string', Rule::in($this->programs())],
         ];
     }
 
@@ -74,6 +89,7 @@ class CoordinatorForm extends Form
             'contact_number' => $user?->contact_number,
             'status' => $user?->status,
             'department' => $user?->coordinatorProfile?->department,
+            'program' => $user?->coordinatorProfile?->program,
             'position' => $user?->coordinatorProfile?->position,
         ];
     }
@@ -86,6 +102,7 @@ class CoordinatorForm extends Form
             'last_name' => 'last name',
             'contact_number' => 'contact number',
             'department' => 'department',
+            'program' => 'program',
         ];
     }
 
@@ -114,7 +131,8 @@ class CoordinatorForm extends Form
         $this->last_name = $coordinator->last_name ?? '';
         $this->email = $coordinator->email ?? '';
         $this->contact_number = $coordinator->contact_number ?? '';
-        $this->department = $coordinator->coordinatorProfile?->department ?? '';
+        $this->department = 'Computer Studies';
+        $this->program = $coordinator->coordinatorProfile?->program ?? '';
 
         $this->password = '';
         $this->password_confirmation = '';
@@ -154,6 +172,7 @@ class CoordinatorForm extends Form
 
             $user->coordinatorProfile()->create([
                 'department' => $this->department,
+                'program' => $this->program ?: null,
                 'position' => 'OJT Coordinator',
             ]);
 
@@ -234,6 +253,7 @@ class CoordinatorForm extends Form
 
             $user->coordinatorProfile()->update([
                 'department' => $this->department,
+                'program' => $this->program ?: null,
                 'position' => 'OJT Coordinator',
             ]);
 
@@ -279,7 +299,8 @@ class CoordinatorForm extends Form
         $this->contact_number = '';
         $this->password = '';
         $this->password_confirmation = '';
-        $this->department = 'Computer Science';
+        $this->department = 'Computer Studies';
+        $this->program = '';
 
         $this->resetValidation();
     }

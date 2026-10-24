@@ -16,6 +16,11 @@ new class extends Component {};
         Assigned Students
     </flux:sidebar.item>
 
+    <flux:sidebar.item icon="calendar-days" data-tour="nav-attendance" href="{{ route('supervisor.attendance') }}"
+        :current="request()->routeIs('supervisor.attendance')" wire:navigate>
+        Attendance
+    </flux:sidebar.item>
+
 
     <flux:sidebar.item icon="rectangle-stack" data-tour="nav-tasks" href="{{ route('supervisor.tasks') }}"
         :current="request()->routeIs('supervisor.tasks')" wire:navigate>

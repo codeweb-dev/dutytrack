@@ -93,6 +93,7 @@ class OnboardingTours
                 self::step('dashboard-metrics', 'Placement summary', 'These cards show the trainees and pending placements assigned to you.'),
                 self::step('dashboard-workflow', 'Attendance and recent trainees', 'Review weekly attendance and placement status, then search the recent trainee list to find someone.'),
                 self::step('nav-assigned-students', 'Assigned Students', 'View the students assigned to your supervision and check their placement status.'),
+                self::step('nav-attendance', 'Attendance', 'Open the calendar to review every assigned trainee’s attendance by day.'),
                 self::step('nav-tasks', 'Tasks', 'Create tasks for assigned trainees and monitor their progress as they work.'),
                 self::step('nav-messages', 'Messages', 'Use conversations to communicate with students assigned to you.'),
                 self::step('nav-reports', 'Reports / Submissions', 'Read completed trainee accomplishment reports and review their attached photos.'),

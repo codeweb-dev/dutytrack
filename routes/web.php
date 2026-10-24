@@ -60,6 +60,7 @@ Route::group(['middleware' => ['role:ojt_coordinator']], function () {
 Route::group(['middleware' => ['role:supervisor']], function () {
     Route::livewire('/supervisor/dashboard', 'pages::supervisor.dashboard')->name('supervisor.dashboard');
     Route::livewire('/supervisor/assigned-students', 'pages::supervisor.assigned-students')->name('supervisor.assigned-students');
+    Route::livewire('/supervisor/attendance', 'pages::supervisor.attendance')->name('supervisor.attendance');
     Route::livewire('/supervisor/evaluations', 'pages::supervisor.evaluations')->name('supervisor.evaluations');
     Route::livewire('/supervisor/reports-submissions', 'pages::supervisor.reports-submissions')->name('supervisor.reports-submissions');
     Route::livewire('/supervisor/tasks', 'pages::supervisor.tasks')->name('supervisor.tasks');

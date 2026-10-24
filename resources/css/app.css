@@ -866,11 +866,11 @@ textarea {
 .duty-board-column {
     scroll-snap-align: start;
     background: #f7f9f8;
-    border: 1px solid var(--duty-line);
+    border: 1px solid #b7cdbd;
 }
 .duty-task-card {
     background: #fff;
-    border-color: var(--duty-line);
+    border-color: #c4d8ca;
     box-shadow: none;
 }
 @media (max-width: 1023px) {

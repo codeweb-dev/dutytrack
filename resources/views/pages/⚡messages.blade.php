@@ -506,8 +506,8 @@ new #[Title('Messages')] class extends Component
                 </div>
 
                 <form wire:submit="sendMessage" class="shrink-0 border-t border-zinc-200 p-4 dark:border-zinc-800">
-                    <div class="flex items-center gap-3">
-                        <flux:textarea wire:model="body" rows="auto" label="Message" placeholder="Type your message..." class="flex-1" />
+                    <div class="flex items-end gap-3">
+                        <flux:textarea wire:model="body" rows="auto" label="Message" placeholder="Type your message..." field:class="min-w-0 flex-1" class="w-full" />
                         <flux:button type="submit" variant="primary" icon="paper-airplane" />
                     </div>
                 </form>

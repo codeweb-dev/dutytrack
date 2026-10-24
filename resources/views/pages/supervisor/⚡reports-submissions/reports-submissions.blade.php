@@ -8,7 +8,7 @@
         </h2>
 
         <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
-            aria-label="Search trainee..." placeholder="Search trainee..." clearable />
+            aria-label="Search trainee..." placeholder="Search trainee..." clearable class="w-full xl:max-w-xl" />
     </div>
 
     @include('pages::shared.reports-submissions-table', ['logs' => $this->submissions])

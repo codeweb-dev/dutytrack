@@ -42,7 +42,7 @@ new #[Title('Coordinator Dashboard')] class extends Component
 
     protected function managedStudentsQuery(): Builder
     {
-        return User::query()->where('coordinator_id', $this->coordinatorId());
+        return User::query()->where('coordinator_id', $this->coordinatorId())->role('student');
     }
 
     protected function managedAssignmentsQuery(): Builder

@@ -49,7 +49,7 @@ new class extends Component {
     #[Computed]
     public function supervisors()
     {
-        return User::query()->with('supervisorProfile')->role('supervisor')->orderBy('first_name')->get();
+        return User::query()->with('supervisorProfile')->availableToCoordinator(auth()->id())->role('supervisor')->orderBy('first_name')->get();
     }
 
     #[Computed]

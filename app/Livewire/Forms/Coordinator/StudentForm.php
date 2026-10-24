@@ -142,8 +142,10 @@ class StudentForm extends Form
 
     protected function ensureCompanySupervisor(): void
     {
+        $coordinator = $this->coordinator();
+
         abort_unless(
-            User::query()->role('supervisor')->whereKey($this->company_supervisor_id)->exists(),
+            User::query()->availableToCoordinator($coordinator->id)->role('supervisor')->whereKey($this->company_supervisor_id)->exists(),
             403
         );
     }

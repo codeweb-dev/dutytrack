@@ -16,6 +16,11 @@ new class extends Component {};
         Student Management
     </flux:sidebar.item>
 
+    <flux:sidebar.item icon="building-office-2" data-tour="nav-supervisor-management" :href="route('coordinator.supervisor-management')" :current="request()->routeIs('coordinator.supervisor-management')"
+        wire:navigate>
+        Supervisor Management
+    </flux:sidebar.item>
+
     <flux:sidebar.item icon="briefcase" data-tour="nav-assignments" :href="route('coordinator.ojt-assignments')" :current="request()->routeIs('coordinator.ojt-assignments')"
         wire:navigate>
         OJT Assignments

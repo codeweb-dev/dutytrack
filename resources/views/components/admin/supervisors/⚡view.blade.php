@@ -1,10 +1,22 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 new class extends Component {
     public User $supervisor;
+
+    public function mount(User $supervisor): void
+    {
+        $this->supervisor = $supervisor;
+        $actor = Auth::user();
+
+        abort_unless(
+            $actor && ($actor->hasRole('admin') || ($actor->hasRole('ojt_coordinator') && (int) $supervisor->coordinator_id === (int) $actor->id)),
+            403
+        );
+    }
 };
 ?>
 

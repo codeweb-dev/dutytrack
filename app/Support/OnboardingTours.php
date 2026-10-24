@@ -71,6 +71,7 @@ class OnboardingTours
                 self::step('dashboard-metrics', 'Student and placement counts', 'These cards summarize students, pending placements, and active assignments under your coordination.'),
                 self::step('dashboard-workflow', 'Attendance and progress summaries', 'Review weekly attendance, assignment status, placement mix, and the recent student list. Search the list to find a student.'),
                 self::step('nav-student-management', 'Student Management', 'Open the student records you coordinate. Use the available actions to maintain student details and review their status.'),
+                self::step('nav-supervisor-management', 'Supervisor Management', 'Create and manage the supervisor accounts assigned to your coordinator account.'),
                 self::step('nav-assignments', 'OJT Assignments', 'Create placement records by assigning your students to supervisors, then review assignment type and status.'),
                 self::step('nav-messages', 'Messages', 'Use conversations to communicate with students connected to your coordinator account.'),
                 self::step('nav-group-monitoring', 'Monitoring', 'This group brings together student requirements and attendance follow-up.'),

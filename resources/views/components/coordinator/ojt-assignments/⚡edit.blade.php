@@ -41,6 +41,7 @@ new class extends Component
     {
         return User::query()
             ->with('supervisorProfile')
+            ->availableToCoordinator(auth()->id())
             ->role('supervisor')
             ->orderBy('first_name')
             ->get();

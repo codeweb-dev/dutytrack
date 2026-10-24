@@ -89,7 +89,9 @@ class OjtAssignmentForm extends Form
 
         abort_unless($supervisorId, 403);
 
-        $supervisor = User::query()->findOrFail($supervisorId);
+        $supervisor = User::query()
+            ->availableToCoordinator($this->coordinator()->id)
+            ->findOrFail($supervisorId);
 
         abort_unless($supervisor->hasRole('supervisor'), 403);
 

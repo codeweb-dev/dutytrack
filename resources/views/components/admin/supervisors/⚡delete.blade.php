@@ -3,14 +3,34 @@
 use App\Models\User;
 use Flux\Flux;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 
 new class extends Component {
     public User $supervisor;
 
+    public function mount(User $supervisor): void
+    {
+        $this->supervisor = $supervisor;
+        $this->authorizeSupervisor();
+    }
+
+    protected function authorizeSupervisor(): void
+    {
+        $actor = Auth::user();
+        $supervisor = User::query()->findOrFail($this->supervisor->id);
+
+        abort_unless(
+            $actor && ($actor->hasRole('admin') || ($actor->hasRole('ojt_coordinator') && (int) $supervisor->coordinator_id === (int) $actor->id)),
+            403
+        );
+    }
+
     public function delete(): void
     {
+        $this->authorizeSupervisor();
+
         DB::transaction(function () {
             $supervisor = $this->supervisor->load('supervisorProfile');
 

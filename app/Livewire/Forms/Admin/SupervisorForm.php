@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Support\AuditLogger;
 use App\Support\StaffDirectory;
 use Flux\Flux;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -160,6 +161,7 @@ class SupervisorForm extends Form
 
     public function setSupervisor(User $supervisor): void
     {
+        $this->ensureSupervisorAccess($supervisor);
         $supervisor->load('supervisorProfile');
 
         $this->supervisor = $supervisor;
@@ -187,9 +189,10 @@ class SupervisorForm extends Form
 
     public function store(): void
     {
+        $actor = $this->ensureSupervisorAccess();
         $this->validate();
 
-        DB::transaction(function () {
+        DB::transaction(function () use ($actor) {
             $photoPath = $this->photo
                 ? $this->photo->store('supervisors/photos', 'public')
                 : null;
@@ -197,6 +200,7 @@ class SupervisorForm extends Form
             $fullName = $this->fullName();
 
             $user = User::create([
+                'coordinator_id' => $actor->hasRole(EnumsRole::OJTCOORDINATOR->value) ? $actor->id : null,
                 'name' => $fullName,
                 'first_name' => $this->first_name,
                 'middle_name' => $this->middle_name ?: null,
@@ -245,6 +249,8 @@ class SupervisorForm extends Form
         if (! $this->supervisor) {
             return;
         }
+
+        $this->ensureSupervisorAccess($this->supervisor->fresh());
 
         $this->validate();
 
@@ -343,5 +349,21 @@ class SupervisorForm extends Form
         $this->position_department = '';
 
         $this->resetValidation();
+    }
+
+    protected function ensureSupervisorAccess(?User $supervisor = null): User
+    {
+        $actor = Auth::user();
+
+        abort_unless(
+            $actor instanceof User && ($actor->hasRole(EnumsRole::ADMIN->value) || $actor->hasRole(EnumsRole::OJTCOORDINATOR->value)),
+            403
+        );
+
+        if ($actor->hasRole(EnumsRole::OJTCOORDINATOR->value)) {
+            abort_unless($supervisor && (int) $supervisor->coordinator_id === (int) $actor->id, 403);
+        }
+
+        return $actor;
     }
 }

@@ -170,6 +170,7 @@ new #[Title('Messages')] class extends Component
         if ($user->hasRole('ojt_coordinator')) {
             User::query()
                 ->where('coordinator_id', $user->id)
+                ->role('student')
                 ->get()
                 ->each(fn (User $student) => $this->ensureCoordinatorConversation($student, $user->id));
 

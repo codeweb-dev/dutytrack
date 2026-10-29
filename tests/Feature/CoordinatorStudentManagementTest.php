@@ -111,6 +111,8 @@ test('coordinators approve requirements and approval cannot be undone', function
     $requirement = StudentRequirement::ensureForStudent($student)
         ->firstWhere('key', 'parents_waiver');
 
+    $requirement->update(['file_path' => 'student-requirements/waiver.pdf', 'submitted_at' => now()]);
+
     $this->actingAs($coordinator);
 
     Livewire::test('coordinator.student-management.requirements', ['student' => $student])
@@ -123,6 +125,22 @@ test('coordinators approve requirements and approval cannot be undone', function
     expect($requirement->is_completed)->toBeTrue();
     expect($requirement->completed_at)->not->toBeNull();
     expect($requirement->completed_by)->toBe($coordinator->id);
+});
+
+test('coordinators cannot approve requirements without an attached file', function () {
+    $coordinator = createCoordinator();
+    $student = createStudentForCoordinator($coordinator);
+
+    $requirement = StudentRequirement::ensureForStudent($student)
+        ->firstWhere('key', 'parents_waiver');
+
+    $this->actingAs($coordinator);
+
+    Livewire::test('coordinator.student-management.requirements', ['student' => $student])
+        ->call('approveRequirement', $requirement->id)
+        ->assertHasNoErrors();
+
+    expect($requirement->refresh()->is_completed)->toBeFalse();
 });
 
 test('coordinators can monitor requirements for their own students', function () {

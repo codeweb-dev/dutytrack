@@ -407,7 +407,7 @@ test('manual refresh shows new messages and marks them read', function () {
     $chat = Livewire::test('pages::messages')
         ->call('selectConversation', $conversation->id)
         ->assertSee('Refresh')
-        ->assertDontSee('wire:poll', false);
+        ->assertSee('wire:poll.5s="pollMessages"', false);
 
     $message = ChatMessage::query()->create([
         'chat_conversation_id' => $conversation->id,
@@ -417,6 +417,17 @@ test('manual refresh shows new messages and marks them read', function () {
 
     $chat->call('refreshMessages')->assertSee('New message after opening.');
     expect($message->refresh()->read_at)->not->toBeNull();
+
+    $chat->call('pollMessages')->assertNotDispatched('message-received');
+
+    $polled = ChatMessage::query()->create([
+        'chat_conversation_id' => $conversation->id,
+        'sender_id' => $student->id,
+        'body' => 'Arrived via poll.',
+    ]);
+
+    $chat->call('pollMessages')->assertSee('Arrived via poll.')->assertDispatched('message-received');
+    expect($polled->refresh()->read_at)->not->toBeNull();
 });
 
 test('deleted latest message remains in the preview and unread count ignores it', function () {

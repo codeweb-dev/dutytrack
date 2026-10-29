@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
@@ -26,6 +27,9 @@ new #[Title('Messages')] class extends Component
     public ?int $editingMessageId = null;
 
     public string $editingBody = '';
+
+    #[Locked]
+    public ?int $lastSeenMessageId = null;
 
     public function mount(): void
     {
@@ -148,6 +152,22 @@ new #[Title('Messages')] class extends Component
         unset($this->selectedConversation, $this->chatMessages, $this->conversations);
 
         $this->dispatch('message-received');
+    }
+
+    public function pollMessages(): void
+    {
+        if ($this->selectedConversationId) {
+            $this->markConversationRead($this->selectedConversationId);
+        }
+
+        // Only scroll when something new arrived, so reading older messages isn't interrupted.
+        $latestId = $this->chatMessages->max('id');
+
+        if ($this->lastSeenMessageId !== null && $latestId !== $this->lastSeenMessageId) {
+            $this->dispatch('message-received');
+        }
+
+        $this->lastSeenMessageId = $latestId;
     }
 
     protected function syncConversations(): void
@@ -331,7 +351,7 @@ new #[Title('Messages')] class extends Component
 };
 ?>
 
-<div class="flex h-[calc(100vh-7rem)] min-h-0 flex-col gap-6 overflow-hidden">
+<div wire:poll.5s="pollMessages" class="flex h-[calc(100vh-7rem)] min-h-0 flex-col gap-6 overflow-hidden">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
     <div class="grid min-h-0 flex-1 overflow-hidden rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 lg:grid-cols-[20rem_1fr]">
@@ -431,7 +451,9 @@ new #[Title('Messages')] class extends Component
                                     @if ($editingMessageId === $message->id)
                                         <div
                                             class="min-w-[min(28rem,70vw)] rounded-lg border border-zinc-200 bg-white p-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-                                            <flux:textarea wire:model="editingBody" rows="auto" class="text-sm" />
+                                            <flux:textarea wire:model="editingBody" rows="auto" class="text-sm"
+                                                x-on:keydown.enter="if (!$event.shiftKey && !$event.isComposing) { $event.preventDefault(); $wire.saveMessageEdit() }"
+                                                x-on:keydown.escape="$wire.cancelEditingMessage()" />
                                             <div class="mt-3 flex justify-end gap-2">
                                                 <flux:button type="button" size="sm" variant="ghost"
                                                     wire:click="cancelEditingMessage">
@@ -507,7 +529,8 @@ new #[Title('Messages')] class extends Component
 
                 <form wire:submit="sendMessage" class="shrink-0 border-t border-zinc-200 p-4 dark:border-zinc-800">
                     <div class="flex items-center gap-3">
-                        <flux:textarea wire:model="body" rows="auto" placeholder="Type your message..." class="flex-1" />
+                        <flux:textarea wire:model="body" rows="auto" placeholder="Type your message..." class="flex-1"
+                            x-on:keydown.enter="if (!$event.shiftKey && !$event.isComposing) { $event.preventDefault(); $el.closest('form').requestSubmit() }" />
                         <flux:button type="submit" variant="primary" icon="paper-airplane" />
                     </div>
                 </form>

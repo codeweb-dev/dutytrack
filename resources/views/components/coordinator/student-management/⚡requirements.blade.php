@@ -34,6 +34,16 @@ new class extends Component
             return;
         }
 
+        if (! $requirement->file_path) {
+            Flux::toast(
+                variant: 'danger',
+                heading: 'No file attached.',
+                text: $requirement->label.' cannot be approved until the student attaches a file.'
+            );
+
+            return;
+        }
+
         $requirement->update([
             'is_completed' => true,
             'completed_at' => now(),
@@ -154,7 +164,7 @@ new class extends Component
 
                                 <flux:button wire:click="approveRequirement({{ $requirement->id }})"
                                     wire:confirm="Approve {{ $requirement->label }}? This cannot be undone."
-                                    :disabled="$requirement->is_completed" icon="check" size="xs"
+                                    :disabled="$requirement->is_completed || ! $requirement->file_path" icon="check" size="xs"
                                     variant="primary" color="green">
                                     {{ $requirement->is_completed ? 'Approved' : 'Approve' }}
                                 </flux:button>

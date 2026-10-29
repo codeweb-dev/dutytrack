@@ -213,30 +213,6 @@ new #[Title('My Attendance')] class extends Component
         };
     }
 
-    public function clockIn(): void
-    {
-        $this->clockMorningIn();
-    }
-
-    public function clockOut(): void
-    {
-        $nextPunch = $this->nextPunch();
-
-        if ($nextPunch === 'morning_time_out') {
-            $this->clockMorningOut();
-
-            return;
-        }
-
-        if ($nextPunch === 'afternoon_time_out') {
-            $this->clockAfternoonOut();
-
-            return;
-        }
-
-        Flux::toast(variant: 'warning', heading: 'Time in needed.', text: 'Please record the matching time in before clocking out.');
-    }
-
     protected function clockMorningIn(): void
     {
         $assignment = $this->assignment;
@@ -403,7 +379,6 @@ new #[Title('My Attendance')] class extends Component
         $this->time_in_longitude = null;
         $this->time_in_location_accuracy = null;
         $this->overtime_enabled = false;
-        $this->resetPage();
         $this->resetAttendanceState();
     }
 

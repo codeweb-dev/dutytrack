@@ -26,11 +26,6 @@ class AttendanceSubmission extends Model
             ->all();
     }
 
-    public function attendanceLog()
-    {
-        return $this->belongsTo(AttendanceLog::class);
-    }
-
     public function student()
     {
         return $this->belongsTo(User::class, 'student_id');

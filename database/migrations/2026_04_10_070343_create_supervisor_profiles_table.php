@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('supervisor_id')->unique();
             $table->string('company_name');
             $table->text('company_address')->nullable();
+            $table->string('position_department')->nullable();
             $table->timestamps();
         });
     }

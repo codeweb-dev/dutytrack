@@ -16,7 +16,6 @@ return new class extends Migration
 
             $table->foreignId('student_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('ojt_assignment_id')->constrained('ojt_assignments')->cascadeOnDelete();
-            $table->foreignId('reviewed_by')->nullable()->constrained('users')->nullOnDelete();
             $table->decimal('hours_rendered', 5, 2)->default(0);
             $table->boolean('overtime_enabled')->default(false);
             $table->date('attendance_date');

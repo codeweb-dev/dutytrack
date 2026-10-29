@@ -21,7 +21,6 @@ class AttendanceLog extends Model
         'overtime_enabled',
         'status',
         'remarks',
-        'reviewed_by',
     ];
 
     protected $casts = [
@@ -95,10 +94,5 @@ class AttendanceLog extends Model
     public function submission()
     {
         return $this->hasOne(AttendanceSubmission::class);
-    }
-
-    public function reviewer()
-    {
-        return $this->belongsTo(User::class, 'reviewed_by');
     }
 }

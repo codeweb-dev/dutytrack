@@ -109,7 +109,6 @@ test('coordinator can create an external assignment for their own student', func
     expect($assignment)->not->toBeNull();
     expect($assignment->ojt_type)->toBe('external');
     expect($assignment->company_supervisor_id)->toBe($supervisor->id);
-    expect($assignment->professor_id)->toBeNull();
 });
 
 test('coordinator can switch from internal to external before saving an assignment', function () {
@@ -134,7 +133,6 @@ test('coordinator can switch from internal to external before saving an assignme
     expect($assignment)->not->toBeNull();
     expect($assignment->ojt_type)->toBe('external');
     expect($assignment->company_supervisor_id)->toBe($supervisor->id);
-    expect($assignment->professor_id)->toBeNull();
 });
 
 test('coordinator cannot assign another coordinators student', function () {

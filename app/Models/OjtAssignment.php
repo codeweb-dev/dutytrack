@@ -33,19 +33,4 @@ class OjtAssignment extends Model
     {
         return $this->hasMany(AttendanceLog::class, 'ojt_assignment_id');
     }
-
-    public function attendanceSubmissions()
-    {
-        return $this->hasMany(AttendanceSubmission::class, 'ojt_assignment_id');
-    }
-
-    public function studentTasks()
-    {
-        return $this->hasMany(StudentTask::class, 'ojt_assignment_id');
-    }
-
-    public function chatConversations()
-    {
-        return $this->hasMany(ChatConversation::class, 'ojt_assignment_id');
-    }
 }

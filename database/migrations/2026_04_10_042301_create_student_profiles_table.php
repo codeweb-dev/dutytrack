@@ -19,6 +19,11 @@ return new class extends Migration
                 ->cascadeOnDelete();
             $table->string('student_id')->unique();
             $table->string('course');
+            $table->string('year_level')->default('4th Year');
+            $table->string('address')->nullable();
+            $table->string('guardian_name')->nullable();
+            $table->string('guardian_address')->nullable();
+            $table->string('guardian_contact_number', 20)->nullable();
             $table->unsignedInteger('ojt_required_hours')->default(0);
             $table->timestamps();
         });

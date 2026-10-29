@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('student_id')->constrained('users')->cascadeOnDelete();
             $table->enum('ojt_type', ['internal', 'external']);
-            $table->foreignId('professor_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('company_supervisor_id')->nullable()->constrained('users')->nullOnDelete();
             $table->enum('status', ['pending', 'active', 'completed', 'cancelled'])->default('active');
             $table->text('remarks')->nullable();

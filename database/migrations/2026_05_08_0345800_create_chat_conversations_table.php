@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('ojt_assignment_id')->nullable()->constrained('ojt_assignments')->cascadeOnDelete();
             $table->foreignId('student_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('participant_id')->constrained('users')->cascadeOnDelete();
-            $table->enum('participant_role', ['professor', 'supervisor', 'coordinator']);
+            $table->enum('participant_role', ['supervisor', 'coordinator']);
             $table->timestamps();
 
             $table->unique(['ojt_assignment_id', 'participant_id', 'participant_role'], 'chat_conversation_unique');

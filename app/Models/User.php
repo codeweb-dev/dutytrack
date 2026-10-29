@@ -89,9 +89,7 @@ class User extends Authenticatable
 
     public function getProfilePhotoUrlAttribute(): ?string
     {
-        return $this->profile_photo_path
-            ? Storage::url($this->profile_photo_path)
-            : null;
+        return $this->profilePhotoUrl();
     }
 
     public function studentProfile()
@@ -105,26 +103,6 @@ class User extends Authenticatable
             ->whereIn('key', StudentRequirement::activeKeys());
     }
 
-    public function studentTasks()
-    {
-        return $this->hasMany(StudentTask::class, 'student_id');
-    }
-
-    public function studentNotes()
-    {
-        return $this->hasMany(StudentNote::class, 'student_id');
-    }
-
-    public function assignedStudentTasks()
-    {
-        return $this->hasMany(StudentTask::class, 'assigned_by');
-    }
-
-    public function chatMessages()
-    {
-        return $this->hasMany(ChatMessage::class, 'sender_id');
-    }
-
     public function ojtAssignment()
     {
         return $this->hasOne(OjtAssignment::class, 'student_id');
@@ -133,11 +111,6 @@ class User extends Authenticatable
     public function coordinator()
     {
         return $this->belongsTo(User::class, 'coordinator_id');
-    }
-
-    public function managedStudents()
-    {
-        return $this->hasMany(User::class, 'coordinator_id');
     }
 
     public function supervisorProfile()
@@ -154,15 +127,4 @@ class User extends Authenticatable
     {
         return $this->hasMany(OjtAssignment::class, 'company_supervisor_id');
     }
-
-    // Comment for now with make this like a status online, offline, away, etc. in the future
-    // public function statusBadgeColor(): string
-    // {
-    //     return match ($this->status) {
-    //         'Active' => 'green',
-    //         'On Leave' => 'amber',
-    //         'Inactive' => 'red',
-    //         default => 'zinc',
-    //     };
-    // }
 }

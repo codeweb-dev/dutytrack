@@ -29,13 +29,6 @@ new class extends Component
         $this->form->setStudent($student);
     }
 
-    public function loadStudent(): void
-    {
-        $this->student = $this->student->fresh(['studentProfile']);
-        abort_unless((int) $this->student->coordinator_id === (int) Auth::id(), 403);
-        $this->form->setStudent($this->student);
-    }
-
     public function save(): void
     {
         $this->form->update();

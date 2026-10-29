@@ -98,7 +98,7 @@ new #[Title('Announcements')] #[Layout('layouts::announcement')] class extends C
 
     public function canManageAnnouncements(): bool
     {
-        return Auth::user()?->hasRole('admin') ?? false;
+        return Auth::user()?->hasRole('ojt_coordinator') ?? false;
     }
 };
 ?>
@@ -107,7 +107,7 @@ new #[Title('Announcements')] #[Layout('layouts::announcement')] class extends C
     <section class="mx-auto flex w-full max-w-7xl flex-col gap-10 pb-16">
         <div class="flex justify-end">
             @if ($this->canManageAnnouncements())
-                <flux:button :href="route('admin.announcements')" wire:navigate variant="subtle" icon="cog-6-tooth">
+                <flux:button :href="route('coordinator.announcements')" wire:navigate variant="subtle" icon="cog-6-tooth">
                     Manage Announcements
                 </flux:button>
             @endif
@@ -120,7 +120,7 @@ new #[Title('Announcements')] #[Layout('layouts::announcement')] class extends C
         </div>
 
         <div class="mx-auto flex max-w-3xl flex-col items-center text-center">
-            <div class="text-sm font-medium tracking-[0.28em] text-green-500 uppercase">
+            <div class="text-sm font-medium tracking-[0.28em] text-red-500 uppercase">
                 The Changelog
             </div>
 
@@ -141,11 +141,10 @@ new #[Title('Announcements')] #[Layout('layouts::announcement')] class extends C
             <div class="flex justify-end gap-4 flex-col md:flex-row md:items-center">
                 <div>
                     <flux:input wire:model.live.debounce.300ms="search" icon="magnifying-glass"
-                        aria-label="Search announcements..." placeholder="Search announcements..." clearable
-                        class="flex-1" />
+                        placeholder="Search announcements..." clearable class="flex-1" />
                 </div>
 
-                <flux:select wire:model.live="type" aria-label="Filter announcements by type" class="md:w-32">
+                <flux:select wire:model.live="type" class="md:w-32">
                     <option value="all">All Types</option>
                     <option value="info">Info</option>
                     <option value="warning">Warning</option>

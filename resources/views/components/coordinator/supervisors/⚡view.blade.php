@@ -13,7 +13,7 @@ new class extends Component {
         $actor = Auth::user();
 
         abort_unless(
-            $actor && ($actor->hasRole('admin') || ($actor->hasRole('ojt_coordinator') && (int) $supervisor->coordinator_id === (int) $actor->id)),
+            $actor && ($actor->hasRole('ojt_coordinator') && (int) $supervisor->coordinator_id === (int) $actor->id),
             403
         );
     }
@@ -29,7 +29,7 @@ new class extends Component {
     </div>
 
     <div
-        class="overflow-hidden rounded-3xl border border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
+        class="overflow-hidden rounded-3xl border border-zinc-200 bg-linear-to-r from-zinc-50 to-white dark:border-zinc-800 dark:from-zinc-900 dark:to-zinc-950">
         <div class="flex flex-col gap-6 p-6 md:flex-row md:items-center">
             <flux:avatar size="xl" :src="$supervisor->profile_photo_url" :name="$supervisor->name" />
 
@@ -37,7 +37,7 @@ new class extends Component {
                 <div class="flex flex-wrap items-center gap-3">
                     <h3 class="text-2xl font-semibold tracking-tight">{{ $supervisor->name }}</h3>
 
-                    <flux:badge color="green" icon="check-badge" inset="top bottom">
+                    <flux:badge color="red" icon="check-badge" inset="top bottom">
                         Supervisor
                     </flux:badge>
                 </div>

@@ -17,7 +17,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         $user = Auth::user();
 
         return match (true) {
-            $user->hasRole('admin') => redirect()->route('admin.dashboard'),
             $user->hasRole('ojt_coordinator') => redirect()->route('coordinator.dashboard'),
             $user->hasRole('supervisor') => redirect()->route('supervisor.dashboard'),
             $user->hasRole('student') => redirect()->route('student.dashboard'),
@@ -26,24 +25,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     Route::livewire('/announcements', 'pages::announcement')->name('announcements');
-});
-
-Route::group(['middleware' => ['role:admin']], function () {
-    Route::livewire('/admin/dashboard', 'pages::admin.dashboard')->name('admin.dashboard');
-
-    // User Management
-    Route::livewire('/admin/students', 'pages::admin.students')->name('admin.students');
-    Route::livewire('/admin/coordinators', 'pages::admin.coordinators')->name('admin.coordinators');
-    Route::livewire('/admin/supervisors', 'pages::admin.supervisors')->name('admin.supervisors');
-
-    // Monitoring & reports
-    Route::livewire('/admin/attendance', 'pages::admin.attendance')->name('admin.attendance');
-    Route::livewire('/admin/ojt-assignments', 'pages::admin.ojt-assignments')->name('admin.ojt-assignments');
-    Route::livewire('/admin/evaluations', 'pages::admin.evaluations')->name('admin.evaluations');
-
-    // System Management
-    Route::livewire('/admin/announcements', 'pages::admin.announcements')->name('admin.announcements');
-    Route::livewire('/admin/audit-logs', 'pages::admin.audit-logs')->name('admin.audit-logs');
 });
 
 Route::group(['middleware' => ['role:ojt_coordinator']], function () {
@@ -55,6 +36,10 @@ Route::group(['middleware' => ['role:ojt_coordinator']], function () {
     Route::livewire('/coordinator/requirements', 'pages::coordinator.requirements')->name('coordinator.requirements');
     Route::livewire('/coordinator/attendance', 'pages::coordinator.attendance')->name('coordinator.attendance');
     Route::livewire('/coordinator/messages', 'pages::messages')->name('coordinator.messages');
+
+    // System Management
+    Route::livewire('/coordinator/announcements', 'pages::coordinator.announcements')->name('coordinator.announcements');
+    Route::livewire('/coordinator/audit-logs', 'pages::coordinator.audit-logs')->name('coordinator.audit-logs');
 });
 
 Route::group(['middleware' => ['role:supervisor']], function () {

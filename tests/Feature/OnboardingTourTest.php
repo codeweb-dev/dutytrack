@@ -89,14 +89,16 @@ test('completed users can replay the tour without resetting completion', functio
 
 test('each supported role gets only its own navigation walkthrough', function () {
     $expected = [
-        Role::ADMIN->value => ['nav-students', 'nav-coordinators', 'nav-supervisors', 'nav-audit-logs'],
-        Role::OJTCOORDINATOR->value => ['nav-student-management', 'nav-requirements', 'nav-attendance'],
+        Role::OJTCOORDINATOR->value => ['nav-student-management', 'nav-requirements', 'nav-attendance', 'nav-announcements', 'nav-audit-logs'],
         Role::SUPERVISOR->value => ['nav-assigned-students', 'nav-tasks', 'nav-reports', 'nav-evaluations'],
         Role::STUDENT->value => ['nav-attendance', 'nav-evaluations', 'nav-reports', 'nav-tasks', 'nav-notes', 'nav-pomodoro'],
     ];
 
-    foreach ($expected as $role => $targets) {
+    foreach (array_keys($expected) as $role) {
         PermissionRole::findOrCreate($role, 'web');
+    }
+
+    foreach ($expected as $role => $targets) {
         $user = User::factory()->create();
         $user->assignRole($role);
         $tourTargets = array_column(OnboardingTours::for($user), 'target');
@@ -104,7 +106,6 @@ test('each supported role gets only its own navigation walkthrough', function ()
         expect($tourTargets)->toContain(...$targets);
 
         $dashboard = match ($role) {
-            Role::ADMIN->value => 'admin.dashboard',
             Role::OJTCOORDINATOR->value => 'coordinator.dashboard',
             Role::SUPERVISOR->value => 'supervisor.dashboard',
             default => 'student.dashboard',

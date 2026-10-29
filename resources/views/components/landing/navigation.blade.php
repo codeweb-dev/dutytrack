@@ -1,35 +1,60 @@
-<nav class="sticky top-0 z-50" aria-label="Main navigation">
-    <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3 lg:px-8">
-        <a href="#home" class="flex items-center gap-3 text-lg font-semibold text-zinc-900 dark:text-white">
-            <span
-                class="flex size-10 items-center justify-center rounded-xl border border-zinc-200 dark:border-zinc-900"><img
-                    src="{{ asset('logo.png') }}" alt="" class="size-8 object-contain"></span>
-            DutyTrack
-        </a>
-        <div class="hidden items-center gap-7 text-sm font-medium lg:flex">
-            <a href="#benefits" class="hover:text-forest dark:hover:text-sage">Benefits</a>
-            <a href="#comparison" class="hover:text-forest dark:hover:text-sage">Why DutyTrack</a>
-            <a href="#faq" class="hover:text-forest dark:hover:text-sage">FAQ</a>
-            <a href="#teams" class="hover:text-forest dark:hover:text-sage">Team</a>
-        </div>
-        <div class="flex items-center gap-2">
-            <a href="{{ route(auth()->check() ? 'dashboard' : 'login') }}"
-                class="inline-flex min-h-11 items-center justify-center rounded-xl bg-forest px-5 text-sm font-semibold text-white hover:bg-zinc-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest">
-                {{ auth()->check() ? 'Dashboard' : 'Sign in' }}
-            </a>
-            <details class="relative lg:hidden">
-                <summary
-                    class="flex min-h-11 min-w-11 cursor-pointer list-none items-center justify-center rounded-xl border border-zinc-200"
-                    aria-label="Open site menu">
-                    <flux:icon name="bars-3" class="size-5" />
-                </summary>
-                <div
-                    class="absolute right-0 top-12 grid min-w-44 gap-1 rounded-xl border border-zinc-200 bg-white p-2 shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
-                    <a class="rounded-lg px-3 py-2" href="#benefits">Benefits</a><a class="rounded-lg px-3 py-2"
-                        href="#comparison">Why DutyTrack</a><a class="rounded-lg px-3 py-2" href="#faq">FAQ</a><a
-                        class="rounded-lg px-3 py-2" href="#teams">Team</a>
-                </div>
-            </details>
+<nav x-data="{ scrolled: false }" 
+    class="anim-nav sticky top-0 z-50 backdrop-blur-xs transition-all duration-300">
+    <div class="max-w-7xl mx-auto w-full">
+        <div class="flex items-center justify-between px-12 py-2 w-full rounded-b-xl">
+            <div class="flex items-center gap-2 font-bold text-lg text-gray-900 dark:text-white">
+                <img src="{{ asset('logo.png') }}" alt="Duty Track Logo" width="40" height="40" />
+                <div>Duty Track</div>
+            </div>
+
+            <div class="hidden md:flex items-center text-base gap-6">
+                <a href="#home"
+                    class="text-gray-700 dark:text-zinc-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+                    Home
+                </a>
+                <a href="#benefits"
+                    class="text-gray-700 dark:text-zinc-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+                    Benefits
+                </a>
+                <a href="#comparison"
+                    class="text-gray-700 dark:text-zinc-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+                    Comparison
+                </a>
+                <a href="#faq"
+                    class="text-gray-700 dark:text-zinc-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+                    FAQ
+                </a>
+                <a href="#teams"
+                    class="text-gray-700 dark:text-zinc-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+                    Teams
+                </a>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <flux:button x-data x-on:click="$flux.dark = ! $flux.dark" icon="moon" variant="subtle"
+                    aria-label="Toggle dark mode" />
+
+                @if (Route::has('login'))
+                    <div class="flex items-center gap-3">
+                        @auth
+                            <a href="{{ route('dashboard') }}"
+                                class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-lg text-sm font-semibold transition-colors no-underline shadow-md shadow-red-200 dark:shadow-red-900/40">
+                                Dashboard
+                            </a>
+                        @else
+                            <a href="{{ route('login') }}"
+                                class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-lg text-sm font-semibold transition-all shadow-md shadow-red-200 dark:shadow-red-900/40 no-underline">
+                                Log in
+                            </a>
+                        @endauth
+                    </div>
+                @else
+                    <a href="#"
+                        class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-lg text-sm font-semibold transition-colors no-underline">
+                        Get Template
+                    </a>
+                @endif
+            </div>
         </div>
     </div>
 </nav>

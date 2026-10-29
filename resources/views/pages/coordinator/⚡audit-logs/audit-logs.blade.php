@@ -5,21 +5,21 @@
         <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <h2 class="text-xl font-semibold">
                 All Audit Logs
-                <flux:badge color="green" inset="top bottom">{{ $this->auditLogs->total() }}</flux:badge>
+                <flux:badge color="red" inset="top bottom">{{ $this->auditLogs->total() }}</flux:badge>
             </h2>
 
             <div class="flex flex-col gap-3 md:flex-row md:items-center">
                 <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
-                    aria-label="Search audit logs..." placeholder="Search audit logs..." clearable />
+                    placeholder="Search audit logs..." clearable />
 
-                <flux:select wire:model.live="module" placeholder="All modules" aria-label="Filter audit logs by module" class="min-w-44">
+                <flux:select wire:model.live="module" placeholder="All modules" class="min-w-44">
                     <option value="">All modules</option>
                     @foreach ($this->modules as $moduleOption)
                         <option value="{{ $moduleOption }}">{{ $moduleOption }}</option>
                     @endforeach
                 </flux:select>
 
-                <flux:select wire:model.live="action" placeholder="All actions" aria-label="Filter audit logs by action" class="min-w-40">
+                <flux:select wire:model.live="action" placeholder="All actions" class="min-w-40">
                     <option value="">All actions</option>
                     @foreach ($this->actions as $actionOption)
                         <option value="{{ $actionOption }}">{{ str($actionOption)->replace('_', ' ')->title() }}
@@ -133,11 +133,11 @@
 
                                 <flux:modal :name="'view-audit-log-'.$log->id" flyout variant="floating"
                                     class="md:w-2xl">
-                                    <livewire:admin.audit-logs.view :log="$log" :key="'view-audit-log-' . $log->id" />
+                                    <livewire:coordinator.audit-logs.view :log="$log" :key="'view-audit-log-' . $log->id" />
                                 </flux:modal>
 
                                 <flux:modal :name="'delete-audit-log-'.$log->id" class="min-w-88">
-                                    <livewire:admin.audit-logs.delete :log="$log" :key="'delete-audit-log-' . $log->id" />
+                                    <livewire:coordinator.audit-logs.delete :log="$log" :key="'delete-audit-log-' . $log->id" />
                                 </flux:modal>
                             </flux:table.cell>
                         </flux:table.row>

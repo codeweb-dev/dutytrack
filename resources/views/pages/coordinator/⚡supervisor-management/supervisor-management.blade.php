@@ -12,7 +12,7 @@
                 <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
                     aria-label="Search supervisors..." placeholder="Search supervisors..." clearable />
 
-                <livewire:admin.supervisors.create />
+                <livewire:coordinator.supervisors.create />
             </div>
         </div>
 
@@ -81,13 +81,13 @@
                                 </flux:dropdown>
 
                                 <flux:modal :name="'view-supervisor-'.$supervisor->id" flyout variant="floating" class="md:w-2xl">
-                                    <livewire:admin.supervisors.view :supervisor="$supervisor" :key="'view-supervisor-'.$supervisor->id" />
+                                    <livewire:coordinator.supervisors.view :supervisor="$supervisor" :key="'view-supervisor-'.$supervisor->id" />
                                 </flux:modal>
                                 <flux:modal :name="'edit-supervisor-'.$supervisor->id" flyout variant="floating" class="md:w-2xl">
-                                    <livewire:admin.supervisors.edit :supervisor="$supervisor" :key="'edit-supervisor-'.$supervisor->id" />
+                                    <livewire:coordinator.supervisors.edit :supervisor="$supervisor" :key="'edit-supervisor-'.$supervisor->id" />
                                 </flux:modal>
                                 <flux:modal :name="'delete-supervisor-'.$supervisor->id" class="md:w-xl">
-                                    <livewire:admin.supervisors.delete :supervisor="$supervisor" :key="'delete-supervisor-'.$supervisor->id" />
+                                    <livewire:coordinator.supervisors.delete :supervisor="$supervisor" :key="'delete-supervisor-'.$supervisor->id" />
                                 </flux:modal>
                             </flux:table.cell>
                         </flux:table.row>

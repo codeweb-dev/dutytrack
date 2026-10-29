@@ -21,7 +21,7 @@ new #[Title('Student Dashboard')] class extends Component
     #[Computed]
     public function title(): string
     {
-        return 'Welcome back, '.(Auth::user()?->name ?? 'Student').' 👋';
+        return 'Welcome back, '.(Auth::user()?->name ?? 'Professor').' 👋';
     }
 
     public string $title = 'Student Dashboard';
@@ -150,12 +150,7 @@ new #[Title('Student Dashboard')] class extends Component
 <div class="flex flex-col gap-8">
     <div data-tour="dashboard-overview"><x-page-header :breadcrumbs="$breadcrumbs" :title="$this->title" :description="$description" /></div>
 
-    <div class="flex flex-wrap gap-2">
-        <flux:button variant="primary" icon="clock" :href="route('student.attendance')" wire:navigate>Record attendance</flux:button>
-        <flux:button icon="document-text" :href="route('student.reports-submissions')" wire:navigate>Daily report</flux:button>
-    </div>
-
-    <section class="duty-metrics grid gap-4 md:grid-cols-2 xl:grid-cols-1" data-tour="dashboard-metrics">
+    <section class="grid gap-4" data-tour="dashboard-metrics">
         @foreach ($this->topCards as $card)
             <flux:card>
                 <div class="flex items-start justify-between gap-4">
@@ -190,7 +185,7 @@ new #[Title('Student Dashboard')] class extends Component
                     </flux:text>
                 </div>
 
-                <flux:badge :color="$this->requirementSummary['pending'] === 0 ? 'green' : 'amber'" inset="top bottom">
+                <flux:badge :color="$this->requirementSummary['pending'] === 0 ? 'green' : 'red'" inset="top bottom">
                     {{ $this->requirementSummary['completed'] }}/{{ $this->requirementSummary['total'] }}
                 </flux:badge>
             </div>
@@ -200,7 +195,7 @@ new #[Title('Student Dashboard')] class extends Component
                     @foreach ($this->requirementSteps as $step)
                         <div class="flex min-w-0 flex-1 flex-col items-center text-center">
                             <div
-                                class="{{ $step['is_completed'] ? 'bg-forest text-white ring-forest' : 'bg-white text-zinc-500 ring-zinc-300 dark:bg-zinc-900 dark:text-zinc-300 dark:ring-zinc-700' }} flex size-14 items-center justify-center rounded-full ring-2">
+                                class="{{ $step['is_completed'] ? 'bg-red-600 text-white ring-red-600' : 'bg-white text-zinc-500 ring-zinc-300 dark:bg-zinc-900 dark:text-zinc-300 dark:ring-zinc-700' }} flex size-14 items-center justify-center rounded-full ring-2">
                                 <flux:icon :name="$step['icon']" class="size-6" />
                             </div>
 
@@ -225,7 +220,7 @@ new #[Title('Student Dashboard')] class extends Component
 
                 <div class="flex items-center gap-4 -mt-2">
                     <flux:progress :value="$this->requirementSummary['progress']" />
-                    <span class="text-sm tabular-nums">{{ $this->requirementSummary['progress'] }}%</span>
+                    <span class="text-sm tabular-nums ...">{{ $this->requirementSummary['progress'] }}%</span>
                 </div>
             </flux:field>
 

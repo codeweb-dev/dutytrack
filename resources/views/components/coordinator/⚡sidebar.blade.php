@@ -43,6 +43,18 @@ new class extends Component {};
         </flux:sidebar.item>
     </flux:sidebar.group>
 
+    <flux:sidebar.group expandable icon="shield-check" heading="System Management" data-tour="nav-group-system">
+        <flux:sidebar.item icon="megaphone" data-tour="nav-announcements" href="{{ route('coordinator.announcements') }}"
+            :current="request()->routeIs('coordinator.announcements')" wire:navigate>
+            Announcements
+        </flux:sidebar.item>
+
+        <flux:sidebar.item icon="document-text" data-tour="nav-audit-logs" href="{{ route('coordinator.audit-logs') }}"
+            :current="request()->routeIs('coordinator.audit-logs')" wire:navigate>
+            Audit Logs
+        </flux:sidebar.item>
+    </flux:sidebar.group>
+
     {{-- <flux:sidebar.group expandable icon="check-badge" heading="Reviews">
         <flux:sidebar.item icon="hand-thumb-up" :badge="$this->managedEvaluationsCount" href="#">
             Exaltations

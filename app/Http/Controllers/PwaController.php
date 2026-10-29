@@ -19,8 +19,8 @@ class PwaController extends Controller
             'start_url' => $base.'dashboard',
             'scope' => $base,
             'display' => 'standalone',
-            'theme_color' => '#20734a',
-            'background_color' => '#f5f9f6',
+            'theme_color' => '#ef4444',
+            'background_color' => '#ffffff',
             'lang' => 'en',
             'icons' => collect([192, 512])->map(fn ($size) => [
                 'src' => $base."pwa/icon-{$size}.png",

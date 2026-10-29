@@ -9,7 +9,6 @@ class OnboardingTours
     public static function for(User $user): array
     {
         $role = match (true) {
-            $user->hasRole('admin') => 'admin',
             $user->hasRole('ojt_coordinator') => 'coordinator',
             $user->hasRole('supervisor') => 'supervisor',
             $user->hasRole('student') => 'student',
@@ -21,7 +20,6 @@ class OnboardingTours
         }
 
         $tour = match ($role) {
-            'admin' => self::admin(),
             'coordinator' => self::coordinator(),
             'supervisor' => self::supervisor(),
             'student' => self::student(),
@@ -32,32 +30,6 @@ class OnboardingTours
             ...$tour['steps'],
             ['target' => 'profile-menu', 'title' => 'Replay this tour any time', 'text' => 'Open your profile menu and choose Take a Tour to revisit this walkthrough.'],
             ['target' => 'dashboard-overview', 'title' => 'You’re ready to get started', 'text' => 'Begin with your dashboard, then open the section that matches what you need to do. Your role controls which tools are available.'],
-        ];
-    }
-
-    private static function admin(): array
-    {
-        return [
-            'role' => 'admin',
-            'intro' => 'Manage DutyTrack accounts, monitor OJT activity, review evaluations, and maintain system records.',
-            'steps' => [
-                self::step('nav-dashboard', 'Dashboard', 'Your overview brings together student and assignment totals, pending reviews, weekly activity, and recent assignments. Start here to see where attention is needed.'),
-                self::step('dashboard-metrics', 'Dashboard statistics', 'The summary cards show student, assignment, and pending review counts. Use them to spot changes at a glance.'),
-                self::step('dashboard-workflow', 'Activity and assignment summaries', 'The charts compare weekly attendance activity and assignment types. Recent Assignments lets you search and filter current records.'),
-                self::step('nav-group-user-management', 'User Management', 'This group contains the account directories. Open it when you need to review or maintain a user record.'),
-                self::step('nav-students', 'Students', 'Find student accounts and review or manage their records using the actions available on the Students page.'),
-                self::step('nav-coordinators', 'OJT Coordinators', 'Manage coordinator accounts and the people responsible for coordinating student placements.'),
-                self::step('nav-supervisors', 'Supervisors', 'Manage supervisor accounts for the people who oversee students during OJT.'),
-                self::step('nav-group-monitoring', 'Monitoring', 'Use these pages to review attendance, placements, and evaluation activity across DutyTrack.'),
-                self::step('nav-attendance', 'Attendance', 'Open attendance records to monitor student participation and review recorded activity.'),
-                self::step('nav-assignments', 'OJT Assignments', 'Review placement records, assigned supervisors, OJT type, and assignment status. Use filters to find records.'),
-                self::step('nav-evaluations', 'Evaluation', 'Review evaluation records and follow up on evaluations awaiting attention.'),
-                self::step('nav-group-system', 'System Management', 'This group contains tools for application announcements and accountability history.'),
-                self::step('nav-admin-announcements', 'System Announcements', 'Create and manage system-wide announcements so users can see important updates.'),
-                self::step('nav-audit-logs', 'Audit Logs', 'Search recorded system activity when you need an accountability or security history.'),
-                self::step('topbar-announcements', 'Announcements feed', 'Open this feed to read published updates. Use System Announcements to manage them.'),
-                self::step('account-settings', 'Settings', 'Update your own profile and account details here.'),
-            ],
         ];
     }
 
@@ -77,7 +49,10 @@ class OnboardingTours
                 self::step('nav-group-monitoring', 'Monitoring', 'This group brings together student requirements and attendance follow-up.'),
                 self::step('nav-requirements', 'Requirements', 'Review requirement completion and check submitted physical documents for students you coordinate.'),
                 self::step('nav-attendance', 'Attendance', 'Monitor attendance logs for your students and use the available filters to narrow the records.'),
-                self::step('topbar-announcements', 'Announcements', 'Read published DutyTrack updates here.'),
+                self::step('nav-group-system', 'System Management', 'This group contains tools for application announcements and accountability history.'),
+                self::step('nav-announcements', 'Announcements', 'Create and manage system-wide announcements so everyone sees important updates.'),
+                self::step('nav-audit-logs', 'Audit Logs', 'Search recorded system activity when you need an accountability or security history.'),
+                self::step('topbar-announcements', 'Announcements feed', 'Open this feed to read published updates. Use System Management to manage them.'),
                 self::step('account-settings', 'Settings', 'Update your own profile and account details here.'),
             ],
         ];

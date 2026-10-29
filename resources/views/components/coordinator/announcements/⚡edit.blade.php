@@ -1,6 +1,6 @@
 <?php
 
-use App\Livewire\Forms\Admin\AnnouncementForm;
+use App\Livewire\Forms\AnnouncementForm;
 use App\Models\Announcement;
 use Livewire\Component;
 

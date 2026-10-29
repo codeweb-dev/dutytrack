@@ -5,12 +5,12 @@
         <div class="flex items-center justify-between">
             <h2 class="text-xl font-semibold">
                 My Students
-                <flux:badge color="green" inset="top bottom">{{ $this->students->total() }}</flux:badge>
+                <flux:badge color="red" inset="top bottom">{{ $this->students->total() }}</flux:badge>
             </h2>
 
             <div class="flex items-center gap-3">
                 <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
-                    aria-label="Search students..." placeholder="Search students..." clearable />
+                    placeholder="Search students..." clearable />
 
                 <flux:button href="{{ route('coordinator.requirements') }}" icon:trailing="arrow-up-right">
                     View Requirements
@@ -60,20 +60,18 @@
                 <flux:table.rows>
                     @foreach ($this->students as $student)
                         <flux:table.row :key="$student->id">
-                            <flux:table.cell>
-                                <div class="flex items-center gap-3">
-                                    <flux:avatar size="md" :src="$student->profile_photo_url"
-                                        :name="$student->name" />
+                            <flux:table.cell class="flex items-center gap-3">
+                                <flux:avatar size="md" :src="$student->profile_photo_url"
+                                    :name="$student->name" />
 
-                                    <div class="flex flex-col">
-                                        <span class="font-medium">{{ $student->name }}</span>
-                                        <div>
-                                            <span class="text-xs text-zinc-500">{{ $student->email }}</span>
-                                            <span class="text-xs text-zinc-500">
-                                                •
-                                                {{ $student->contact_number ? '+63 ' . $student->contact_number : 'No contact number' }}
-                                            </span>
-                                        </div>
+                                <div class="flex flex-col">
+                                    <span class="font-medium">{{ $student->name }}</span>
+                                    <div>
+                                        <span class="text-xs text-zinc-500">{{ $student->email }}</span>
+                                        <span class="text-xs text-zinc-500">
+                                            •
+                                            {{ $student->contact_number ? '+63 ' . $student->contact_number : 'No contact number' }}
+                                        </span>
                                     </div>
                                 </div>
                             </flux:table.cell>

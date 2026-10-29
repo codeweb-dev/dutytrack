@@ -13,13 +13,16 @@
 <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('logo.png') }}">
 <link rel="shortcut icon" href="{{ asset('logo.png') }}">
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 @vite(['resources/css/app.css', 'resources/js/app.js'])
 @fluxAppearance
-<script>window.Flux.applyAppearance('light')</script>
 
 <link rel="manifest" href="{{ route('pwa.manifest') }}">
 <link rel="apple-touch-icon" sizes="180x180" href="{{ url('pwa/apple-touch-icon.png') }}">
-<meta name="theme-color" content="#20734a">
+<meta name="theme-color" content="#ef4444">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="DutyTrack">

@@ -15,7 +15,6 @@ class RoleSeeder extends Seeder
     {
         // Create roles
         $roles = [
-            EnumsRole::ADMIN->value,
             EnumsRole::OJTCOORDINATOR->value,
             EnumsRole::SUPERVISOR->value,
             EnumsRole::STUDENT->value,

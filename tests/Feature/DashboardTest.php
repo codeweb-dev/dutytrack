@@ -17,23 +17,9 @@ test('authenticated users without a recognized role receive a forbidden response
     $response->assertForbidden();
 });
 
-test('admins can view the admin dashboard', function () {
-    PermissionRole::findOrCreate(Role::ADMIN->value, 'web');
-
-    $admin = User::factory()->create();
-    $admin->assignRole(Role::ADMIN->value);
-
-    $response = $this->actingAs($admin)
-        ->get(route('admin.dashboard'))
-        ->assertOk()
-        ->assertSee('Weekly Activity')
-        ->assertSee('Recent Assignments');
-
-    expect(substr_count($response->getContent(), 'attendance logs"'))->toBe(7);
-});
-
 test('coordinators can view the coordinator dashboard', function () {
     PermissionRole::findOrCreate(Role::OJTCOORDINATOR->value, 'web');
+    PermissionRole::findOrCreate(Role::STUDENT->value, 'web');
 
     $coordinator = User::factory()->create();
     $coordinator->assignRole(Role::OJTCOORDINATOR->value);
@@ -76,7 +62,7 @@ test('students can view the student dashboard', function () {
 test('duty hour storage and routes have been removed', function () {
     expect(\Illuminate\Support\Facades\Schema::hasTable('duty_hour_logs'))->toBeFalse();
 
-    foreach (['admin', 'coordinator', 'supervisor', 'student'] as $role) {
+    foreach (['coordinator', 'supervisor', 'student'] as $role) {
         expect(\Illuminate\Support\Facades\Route::has($role.'.duty-hours'))->toBeFalse();
         $this->get('/'.$role.'/duty-hours')->assertNotFound();
     }

@@ -12,7 +12,9 @@ class AnnouncementForm extends Form
     public ?Announcement $announcement = null;
 
     public string $title = '';
+
     public string $message = '';
+
     public string $type = 'info';
 
     public function rules(): array
@@ -119,7 +121,7 @@ class AnnouncementForm extends Form
             text: 'The announcement has been updated successfully.'
         );
 
-        Flux::modal('edit-announcement-' . $this->announcement->id)->close();
+        Flux::modal('edit-announcement-'.$this->announcement->id)->close();
     }
 
     public function resetForm(): void

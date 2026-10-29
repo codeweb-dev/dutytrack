@@ -1,7 +1,7 @@
 <div class="flex flex-col gap-6">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
-    <section class="overflow-hidden rounded-[20px] border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
+    <section class="overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
         <div class="grid min-h-[calc(100vh-14rem)] lg:grid-cols-[22rem_minmax(0,1fr)]">
             <aside class="flex min-h-0 flex-col border-b border-zinc-200 bg-zinc-50/80 dark:border-zinc-800 dark:bg-zinc-900/60 lg:border-b-0 lg:border-r">
                 <div class="border-b border-zinc-200 p-4 dark:border-zinc-800">
@@ -19,7 +19,7 @@
                     </div>
 
                     <flux:input wire:model.live.debounce.300ms="search" icon="magnifying-glass"
-                        aria-label="Search notes" placeholder="Search notes" clearable class="mt-4" />
+                        placeholder="Search notes" clearable class="mt-4" />
                 </div>
 
                 <div class="min-h-0 flex-1 overflow-y-auto p-2">
@@ -28,7 +28,7 @@
                             wire:click="selectNote({{ $note->id }})"
                             @class([
                                 'w-full rounded-lg px-3 py-3 text-left transition',
-                                'bg-sage text-zinc-950 ring-1 ring-forest/20 dark:bg-forest/30 dark:text-white dark:ring-sage/30' => $selected_note_id === $note->id,
+                                'bg-red-100 text-zinc-950 ring-1 ring-red-200 dark:bg-red-500/20 dark:text-white dark:ring-red-400/20' => $selected_note_id === $note->id,
                                 'hover:bg-white dark:hover:bg-zinc-800' => $selected_note_id !== $note->id,
                             ])>
                             <div class="flex items-start justify-between gap-3">
@@ -42,7 +42,7 @@
                                 </div>
 
                                 @if ($note->is_pinned)
-                                    <flux:icon name="bookmark" class="mt-0.5 size-4 shrink-0 text-forest dark:text-sage" />
+                                    <flux:icon name="bookmark" class="mt-0.5 size-4 shrink-0 text-red-600 dark:text-red-300" />
                                 @endif
                             </div>
 
@@ -79,23 +79,21 @@
                                     wire:click="togglePin">
                                     {{ $is_pinned ? 'Unpin' : 'Pin' }}
                                 </flux:button>
-                                <flux:button type="button" size="sm" variant="danger" icon="trash" wire:click="deleteSelectedNote" wire:confirm="Delete this note? This cannot be undone.">
+                                <flux:button type="button" size="sm" variant="danger" icon="trash" wire:click="deleteSelectedNote">
                                     Delete
                                 </flux:button>
                             </div>
                         </div>
 
                         <div class="flex min-h-0 flex-1 flex-col px-5 py-5">
-                            <label for="student-note-title" class="sr-only">Note title</label>
-                            <input id="student-note-title" type="text" wire:model.live.debounce.500ms="note_title" aria-label="Note title"
+                            <input type="text" wire:model.live.debounce.500ms="note_title" aria-label="Note title"
                                 placeholder="Untitled Note"
                                 class="w-full border-0 bg-transparent p-0 text-3xl font-semibold text-zinc-950 outline-none placeholder:text-zinc-300 focus:ring-0 dark:text-white dark:placeholder:text-zinc-700" />
                             @error('note_title')
                                 <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
                             @enderror
 
-                            <label for="student-note-body" class="sr-only">Note body</label>
-                            <textarea id="student-note-body" wire:model.live.debounce.700ms="note_body" aria-label="Note body"
+                            <textarea wire:model.live.debounce.700ms="note_body" aria-label="Note body"
                                 placeholder="Start typing..."
                                 class="mt-6 min-h-112 flex-1 resize-none border-0 bg-transparent p-0 text-base leading-8 text-zinc-800 outline-none placeholder:text-zinc-300 focus:ring-0 dark:text-zinc-100 dark:placeholder:text-zinc-700"></textarea>
                             @error('note_body')

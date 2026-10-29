@@ -42,10 +42,10 @@
             </form>
         </flux:modal>
 
-        <div class="duty-board relative flex w-full gap-4 overflow-x-auto pb-4">
+        <div class="relative flex w-full gap-3 overflow-x-auto pb-2">
             @foreach ($this->displayColumns() as $column)
                 <article wire:key="supervisor-task-column-{{ str($column['title'])->slug() }}"
-                    class="duty-board-column w-80 shrink-0 rounded-2xl p-3">
+                    class="w-80 shrink-0 rounded-lg bg-zinc-200 p-3 dark:bg-zinc-900">
                     <header class="flex items-start justify-between gap-3 px-1 pb-4 pt-2">
                         <div class="space-y-2">
                             <flux:heading size="lg">
@@ -72,7 +72,7 @@
                         @foreach ($column['tasks'] as $taskCard)
                             @php($task = $taskCard['task'])
 
-                            <div class="duty-task-card flex h-full w-full flex-col rounded-xl border p-0"
+                            <div class="flex h-full w-full flex-col rounded-lg border border-neutral-300 bg-white dark:border-neutral-700 dark:bg-zinc-800"
                                 wire:key="supervisor-task-{{ $taskCard['key'] }}" wire:sort:item="{{ $taskCard['key'] }}">
                                 <div class="p-4">
                                     <div class="mb-3 flex items-start justify-between gap-3">

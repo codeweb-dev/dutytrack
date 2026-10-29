@@ -1,33 +1,50 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
 
 <head>
     @include('partials.head')
 </head>
 
-<body class="duty-auth min-h-screen antialiased">
-    <div class="grid min-h-svh lg:grid-cols-[minmax(0,1fr)_minmax(420px,0.85fr)]">
-        <div class="duty-auth-story relative hidden min-h-svh flex-col p-10 lg:flex">
+<body class="duty-auth min-h-screen bg-white antialiased dark:bg-linear-to-b dark:from-neutral-950 dark:to-neutral-900">
+    <div
+        class="relative grid h-dvh flex-col items-center justify-center px-8 sm:px-0 lg:max-w-none lg:grid-cols-2 lg:px-0">
+        <div class="relative hidden h-full flex-col p-10 text-white lg:flex dark:border-e dark:border-neutral-800">
+            <img src="{{ asset('login-picture.jpg') }}" class="absolute inset-0 h-full w-full object-cover" alt="Background">
+
+            <div class="absolute inset-0 bg-white/5 dark:bg-black/50"></div>
             <a href="{{ route('home') }}" class="relative z-20 flex items-center text-lg font-medium" wire:navigate>
-                <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#235444]">
-                    <x-app-logo-icon class="h-7 fill-current text-white" />
+                <span class="flex h-10 w-10 items-center justify-center rounded-md">
+                    <x-app-logo-icon class="me-2 h-7 fill-current text-white" />
                 </span>
-                <span>
+                <span class="text-black dark:text-white">
                     {{ config('app.name', 'Laravel') }}
                 </span>
             </a>
-            <div class="relative z-20 mt-auto max-w-xl">
-                <p class="mb-5 text-sm font-semibold uppercase tracking-[0.18em] text-forest">One clear OJT journey</p>
-                <h1 class="text-4xl font-semibold leading-tight xl:text-5xl">Placement, attendance, hours, and feedback in one place.</h1>
-                <p class="mt-5 max-w-lg text-base leading-7 text-zinc-600">DutyTrack keeps students, coordinators and supervisors connected throughout practicum.</p>
+
+            @php
+                [$message, $author] = str(Illuminate\Foundation\Inspiring::quotes()->random())->explode('-');
+            @endphp
+
+            <div class="relative z-20 mt-auto">
+                <blockquote class="rounded-xl bg-white/30 p-6 backdrop-blur-md dark:bg-black/30">
+                    <flux:heading size="lg" class="text-white">
+                        &ldquo;{{ trim($message) }}&rdquo;
+                    </flux:heading>
+
+                    <footer class="mt-4">
+                        <flux:heading class="text-white">
+                            {{ trim($author) }}
+                        </flux:heading>
+                    </footer>
+                </blockquote>
             </div>
         </div>
-        <div class="flex min-h-svh items-center px-6 py-10 sm:px-10 lg:px-16">
-            <div class="duty-auth-panel mx-auto w-full max-w-md space-y-7 rounded-[24px] p-6 sm:p-9">
+        <div class="w-full lg:p-8">
+            <div class="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-87.5">
                 <a href="{{ route('home') }}" class="z-20 flex flex-col items-center gap-2 font-medium lg:hidden"
                     wire:navigate>
-                    <span class="flex h-12 w-12 items-center justify-center rounded-xl bg-[#235444]">
-                        <x-app-logo-icon class="size-8 fill-current text-white" />
+                    <span class="flex h-9 w-9 items-center justify-center rounded-md">
+                        <x-app-logo-icon class="size-9 fill-current text-black dark:text-white" />
                     </span>
 
                     <span class="sr-only">{{ config('app.name', 'Laravel') }}</span>

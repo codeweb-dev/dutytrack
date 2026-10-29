@@ -360,7 +360,7 @@ new #[Title('Tasks')] class extends Component
     {
         $columns = collect($this->columns)->keyBy('status');
 
-        return collect(['pending', 'in_progress', 'in_review', 'done'])
+        return collect(['pending', 'in_progress', 'done', 'in_review'])
             ->map(fn (string $status): array => $columns->get($status))
             ->filter()
             ->values()

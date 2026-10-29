@@ -46,7 +46,7 @@
                             <div class="px-4 py-3 text-center">5.0</div>
                             <div class="flex items-center justify-center gap-1 px-4 py-3">
                                 @for ($score = 1; $score <= 5; $score++)
-                                    <label class="flex size-8 cursor-pointer items-center justify-center rounded border border-zinc-300 text-xs font-medium has-[:checked]:border-red-600 has-[:checked]:bg-forest has-[:checked]:text-white dark:border-zinc-600">
+                                    <label class="flex size-8 cursor-pointer items-center justify-center rounded border border-zinc-300 text-xs font-medium has-[:checked]:border-red-600 has-[:checked]:bg-red-600 has-[:checked]:text-white dark:border-zinc-600">
                                         <input type="radio"
                                             class="sr-only"
                                             wire:model="evaluation_ratings.{{ $areaKey }}.{{ $itemKey }}"

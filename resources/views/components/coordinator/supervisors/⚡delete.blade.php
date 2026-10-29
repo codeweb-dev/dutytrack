@@ -22,7 +22,7 @@ new class extends Component {
         $supervisor = User::query()->findOrFail($this->supervisor->id);
 
         abort_unless(
-            $actor && ($actor->hasRole('admin') || ($actor->hasRole('ojt_coordinator') && (int) $supervisor->coordinator_id === (int) $actor->id)),
+            $actor && ($actor->hasRole('ojt_coordinator') && (int) $supervisor->coordinator_id === (int) $actor->id),
             403
         );
     }

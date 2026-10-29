@@ -61,7 +61,6 @@ class OnboardingTour extends Component
     public function replay(): mixed
     {
         $route = match (true) {
-            Auth::user()->hasRole('admin') => 'admin.dashboard',
             Auth::user()->hasRole('ojt_coordinator') => 'coordinator.dashboard',
             Auth::user()->hasRole('supervisor') => 'supervisor.dashboard',
             Auth::user()->hasRole('student') => 'student.dashboard',

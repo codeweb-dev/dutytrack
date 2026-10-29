@@ -10,18 +10,38 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Spatie\Permission\Models\Role as PermissionRole;
 
-test('only the four supported roles are seeded and professor routes are removed', function () {
+test('only the three supported roles are seeded and admin and professor routes are removed', function () {
     $this->seed(RoleSeeder::class);
 
     expect(PermissionRole::query()->pluck('name')->sort()->values()->all())
-        ->toBe(['admin', 'ojt_coordinator', 'student', 'supervisor']);
+        ->toBe(['ojt_coordinator', 'student', 'supervisor']);
 
-    $admin = User::factory()->create();
-    $admin->assignRole(Role::ADMIN->value);
-    $this->actingAs($admin)->get(route('admin.dashboard'))
-        ->assertOk()->assertSee('Supervisors')->assertDontSee('Professors')->assertDontSee('Company Supervisors');
+    $coordinator = User::factory()->create();
+    $coordinator->assignRole(Role::OJTCOORDINATOR->value);
+    $this->actingAs($coordinator);
+    $this->get('/admin/dashboard')->assertNotFound();
     $this->get('/admin/professors')->assertNotFound();
     $this->get('/professor/dashboard')->assertNotFound();
+});
+
+test('coordinators manage announcements and audit logs; other roles cannot', function () {
+    $this->seed(RoleSeeder::class);
+
+    $coordinator = User::factory()->create();
+    $coordinator->assignRole(Role::OJTCOORDINATOR->value);
+
+    $this->actingAs($coordinator)->get(route('coordinator.announcements'))->assertOk()->assertSee('System Announcements');
+    $this->actingAs($coordinator)->get(route('coordinator.audit-logs'))->assertOk()->assertSee('Audit Logs');
+    $this->actingAs($coordinator)->get(route('announcements'))->assertOk()->assertSee('Manage Announcements');
+
+    foreach ([Role::SUPERVISOR, Role::STUDENT] as $role) {
+        $user = User::factory()->create();
+        $user->assignRole($role->value);
+
+        $this->actingAs($user)->get(route('coordinator.announcements'))->assertForbidden();
+        $this->actingAs($user)->get(route('coordinator.audit-logs'))->assertForbidden();
+        $this->actingAs($user)->get(route('announcements'))->assertOk()->assertDontSee('Manage Announcements');
+    }
 });
 
 test('legacy staff migrate without losing accounts assignments profiles or messages', function () {
@@ -71,4 +91,29 @@ test('legacy staff migrate without losing accounts assignments profiles or messa
         ->and(Schema::hasTable('coordinator_profiles'))->toBeTrue();
     $this->assertDatabaseHas('coordinator_profiles', ['user_id' => $professor->id, 'employee_id' => 'EMP-123']);
     $this->assertDatabaseHas('evaluations', ['id' => $evaluationId, 'evaluator_type' => 'company_supervisor']);
+});
+
+test('coordinators can create supervisors owned by their account', function () {
+    $this->seed(RoleSeeder::class);
+
+    $coordinator = User::factory()->create();
+    $coordinator->assignRole(Role::OJTCOORDINATOR->value);
+
+    \Livewire\Livewire::actingAs($coordinator)
+        ->test('coordinator.supervisors.create')
+        ->set('form.supervisor_id', 'SUP-9001')
+        ->set('form.first_name', 'Maria')
+        ->set('form.last_name', 'Santos')
+        ->set('form.email', 'maria.santos@example.com')
+        ->set('form.password', 'Santos')
+        ->set('form.password_confirmation', 'Santos')
+        ->set('form.company_name', 'Acme Corp')
+        ->call('save')
+        ->assertHasNoErrors();
+
+    $supervisor = User::query()->where('email', 'maria.santos@example.com')->first();
+
+    expect($supervisor)->not->toBeNull()
+        ->and($supervisor->hasRole(Role::SUPERVISOR->value))->toBeTrue()
+        ->and((int) $supervisor->coordinator_id)->toBe($coordinator->id);
 });

@@ -1,7 +1,7 @@
 <div class="flex flex-col gap-6">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
-    <div class="duty-metrics grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
         <flux:card class="p-4">
             <flux:heading>Total Records</flux:heading>
             <flux:text class="mt-2">{{ $this->summary['total'] }}</flux:text>
@@ -32,12 +32,12 @@
         <div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
             <h2 class="text-xl font-semibold">
                 Student Attendance
-                <flux:badge color="green" inset="top bottom">{{ $this->attendanceLogs->total() }}</flux:badge>
+                <flux:badge color="red" inset="top bottom">{{ $this->attendanceLogs->total() }}</flux:badge>
             </h2>
 
             <div class="flex items-center gap-3">
                 <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
-                    aria-label="Search student..." placeholder="Search student..." clearable />
+                    placeholder="Search student..." clearable />
 
                 <flux:modal.trigger name="filter-coordinator-attendance">
                     <flux:button icon="funnel">Filter</flux:button>
@@ -122,19 +122,17 @@
                         @endphp
 
                         <flux:table.row :key="$log->id">
-                            <flux:table.cell>
-                                <div class="flex items-center gap-3">
-                                    <flux:avatar size="md" :src="$log->student?->profile_photo_url"
-                                        :name="$log->student?->name" />
+                            <flux:table.cell class="flex items-center gap-3">
+                                <flux:avatar size="md" :src="$log->student?->profile_photo_url"
+                                    :name="$log->student?->name" />
 
-                                    <div class="flex flex-col">
-                                        <span class="font-medium">
-                                            {{ $log->student?->name ?? trim(($log->student?->first_name ?? '') . ' ' . ($log->student?->last_name ?? '')) }}
-                                        </span>
-                                        <span class="text-xs text-zinc-500">
-                                            {{ $log->student?->email }}
-                                        </span>
-                                    </div>
+                                <div class="flex flex-col">
+                                    <span class="font-medium">
+                                        {{ $log->student?->name ?? trim(($log->student?->first_name ?? '') . ' ' . ($log->student?->last_name ?? '')) }}
+                                    </span>
+                                    <span class="text-xs text-zinc-500">
+                                        {{ $log->student?->email }}
+                                    </span>
                                 </div>
                             </flux:table.cell>
 

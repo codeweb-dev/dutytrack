@@ -39,43 +39,6 @@
                         @endforeach
                     </ul>
                 </div>
-
-                <div
-                    class="opacity-0 translate-y-6
-                    intersect:opacity-100 intersect:translate-y-0
-                    transition-all duration-500 delay-200 ease-out
-                    intersect-once">
-                    <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-4">Socials</h4>
-                    <ul class="space-y-2.5">
-                        @foreach (['Facebook', 'Twitter/X', 'LinkedIn', 'Instagram'] as $item)
-                            <li>
-                                <a href="#"
-                                    class="text-sm text-gray-500 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-white transition-colors no-underline">
-                                    {{ $item }}
-                                </a>
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-
-                <div
-                    class="opacity-0 translate-y-6
-                    intersect:opacity-100 intersect:translate-y-0
-                    transition-all duration-500 delay-300 ease-out
-                    intersect-once">
-                    <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-4">Pages</h4>
-                    <ul class="space-y-2.5">
-                        @foreach (['Home', 'Dashboard', 'Students', 'Tasks', '404'] as $item)
-                            <li>
-                                <a href="#"
-                                    class="text-sm text-gray-500 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-white transition-colors no-underline">
-                                    {{ $item }}
-                                </a>
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-
             </div>
         </div>
     </div>

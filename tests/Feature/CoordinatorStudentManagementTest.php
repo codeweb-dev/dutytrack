@@ -5,6 +5,8 @@ use App\Models\AttendanceLog;
 use App\Models\OjtAssignment;
 use App\Models\StudentRequirement;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Role as PermissionRole;
 
@@ -75,7 +77,9 @@ test('coordinator student management only shows the logged in coordinators stude
         ->assertDontSee($otherStudent->name);
 });
 
-test('students can mark a missing physical requirement as submitted', function () {
+test('students submit a requirement with an attached file', function () {
+    Storage::fake('public');
+
     $coordinator = createCoordinator();
     $student = createStudentForCoordinator($coordinator);
 
@@ -84,6 +88,9 @@ test('students can mark a missing physical requirement as submitted', function (
     $this->actingAs($student);
 
     Livewire::test('pages::student.dashboard')
+        ->call('submitRequirement', 'parents_waiver')
+        ->assertHasErrors('requirementFiles.parents_waiver')
+        ->set('requirementFiles.parents_waiver', UploadedFile::fake()->create('waiver.pdf', 100, 'application/pdf'))
         ->call('submitRequirement', 'parents_waiver')
         ->assertHasNoErrors();
 
@@ -94,9 +101,10 @@ test('students can mark a missing physical requirement as submitted', function (
 
     expect($requirement?->submitted_at)->not->toBeNull();
     expect($requirement?->is_completed)->toBeFalse();
+    Storage::disk('public')->assertExists($requirement->file_path);
 });
 
-test('coordinators can check off submitted student requirements', function () {
+test('coordinators approve requirements and approval cannot be undone', function () {
     $coordinator = createCoordinator();
     $student = createStudentForCoordinator($coordinator);
 
@@ -106,7 +114,8 @@ test('coordinators can check off submitted student requirements', function () {
     $this->actingAs($coordinator);
 
     Livewire::test('coordinator.student-management.requirements', ['student' => $student])
-        ->call('toggleRequirement', $requirement->id)
+        ->call('approveRequirement', $requirement->id)
+        ->call('approveRequirement', $requirement->id)
         ->assertHasNoErrors();
 
     $requirement->refresh();

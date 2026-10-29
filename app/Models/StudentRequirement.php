@@ -14,6 +14,7 @@ class StudentRequirement extends Model
         'step',
         'sort_order',
         'template_path',
+        'file_path',
         'is_completed',
         'submitted_at',
         'completed_at',

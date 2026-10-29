@@ -4,6 +4,7 @@ use App\Models\StudentRequirement;
 use App\Models\User;
 use Flux\Flux;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
@@ -20,7 +21,7 @@ new class extends Component
         $this->student = $student->load('studentProfile', 'studentRequirements');
     }
 
-    public function toggleRequirement(int $requirementId): void
+    public function approveRequirement(int $requirementId): void
     {
         abort_unless((int) $this->student->coordinator_id === (int) Auth::id(), 403);
 
@@ -28,12 +29,15 @@ new class extends Component
             ->where('student_id', $this->student->id)
             ->findOrFail($requirementId);
 
-        $completed = ! $requirement->is_completed;
+        // Approval is final: no unapprove.
+        if ($requirement->is_completed) {
+            return;
+        }
 
         $requirement->update([
-            'is_completed' => $completed,
-            'completed_at' => $completed ? now() : null,
-            'completed_by' => $completed ? Auth::id() : null,
+            'is_completed' => true,
+            'completed_at' => now(),
+            'completed_by' => Auth::id(),
         ]);
 
         $this->student = $this->student->fresh('studentProfile', 'studentRequirements');
@@ -43,8 +47,8 @@ new class extends Component
 
         Flux::toast(
             variant: 'success',
-            heading: $completed ? 'Requirement checked.' : 'Requirement unchecked.',
-            text: $requirement->label.' has been updated.'
+            heading: 'Requirement approved.',
+            text: $requirement->label.' has been approved.'
         );
     }
 
@@ -90,7 +94,7 @@ new class extends Component
         <div>
             <flux:heading size="lg">Requirement Tracking</flux:heading>
             <flux:text class="mt-1 text-zinc-500">
-                {{ $student->name }} can start OJT with pending requirements. Check each row after receiving the physical copy.
+                {{ $student->name }} can start OJT with pending requirements. Review each attached file, then approve it. Approval cannot be undone.
             </flux:text>
         </div>
     </div>
@@ -108,30 +112,26 @@ new class extends Component
                 <div class="divide-y divide-zinc-100 rounded-lg border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
                     @foreach ($step['items'] as $requirement)
                         <div class="flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between">
-                            <label class="flex min-w-0 items-start gap-3">
-                                <input type="checkbox" @checked($requirement->is_completed)
-                                    wire:click="toggleRequirement({{ $requirement->id }})"
-                                    class="mt-1 size-4 rounded border-zinc-300 text-red-600 focus:ring-red-500 dark:border-zinc-700 dark:bg-zinc-900">
-
+                            <div class="flex min-w-0 items-start gap-3">
                                 <span class="min-w-0">
                                     <span class="block text-sm font-medium text-zinc-900 dark:text-white">
                                         {{ $requirement->label }}
                                     </span>
                                     <span class="mt-1 block text-xs text-zinc-500">
                                         @if ($requirement->is_completed)
-                                            Received {{ $requirement->completed_at?->format('M d, Y') ?? '' }}
+                                            Approved {{ $requirement->completed_at?->format('M d, Y') ?? '' }}
                                         @elseif ($requirement->submitted_at)
-                                            Student marked this as submitted {{ $requirement->submitted_at->format('M d, Y') }}.
+                                            Student submitted a file {{ $requirement->submitted_at->format('M d, Y') }}.
                                         @else
-                                            Waiting for student physical copy.
+                                            Waiting for student file.
                                         @endif
                                     </span>
                                 </span>
-                            </label>
+                            </div>
 
                             <div class="flex flex-wrap items-center gap-2 sm:justify-end">
                                 @if ($requirement->is_completed)
-                                    <flux:badge color="green" size="sm" inset="top bottom">Checked</flux:badge>
+                                    <flux:badge color="green" size="sm" inset="top bottom">Approved</flux:badge>
                                 @elseif ($requirement->submitted_at)
                                     <flux:badge color="sky" size="sm" inset="top bottom">For checking</flux:badge>
                                 @else
@@ -144,6 +144,20 @@ new class extends Component
                                         Template
                                     </flux:button>
                                 @endif
+
+                                @if ($requirement->file_path)
+                                    <flux:button href="{{ Storage::url($requirement->file_path) }}" target="_blank"
+                                        icon="paper-clip" size="xs">
+                                        View file
+                                    </flux:button>
+                                @endif
+
+                                <flux:button wire:click="approveRequirement({{ $requirement->id }})"
+                                    wire:confirm="Approve {{ $requirement->label }}? This cannot be undone."
+                                    :disabled="$requirement->is_completed" icon="check" size="xs"
+                                    variant="primary" color="green">
+                                    {{ $requirement->is_completed ? 'Approved' : 'Approve' }}
+                                </flux:button>
                             </div>
                         </div>
                     @endforeach

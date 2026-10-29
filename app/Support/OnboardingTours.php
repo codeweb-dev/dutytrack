@@ -28,7 +28,6 @@ class OnboardingTours
         return [
             ['target' => 'main-navigation', 'title' => 'Your '.$tour['role'].' workspace', 'text' => $tour['intro']],
             ...$tour['steps'],
-            ['target' => 'profile-menu', 'title' => 'Replay this tour any time', 'text' => 'Open your profile menu and choose Take a Tour to revisit this walkthrough.'],
             ['target' => 'dashboard-overview', 'title' => 'You’re ready to get started', 'text' => 'Begin with your dashboard, then open the section that matches what you need to do. Your role controls which tools are available.'],
         ];
     }

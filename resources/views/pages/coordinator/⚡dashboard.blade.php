@@ -1,22 +1,18 @@
 <?php
 
 use App\Models\AttendanceLog;
-use App\Models\Evaluation;
 use App\Models\OjtAssignment;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
-use Livewire\WithPagination;
 
 new #[Title('Coordinator Dashboard')] class extends Component
 {
-    use WithPagination;
-
     public array $breadcrumbs = [['logo' => 'logo.png', 'href' => '/dashboard'], ['label' => 'Coordinator Dashboard']];
 
     #[Computed]
@@ -26,14 +22,6 @@ new #[Title('Coordinator Dashboard')] class extends Component
     }
 
     public string $description = 'A focused view of your students, placement progress, weekly activity, and the latest assignment records.';
-
-    public string $studentSearch = '';
-
-    public function updatedStudentSearch(): void
-    {
-        $this->resetPage();
-        unset($this->recentStudents);
-    }
 
     protected function coordinatorId(): int
     {
@@ -155,39 +143,13 @@ new #[Title('Coordinator Dashboard')] class extends Component
     }
 
     #[Computed]
-    public function quickSummary(): array
-    {
-        return [
-            'internal' => $this->managedAssignmentsQuery()->where('ojt_type', 'internal')->count(),
-            'external' => $this->managedAssignmentsQuery()->where('ojt_type', 'external')->count(),
-            'pending_reviews' => Evaluation::query()
-                ->where('status', 'pending')
-                ->whereHas('student', function (Builder $query) {
-                    $query->where('coordinator_id', $this->coordinatorId());
-                })
-                ->count(),
-        ];
-    }
-
-    #[Computed]
-    public function recentStudents(): LengthAwarePaginator
+    public function recentStudents(): Collection
     {
         return $this->managedStudentsQuery()
             ->with(['studentProfile', 'ojtAssignment.companySupervisor'])
-            ->when($this->studentSearch !== '', function (Builder $query) {
-                $search = '%'.$this->studentSearch.'%';
-
-                $query->where(function (Builder $nested) use ($search) {
-                    $nested
-                        ->where('name', 'like', $search)
-                        ->orWhere('email', 'like', $search)
-                        ->orWhereHas('studentProfile', function (Builder $profileQuery) use ($search) {
-                            $profileQuery->where('student_id', 'like', $search)->orWhere('course', 'like', $search);
-                        });
-                });
-            })
             ->latest('created_at')
-            ->paginate(5);
+            ->limit(10)
+            ->get();
     }
 };
 ?>
@@ -286,50 +248,15 @@ new #[Title('Coordinator Dashboard')] class extends Component
                     @endforeach
                 </div>
             </flux:card>
-
-            <flux:card>
-                <flux:heading size="lg">Quick Summary</flux:heading>
-                <flux:text class="mt-2">
-                    Key placement signals for the students under your coordination.
-                </flux:text>
-
-                <div class="mt-6 grid grid-cols-2 gap-3">
-                    <flux:card>
-                        <flux:heading class="uppercase tracking-[0.2em]">Internal</flux:heading>
-                        <div class="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white">
-                            {{ number_format($this->quickSummary['internal']) }}
-                        </div>
-                    </flux:card>
-
-                    <flux:card>
-                        <flux:heading class="uppercase tracking-[0.2em]">External</flux:heading>
-                        <div class="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white">
-                            {{ number_format($this->quickSummary['external']) }}
-                        </div>
-                    </flux:card>
-
-                    <flux:card class="uppercase tracking-[0.2em]">
-                        <flux:heading class="uppercase tracking-[0.2em]">Pending Reviews</flux:heading>
-                        <div class="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white">
-                            {{ number_format($this->quickSummary['pending_reviews']) }}
-                        </div>
-                    </flux:card>
-                </div>
-            </flux:card>
         </div>
     </section>
 
     <flux:card>
-        <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-            <div>
-                <flux:heading size="lg">Recent Students</flux:heading>
-                <flux:text class="mt-2">
-                    The latest students under your coordination, including their placement status.
-                </flux:text>
-            </div>
-
-            <flux:input wire:model.live.debounce.300ms="studentSearch" icon="magnifying-glass"
-                placeholder="Search students..." class="lg:w-72" />
+        <div>
+            <flux:heading size="lg">Recent Students</flux:heading>
+            <flux:text class="mt-2">
+                The latest students under your coordination, including their placement status.
+            </flux:text>
         </div>
 
         <div class="mt-6">
@@ -337,13 +264,12 @@ new #[Title('Coordinator Dashboard')] class extends Component
                 <flux:card class="flex flex-col items-center gap-4 py-24">
                     <flux:icon name="academic-cap" class="size-12" />
                     <div class="text-center">
-                        <flux:heading size="xl">No students found</flux:heading>
-                        <flux:text class="mt-2">Try adjusting your search or filter to find what you're looking
-                            for.</flux:text>
+                        <flux:heading size="xl">No students yet</flux:heading>
+                        <flux:text class="mt-2">Students assigned to you will show up here.</flux:text>
                     </div>
                 </flux:card>
             @else
-                <flux:table :paginate="$this->recentStudents">
+                <flux:table>
                     <flux:table.columns>
                         <flux:table.column>Student</flux:table.column>
                         <flux:table.column>Course</flux:table.column>

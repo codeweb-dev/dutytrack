@@ -42,9 +42,15 @@ class SupervisorForm extends Form
 
     public string $password_confirmation = '';
 
-    public string $company_name = '';
+    public const INTERNAL_INSTITUTION = 'EARIST CAVITE CAMPUS';
 
-    public ?string $company_address = '';
+    public const INTERNAL_ADDRESS = 'Blk. 3 Lot 2, 5 Congressional Rd, 4 Poblacion, General Mariano Alvarez, 4117 Cavite';
+
+    public string $supervisor_type = 'internal';
+
+    public string $company_name = self::INTERNAL_INSTITUTION;
+
+    public ?string $company_address = self::INTERNAL_ADDRESS;
 
     public ?string $position_department = '';
 
@@ -73,6 +79,7 @@ class SupervisorForm extends Form
             ],
             'contact_number' => ['nullable', 'string', 'max:20'],
             'password' => [$this->supervisor ? 'nullable' : 'required', 'string', 'min:2', 'confirmed'],
+            'supervisor_type' => ['required', Rule::in(['internal', 'external'])],
             'company_name' => ['required', 'string', 'max:255'],
             'company_address' => ['nullable', 'string', 'max:1000'],
             'position_department' => ['nullable', 'string', 'max:255'],
@@ -87,7 +94,8 @@ class SupervisorForm extends Form
             'middle_name' => 'middle name',
             'last_name' => 'last name',
             'contact_number' => 'contact number',
-            'company_name' => 'company name',
+            'supervisor_type' => 'type',
+            'company_name' => $this->supervisor_type === 'internal' ? 'institution' : 'company name',
             'company_address' => 'company address',
             'position_department' => 'position and department',
         ];
@@ -104,6 +112,25 @@ class SupervisorForm extends Form
         $this->fillFromDirectoryRecord($supervisor);
 
         return true;
+    }
+
+    public function applySupervisorType(): void
+    {
+        if ($this->supervisor_type === 'internal') {
+            $this->company_name = self::INTERNAL_INSTITUTION;
+            $this->company_address = self::INTERNAL_ADDRESS;
+
+            return;
+        }
+
+        // Clear the internal prefill so it doesn't leak into an external company.
+        if ($this->company_name === self::INTERNAL_INSTITUTION) {
+            $this->company_name = '';
+        }
+
+        if ($this->company_address === self::INTERNAL_ADDRESS) {
+            $this->company_address = '';
+        }
     }
 
     public function fillPasswordFromLastName(): void
@@ -153,6 +180,7 @@ class SupervisorForm extends Form
             'contact_number' => $user?->contact_number,
             'status' => $user?->status,
             'supervisor_id' => $user?->supervisorProfile?->supervisor_id,
+            'supervisor_type' => $user?->supervisorProfile?->supervisor_type,
             'company_name' => $user?->supervisorProfile?->company_name,
             'company_address' => $user?->supervisorProfile?->company_address,
             'position_department' => $user?->supervisorProfile?->position_department,
@@ -176,6 +204,7 @@ class SupervisorForm extends Form
         $this->last_name = $supervisor->last_name ?? '';
         $this->email = $supervisor->email ?? '';
         $this->contact_number = $supervisor->contact_number ?? '';
+        $this->supervisor_type = $supervisor->supervisorProfile?->supervisor_type ?? 'external';
         $this->company_name = $supervisor->supervisorProfile?->company_name ?? '';
         $this->company_address = $supervisor->supervisorProfile?->company_address ?? '';
         $this->position_department = $supervisor->supervisorProfile?->position_department ?? '';
@@ -216,6 +245,7 @@ class SupervisorForm extends Form
 
             $user->supervisorProfile()->create([
                 'supervisor_id' => $this->supervisor_id,
+                'supervisor_type' => $this->supervisor_type,
                 'company_name' => $this->company_name,
                 'company_address' => $this->company_address ?: null,
                 'position_department' => $this->position_department ?: null,
@@ -296,6 +326,7 @@ class SupervisorForm extends Form
 
             $user->supervisorProfile()->update([
                 'supervisor_id' => $this->supervisor_id,
+                'supervisor_type' => $this->supervisor_type,
                 'company_name' => $this->company_name,
                 'company_address' => $this->company_address ?: null,
                 'position_department' => $this->position_department ?: null,
@@ -344,8 +375,9 @@ class SupervisorForm extends Form
         $this->contact_number = '';
         $this->password = '';
         $this->password_confirmation = '';
-        $this->company_name = '';
-        $this->company_address = '';
+        $this->supervisor_type = 'internal';
+        $this->company_name = self::INTERNAL_INSTITUTION;
+        $this->company_address = self::INTERNAL_ADDRESS;
         $this->position_department = '';
 
         $this->resetValidation();

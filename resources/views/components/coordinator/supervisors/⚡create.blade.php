@@ -20,6 +20,11 @@ new class extends Component {
         $this->form->fillFromStaffDirectory();
     }
 
+    public function updatedFormSupervisorType(): void
+    {
+        $this->form->applySupervisorType();
+    }
+
     public function updatedFormLastName(): void
     {
         $this->form->fillPasswordFromLastName();
@@ -86,13 +91,23 @@ new class extends Component {
                             placeholder="Confirm password" viewable />
                     </div>
 
-                    <flux:input wire:model="form.company_name" label="Company / Institution" placeholder="ABC Corporation" />
+                    <flux:radio.group wire:model.live="form.supervisor_type" label="Type" variant="segmented">
+                        <flux:radio value="internal" label="Internal" />
+                        <flux:radio value="external" label="External" />
+                    </flux:radio.group>
+
+                    @if ($form->supervisor_type === 'internal')
+                        <flux:input wire:model="form.company_name" label="Institution" placeholder="EARIST CAVITE CAMPUS" />
+                    @else
+                        <flux:input wire:model="form.company_name" label="Company" placeholder="ABC Corporation" />
+                    @endif
 
                     <flux:input wire:model="form.position_department" label="Position and Department"
                         placeholder="e.g. HR Manager, Human Resources" />
 
-                    <flux:textarea wire:model="form.company_address" label="Company Address"
-                        placeholder="Enter company address" rows="4" />
+                    <flux:textarea wire:model="form.company_address"
+                        :label="$form->supervisor_type === 'internal' ? 'Institution Address' : 'Company Address'"
+                        placeholder="Enter address" rows="4" />
                 </div>
             </flux:fieldset>
 

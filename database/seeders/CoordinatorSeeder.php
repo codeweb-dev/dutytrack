@@ -14,7 +14,7 @@ class CoordinatorSeeder extends Seeder
      */
     private const COORDINATORS = [
         ['last_name' => 'Dumpit', 'email' => 'dumpit@dutytrack.test', 'program' => 'Computer Science'],
-        ['last_name' => 'Rowe', 'email' => 'rowe@dutytrack.test', 'program' => 'Information Technology'],
+        ['last_name' => 'Rowee', 'email' => 'rowee@dutytrack.test', 'program' => 'Information Technology'],
     ];
 
     public function run(): void

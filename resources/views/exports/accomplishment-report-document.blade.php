@@ -186,7 +186,7 @@
                 </tr>
             </table>
 
-            <p class="superior">Superior: {{ $supervisorName }}</p>
+            <p class="superior">Immediate Supervisor: {{ $supervisorName }}</p>
         @empty
             <p>No completed attendance records found for the selected date range.</p>
         @endforelse

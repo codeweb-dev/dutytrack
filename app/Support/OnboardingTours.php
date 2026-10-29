@@ -90,7 +90,7 @@ class OnboardingTours
                 self::step('nav-attendance', 'Attendance', 'Record your daily OJT attendance and review your attendance history.'),
                 self::step('nav-evaluations', 'Evaluations', 'View submitted practicum evaluations and download the official form when it is available.'),
                 self::step('nav-messages', 'Messages', 'Use conversations to contact the coordinator or supervisor connected to your OJT.'),
-                self::step('nav-reports', 'Reports / Submissions', 'Add your daily accomplishments and photos after completing attendance.'),
+                self::step('nav-reports', 'Accomplishment Report', 'Add your daily accomplishments and photos after completing attendance.'),
                 self::step('nav-group-productivity', 'Productivity', 'Open this group for tools that help you organize tasks, notes, and focused work.'),
                 self::step('nav-tasks', 'Tasks', 'Review tasks assigned by your supervisor and update their progress as you work.'),
                 self::step('nav-notes', 'Notes', 'Keep private OJT notes, reminders, and drafts in one place.'),

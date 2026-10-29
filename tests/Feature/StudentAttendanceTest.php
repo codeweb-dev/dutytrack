@@ -172,7 +172,7 @@ test('students submit accomplishments after completed attendance and download re
     $this->actingAs($student)
         ->get(route('student.reports-submissions'))
         ->assertOk()
-        ->assertSee('Reports / Submissions')
+        ->assertSee('Accomplishment Report')
         ->assertSee('Apr 30, 2026')
         ->assertSee('Download Docs');
 

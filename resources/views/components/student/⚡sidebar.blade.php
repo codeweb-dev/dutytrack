@@ -29,7 +29,7 @@ new class extends Component {};
 
     <flux:sidebar.item icon="document-text" data-tour="nav-reports" href="{{ route('student.reports-submissions') }}" :current="request()->routeIs('student.reports-submissions')"
         wire:navigate>
-        Reports / Submissions
+        Accomplishment Report
     </flux:sidebar.item>
 
     <flux:sidebar.group expandable icon="squares-2x2" heading="Productivity" data-tour="nav-group-productivity">

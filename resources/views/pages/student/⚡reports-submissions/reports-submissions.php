@@ -12,17 +12,17 @@ use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 
-new #[Title('Reports / Submissions')] class extends Component
+new #[Title('Accomplishment Report')] class extends Component
 {
     use WithFileUploads;
     use WithPagination;
 
     public array $breadcrumbs = [
         ['logo' => 'logo.png', 'href' => '/dashboard'],
-        ['label' => 'Reports / Submissions'],
+        ['label' => 'Accomplishment Report'],
     ];
 
-    public string $title = 'Reports / Submissions';
+    public string $title = 'Accomplishment Report';
 
     public string $description = 'Add daily accomplishments and photos after completing your attendance.';
 

@@ -103,9 +103,9 @@
 
                                     <flux:menu>
                                         @if ($student->status === 'pending')
-                                            <flux:menu.item icon="check-circle" wire:click="approve({{ $student->id }})">
-                                                Approve
-                                            </flux:menu.item>
+                                            <flux:modal.trigger :name="'review-student-'.$student->id">
+                                                <flux:menu.item icon="check-circle">Approve</flux:menu.item>
+                                            </flux:modal.trigger>
 
                                             <flux:menu.item variant="danger" icon="x-circle"
                                                 wire:click="reject({{ $student->id }})"
@@ -136,6 +136,24 @@
                                     class="md:w-2xl">
                                     <livewire:coordinator.student-management.view :student="$student" :key="'view-student-' . $student->id" />
                                 </flux:modal>
+
+                                @if ($student->status === 'pending')
+                                    <flux:modal :name="'review-student-'.$student->id"
+                                        class="md:w-2xl">
+                                        <livewire:coordinator.student-management.view :student="$student" :key="'review-student-' . $student->id" />
+
+                                        <div class="mt-6 flex justify-end gap-2">
+                                            <flux:modal.close>
+                                                <flux:button variant="ghost">Cancel</flux:button>
+                                            </flux:modal.close>
+
+                                            <flux:button variant="primary" icon="check-circle"
+                                                wire:click="approve({{ $student->id }})">
+                                                Confirm &amp; Approve
+                                            </flux:button>
+                                        </div>
+                                    </flux:modal>
+                                @endif
 
                                 <flux:modal :name="'edit-student-'.$student->id" flyout variant="floating"
                                     class="md:w-2xl">

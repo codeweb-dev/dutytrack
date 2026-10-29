@@ -79,12 +79,11 @@
                 <div class="grid gap-5 sm:grid-cols-2">
                     <flux:field>
                         <flux:label>{{ __('Course') }}</flux:label>
-                        <flux:description>{{ __('BSCS: 300 OJT hours · BSIT: 500 OJT hours') }}</flux:description>
                         <div class="grid grid-cols-2 gap-1 rounded-lg bg-zinc-800/5 p-1 dark:bg-white/10">
                             @foreach (array_keys(\App\Actions\Fortify\CreateNewUser::COURSES) as $course)
                                 <label class="cursor-pointer">
                                     <input type="radio" name="course" value="{{ $course }}" class="peer sr-only" required
-                                        @checked(old('course') === $course) />
+                                        @checked(old('course', 'BSCS') === $course) />
                                     <span
                                         class="flex h-8 items-center justify-center rounded-md text-sm font-medium text-zinc-500 transition peer-checked:bg-white peer-checked:text-zinc-900 peer-checked:shadow-xs peer-focus-visible:ring-2 peer-focus-visible:ring-zinc-400 dark:text-zinc-400 dark:peer-checked:bg-zinc-700 dark:peer-checked:text-white">
                                         {{ $course }}

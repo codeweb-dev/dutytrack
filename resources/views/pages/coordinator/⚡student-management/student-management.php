@@ -82,6 +82,8 @@ new #[Title('Students')] class extends Component
             description: 'Approved a Student account.',
         );
 
+        Flux::modal('review-student-'.$student->id)->close();
+
         Flux::toast(variant: 'success', heading: 'Student approved.', text: "{$student->name} can now log in.");
 
         unset($this->students);

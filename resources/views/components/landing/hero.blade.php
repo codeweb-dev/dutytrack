@@ -31,11 +31,12 @@
 
     <h1
         class="text-lg sm:text-xl lg:text-2xl font-semibold leading-snug max-w-2xl mx-auto mb-2 text-gray-700 dark:text-zinc-300 text-balance">
-        <span class="anim-word !block text-5xl sm:text-7xl lg:text-8xl font-extrabold tracking-tight leading-none mb-4 sm:mb-5 text-gray-900 dark:text-white">Duty Track</span>
-        <span class="anim-word">A web-based OJT Tracking and</span>&#32;<span
-            class="anim-word">Duty Hours,</span>&#32;<span class="anim-word">Monitoring System,</span>&#32;<span
-            class="anim-word">and</span>&#32;<span
-            class="anim-word relative inline-block">
+        <span
+            class="anim-word !block text-5xl sm:text-7xl lg:text-8xl font-extrabold tracking-tight leading-none mb-4 sm:mb-5 text-gray-900 dark:text-white">Duty
+            Track</span>
+        <span class="anim-word">A web-based OJT Tracking and</span>&#32;<span class="anim-word">Duty
+            Hours,</span>&#32;<span class="anim-word">Monitoring System,</span>&#32;<span
+            class="anim-word">and</span>&#32;<span class="anim-word relative inline-block">
             Productivity
             <svg class="absolute -bottom-2 left-0 w-full overflow-visible" height="10" viewBox="0 0 200 10"
                 preserveAspectRatio="none">
@@ -45,7 +46,8 @@
         </span>
     </h1>
 
-    <p class="anim-sub text-base sm:text-lg text-balance text-gray-500 dark:text-zinc-400 max-w-2xl mx-auto mb-9 mt-6 leading-relaxed">
+    <p
+        class="anim-sub text-base sm:text-lg text-balance text-gray-500 dark:text-zinc-400 max-w-2xl mx-auto mb-9 mt-6 leading-relaxed">
         A centralized dashboard that allows academic staffs to monitor attendance,
         track duty hours, manage tasks, and evaluate
         internship performance.

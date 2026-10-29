@@ -25,11 +25,13 @@
             <div class="grid grid-cols-7 gap-1">
                 @foreach ($this->calendar['days'] as $day)
                     <button type="button" wire:key="calendar-day-{{ $day['date']->format('Y-m-d') }}"
-                        wire:click="showAttendanceDay('{{ $day['date']->format('Y-m-d') }}')" @class([
-                        'flex min-h-14 flex-col items-center rounded-xl border border-transparent py-2 text-sm',
-                        'w-full cursor-pointer transition-colors hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest dark:hover:bg-zinc-800/50',
-                        'text-zinc-900 dark:text-white' => $day['is_current_month'],
+                        wire:click="showAttendanceDay('{{ $day['date']->format('Y-m-d') }}')" @disabled($day['is_weekend']) @class([
+                        'flex min-h-14 w-full flex-col items-center rounded-xl border py-2 text-sm',
+                        'cursor-pointer transition-colors hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest dark:hover:bg-zinc-800/50' => ! $day['is_weekend'],
+                        'cursor-not-allowed bg-zinc-100 text-zinc-400 dark:bg-zinc-800/40 dark:text-zinc-600' => $day['is_weekend'],
+                        'text-zinc-900 dark:text-white' => $day['is_current_month'] && ! $day['is_weekend'],
                         'text-zinc-400 dark:text-zinc-600' => ! $day['is_current_month'],
+                        'border-transparent' => ! $day['is_today'],
                         'border-red-500 bg-red-50 font-semibold dark:bg-red-950/30' => $day['is_today'],
                     ])
                         aria-label="View attendance for {{ $day['date']->format('F j, Y') }}{{ $day['status'] ? ': '.ucfirst($day['status']) : '' }}"
@@ -163,6 +165,12 @@
                 </div>
             @endif
 
+            @if ($this->isRestDay())
+                <flux:callout icon="calendar" variant="secondary" class="mt-6">
+                    <flux:callout.heading>Rest day</flux:callout.heading>
+                    <flux:callout.text>OJT attendance is not recorded on Saturdays and Sundays.</flux:callout.text>
+                </flux:callout>
+            @else
             <form wire:submit="recordNextPunch" class="mt-6 space-y-4">
                 @if ($this->nextPunch() === 'morning_time_in')
                     <div x-data="{
@@ -351,6 +359,7 @@
                     </flux:text>
                 </div>
             </form>
+            @endif
         </flux:card>
 
     </section>

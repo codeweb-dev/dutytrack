@@ -34,6 +34,8 @@ function createStudentWithAssignment(): User
 }
 
 test('students can view their attendance page', function () {
+    Carbon::setTestNow(Carbon::parse('2026-04-30 08:00:00'));
+
     $student = createStudentWithAssignment();
 
     $this->actingAs($student)
@@ -388,4 +390,21 @@ test('hours stop at five pm when overtime is not enabled', function () {
 
     expect($attendance->overtime_enabled)->toBeFalse();
     expect((float) $attendance->hours_rendered)->toBe(9.0);
+});
+
+test('students cannot record attendance on weekends', function () {
+    Carbon::setTestNow(Carbon::parse('2026-05-02 08:00:00')); // Saturday
+
+    $student = createStudentWithAssignment();
+
+    $this->actingAs($student);
+
+    Livewire::test('pages::student.attendance')
+        ->assertSee('Rest day')
+        ->set('time_in_latitude', 14.5995)
+        ->set('time_in_longitude', 120.9842)
+        ->call('recordNextPunch')
+        ->call('bypassAttendance', 480);
+
+    expect(AttendanceLog::query()->where('student_id', $student->id)->exists())->toBeFalse();
 });

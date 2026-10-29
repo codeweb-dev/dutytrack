@@ -86,6 +86,23 @@ new #[Title('My Attendance')] class extends Component
         return now()->toDateString();
     }
 
+    // OJT rule: no duty on Saturdays and Sundays.
+    public function isRestDay(): bool
+    {
+        return now()->isWeekend();
+    }
+
+    protected function restDayBlocked(): bool
+    {
+        if (! $this->isRestDay()) {
+            return false;
+        }
+
+        Flux::toast(variant: 'warning', heading: 'Rest day.', text: 'Attendance cannot be recorded on Saturdays and Sundays.');
+
+        return true;
+    }
+
     protected function resetAttendanceState(): void
     {
         unset($this->todayAttendance, $this->calendar, $this->selectedAttendance, $this->summary);
@@ -202,6 +219,10 @@ new #[Title('My Attendance')] class extends Component
 
     public function recordNextPunch(): void
     {
+        if ($this->restDayBlocked()) {
+            return;
+        }
+
         $nextPunch = $this->nextPunch();
 
         match ($nextPunch) {
@@ -388,6 +409,10 @@ new #[Title('My Attendance')] class extends Component
             abort(404);
         }
 
+        if ($this->restDayBlocked()) {
+            return;
+        }
+
         $assignment = $this->assignment;
 
         if (! $assignment) {
@@ -500,6 +525,7 @@ new #[Title('My Attendance')] class extends Component
                 'date' => $date->copy(),
                 'is_current_month' => $date->format('Y-m') === $month->format('Y-m'),
                 'is_today' => $date->isToday(),
+                'is_weekend' => $date->isWeekend(),
                 'status' => $attendanceByDate->get($key)?->status,
             ];
         }

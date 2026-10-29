@@ -26,9 +26,10 @@
                 @foreach ($this->calendar['days'] as $day)
                     <button type="button" wire:key="supervisor-calendar-day-{{ $day['date']->format('Y-m-d') }}"
                         wire:click="showAttendanceDay('{{ $day['date']->format('Y-m-d') }}')" @class([
-                            'flex min-h-14 w-full cursor-pointer flex-col items-center rounded-xl border border-transparent py-2 text-sm transition-colors hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest dark:hover:bg-zinc-800/50',
+                            'flex min-h-14 w-full cursor-pointer flex-col items-center rounded-xl border py-2 text-sm transition-colors hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest dark:hover:bg-zinc-800/50',
                             'text-zinc-900 dark:text-white' => $day['is_current_month'],
                             'text-zinc-400 dark:text-zinc-600' => ! $day['is_current_month'],
+                            'border-transparent' => ! $day['is_today'],
                             'border-red-500 bg-red-50 font-semibold dark:bg-red-950/30' => $day['is_today'],
                         ])
                         aria-label="View attendance for {{ $day['date']->format('F j, Y') }}: {{ $day['count'] }} {{ \Illuminate\Support\Str::plural('record', $day['count']) }}"

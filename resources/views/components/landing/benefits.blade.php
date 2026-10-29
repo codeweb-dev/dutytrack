@@ -41,8 +41,7 @@
                     ],
                     [
                         'title' => 'Student Requirement Tracking',
-                        'desc' =>
-                            'Keep track of submitted requirements and coordinator verification.',
+                        'desc' => 'Keep track of submitted requirements and coordinator verification.',
                         'icon' => '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
                         'delay' => '75',
                     ],
@@ -55,7 +54,7 @@
                         'delay' => '150',
                     ],
                     [
-                        'title' => 'Academic Staffs Evaluation System',
+                        'title' => 'Evaluation System',
                         'desc' =>
                             'Academic staffs can rate student performance and provide feedback to improve training outcomes.',
                         'icon' =>
@@ -64,8 +63,7 @@
                     ],
                     [
                         'title' => 'Automated OJT Reports',
-                        'desc' =>
-                            'Generate attendance summaries and performance evaluations automatically.',
+                        'desc' => 'Generate attendance summaries and performance evaluations automatically.',
                         'icon' =>
                             '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>',
                         'delay' => '75',
@@ -88,8 +86,7 @@
                     intersect-once"
                     style="transition-duration: 500ms; transition-delay: {{ $benefit['delay'] }}ms;">
                     <div class="flex items-center gap-4 mb-4">
-                        <div
-                            class="w-12 h-12 rounded-xl bg-red-50 dark:bg-red-950/40 flex items-center justify-center">
+                        <div class="w-12 h-12 rounded-xl bg-red-50 dark:bg-red-950/40 flex items-center justify-center">
                             <svg class="size-6 text-red-500 dark:text-red-400" viewBox="0 0 24 24" fill="none"
                                 stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                                 {!! $benefit['icon'] !!}

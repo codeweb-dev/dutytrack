@@ -86,7 +86,7 @@
         </section>
     </section>
 
-    <section class="flex flex-col gap-6">
+    <section class="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(24rem,1fr)]">
         <flux:card>
             <div class="flex items-start justify-between gap-4">
                 <div>
@@ -103,39 +103,9 @@
                 @endif
             </div>
 
-            <div class="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                <flux:card class="p-4">
-                    <flux:heading>Morning In</flux:heading>
-                    <div class="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white">
-                        {{ $this->todayAttendance?->displayMorningTimeIn()?->format('h:i A') ?? '' }}
-                    </div>
-                </flux:card>
-
-                <flux:card class="p-4">
-                    <flux:heading>Morning Out</flux:heading>
-                    <div class="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white">
-                        {{ $this->todayAttendance?->displayMorningTimeOut()?->format('h:i A') ?? '' }}
-                    </div>
-                </flux:card>
-
-                <flux:card class="p-4">
-                    <flux:heading>Afternoon In</flux:heading>
-                    <div class="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white">
-                        {{ $this->todayAttendance?->displayAfternoonTimeIn()?->format('h:i A') ?? '' }}
-                    </div>
-                </flux:card>
-
-                <flux:card class="p-4">
-                    <flux:heading>Afternoon Out</flux:heading>
-                    <div class="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white">
-                        {{ $this->todayAttendance?->displayAfternoonTimeOut()?->format('h:i A') ?? '' }}
-                    </div>
-                </flux:card>
-            </div>
-
-            @if ($this->todayAttendance)
-                <div class="mt-4">
-                    <flux:card>
+            <div class="mt-6">
+                @if ($this->todayAttendance)
+                    <div>
                         <div class="flex items-center justify-between gap-3">
                             <flux:heading>Time-in Location</flux:heading>
                             @if ($this->todayAttendance->timeInMapUrl())
@@ -161,18 +131,8 @@
                         @else
                             <flux:text class="mt-3">No location captured.</flux:text>
                         @endif
-                    </flux:card>
-                </div>
-            @endif
-
-            @if ($this->isRestDay())
-                <flux:callout icon="calendar" variant="secondary" class="mt-6">
-                    <flux:callout.heading>Rest day</flux:callout.heading>
-                    <flux:callout.text>OJT attendance is not recorded on Saturdays and Sundays.</flux:callout.text>
-                </flux:callout>
-            @else
-            <form wire:submit="recordNextPunch" class="mt-6 space-y-4">
-                @if ($this->nextPunch() === 'morning_time_in')
+                    </div>
+                @elseif (! $this->isRestDay() && $this->nextPunch() === 'morning_time_in')
                     <div x-data="{
                         locating: false,
                         message: 'Allow location access to attach your time-in map.',
@@ -212,8 +172,7 @@
                                 }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
                             );
                         },
-                    }" x-init="captureLocation()"
-                        class="rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
+                    }" x-init="captureLocation()">
                         <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                             <div>
                                 <flux:heading>Time-in Location</flux:heading>
@@ -302,7 +261,17 @@
                             <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
                         @enderror
                     </div>
-                @elseif ($this->nextPunch() === 'afternoon_time_out')
+                @endif
+            </div>
+
+            @if ($this->isRestDay())
+                <flux:callout icon="calendar" variant="secondary" class="mt-6">
+                    <flux:callout.heading>Rest day</flux:callout.heading>
+                    <flux:callout.text>OJT attendance is not recorded on Saturdays and Sundays.</flux:callout.text>
+                </flux:callout>
+            @else
+            <form wire:submit="recordNextPunch" class="mt-6 space-y-4">
+                @if ($this->nextPunch() === 'afternoon_time_out')
                     <flux:switch wire:model="overtime_enabled" label="Enable OT"
                         description="Continue counting rendered hours after 5:00 PM." />
                 @endif
@@ -362,6 +331,35 @@
             @endif
         </flux:card>
 
+        <section class="grid gap-4 sm:grid-cols-2">
+            <flux:card class="p-4">
+                <flux:heading>Morning In</flux:heading>
+                <div class="mt-2 text-3xl font-semibold text-zinc-950 dark:text-white">
+                    {{ $this->todayAttendance?->displayMorningTimeIn()?->format('h:i A') ?? '--:--' }}
+                </div>
+            </flux:card>
+
+            <flux:card class="p-4">
+                <flux:heading>Morning Out</flux:heading>
+                <div class="mt-2 text-3xl font-semibold text-zinc-950 dark:text-white">
+                    {{ $this->todayAttendance?->displayMorningTimeOut()?->format('h:i A') ?? '--:--' }}
+                </div>
+            </flux:card>
+
+            <flux:card class="p-4">
+                <flux:heading>Afternoon In</flux:heading>
+                <div class="mt-2 text-3xl font-semibold text-zinc-950 dark:text-white">
+                    {{ $this->todayAttendance?->displayAfternoonTimeIn()?->format('h:i A') ?? '--:--' }}
+                </div>
+            </flux:card>
+
+            <flux:card class="p-4">
+                <flux:heading>Afternoon Out</flux:heading>
+                <div class="mt-2 text-3xl font-semibold text-zinc-950 dark:text-white">
+                    {{ $this->todayAttendance?->displayAfternoonTimeOut()?->format('h:i A') ?? '--:--' }}
+                </div>
+            </flux:card>
+        </section>
     </section>
 
     <flux:modal name="attendance-day-details" class="md:w-2xl">

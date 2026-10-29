@@ -307,3 +307,30 @@ test('supervisors can submit multiple practicum evaluations for one assigned tra
         'Second supervisor evaluation period.',
     ]);
 });
+
+test('supervisors can sort assigned students by student name', function () {
+    $coordinator = createSupervisorAssignedStudentCoordinator();
+    $supervisor = createSupervisorAssignedStudentUser();
+    $zed = createSupervisorAssignedStudent($coordinator, ['name' => 'Zed Sorted Trainee']);
+    $abe = createSupervisorAssignedStudent($coordinator, ['name' => 'Abe Sorted Trainee']);
+
+    foreach ([$abe, $zed] as $student) {
+        OjtAssignment::query()->create([
+            'student_id' => $student->id,
+            'ojt_type' => 'external',
+            'company_supervisor_id' => $supervisor->id,
+            'status' => 'active',
+        ]);
+    }
+
+    $this->actingAs($supervisor);
+
+    Livewire::test('pages::supervisor.assigned-students')
+        ->set('sortBy', 'student')
+        ->assertSeeInOrder([$abe->name, $zed->name])
+        ->set('sortDirection', 'desc')
+        ->assertSeeInOrder([$zed->name, $abe->name])
+        ->call('clearFilters')
+        ->assertSet('sortBy', '')
+        ->assertSet('sortDirection', 'asc');
+});

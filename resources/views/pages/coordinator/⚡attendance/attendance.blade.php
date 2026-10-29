@@ -38,53 +38,41 @@
                 <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
                     placeholder="Search student..." clearable />
 
-                <flux:modal.trigger name="filter-coordinator-attendance">
-                    <flux:button icon="funnel">Filter</flux:button>
-                </flux:modal.trigger>
+                <x-filter-modal name="filter-coordinator-attendance" heading="Filter Attendance Records"
+                    description="Filter and sort logs by OJT type, status, supervisor, and date range." width="md:w-2xl"
+                    :sorts="['' => 'Default', 'student' => 'Student name', 'student_id' => 'Student ID', 'date' => 'Date', 'hours' => 'Hours', 'status' => 'Status']">
+                    <flux:radio.group wire:model.live="ojt_type" label="OJT Type" variant="cards" :indicator="false"
+                        class="max-sm:flex-col">
+                        <flux:radio value="" icon="squares-2x2" label="All Types" description="All OJT types" />
+                        <flux:radio value="internal" icon="academic-cap" label="Internal" description="Internal OJT" />
+                        <flux:radio value="external" icon="building-office" label="External" description="External OJT" />
+                    </flux:radio.group>
+
+                    <flux:radio.group wire:model.live="status" label="Status" variant="pills">
+                        <flux:radio value="" label="All Status" />
+                        <flux:radio value="present" label="Present" />
+                        <flux:radio value="late" label="Late" />
+                        <flux:radio value="absent" label="Absent" />
+                        <flux:radio value="incomplete" label="Incomplete" />
+                    </flux:radio.group>
+
+                    <flux:select wire:model.live="supervisor_id" placeholder="Supervisor" label="Supervisor">
+                        <option value="">All Supervisors</option>
+                        @foreach ($this->supervisors as $supervisor)
+                            <option value="{{ $supervisor->id }}">
+                                {{ $supervisor->name ?? trim(($supervisor->first_name ?? '') . ' ' . ($supervisor->last_name ?? '')) }}
+                            </option>
+                        @endforeach
+                    </flux:select>
+
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-6">
+                        <flux:input type="date" wire:model.live="from_date" label="From Date" />
+                        <flux:input type="date" wire:model.live="to_date" label="To Date" />
+                    </div>
+                </x-filter-modal>
             </div>
         </div>
 
-        <flux:modal name="filter-coordinator-attendance" class="md:w-2xl">
-            <div class="space-y-6">
-                <div>
-                    <flux:heading size="lg">Filter Attendance Records</flux:heading>
-                    <flux:text class="mt-2">Filter logs by OJT type, status, supervisor, and date range.</flux:text>
-                </div>
-
-                <flux:radio.group wire:model.live="ojt_type" label="OJT Type" variant="cards" :indicator="false"
-                    class="max-sm:flex-col">
-                    <flux:radio value="" icon="squares-2x2" label="All Types" description="All OJT types" />
-                    <flux:radio value="internal" icon="academic-cap" label="Internal" description="Internal OJT" />
-                    <flux:radio value="external" icon="building-office" label="External" description="External OJT" />
-                </flux:radio.group>
-
-                <flux:radio.group wire:model.live="status" label="Status" variant="pills">
-                    <flux:radio value="" label="All Status" />
-                    <flux:radio value="present" label="Present" />
-                    <flux:radio value="late" label="Late" />
-                    <flux:radio value="absent" label="Absent" />
-                    <flux:radio value="incomplete" label="Incomplete" />
-                </flux:radio.group>
-
-                <flux:select wire:model.live="supervisor_id" placeholder="Supervisor" label="Supervisor">
-                    <option value="">All Supervisors</option>
-                    @foreach ($this->supervisors as $supervisor)
-                        <option value="{{ $supervisor->id }}">
-                            {{ $supervisor->name ?? trim(($supervisor->first_name ?? '') . ' ' . ($supervisor->last_name ?? '')) }}
-                        </option>
-                    @endforeach
-                </flux:select>
-
-                <div class="grid grid-cols-2 gap-x-4 gap-y-6">
-                    <flux:input type="date" wire:model.live="from_date" label="From Date" />
-                    <flux:input type="date" wire:model.live="to_date" label="To Date" />
-                </div>
-
-                <flux:button type="button" variant="primary" wire:click="clearFilters" icon="trash" class="w-full">
-                    Clear Filter
-                </flux:button>
-            </div>
-        </flux:modal>
 
         @if ($this->attendanceLogs->isEmpty())
             <flux:card class="flex flex-col items-center gap-4 py-24">

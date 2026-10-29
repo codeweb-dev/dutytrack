@@ -1,5 +1,7 @@
 <?php
 
+use App\Livewire\Concerns\WithSorting;
+use App\Models\User;
 use App\Models\Evaluation;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
@@ -11,6 +13,7 @@ use Livewire\WithPagination;
 new #[Title('Evaluations')] class extends Component
 {
     use WithPagination;
+    use WithSorting;
 
     public array $breadcrumbs = [
         ['logo' => 'logo.png', 'href' => '/dashboard'],
@@ -37,10 +40,18 @@ new #[Title('Evaluations')] class extends Component
         };
     }
 
+    public function clearFilters(): void
+    {
+        $this->reset('search', 'sortBy', 'sortDirection');
+
+        $this->resetPage();
+        unset($this->evaluations);
+    }
+
     #[Computed]
     public function evaluations(): LengthAwarePaginator
     {
-        return Evaluation::query()
+        $query = Evaluation::query()
             ->with(['assignment', 'evaluator'])
             ->where('student_id', Auth::id())
             ->where('status', 'submitted')
@@ -56,7 +67,14 @@ new #[Title('Evaluations')] class extends Component
                                 ->orWhere('last_name', 'like', $search);
                         });
                 });
-            })
+            });
+
+        return $this->applySorting($query, [
+            'evaluator' => User::select('name')->whereColumn('users.id', 'evaluations.evaluator_id'),
+            'dates' => 'inclusive_from',
+            'program' => 'cooperating_program',
+            'rating' => 'rating',
+        ])
             ->latest('evaluation_date')
             ->latest('created_at')
             ->paginate(10);

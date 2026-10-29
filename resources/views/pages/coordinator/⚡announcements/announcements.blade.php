@@ -11,6 +11,18 @@
                 <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
                     placeholder="Search announcements..." clearable />
 
+                <x-filter-modal name="filter-coordinator-announcements" heading="Filter Announcements"
+                    description="Filter by type and sort announcements."
+                    :sorts="['created_at' => 'Date posted', 'title' => 'Title', 'type' => 'Type']">
+                    <flux:radio.group wire:model.live="type" label="Type" variant="pills">
+                        <flux:radio value="" label="All" />
+                        <flux:radio value="info" label="Info" />
+                        <flux:radio value="warning" label="Warning" />
+                        <flux:radio value="urgent" label="Urgent" />
+                        <flux:radio value="maintenance" label="Maintenance" />
+                    </flux:radio.group>
+                </x-filter-modal>
+
                 <livewire:coordinator.announcements.create />
             </div>
         </div>

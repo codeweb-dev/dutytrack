@@ -31,14 +31,21 @@ new #[Title('Supervisor Management')] class extends Component
 
     public string $search = '';
 
-    public function sort(string $column): void
+    public function updatedSortBy(): void
     {
-        if ($this->sortBy === $column) {
-            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-            $this->sortBy = $column;
-            $this->sortDirection = 'asc';
-        }
+        $this->resetPage();
+        unset($this->supervisors);
+    }
+
+    public function updatedSortDirection(): void
+    {
+        $this->resetPage();
+        unset($this->supervisors);
+    }
+
+    public function clearFilters(): void
+    {
+        $this->reset('search', 'sortBy', 'sortDirection');
 
         $this->resetPage();
         unset($this->supervisors);

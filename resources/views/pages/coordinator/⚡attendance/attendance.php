@@ -1,5 +1,7 @@
 <?php
 
+use App\Livewire\Concerns\WithSorting;
+use App\Models\StudentProfile;
 use App\Models\AttendanceLog;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -13,6 +15,7 @@ use Livewire\WithPagination;
 new #[Title('Attendance Monitoring')] class extends Component
 {
     use WithPagination;
+    use WithSorting;
 
     public array $breadcrumbs = [
         ['logo' => 'logo.png', 'href' => '/dashboard'],
@@ -75,6 +78,7 @@ new #[Title('Attendance Monitoring')] class extends Component
 
     public function clearFilters(): void
     {
+        $this->reset('sortBy', 'sortDirection');
         $this->search = '';
         $this->ojt_type = '';
         $this->status = '';
@@ -149,7 +153,13 @@ new #[Title('Attendance Monitoring')] class extends Component
     #[Computed]
     public function attendanceLogs(): LengthAwarePaginator
     {
-        return $this->applyFilters($this->baseAttendanceQuery())
+        return $this->applySorting($this->applyFilters($this->baseAttendanceQuery()), [
+            'student' => User::select('name')->whereColumn('users.id', 'attendance_logs.student_id'),
+            'student_id' => StudentProfile::select('student_id')->whereColumn('student_profiles.user_id', 'attendance_logs.student_id'),
+            'date' => 'attendance_date',
+            'hours' => 'hours_rendered',
+            'status' => 'status',
+        ])
             ->latest('attendance_date')
             ->latest('morning_time_in')
             ->paginate(10);

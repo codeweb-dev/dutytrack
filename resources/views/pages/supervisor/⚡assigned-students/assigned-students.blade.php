@@ -33,32 +33,20 @@
                 <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
                     placeholder="Search students..." clearable />
 
-                <flux:modal.trigger name="filter-supervisor-assigned-students">
-                    <flux:button icon="funnel">Filter</flux:button>
-                </flux:modal.trigger>
+                <x-filter-modal name="filter-supervisor-assigned-students" heading="Filter Assigned Students"
+                    description="Filter and sort your assigned students by assignment status."
+                    :sorts="['' => 'Default', 'student' => 'Student name', 'student_id' => 'Student ID', 'course' => 'Course', 'status' => 'Status']">
+
+                    <flux:radio.group wire:model.live="status" label="Status" variant="pills">
+                        <flux:radio value="" label="All" />
+                        <flux:radio value="pending" label="Pending" />
+                        <flux:radio value="active" label="Active" />
+                        <flux:radio value="completed" label="Completed" />
+                        <flux:radio value="cancelled" label="Cancelled" />
+                    </flux:radio.group>
+                </x-filter-modal>
             </div>
         </div>
-
-        <flux:modal name="filter-supervisor-assigned-students" class="md:w-lg">
-            <div class="space-y-6">
-                <div>
-                    <flux:heading size="lg">Filter Assigned Students</flux:heading>
-                    <flux:text class="mt-2">Filter your assigned students by assignment status.</flux:text>
-                </div>
-
-                <flux:radio.group wire:model.live="status" label="Status" variant="pills">
-                    <flux:radio value="" label="All" />
-                    <flux:radio value="pending" label="Pending" />
-                    <flux:radio value="active" label="Active" />
-                    <flux:radio value="completed" label="Completed" />
-                    <flux:radio value="cancelled" label="Cancelled" />
-                </flux:radio.group>
-
-                <flux:button type="button" variant="primary" wire:click="clearFilters" icon="trash" class="w-full">
-                    Clear Filter
-                </flux:button>
-            </div>
-        </flux:modal>
 
         @if ($this->assignments->isEmpty())
             <flux:card class="flex flex-col items-center gap-4 py-24">

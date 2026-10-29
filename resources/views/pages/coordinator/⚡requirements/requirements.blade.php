@@ -29,9 +29,13 @@
                 Requirement Tracking
             </h2>
 
-            <div>
+            <div class="flex items-center gap-3">
                 <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
                     placeholder="Search students..." clearable />
+
+                <x-filter-modal name="filter-coordinator-requirements" heading="Filter Requirements"
+                    description="Sort the students in requirement tracking."
+                    :sorts="['' => 'Default', 'name' => 'Student name', 'student_id' => 'Student ID', 'course' => 'Course']" />
             </div>
         </div>
 

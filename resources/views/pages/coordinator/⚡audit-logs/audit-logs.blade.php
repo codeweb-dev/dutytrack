@@ -7,24 +7,28 @@
                 All Audit Logs
             </h2>
 
-            <div class="flex flex-col gap-3 md:flex-row md:items-center">
+            <div class="flex items-center gap-3">
                 <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
                     placeholder="Search audit logs..." clearable />
 
-                <flux:select wire:model.live="module" placeholder="All modules" class="min-w-44">
-                    <option value="">All modules</option>
-                    @foreach ($this->modules as $moduleOption)
-                        <option value="{{ $moduleOption }}">{{ $moduleOption }}</option>
-                    @endforeach
-                </flux:select>
+                <x-filter-modal name="filter-coordinator-audit-logs" heading="Filter Audit Logs"
+                    description="Filter by module and action, and sort the audit trail."
+                    :sorts="['created_at' => 'Date & time', 'actor_name' => 'User', 'module' => 'Module', 'action' => 'Action', 'target_label' => 'Target']">
+                    <flux:select wire:model.live="module" label="Module">
+                        <option value="">All modules</option>
+                        @foreach ($this->modules as $moduleOption)
+                            <option value="{{ $moduleOption }}">{{ $moduleOption }}</option>
+                        @endforeach
+                    </flux:select>
 
-                <flux:select wire:model.live="action" placeholder="All actions" class="min-w-40">
-                    <option value="">All actions</option>
-                    @foreach ($this->actions as $actionOption)
-                        <option value="{{ $actionOption }}">{{ str($actionOption)->replace('_', ' ')->title() }}
-                        </option>
-                    @endforeach
-                </flux:select>
+                    <flux:select wire:model.live="action" label="Action">
+                        <option value="">All actions</option>
+                        @foreach ($this->actions as $actionOption)
+                            <option value="{{ $actionOption }}">{{ str($actionOption)->replace('_', ' ')->title() }}
+                            </option>
+                        @endforeach
+                    </flux:select>
+                </x-filter-modal>
             </div>
         </div>
 
@@ -40,28 +44,23 @@
         @else
             <flux:table :paginate="$this->auditLogs">
                 <flux:table.columns>
-                    <flux:table.column sortable :sorted="$sortBy === 'created_at'" :direction="$sortDirection"
-                        wire:click="sort('created_at')">
+                    <flux:table.column>
                         Date & Time
                     </flux:table.column>
 
-                    <flux:table.column sortable :sorted="$sortBy === 'actor_name'" :direction="$sortDirection"
-                        wire:click="sort('actor_name')">
+                    <flux:table.column>
                         User
                     </flux:table.column>
 
-                    <flux:table.column sortable :sorted="$sortBy === 'module'" :direction="$sortDirection"
-                        wire:click="sort('module')">
+                    <flux:table.column>
                         Module
                     </flux:table.column>
 
-                    <flux:table.column sortable :sorted="$sortBy === 'action'" :direction="$sortDirection"
-                        wire:click="sort('action')">
+                    <flux:table.column>
                         Action
                     </flux:table.column>
 
-                    <flux:table.column sortable :sorted="$sortBy === 'target_label'" :direction="$sortDirection"
-                        wire:click="sort('target_label')">
+                    <flux:table.column>
                         Target
                     </flux:table.column>
 

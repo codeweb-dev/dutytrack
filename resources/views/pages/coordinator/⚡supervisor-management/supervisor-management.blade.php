@@ -11,6 +11,10 @@
                 <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
                     aria-label="Search supervisors..." placeholder="Search supervisors..." clearable />
 
+                <x-filter-modal name="filter-coordinator-supervisors" heading="Filter Supervisors"
+                    description="Sort your supervisors."
+                    :sorts="['name' => 'Supervisor name', 'supervisor_id' => 'Supervisor ID', 'company_name' => 'Company / institution']" />
+
                 <livewire:coordinator.supervisors.create />
             </div>
         </div>
@@ -26,12 +30,9 @@
         @else
             <flux:table :paginate="$this->supervisors">
                 <flux:table.columns>
-                    <flux:table.column sortable :sorted="$sortBy === 'name'" :direction="$sortDirection"
-                        wire:click="sort('name')">Supervisor</flux:table.column>
-                    <flux:table.column sortable :sorted="$sortBy === 'supervisor_id'" :direction="$sortDirection"
-                        wire:click="sort('supervisor_id')">Supervisor ID</flux:table.column>
-                    <flux:table.column sortable :sorted="$sortBy === 'company_name'" :direction="$sortDirection"
-                        wire:click="sort('company_name')">Company / Institution</flux:table.column>
+                    <flux:table.column>Supervisor</flux:table.column>
+                    <flux:table.column>Supervisor ID</flux:table.column>
+                    <flux:table.column>Company / Institution</flux:table.column>
                     <flux:table.column>Contact</flux:table.column>
                     <flux:table.column>Actions</flux:table.column>
                 </flux:table.columns>

@@ -11,6 +11,10 @@
                 <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
                     placeholder="Search evaluations..." clearable />
 
+                <x-filter-modal name="filter-supervisor-evaluations" heading="Filter Evaluations"
+                    description="Sort your submitted evaluations."
+                    :sorts="['' => 'Default', 'student' => 'Student name', 'student_id' => 'Student ID', 'course' => 'Course', 'dates' => 'Inclusive dates', 'rating' => 'Rating']" />
+
                 <flux:modal.trigger name="supervisor-evaluation-students">
                     <flux:button icon="check-badge" variant="primary">
                         Evaluate Trainee

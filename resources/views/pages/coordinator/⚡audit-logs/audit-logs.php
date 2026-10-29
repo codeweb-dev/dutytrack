@@ -28,14 +28,21 @@ new #[Title('Audit Logs')] class extends Component
     public string $module = '';
     public string $action = '';
 
-    public function sort(string $column): void
+    public function updatedSortBy(): void
     {
-        if ($this->sortBy === $column) {
-            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-            $this->sortBy = $column;
-            $this->sortDirection = $column === 'created_at' ? 'desc' : 'asc';
-        }
+        $this->resetPage();
+        unset($this->auditLogs);
+    }
+
+    public function updatedSortDirection(): void
+    {
+        $this->resetPage();
+        unset($this->auditLogs);
+    }
+
+    public function clearFilters(): void
+    {
+        $this->reset('search', 'module', 'action', 'sortBy', 'sortDirection');
 
         $this->resetPage();
         unset($this->auditLogs);

@@ -33,41 +33,28 @@
                 <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
                     placeholder="Search student or assignee..." clearable />
 
-                <flux:modal.trigger name="filter-coordinator-ojt-assignments">
-                    <flux:button icon="funnel">Filter</flux:button>
-                </flux:modal.trigger>
+                <x-filter-modal name="filter-coordinator-ojt-assignments" heading="Filter Assignments"
+                    description="Filter and sort your assigned students by OJT type and assignment status."
+                    :sorts="['' => 'Default', 'student' => 'Student name', 'student_id' => 'Student ID', 'type' => 'OJT type', 'supervisor' => 'Assigned to', 'status' => 'Status']">
+                    <flux:select wire:model.live="ojt_type" label="OJT Type">
+                        <option value="">All Types</option>
+                        <option value="internal">Internal</option>
+                        <option value="external">External</option>
+                    </flux:select>
+
+                    <flux:select wire:model.live="status" label="Status">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="active">Active</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                    </flux:select>
+                </x-filter-modal>
 
                 <livewire:coordinator.ojt-assignments.create />
             </div>
         </div>
 
-        <flux:modal name="filter-coordinator-ojt-assignments" class="md:w-xl">
-            <div class="space-y-6">
-                <div>
-                    <flux:heading size="lg">Filter Assignments</flux:heading>
-                    <flux:text class="mt-2">Filter your assigned students by OJT type and assignment status.
-                    </flux:text>
-                </div>
-
-                <flux:select wire:model.live="ojt_type" label="OJT Type">
-                    <option value="">All Types</option>
-                    <option value="internal">Internal</option>
-                    <option value="external">External</option>
-                </flux:select>
-
-                <flux:select wire:model.live="status" label="Status">
-                    <option value="">All Status</option>
-                    <option value="pending">Pending</option>
-                    <option value="active">Active</option>
-                    <option value="completed">Completed</option>
-                    <option value="cancelled">Cancelled</option>
-                </flux:select>
-
-                <flux:button type="button" variant="primary" wire:click="clearFilters" icon="trash" class="w-full">
-                    Clear Filter
-                </flux:button>
-            </div>
-        </flux:modal>
 
         @if ($this->assignments->isEmpty())
             <flux:card class="flex flex-col items-center gap-4 py-24">

@@ -1,5 +1,8 @@
 <?php
 
+use App\Livewire\Concerns\WithSorting;
+use App\Models\User;
+use App\Models\StudentProfile;
 use App\Livewire\Concerns\ManagesPracticumEvaluations;
 use App\Models\Evaluation;
 use App\Models\OjtAssignment;
@@ -15,6 +18,7 @@ use Livewire\WithPagination;
 new #[Title('Evaluations')] class extends Component
 {
     use WithPagination;
+    use WithSorting;
     use ManagesPracticumEvaluations;
 
     public array $breadcrumbs = [
@@ -53,6 +57,14 @@ new #[Title('Evaluations')] class extends Component
             ->where('company_supervisor_id', Auth::id());
     }
 
+    public function clearFilters(): void
+    {
+        $this->reset('search', 'sortBy', 'sortDirection');
+
+        $this->resetPage();
+        unset($this->evaluations);
+    }
+
     #[Computed]
     public function assignments(): Collection
     {
@@ -78,7 +90,7 @@ new #[Title('Evaluations')] class extends Component
     #[Computed]
     public function evaluations(): LengthAwarePaginator
     {
-        return Evaluation::query()
+        $query = Evaluation::query()
             ->with(['student.studentProfile', 'assignment', 'evaluator'])
             ->where('evaluator_id', Auth::id())
             ->where('evaluator_type', 'company_supervisor')
@@ -95,7 +107,15 @@ new #[Title('Evaluations')] class extends Component
                                 ->orWhere('email', 'like', $search);
                         });
                 });
-            })
+            });
+
+        return $this->applySorting($query, [
+            'student' => User::select('name')->whereColumn('users.id', 'evaluations.student_id'),
+            'student_id' => StudentProfile::select('student_id')->whereColumn('student_profiles.user_id', 'evaluations.student_id'),
+            'course' => StudentProfile::select('course')->whereColumn('student_profiles.user_id', 'evaluations.student_id'),
+            'dates' => 'inclusive_from',
+            'rating' => 'rating',
+        ])
             ->latest('evaluation_date')
             ->latest('created_at')
             ->paginate(10);

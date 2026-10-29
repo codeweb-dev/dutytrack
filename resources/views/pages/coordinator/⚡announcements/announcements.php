@@ -25,15 +25,29 @@ new #[Title('System Announcements')] class extends Component
     public string $sortBy = 'created_at';
     public string $sortDirection = 'desc';
     public string $search = '';
+    public string $type = '';
 
-    public function sort(string $column): void
+    public function updatedType(): void
     {
-        if ($this->sortBy === $column) {
-            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-            $this->sortBy = $column;
-            $this->sortDirection = 'asc';
-        }
+        $this->resetPage();
+        unset($this->announcements);
+    }
+
+    public function updatedSortBy(): void
+    {
+        $this->resetPage();
+        unset($this->announcements);
+    }
+
+    public function updatedSortDirection(): void
+    {
+        $this->resetPage();
+        unset($this->announcements);
+    }
+
+    public function clearFilters(): void
+    {
+        $this->reset('search', 'type', 'sortBy', 'sortDirection');
 
         $this->resetPage();
         unset($this->announcements);
@@ -65,6 +79,10 @@ new #[Title('System Announcements')] class extends Component
                     ->orWhere('message', 'like', $search)
                     ->orWhere('type', 'like', $search);
             });
+        }
+
+        if ($this->type !== '') {
+            $query->where('type', $this->type);
         }
 
         $allowedSorts = [

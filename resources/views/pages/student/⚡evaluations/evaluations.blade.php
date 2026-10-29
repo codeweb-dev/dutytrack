@@ -7,9 +7,13 @@
                 My Evaluation Records
             </h2>
 
-            <div>
+            <div class="flex items-center gap-3">
                 <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
                     placeholder="Search evaluations..." clearable />
+
+                <x-filter-modal name="filter-student-evaluations" heading="Filter Evaluations"
+                    description="Sort your evaluation records."
+                    :sorts="['' => 'Default', 'evaluator' => 'Evaluator', 'dates' => 'Inclusive dates', 'program' => 'Cooperating program', 'rating' => 'Rating']" />
             </div>
         </div>
 

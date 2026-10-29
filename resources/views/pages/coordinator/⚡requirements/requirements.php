@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\WithSorting;
 use App\Enums\Role as EnumsRole;
 use App\Models\StudentRequirement;
 use App\Models\User;
@@ -15,6 +16,7 @@ use Livewire\WithPagination;
 new #[Title('Requirement Monitoring')] class extends Component
 {
     use WithPagination;
+    use WithSorting;
 
     public array $breadcrumbs = [
         ['logo' => 'logo.png', 'href' => '/dashboard'],
@@ -61,6 +63,14 @@ new #[Title('Requirement Monitoring')] class extends Component
         });
     }
 
+    public function clearFilters(): void
+    {
+        $this->reset('search', 'sortBy', 'sortDirection');
+
+        $this->resetPage();
+        unset($this->students);
+    }
+
     #[Computed]
     public function students(): LengthAwarePaginator
     {
@@ -79,7 +89,11 @@ new #[Title('Requirement Monitoring')] class extends Component
             });
         }
 
-        $students = $query->orderBy('users.name')->paginate(8);
+        $students = $this->applySorting($query, [
+            'name' => 'users.name',
+            'student_id' => 'student_profiles.student_id',
+            'course' => 'student_profiles.course',
+        ])->orderBy('users.name')->paginate(8);
 
         $this->ensureVisibleRequirements($students->getCollection());
 

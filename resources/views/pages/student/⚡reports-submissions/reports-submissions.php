@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\WithSorting;
 use App\Models\AttendanceLog;
 use App\Models\AttendanceSubmission;
 use Flux\Flux;
@@ -16,6 +17,7 @@ new #[Title('Accomplishment Report')] class extends Component
 {
     use WithFileUploads;
     use WithPagination;
+    use WithSorting;
 
     public array $breadcrumbs = [
         ['logo' => 'logo.png', 'href' => '/dashboard'],
@@ -44,6 +46,14 @@ new #[Title('Accomplishment Report')] class extends Component
 
     public function updatedToDate(): void
     {
+        $this->resetPage();
+        unset($this->completedAttendances);
+    }
+
+    public function clearFilters(): void
+    {
+        $this->reset('from_date', 'to_date', 'sortBy', 'sortDirection');
+
         $this->resetPage();
         unset($this->completedAttendances);
     }
@@ -121,9 +131,14 @@ new #[Title('Accomplishment Report')] class extends Component
     #[Computed]
     public function completedAttendances(): LengthAwarePaginator
     {
-        return $this->attendanceQuery()
+        $query = $this->attendanceQuery()
             ->when($this->from_date !== '', fn ($query) => $query->whereDate('attendance_date', '>=', $this->from_date))
-            ->when($this->to_date !== '', fn ($query) => $query->whereDate('attendance_date', '<=', $this->to_date))
+            ->when($this->to_date !== '', fn ($query) => $query->whereDate('attendance_date', '<=', $this->to_date));
+
+        return $this->applySorting($query, [
+            'date' => 'attendance_date',
+            'hours' => 'hours_rendered',
+        ])
             ->latest('attendance_date')
             ->paginate(10);
     }

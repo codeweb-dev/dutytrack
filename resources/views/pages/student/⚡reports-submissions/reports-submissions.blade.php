@@ -2,10 +2,17 @@
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
     <section class="space-y-4">
-        <div class="flex items-center md:items-end gap-3 w-full">
-            <flux:input type="date" wire:model.live="from_date" label="From" />
-            <flux:input type="date" wire:model.live="to_date" label="To" />
-            <flux:button icon="arrow-down-tray" variant="primary" :href="$this->downloadUrl()" target="_blank" class="mt-6">
+        <div class="flex items-center justify-end gap-3 w-full">
+            <x-filter-modal name="filter-student-reports" heading="Filter Accomplishment Report"
+                description="Filter by date range and sort your entries. The download uses the same date range."
+                :sorts="['' => 'Default', 'date' => 'Date', 'hours' => 'Hours']">
+                <div class="grid grid-cols-2 gap-4">
+                    <flux:input type="date" wire:model.live="from_date" label="From Date" />
+                    <flux:input type="date" wire:model.live="to_date" label="To Date" />
+                </div>
+            </x-filter-modal>
+
+            <flux:button icon="arrow-down-tray" variant="primary" :href="$this->downloadUrl()" target="_blank">
                 Download Docs
             </flux:button>
         </div>

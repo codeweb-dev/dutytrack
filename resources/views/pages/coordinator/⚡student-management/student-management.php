@@ -34,14 +34,29 @@ new #[Title('Students')] class extends Component
 
     public string $search = '';
 
-    public function sort(string $column): void
+    public string $status = '';
+
+    public function updatedStatus(): void
     {
-        if ($this->sortBy === $column) {
-            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-            $this->sortBy = $column;
-            $this->sortDirection = 'asc';
-        }
+        $this->resetPage();
+        unset($this->students);
+    }
+
+    public function updatedSortBy(): void
+    {
+        $this->resetPage();
+        unset($this->students);
+    }
+
+    public function updatedSortDirection(): void
+    {
+        $this->resetPage();
+        unset($this->students);
+    }
+
+    public function clearFilters(): void
+    {
+        $this->reset('search', 'status', 'sortBy', 'sortDirection');
 
         $this->resetPage();
         unset($this->students);
@@ -138,6 +153,12 @@ new #[Title('Students')] class extends Component
                     ->orWhere('student_profiles.course', 'like', $search)
                     ->orWhere('student_profiles.ojt_required_hours', 'like', $search);
             });
+        }
+
+        if ($this->status === 'pending') {
+            $query->where('users.status', 'pending');
+        } elseif ($this->status === 'active') {
+            $query->where(fn (Builder $query) => $query->whereNull('users.status')->orWhere('users.status', '!=', 'pending'));
         }
 
         $allowedSorts = [

@@ -1,5 +1,7 @@
 <?php
 
+use App\Livewire\Concerns\WithSorting;
+use App\Models\StudentProfile;
 use App\Models\OjtAssignment;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -14,6 +16,7 @@ use Livewire\WithPagination;
 new #[Title('OJT Assignments')] class extends Component
 {
     use WithPagination;
+    use WithSorting;
 
     public array $breadcrumbs = [
         ['logo' => 'logo.png', 'href' => '/dashboard'],
@@ -58,6 +61,7 @@ new #[Title('OJT Assignments')] class extends Component
 
     public function clearFilters(): void
     {
+        $this->reset('sortBy', 'sortDirection');
         $this->search = '';
         $this->ojt_type = '';
         $this->status = '';
@@ -82,7 +86,7 @@ new #[Title('OJT Assignments')] class extends Component
     {
         $coordinatorId = Auth::id();
 
-        return OjtAssignment::query()
+        $query = OjtAssignment::query()
             ->with([
                 'student.studentProfile',
                 'student.coordinator',
@@ -110,7 +114,15 @@ new #[Title('OJT Assignments')] class extends Component
                 });
             })
             ->when($this->ojt_type !== '', fn (Builder $query) => $query->where('ojt_type', $this->ojt_type))
-            ->when($this->status !== '', fn (Builder $query) => $query->where('status', $this->status))
+            ->when($this->status !== '', fn (Builder $query) => $query->where('status', $this->status));
+
+        return $this->applySorting($query, [
+            'student' => User::select('name')->whereColumn('users.id', 'ojt_assignments.student_id'),
+            'student_id' => StudentProfile::select('student_id')->whereColumn('student_profiles.user_id', 'ojt_assignments.student_id'),
+            'type' => 'ojt_type',
+            'supervisor' => User::select('name')->whereColumn('users.id', 'ojt_assignments.company_supervisor_id'),
+            'status' => 'status',
+        ])
             ->latest('created_at')
             ->paginate(10);
     }

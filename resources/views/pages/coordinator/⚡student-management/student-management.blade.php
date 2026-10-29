@@ -11,6 +11,16 @@
                 <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
                     placeholder="Search students..." clearable />
 
+                <x-filter-modal name="filter-coordinator-students" heading="Filter Students"
+                    description="Filter by account status and sort your students."
+                    :sorts="['name' => 'Student name', 'student_id' => 'Student ID', 'course' => 'Course', 'ojt_required_hours' => 'Required hours']">
+                    <flux:radio.group wire:model.live="status" label="Account Status" variant="pills">
+                        <flux:radio value="" label="All" />
+                        <flux:radio value="pending" label="Pending Approval" />
+                        <flux:radio value="active" label="Active" />
+                    </flux:radio.group>
+                </x-filter-modal>
+
                 <flux:button href="{{ route('coordinator.requirements') }}" icon:trailing="arrow-up-right">
                     View Requirements
                 </flux:button>
@@ -29,25 +39,21 @@
         @else
             <flux:table :paginate="$this->students">
                 <flux:table.columns>
-                    <flux:table.column sortable :sorted="$sortBy === 'name'" :direction="$sortDirection"
-                        wire:click="sort('name')">
+                    <flux:table.column>
                         Student
                     </flux:table.column>
 
-                    <flux:table.column sortable :sorted="$sortBy === 'student_id'" :direction="$sortDirection"
-                        wire:click="sort('student_id')">
+                    <flux:table.column>
                         Student ID
                     </flux:table.column>
 
-                    <flux:table.column sortable :sorted="$sortBy === 'course'" :direction="$sortDirection"
-                        wire:click="sort('course')">
+                    <flux:table.column>
                         Program
                     </flux:table.column>
 
                     <flux:table.column>Assigned Supervisor</flux:table.column>
 
-                    <flux:table.column sortable :sorted="$sortBy === 'ojt_required_hours'" :direction="$sortDirection"
-                        wire:click="sort('ojt_required_hours')">
+                    <flux:table.column>
                         OJT Hours
                     </flux:table.column>
 

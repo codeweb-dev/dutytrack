@@ -1,5 +1,8 @@
 <?php
 
+use App\Livewire\Concerns\WithSorting;
+use App\Models\User;
+use App\Models\StudentProfile;
 use App\Models\OjtAssignment;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -12,6 +15,7 @@ use Livewire\WithPagination;
 new #[Title('Assigned Students')] class extends Component
 {
     use WithPagination;
+    use WithSorting;
 
     public array $breadcrumbs = [
         ['logo' => 'logo.png', 'href' => '/dashboard'],
@@ -41,6 +45,7 @@ new #[Title('Assigned Students')] class extends Component
 
     public function clearFilters(): void
     {
+        $this->reset('sortBy', 'sortDirection');
         $this->search = '';
         $this->status = '';
 
@@ -96,7 +101,12 @@ new #[Title('Assigned Students')] class extends Component
     #[Computed]
     public function assignments(): LengthAwarePaginator
     {
-        return $this->applyFilters($this->assignmentQuery())
+        return $this->applySorting($this->applyFilters($this->assignmentQuery()), [
+            'student' => User::select('name')->whereColumn('users.id', 'ojt_assignments.student_id'),
+            'student_id' => StudentProfile::select('student_id')->whereColumn('student_profiles.user_id', 'ojt_assignments.student_id'),
+            'course' => StudentProfile::select('course')->whereColumn('student_profiles.user_id', 'ojt_assignments.student_id'),
+            'status' => 'status',
+        ])
             ->latest('created_at')
             ->paginate(10);
     }

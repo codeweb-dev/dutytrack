@@ -2,9 +2,12 @@
 
 use App\Enums\Role as EnumsRole;
 use App\Models\User;
+use App\Support\AuditLogger;
+use Flux\Flux;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
@@ -57,6 +60,57 @@ new #[Title('Students')] class extends Component
         unset($this->students);
     }
 
+    protected function pendingStudent(int $studentId): User
+    {
+        return User::query()
+            ->where('coordinator_id', Auth::id())
+            ->where('status', 'pending')
+            ->findOrFail($studentId);
+    }
+
+    public function approve(int $studentId): void
+    {
+        $student = $this->pendingStudent($studentId);
+
+        $student->update(['status' => 'active']);
+
+        AuditLogger::log(
+            module: 'Students',
+            action: 'approved',
+            target: $student,
+            targetLabel: $student->name,
+            description: 'Approved a Student account.',
+        );
+
+        Flux::toast(variant: 'success', heading: 'Student approved.', text: "{$student->name} can now log in.");
+
+        unset($this->students);
+    }
+
+    // Rejecting removes the sign-up so the student can register again with corrected details.
+    public function reject(int $studentId): void
+    {
+        $student = $this->pendingStudent($studentId);
+
+        AuditLogger::log(
+            module: 'Students',
+            action: 'rejected',
+            target: $student,
+            targetLabel: $student->name,
+            description: 'Rejected a Student sign-up.',
+        );
+
+        if ($student->profile_photo_path) {
+            Storage::disk('public')->delete($student->profile_photo_path);
+        }
+
+        $student->delete();
+
+        Flux::toast(variant: 'success', heading: 'Sign-up rejected.', text: "{$student->name}'s account was removed.");
+
+        unset($this->students);
+    }
+
     #[Computed]
     public function students(): LengthAwarePaginator
     {
@@ -94,7 +148,7 @@ new #[Title('Students')] class extends Component
         $sortColumn = $allowedSorts[$this->sortBy] ?? 'users.name';
         $sortDirection = $this->sortDirection === 'desc' ? 'desc' : 'asc';
 
-        $query->orderBy($sortColumn, $sortDirection);
+        $query->orderByRaw("users.status = 'pending' desc")->orderBy($sortColumn, $sortDirection);
 
         return $query->paginate(5);
     }

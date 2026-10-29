@@ -19,11 +19,11 @@ class CreateNewUser implements CreatesNewUsers
     use PasswordValidationRules, ProfileValidationRules;
 
     /**
-     * Course => coordinator program, used to route a new student to their coordinator.
+     * Course => coordinator program (routes the student to their coordinator) and required OJT hours.
      */
-    private const COURSE_PROGRAMS = [
-        'BSCS' => 'Computer Science',
-        'BSIT' => 'Information Technology',
+    public const COURSES = [
+        'BSCS' => ['program' => 'Computer Science', 'hours' => 300],
+        'BSIT' => ['program' => 'Information Technology', 'hours' => 500],
     ];
 
     /**
@@ -41,7 +41,7 @@ class CreateNewUser implements CreatesNewUsers
             'last_name' => ['required', 'string', 'max:255'],
             'email' => $this->emailRules(),
             'contact_number' => ['required', 'string', 'max:20'],
-            'course' => ['required', Rule::in(array_keys(self::COURSE_PROGRAMS))],
+            'course' => ['required', Rule::in(array_keys(self::COURSES))],
             'address' => ['required', 'string', 'max:255'],
             'guardian_name' => ['required', 'string', 'max:255'],
             'guardian_address' => ['required', 'string', 'max:255'],
@@ -55,7 +55,7 @@ class CreateNewUser implements CreatesNewUsers
         return DB::transaction(function () use ($input) {
             // ponytail: first coordinator whose program matches the course; unassigned (null) if none.
             $coordinatorId = CoordinatorProfile::query()
-                ->where('program', self::COURSE_PROGRAMS[$input['course']])
+                ->where('program', self::COURSES[$input['course']]['program'])
                 ->value('user_id');
 
             $user = User::create([
@@ -68,7 +68,7 @@ class CreateNewUser implements CreatesNewUsers
                 'email' => $input['email'],
                 'password' => $input['password'],
                 'profile_photo_path' => isset($input['photo']) ? $input['photo']->store('students/photos', 'public') : null,
-                'status' => 'active',
+                'status' => 'pending',
             ]);
 
             $user->assignRole(Role::STUDENT->value);
@@ -76,6 +76,7 @@ class CreateNewUser implements CreatesNewUsers
             $user->studentProfile()->create([
                 'student_id' => $input['student_id'],
                 'course' => $input['course'],
+                'ojt_required_hours' => self::COURSES[$input['course']]['hours'],
                 'address' => $input['address'],
                 'guardian_name' => $input['guardian_name'],
                 'guardian_address' => $input['guardian_address'],

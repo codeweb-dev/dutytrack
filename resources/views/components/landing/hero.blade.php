@@ -51,10 +51,14 @@
         internship performance.
     </p>
 
-    <div class="anim-cta flex flex-col items-center gap-3 mb-16">
+    <div class="anim-cta flex flex-col sm:flex-row items-center justify-center gap-3 mb-16">
+        <a href="{{ route('register') }}"
+            class="w-full sm:w-auto text-center bg-red-600 hover:bg-red-700 text-white px-8 py-3.5 rounded-xl text-base font-semibold transition-all shadow-lg shadow-red-200 dark:shadow-red-900/50 hover:shadow-red-300 hover:-translate-y-0.5 no-underline">
+            Sign up as a Student
+        </a>
         <a href="{{ route('login') }}"
-            class="bg-red-600 hover:bg-red-700 text-white px-8 py-3.5 rounded-xl text-base font-semibold transition-all shadow-lg shadow-red-200 dark:shadow-red-900/50 hover:shadow-red-300 hover:-translate-y-0.5 no-underline">
-            Start Using DutyTrack
+            class="w-full sm:w-auto text-center border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 hover:bg-gray-50 dark:hover:bg-zinc-800 text-gray-900 dark:text-white px-8 py-3.5 rounded-xl text-base font-semibold transition-all hover:-translate-y-0.5 no-underline">
+            Log in
         </a>
     </div>
 </section>

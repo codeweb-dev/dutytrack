@@ -42,6 +42,12 @@
                                 Dashboard
                             </a>
                         @else
+                            @if (Route::has('register'))
+                                <a href="{{ route('register') }}"
+                                    class="hidden sm:inline-block border border-gray-200 dark:border-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-800 text-gray-900 dark:text-white px-5 py-2 rounded-lg text-sm font-semibold transition-colors no-underline">
+                                    Sign up
+                                </a>
+                            @endif
                             <a href="{{ route('login') }}"
                                 class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-lg text-sm font-semibold transition-all shadow-md shadow-red-200 dark:shadow-red-900/40 no-underline">
                                 Log in

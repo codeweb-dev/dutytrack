@@ -15,7 +15,7 @@
                     A centralized platform for coordinators, supervisors, and students to monitor OJT attendance, duty
                     hours, and internship performance.
                 </p>
-                <a href="{{ route('login') }}"
+                <a href="{{ route('register') }}"
                     class="inline-block bg-red-600 hover:bg-red-700 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors no-underline">
                     Get Started
                 </a>

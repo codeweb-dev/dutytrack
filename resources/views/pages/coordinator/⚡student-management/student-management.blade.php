@@ -63,7 +63,12 @@
                                     :name="$student->name" />
 
                                 <div class="flex flex-col">
-                                    <span class="font-medium">{{ $student->name }}</span>
+                                    <span class="flex items-center gap-2 font-medium">
+                                        {{ $student->name }}
+                                        @if ($student->status === 'pending')
+                                            <flux:badge size="sm" color="amber" inset="top bottom">In review</flux:badge>
+                                        @endif
+                                    </span>
                                     <div>
                                         <span class="text-xs text-zinc-500">{{ $student->email }}</span>
                                         <span class="text-xs text-zinc-500">
@@ -98,6 +103,20 @@
                                         inset="top bottom" />
 
                                     <flux:menu>
+                                        @if ($student->status === 'pending')
+                                            <flux:menu.item icon="check-circle" wire:click="approve({{ $student->id }})">
+                                                Approve
+                                            </flux:menu.item>
+
+                                            <flux:menu.item variant="danger" icon="x-circle"
+                                                wire:click="reject({{ $student->id }})"
+                                                wire:confirm="Reject {{ $student->name }}'s sign-up? Their account will be removed so they can sign up again.">
+                                                Reject
+                                            </flux:menu.item>
+
+                                            <flux:menu.separator />
+                                        @endif
+
                                         <flux:modal.trigger :name="'view-profile-'.$student->id">
                                             <flux:menu.item icon="eye">View</flux:menu.item>
                                         </flux:modal.trigger>

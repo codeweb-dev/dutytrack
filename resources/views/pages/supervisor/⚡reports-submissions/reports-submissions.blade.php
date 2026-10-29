@@ -4,7 +4,6 @@
     <div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
         <h2 class="text-xl font-semibold">
             Trainee Submissions
-            <flux:badge color="red" inset="top bottom">{{ $this->submissions->total() }}</flux:badge>
         </h2>
 
         <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"

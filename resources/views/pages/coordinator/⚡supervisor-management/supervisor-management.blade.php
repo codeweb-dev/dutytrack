@@ -5,7 +5,6 @@
         <div class="flex items-center justify-between">
             <h2 class="text-xl font-semibold">
                 My Supervisors
-                <flux:badge color="green" inset="top bottom">{{ $this->supervisors->total() }}</flux:badge>
             </h2>
 
             <div class="flex items-center gap-3">

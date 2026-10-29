@@ -32,7 +32,6 @@
         <div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
             <h2 class="text-xl font-semibold">
                 Student Attendance
-                <flux:badge color="red" inset="top bottom">{{ $this->attendanceLogs->total() }}</flux:badge>
             </h2>
 
             <div class="flex items-center gap-3">

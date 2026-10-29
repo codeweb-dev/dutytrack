@@ -23,19 +23,19 @@
 $tooltip ??= $slot->isNotEmpty() ? (string) $slot : null;
 
 // Size-up icons in square/icon-only buttons...
-$iconClasses = Flux::classes('size-4')
+$iconClasses = Flux::classes('size-5')
     ->add('in-data-flux-sidebar-group-dropdown:text-zinc-400! dark:in-data-flux-sidebar-group-dropdown:text-white/80!')
     ->add('[[data-flux-sidebar-item]:hover_&]:text-current!');
 
 $classes = Flux::classes()
-    ->add('h-8 in-data-flux-sidebar-on-mobile:h-10 relative flex items-center gap-3 rounded-lg')
+    ->add('h-10 relative flex items-center gap-3 rounded-xl')
     ->add('in-data-flux-sidebar-collapsed-desktop:w-10 in-data-flux-sidebar-collapsed-desktop:justify-center')
     ->add('py-0 text-start w-full px-3 has-data-flux-navlist-badge:not-in-data-flux-sidebar-collapsed-desktop:pe-1.5 my-px')
     ->add('text-zinc-500 dark:text-white/80')
     ->add(match ($accent) {
         true => [
             'data-current:text-(--color-accent-content) hover:data-current:text-(--color-accent-content)',
-            'data-current:bg-white dark:data-current:bg-white/[7%] data-current:border data-current:border-zinc-200 dark:data-current:border-transparent',
+            'data-current:bg-white dark:data-current:bg-white/[7%] data-current:border data-current:border-zinc-200 data-current:shadow-xs dark:data-current:border-transparent',
             'hover:text-zinc-800 dark:hover:text-white dark:hover:bg-white/[7%] hover:bg-zinc-800/5 ',
             'border border-transparent',
         ],
@@ -73,7 +73,7 @@ $classes = Flux::classes()
         <?php if ($slot->isNotEmpty()): ?>
             <div class="
                 in-data-flux-sidebar-collapsed-desktop:not-in-data-flux-sidebar-group-dropdown:hidden
-                flex-1 text-sm font-medium truncate [[data-nav-footer]_&]:hidden [[data-nav-sidebar]_[data-nav-footer]_&]:block" data-content>{{ $slot }}</div>
+                flex-1 text-[15px] font-medium truncate [[data-nav-footer]_&]:hidden [[data-nav-sidebar]_[data-nav-footer]_&]:block" data-content>{{ $slot }}</div>
         <?php endif; ?>
 
         <?php if (is_string($iconTrailing) && $iconTrailing !== ''): ?>

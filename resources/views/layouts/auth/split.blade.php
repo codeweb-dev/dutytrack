@@ -1,3 +1,5 @@
+@props(['title' => null, 'wide' => false])
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
 
@@ -39,8 +41,8 @@
                 </blockquote>
             </div>
         </div>
-        <div class="w-full lg:p-8">
-            <div class="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-87.5">
+        <div class="w-full lg:p-8 {{ $wide ? 'h-dvh overflow-y-auto py-10' : '' }}">
+            <div class="mx-auto flex w-full flex-col justify-center space-y-6 {{ $wide ? 'min-h-full max-w-xl' : 'sm:w-87.5' }}">
                 <a href="{{ route('home') }}" class="z-20 flex flex-col items-center gap-2 font-medium lg:hidden"
                     wire:navigate>
                     <span class="flex h-9 w-9 items-center justify-center rounded-md">

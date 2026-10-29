@@ -10,6 +10,11 @@ class StudentProfile extends Model
         'user_id',
         'student_id',
         'course',
+        'year_level',
+        'address',
+        'guardian_name',
+        'guardian_address',
+        'guardian_contact_number',
         'ojt_required_hours',
     ];
 

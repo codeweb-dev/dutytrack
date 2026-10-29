@@ -4,10 +4,8 @@ namespace App\Livewire\Forms\Coordinator;
 
 use App\Enums\Role as EnumsRole;
 use App\Models\OjtAssignment;
-use App\Models\StudentRequirement;
 use App\Models\User;
 use App\Support\AuditLogger;
-use App\Support\StudentDirectory;
 use Flux\Flux;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -49,8 +47,6 @@ class StudentForm extends Form
     public int $ojt_required_hours = 0;
 
     public ?int $company_supervisor_id = null;
-
-    public array $requirementChecks = [];
 
     public function rules(): array
     {
@@ -150,36 +146,6 @@ class StudentForm extends Form
         );
     }
 
-    public function fillFromStudentDirectory(): bool
-    {
-        $student = StudentDirectory::find($this->student_id);
-
-        if (! $student) {
-            return false;
-        }
-
-        $this->first_name = $student['first_name'];
-        $this->middle_name = $student['middle_name'];
-        $this->last_name = $student['last_name'];
-        $this->email = $student['email'];
-        $this->contact_number = $student['contact_number'];
-        $this->fillPasswordFromLastName();
-
-        return true;
-    }
-
-    public function fillPasswordFromLastName(): void
-    {
-        if ($this->student) {
-            return;
-        }
-
-        $lastName = trim($this->last_name);
-
-        $this->password = $lastName;
-        $this->password_confirmation = $lastName;
-    }
-
     public function setStudent(User $student): void
     {
         $this->ensureManagedByCurrentCoordinator($student);
@@ -208,95 +174,6 @@ class StudentForm extends Form
         $this->photo = null;
 
         $this->resetValidation();
-    }
-
-    public function store(): void
-    {
-        $coordinator = $this->coordinator();
-
-        $this->validate();
-        $this->ensureCompanySupervisor();
-
-        DB::transaction(function () use ($coordinator) {
-            $photoPath = $this->photo
-                ? $this->photo->store('students/photos', 'public')
-                : null;
-
-            $fullName = trim(collect([
-                $this->first_name,
-                $this->middle_name,
-                $this->last_name,
-            ])->filter()->implode(' '));
-
-            $user = User::create([
-                'coordinator_id' => $coordinator->id,
-                'name' => $fullName,
-                'first_name' => $this->first_name,
-                'middle_name' => $this->middle_name ?: null,
-                'last_name' => $this->last_name,
-                'contact_number' => $this->contact_number ?: null,
-                'email' => $this->email,
-                'password' => $this->password,
-                'profile_photo_path' => $photoPath,
-                'status' => 'active',
-            ]);
-
-            $user->assignRole(EnumsRole::STUDENT->value);
-
-            $user->studentProfile()->create([
-                'student_id' => $this->student_id,
-                'course' => $this->course,
-                'ojt_required_hours' => $this->ojt_required_hours ?: 0,
-            ]);
-
-            OjtAssignment::create([
-                'student_id' => $user->id,
-                'ojt_type' => 'internal',
-                'company_supervisor_id' => $this->company_supervisor_id,
-                'status' => 'active',
-            ]);
-
-            StudentRequirement::ensureForStudent($user);
-
-            $checkedRequirements = array_is_list($this->requirementChecks)
-                ? collect($this->requirementChecks)->filter()->values()->all()
-                : collect($this->requirementChecks)
-                    ->filter(fn ($checked): bool => (bool) $checked)
-                    ->keys()
-                    ->all();
-
-            if ($checkedRequirements !== []) {
-                StudentRequirement::query()
-                    ->where('student_id', $user->id)
-                    ->whereIn('key', $checkedRequirements)
-                    ->update([
-                        'is_completed' => true,
-                        'completed_at' => now(),
-                        'completed_by' => $coordinator->id,
-                    ]);
-            }
-
-            $user = $user->fresh(['studentProfile', 'coordinator', 'ojtAssignment.companySupervisor']);
-
-            AuditLogger::log(
-                module: 'Students',
-                action: 'created',
-                target: $user,
-                targetLabel: $user->name,
-                description: 'Created a Student account.',
-                newValues: $this->studentAuditData($user),
-            );
-        });
-
-        $this->resetForm();
-
-        Flux::toast(
-            variant: 'success',
-            heading: 'Student created.',
-            text: 'The student has been added successfully.'
-        );
-
-        Flux::modal('create-student')->close();
     }
 
     public function update(): void
@@ -415,7 +292,6 @@ class StudentForm extends Form
         $this->course = '';
         $this->ojt_required_hours = 0;
         $this->company_supervisor_id = null;
-        $this->requirementChecks = [];
 
         $this->resetValidation();
     }

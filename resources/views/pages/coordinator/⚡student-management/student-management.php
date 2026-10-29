@@ -23,7 +23,7 @@ new #[Title('Students')] class extends Component
 
     public string $title = 'Student Management';
 
-    public string $description = 'Create and manage only the students assigned to your coordinator account.';
+    public string $description = 'Manage the students who signed up under to your coordinator account.';
 
     public string $sortBy = 'name';
 

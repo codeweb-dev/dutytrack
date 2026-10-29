@@ -5,7 +5,6 @@ use App\Models\AttendanceLog;
 use App\Models\OjtAssignment;
 use App\Models\StudentRequirement;
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Role as PermissionRole;
 
@@ -74,82 +73,6 @@ test('coordinator student management only shows the logged in coordinators stude
         ->assertOk()
         ->assertSee($ownedStudent->name)
         ->assertDontSee($otherStudent->name);
-});
-
-test('creating a student from the coordinator flow assigns ownership to the current coordinator', function () {
-    $coordinator = createCoordinator([
-        'name' => 'Coordinator Gamma',
-        'email' => 'gamma@example.com',
-    ]);
-
-    $this->actingAs($coordinator);
-
-    Livewire::test('coordinator.student-management.create')
-        ->set('form.student_id', '2026-0001')
-        ->set('form.first_name', 'Jamie')
-        ->set('form.middle_name', 'Lopez')
-        ->set('form.last_name', 'Student')
-        ->set('form.email', 'jamie.student@example.com')
-        ->set('form.contact_number', '9123456789')
-        ->set('form.password', 'password123')
-        ->set('form.password_confirmation', 'password123')
-        ->set('form.course', 'BSIT')
-        ->set('form.ojt_required_hours', 600)
-        ->set('form.requirementChecks', ['orientation'])
-        ->call('save')
-        ->assertHasNoErrors();
-
-    $student = User::query()
-        ->with('studentProfile')
-        ->where('email', 'jamie.student@example.com')
-        ->first();
-
-    expect($student)->not->toBeNull();
-    expect($student->coordinator_id)->toBe($coordinator->id);
-    expect($student->hasRole(AppRole::STUDENT->value))->toBeTrue();
-    expect($student->studentProfile?->student_id)->toBe('2026-0001');
-    expect($student->studentRequirements()->count())->toBe(count(StudentRequirement::definitions()));
-    expect($student->studentRequirements()->where('key', 'orientation')->first()?->is_completed)->toBeTrue();
-    expect($student->studentRequirements()->where('key', 'parents_waiver')->first()?->is_completed)->toBeFalse();
-});
-
-test('student information autofills from a known student id in the coordinator create flow', function () {
-    $coordinator = createCoordinator();
-
-    $this->actingAs($coordinator);
-
-    Livewire::test('coordinator.student-management.create')
-        ->set('form.student_id', '2316-02373C')
-        ->assertSet('form.first_name', 'ALLEN')
-        ->assertSet('form.middle_name', 'I')
-        ->assertSet('form.last_name', 'LABRAGUE')
-        ->assertSet('form.email', 'labrague@gmail.com')
-        ->assertSet('form.contact_number', '09156862513')
-        ->assertSet('form.password', 'LABRAGUE')
-        ->assertSet('form.password_confirmation', 'LABRAGUE');
-});
-
-test('student create flow autofills password from last name and accepts three characters', function () {
-    $coordinator = createCoordinator();
-
-    $this->actingAs($coordinator);
-
-    Livewire::test('coordinator.student-management.create')
-        ->set('form.student_id', '2026-0003')
-        ->set('form.first_name', 'Mika')
-        ->set('form.last_name', 'Tan')
-        ->assertSet('form.password', 'Tan')
-        ->assertSet('form.password_confirmation', 'Tan')
-        ->set('form.email', 'mika.tan@example.com')
-        ->set('form.course', 'BSIT')
-        ->set('form.ojt_required_hours', 600)
-        ->call('save')
-        ->assertHasNoErrors();
-
-    $student = User::query()->where('email', 'mika.tan@example.com')->first();
-
-    expect($student)->not->toBeNull();
-    expect(Hash::check('Tan', $student->password))->toBeTrue();
 });
 
 test('students can mark a missing physical requirement as submitted', function () {

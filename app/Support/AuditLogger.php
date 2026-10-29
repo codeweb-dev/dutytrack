@@ -23,8 +23,8 @@ class AuditLogger
         return AuditLog::create([
             'actor_id' => $actor?->id,
             'actor_name' => $actor?->name,
-            'actor_role' => method_exists($actor, 'getRoleNames')
-                ? $actor?->getRoleNames()->first()
+            'actor_role' => $actor && method_exists($actor, 'getRoleNames')
+                ? $actor->getRoleNames()->first()
                 : null,
 
             'module' => $module,

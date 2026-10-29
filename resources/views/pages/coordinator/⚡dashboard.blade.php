@@ -279,7 +279,7 @@ new #[Title('Coordinator Dashboard')] class extends Component
 
                             <div class="h-2.5 overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
                                 <div class="h-full rounded-full {{ $item['bar'] }}"
-                                    style="width: {{ min(max($item['percentage'], 4), 100) }}%">
+                                    style="width: {{ min($item['percentage'], 100) }}%">
                                 </div>
                             </div>
                         </div>

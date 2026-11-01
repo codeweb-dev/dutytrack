@@ -52,6 +52,7 @@ new class extends Component
 
             <flux:input wire:model="form.student_id" label="Student ID" placeholder="2316-02373C"
                 description:trailing="Student ID can be found on the student's ID card." />
+            <flux:input wire:model="form.birthdate" type="date" label="Birthdate" />
 
             <div class="grid grid-cols-2 gap-x-4 gap-y-6">
                 <flux:input wire:model="form.first_name" label="First name" placeholder="John" />

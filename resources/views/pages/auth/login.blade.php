@@ -1,24 +1,32 @@
 <x-layouts::auth :title="__('Log in')">
     <div class="flex flex-col gap-6">
-        <x-auth-header :title="__('Log in to your account')" :description="__('Enter your email and password below to log in')" />
+        <x-auth-header :title="__('Log in to your account')" :description="__('Choose your role and enter your login details')" />
 
         <!-- Session Status -->
         <x-auth-session-status class="text-center" :status="session('status')" />
 
-        <form method="POST" action="{{ route('login.store') }}" class="flex flex-col gap-6">
+        <form method="POST" action="{{ route('login.store') }}" class="flex flex-col gap-6" x-data="{ role: @js(old('role', 'student')) }">
             @csrf
 
-            <!-- Email Address -->
-            <flux:input
-                name="email"
-                :label="__('Email address')"
-                :value="old('email')"
-                type="email"
-                required
-                autofocus
-                autocomplete="email"
-                placeholder="email@example.com"
-            />
+            <flux:select name="role" :label="__('Log in as')" x-model="role" required>
+                <option value="student">{{ __('Student') }}</option>
+                <option value="ojt_coordinator">{{ __('OJT Coordinator') }}</option>
+                <option value="supervisor">{{ __('Supervisor') }}</option>
+            </flux:select>
+            <flux:error name="role" />
+
+            <flux:field>
+                <flux:label x-text="role === 'student' ? @js(__('Student ID')) : @js(__('Email address'))"></flux:label>
+                <flux:input name="email" :value="old('email')" x-bind:type="role === 'student' ? 'text' : 'email'" required autofocus
+                    x-bind:autocomplete="role === 'student' ? 'username' : 'email'" />
+                <flux:error name="email" />
+            </flux:field>
+
+            <div x-show="role === 'student'" x-cloak>
+                <flux:input name="birthdate" :label="__('Birthdate')" :value="old('birthdate')" type="date"
+                    x-bind:required="role === 'student'" x-bind:disabled="role !== 'student'" />
+                <flux:error name="birthdate" />
+            </div>
 
             <!-- Password -->
             <div class="relative">

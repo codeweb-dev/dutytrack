@@ -28,6 +28,8 @@ class StudentForm extends Form
 
     public string $student_id = '';
 
+    public ?string $birthdate = null;
+
     public string $first_name = '';
 
     public string $last_name = '';
@@ -61,6 +63,7 @@ class StudentForm extends Form
                 'max:255',
                 Rule::unique('student_profiles', 'student_id')->ignore($studentProfileId),
             ],
+            'birthdate' => ['required', 'date', 'before:today'],
             'first_name' => ['required', 'string', 'max:255'],
             'middle_name' => ['nullable', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
@@ -83,6 +86,7 @@ class StudentForm extends Form
     {
         return [
             'student_id' => 'student ID',
+            'birthdate' => 'birthdate',
             'first_name' => 'first name',
             'middle_name' => 'middle name',
             'last_name' => 'last name',
@@ -104,6 +108,7 @@ class StudentForm extends Form
             'contact_number' => $user?->contact_number,
             'status' => $user?->status,
             'student_id' => $user?->studentProfile?->student_id,
+            'birthdate' => $user?->studentProfile?->birthdate,
             'course' => $user?->studentProfile?->course,
             'ojt_required_hours' => $user?->studentProfile?->ojt_required_hours,
             'company_supervisor_id' => $user?->ojtAssignment?->company_supervisor_id,
@@ -165,6 +170,7 @@ class StudentForm extends Form
         $this->contact_number = $student->contact_number ?? '';
 
         $this->student_id = $student->studentProfile?->student_id ?? '';
+        $this->birthdate = $student->studentProfile?->birthdate;
         $this->course = $student->studentProfile?->course ?? '';
         $this->ojt_required_hours = (int) ($student->studentProfile?->ojt_required_hours ?? 0);
         $this->company_supervisor_id = $student->ojtAssignment?->company_supervisor_id;
@@ -231,6 +237,7 @@ class StudentForm extends Form
 
             $user->studentProfile()->update([
                 'student_id' => $this->student_id,
+                'birthdate' => $this->birthdate,
                 'course' => $this->course,
                 'ojt_required_hours' => $this->ojt_required_hours ?: 0,
             ]);
@@ -282,6 +289,7 @@ class StudentForm extends Form
         $this->existing_photo_path = null;
         $this->existing_photo_url = null;
         $this->student_id = '';
+        $this->birthdate = null;
         $this->first_name = '';
         $this->middle_name = '';
         $this->last_name = '';

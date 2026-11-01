@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
+use App\Enums\Role;
 use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Contracts\RegisterResponse;
 use Laravel\Fortify\Fortify;
@@ -45,7 +47,21 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::createUsersUsing(CreateNewUser::class);
 
         Fortify::authenticateUsing(function (Request $request): ?User {
-            $user = User::where('email', $request->input(Fortify::username()))->first();
+            $role = $request->validate([
+                'role' => ['required', Rule::in(array_column(Role::cases(), 'value'))],
+                'birthdate' => [$request->input('role') === Role::STUDENT->value ? 'required' : 'nullable', 'date', 'before:today'],
+            ])['role'];
+
+            $user = User::query()
+                ->whereHas('roles', fn ($query) => $query->where('name', $role))
+                ->when(
+                    $role === Role::STUDENT->value,
+                    fn ($query) => $query->whereHas('studentProfile', fn ($query) => $query
+                        ->where('student_id', $request->input(Fortify::username()))
+                        ->whereDate('birthdate', $request->input('birthdate'))),
+                    fn ($query) => $query->where('email', $request->input(Fortify::username())),
+                )
+                ->first();
 
             if (! $user || ! Hash::check($request->input('password'), $user->password)) {
                 return null;

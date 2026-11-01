@@ -104,7 +104,7 @@ new class extends Component
         <div>
             <flux:heading size="lg">Requirement Tracking</flux:heading>
             <flux:text class="mt-1 text-zinc-500">
-                {{ $student->name }} can start OJT with pending requirements. Review each attached file, then approve it. Approval cannot be undone.
+                {{ $student->display_name }} can start OJT with pending requirements. Review each attached file, then approve it. Approval cannot be undone.
             </flux:text>
         </div>
     </div>

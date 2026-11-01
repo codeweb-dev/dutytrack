@@ -65,11 +65,11 @@
                         <flux:table.row :key="$student->id">
                             <flux:table.cell class="flex items-center gap-3">
                                 <flux:avatar size="md" :src="$student->profile_photo_url"
-                                    :name="$student->name" />
+                                    :name="$student->display_name" />
 
                                 <div class="flex flex-col">
                                     <span class="flex items-center gap-2 font-medium">
-                                        {{ $student->name }}
+                                        {{ $student->display_name }}
                                         @if ($student->status === 'pending')
                                             <flux:badge size="sm" color="amber" inset="top bottom">In review</flux:badge>
                                         @endif
@@ -93,7 +93,7 @@
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ $student->ojtAssignment?->companySupervisor?->name ?? 'Not assigned' }}
+                                {{ $student->ojtAssignment?->companySupervisor?->display_name ?? 'Not assigned' }}
                             </flux:table.cell>
 
                             <flux:table.cell>
@@ -115,7 +115,7 @@
 
                                             <flux:menu.item variant="danger" icon="x-circle"
                                                 wire:click="reject({{ $student->id }})"
-                                                wire:confirm="Reject {{ $student->name }}'s sign-up? Their account will be removed so they can sign up again.">
+                                                wire:confirm="Reject {{ $student->display_name }}'s sign-up? Their account will be removed so they can sign up again.">
                                                 Reject
                                             </flux:menu.item>
 

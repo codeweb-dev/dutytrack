@@ -28,12 +28,12 @@ new class extends Component
     <div
         class="overflow-hidden rounded-3xl border border-zinc-200 bg-linear-to-r from-zinc-50 to-white dark:border-zinc-800 dark:from-zinc-900 dark:to-zinc-950">
         <div class="flex flex-col gap-6 p-6 md:flex-row md:items-center">
-            <flux:avatar size="xl" :src="$student->profile_photo_url" :name="$student->name" />
+            <flux:avatar size="xl" :src="$student->profile_photo_url" :name="$student->display_name" />
 
             <div class="min-w-0 flex-1">
                 <div class="flex flex-wrap items-center gap-3">
                     <h3 class="text-2xl font-semibold tracking-tight">
-                        {{ $student->name }}
+                        {{ $student->display_name }}
                     </h3>
 
                     <flux:badge color="red" icon="check-badge" inset="top bottom">

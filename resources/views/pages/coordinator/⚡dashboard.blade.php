@@ -283,14 +283,14 @@ new #[Title('Coordinator Dashboard')] class extends Component
                             @php
                                 $assignment = $student->ojtAssignment;
                                 $assignee =
-                                    $assignment?->companySupervisor?->name;
+                                    $assignment?->companySupervisor?->display_name;
                             @endphp
 
                             <flux:table.row :key="$student->id">
                                 <flux:table.cell>
                                     <div>
                                         <div class="font-medium text-zinc-900 dark:text-white">
-                                            {{ $student->name }}
+                                            {{ $student->display_name }}
                                         </div>
                                         <div class="text-sm text-zinc-500">
                                             {{ $student->studentProfile?->student_id ?? 'No student ID' }}

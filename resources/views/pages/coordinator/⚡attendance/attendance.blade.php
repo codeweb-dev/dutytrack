@@ -60,7 +60,7 @@
                         <option value="">All Supervisors</option>
                         @foreach ($this->supervisors as $supervisor)
                             <option value="{{ $supervisor->id }}">
-                                {{ $supervisor->name ?? trim(($supervisor->first_name ?? '') . ' ' . ($supervisor->last_name ?? '')) }}
+                                {{ $supervisor->display_name }}
                             </option>
                         @endforeach
                     </flux:select>
@@ -111,11 +111,11 @@
                         <flux:table.row :key="$log->id">
                             <flux:table.cell class="flex items-center gap-3">
                                 <flux:avatar size="md" :src="$log->student?->profile_photo_url"
-                                    :name="$log->student?->name" />
+                                    :name="$log->student?->display_name" />
 
                                 <div class="flex flex-col">
                                     <span class="font-medium">
-                                        {{ $log->student?->name ?? trim(($log->student?->first_name ?? '') . ' ' . ($log->student?->last_name ?? '')) }}
+                                        {{ $log->student?->display_name ?? '' }}
                                     </span>
                                     <span class="text-xs text-zinc-500">
                                         {{ $log->student?->email }}
@@ -134,7 +134,7 @@
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ $supervisor?->name ?? trim(($supervisor?->first_name ?? '') . ' ' . ($supervisor?->last_name ?? '')) ?: '' }}
+                                {{ $supervisor?->display_name ?? '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>

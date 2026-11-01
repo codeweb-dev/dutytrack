@@ -105,7 +105,7 @@ new class extends Component
                     <option value="">Select supervisor</option>
                     @foreach ($this->supervisors as $supervisor)
                         <option value="{{ $supervisor->id }}">
-                            {{ $supervisor->name }}{{ $supervisor->supervisorProfile?->company_name ? ' - '.$supervisor->supervisorProfile->company_name : '' }}
+                            {{ $supervisor->display_name }}{{ $supervisor->supervisorProfile?->company_name ? ' - '.$supervisor->supervisorProfile->company_name : '' }}
                         </option>
                     @endforeach
                 </flux:select>

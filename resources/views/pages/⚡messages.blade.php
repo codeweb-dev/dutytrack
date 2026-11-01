@@ -375,13 +375,13 @@ new #[Title('Messages')] class extends Component
 
                     <button type="button" wire:click="selectConversation({{ $conversation->id }})"
                         class="flex w-full items-center gap-3 rounded-lg p-3 text-left transition hover:bg-zinc-100 dark:hover:bg-zinc-800 {{ $selectedConversationId === $conversation->id ? 'bg-zinc-100 dark:bg-zinc-800' : '' }}">
-                        <flux:avatar size="sm" :name="$peer?->name ?? 'Contact'"
+                        <flux:avatar size="sm" :name="$peer?->display_name ?? 'Contact'"
                             :src="$peer?->profile_photo_path ? $peer->profilePhotoUrl() : null" />
 
                         <span class="min-w-0 flex-1">
                             <span class="flex min-w-0 items-center gap-2">
                                 <span class="truncate text-sm font-medium text-zinc-900 dark:text-white">
-                                    {{ $peer?->name ?? 'Contact' }}
+                                    {{ $peer?->display_name ?? 'Contact' }}
                                 </span>
 
                                 @if ($conversation->unread_count > 0)
@@ -424,11 +424,11 @@ new #[Title('Messages')] class extends Component
                 <header
                     class="flex shrink-0 items-center justify-between gap-3 border-b border-zinc-200 p-4 pb-5.5 dark:border-zinc-800">
                     <div class="flex min-w-0 items-center gap-3">
-                        <flux:avatar :name="$peer?->name ?? 'Contact'"
+                        <flux:avatar :name="$peer?->display_name ?? 'Contact'"
                             :src="$peer?->profile_photo_path ? $peer->profilePhotoUrl() : null" />
 
                         <div class="min-w-0">
-                            <flux:heading class="truncate">{{ $peer?->name ?? 'Contact' }}</flux:heading>
+                            <flux:heading class="truncate">{{ $peer?->display_name ?? 'Contact' }}</flux:heading>
                             <flux:text class="truncate text-zinc-500">
                                 {{ $this->roleLabelFor($this->selectedConversation) }}
                                 @if ($peer?->studentProfile?->student_id)
@@ -455,7 +455,7 @@ new #[Title('Messages')] class extends Component
 
                         <div class="flex gap-3 {{ $mine ? 'justify-end' : 'justify-start' }}">
                             @unless ($mine)
-                                <flux:avatar size="sm" :name="$message->sender?->name ?? 'Contact'"
+                                <flux:avatar size="sm" :name="$message->sender?->display_name ?? 'Contact'"
                                     :src="$message->sender?->profile_photo_path ? $message->sender->profilePhotoUrl() : null" />
                             @endunless
 

@@ -63,7 +63,7 @@ new class extends Component
                     <option value="">Select student</option>
                     @foreach ($this->students as $student)
                         <option value="{{ $student->id }}">
-                            {{ $student->name }}{{ $student->studentProfile?->student_id ? ' - ' . $student->studentProfile->student_id : '' }}
+                            {{ $student->display_name }}{{ $student->studentProfile?->student_id ? ' - ' . $student->studentProfile->student_id : '' }}
                         </option>
                     @endforeach
                 </flux:select>
@@ -85,7 +85,7 @@ new class extends Component
                     <option value="">Select supervisor</option>
                     @foreach ($this->companySupervisors as $supervisor)
                         <option value="{{ $supervisor->id }}">
-                            {{ $supervisor->name }}{{ $supervisor->supervisorProfile?->company_name ? ' - ' . $supervisor->supervisorProfile->company_name : '' }}
+                            {{ $supervisor->display_name }}{{ $supervisor->supervisorProfile?->company_name ? ' - ' . $supervisor->supervisorProfile->company_name : '' }}
                         </option>
                     @endforeach
                 </flux:select>

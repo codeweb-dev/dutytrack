@@ -92,6 +92,21 @@ class User extends Authenticatable
         return $this->profilePhotoUrl();
     }
 
+    public function getDisplayNameAttribute(): string
+    {
+        $first = trim((string) $this->first_name);
+        $middle = trim((string) $this->middle_name);
+        $last = trim((string) $this->last_name);
+        $fullName = implode(' ', array_filter([$first, $middle, $last], fn ($part) => $part !== ''));
+
+        // shortcut: unsynced or legacy names keep stored order; sync split fields if they need this format.
+        if ($first === '' || $last === '' || $fullName !== trim((string) $this->name)) {
+            return Str::upper((string) $this->name);
+        }
+
+        return Str::upper($last.', '.$first.($middle !== '' ? ' '.rtrim(Str::substr($middle, 0, 1), '.').'.' : ''));
+    }
+
     public function studentProfile()
     {
         return $this->hasOne(StudentProfile::class);

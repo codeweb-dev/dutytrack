@@ -26,18 +26,18 @@ new class extends Component
 
             abort_unless((int) $assignment->student?->coordinator_id === (int) auth()->id(), 403);
 
-            $assignee = $assignment->companySupervisor?->name;
+            $assignee = $assignment->companySupervisor?->display_name;
 
             $oldValues = [
-                'student_name' => $assignment->student?->name,
+                'student_name' => $assignment->student?->display_name,
                 'student_number' => $assignment->student?->studentProfile?->student_id,
                 'ojt_type' => $assignment->ojt_type,
-                'company_supervisor_name' => $assignment->companySupervisor?->name,
+                'company_supervisor_name' => $assignment->companySupervisor?->display_name,
                 'status' => $assignment->status,
                 'remarks' => $assignment->remarks,
             ];
 
-            $label = ($assignment->student?->name ?? 'Student').' -> '.($assignee ?? 'Assignee');
+            $label = ($assignment->student?->display_name ?? 'Student').' -> '.($assignee ?? 'Assignee');
 
             AuditLogger::log(
                 module: 'OJT Assignments',
@@ -77,7 +77,7 @@ new class extends Component
             <div>
                 <div class="text-xs uppercase tracking-wide text-zinc-400">Student</div>
                 <div class="mt-1 text-base font-semibold text-zinc-900 dark:text-white">
-                    {{ $assignment->student?->name ?? '' }}
+                    {{ $assignment->student?->display_name ?? '' }}
                 </div>
                 <div class="text-sm text-zinc-500">
                     {{ $assignment->student?->studentProfile?->student_id ?? '' }}
@@ -95,7 +95,7 @@ new class extends Component
                 <div class="rounded-2xl bg-zinc-50 p-4 dark:bg-zinc-800/50">
                     <div class="text-xs uppercase tracking-wide text-zinc-400">Assigned To</div>
                     <div class="mt-2 text-sm font-semibold text-zinc-900 dark:text-white">
-                        {{ $assignment->companySupervisor?->name ?? '' }}
+                        {{ $assignment->companySupervisor?->display_name ?? '' }}
                     </div>
                 </div>
 

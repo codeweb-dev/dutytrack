@@ -31,11 +31,11 @@ new class extends Component {
     <div
         class="overflow-hidden rounded-3xl border border-zinc-200 bg-linear-to-r from-zinc-50 to-white dark:border-zinc-800 dark:from-zinc-900 dark:to-zinc-950">
         <div class="flex flex-col gap-6 p-6 md:flex-row md:items-center">
-            <flux:avatar size="xl" :src="$supervisor->profile_photo_url" :name="$supervisor->name" />
+            <flux:avatar size="xl" :src="$supervisor->profile_photo_url" :name="$supervisor->display_name" />
 
             <div class="min-w-0 flex-1">
                 <div class="flex flex-wrap items-center gap-3">
-                    <h3 class="text-2xl font-semibold tracking-tight">{{ $supervisor->name }}</h3>
+                    <h3 class="text-2xl font-semibold tracking-tight">{{ $supervisor->display_name }}</h3>
 
                     <flux:badge color="red" icon="check-badge" inset="top bottom">
                         Supervisor
@@ -87,7 +87,7 @@ new class extends Component {
                 <div class="flex items-start justify-between gap-4">
                     <span class="text-sm text-zinc-500">Full Name</span>
                     <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
-                        {{ $supervisor->name }}
+                        {{ $supervisor->display_name }}
                     </span>
                 </div>
             </div>

@@ -60,11 +60,11 @@ new class extends Component {
 
     <div class="rounded-3xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
         <div class="flex items-center gap-4">
-            <flux:avatar size="lg" :src="$supervisor->profile_photo_url" :name="$supervisor->name" />
+            <flux:avatar size="lg" :src="$supervisor->profile_photo_url" :name="$supervisor->display_name" />
 
             <div class="min-w-0">
                 <div class="text-base font-semibold text-zinc-900 dark:text-white">
-                    {{ $supervisor->name }}
+                    {{ $supervisor->display_name }}
                 </div>
                 <div class="text-sm text-zinc-500">
                     {{ $supervisor->email }}

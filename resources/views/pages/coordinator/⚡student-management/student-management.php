@@ -93,13 +93,13 @@ new #[Title('Students')] class extends Component
             module: 'Students',
             action: 'approved',
             target: $student,
-            targetLabel: $student->name,
+            targetLabel: $student->display_name,
             description: 'Approved a Student account.',
         );
 
         Flux::modal('review-student-'.$student->id)->close();
 
-        Flux::toast(variant: 'success', heading: 'Student approved.', text: "{$student->name} can now log in.");
+        Flux::toast(variant: 'success', heading: 'Student approved.', text: "{$student->display_name} can now log in.");
 
         unset($this->students);
     }
@@ -113,7 +113,7 @@ new #[Title('Students')] class extends Component
             module: 'Students',
             action: 'rejected',
             target: $student,
-            targetLabel: $student->name,
+            targetLabel: $student->display_name,
             description: 'Rejected a Student sign-up.',
         );
 
@@ -123,7 +123,7 @@ new #[Title('Students')] class extends Component
 
         $student->delete();
 
-        Flux::toast(variant: 'success', heading: 'Sign-up rejected.', text: "{$student->name}'s account was removed.");
+        Flux::toast(variant: 'success', heading: 'Sign-up rejected.', text: "{$student->display_name}'s account was removed.");
 
         unset($this->students);
     }

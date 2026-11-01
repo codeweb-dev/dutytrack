@@ -41,9 +41,9 @@
                         <flux:table.row :key="$supervisor->id">
                             <flux:table.cell>
                                 <div class="flex items-center gap-3">
-                                    <flux:avatar size="md" :src="$supervisor->profile_photo_url" :name="$supervisor->name" />
+                                    <flux:avatar size="md" :src="$supervisor->profile_photo_url" :name="$supervisor->display_name" />
                                     <div class="flex flex-col">
-                                        <span class="font-medium">{{ $supervisor->name }}</span>
+                                        <span class="font-medium">{{ $supervisor->display_name }}</span>
                                         <span class="text-xs text-zinc-500">{{ $supervisor->email }}</span>
                                     </div>
                                 </div>

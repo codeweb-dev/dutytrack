@@ -35,6 +35,7 @@
                                 <div class="p-0 text-sm font-normal">
                                     <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
                                         <flux:avatar :name="auth()->user()->display_name"
+                                            :src="auth()->user()->profile_photo_path ? auth()->user()->profilePhotoUrl() : null"
                                             :initials="auth()->user()->initials()" />
 
                                         <div class="grid flex-1 text-start text-sm leading-tight">

@@ -13,6 +13,11 @@ new class extends Component
 
     public OjtAssignment $assignment;
 
+    public function updatedFormOjtType(): void
+    {
+        $this->form->company_supervisor_id = null;
+    }
+
     public function mount(OjtAssignment $assignment): void
     {
         abort_unless((int) $assignment->student?->coordinator_id === (int) auth()->id(), 403);
@@ -43,6 +48,7 @@ new class extends Component
             ->with('supervisorProfile')
             ->availableToCoordinator(auth()->id())
             ->role('supervisor')
+            ->whereHas('supervisorProfile', fn ($query) => $query->where('supervisor_type', $this->form->ojt_type))
             ->orderBy('first_name')
             ->get();
     }

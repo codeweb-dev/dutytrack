@@ -9,6 +9,11 @@ new class extends Component
 {
     public OjtAssignmentForm $form;
 
+    public function updatedFormOjtType(): void
+    {
+        $this->form->company_supervisor_id = null;
+    }
+
     #[Computed]
     public function students()
     {
@@ -28,6 +33,7 @@ new class extends Component
             ->with('supervisorProfile')
             ->availableToCoordinator(auth()->id())
             ->role('supervisor')
+            ->whereHas('supervisorProfile', fn ($query) => $query->where('supervisor_type', $this->form->ojt_type))
             ->orderBy('first_name')
             ->get();
     }

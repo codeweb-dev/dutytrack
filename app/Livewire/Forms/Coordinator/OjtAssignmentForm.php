@@ -40,7 +40,7 @@ class OjtAssignmentForm extends Form
             'company_supervisor_id' => [
                 'required',
                 'integer',
-                Rule::exists('users', 'id'),
+                Rule::exists('supervisor_profiles', 'user_id')->where('supervisor_type', $this->ojt_type),
             ],
             'status' => ['required', Rule::in(['pending', 'active', 'completed', 'cancelled'])],
             'remarks' => ['nullable', 'string', 'max:1000'],
@@ -94,6 +94,7 @@ class OjtAssignmentForm extends Form
             ->findOrFail($supervisorId);
 
         abort_unless($supervisor->hasRole('supervisor'), 403);
+        abort_unless($supervisor->supervisorProfile?->supervisor_type === $this->ojt_type, 403);
 
         return $supervisor;
     }

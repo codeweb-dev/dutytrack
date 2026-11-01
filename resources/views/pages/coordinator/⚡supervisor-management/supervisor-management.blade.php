@@ -13,7 +13,7 @@
 
                 <x-filter-modal name="filter-coordinator-supervisors" heading="Filter Supervisors"
                     description="Sort your supervisors."
-                    :sorts="['name' => 'Supervisor name', 'supervisor_id' => 'Supervisor ID', 'company_name' => 'Company / institution']" />
+                    :sorts="['name' => 'Supervisor name', 'company_name' => 'Company / institution']" />
 
                 <livewire:coordinator.supervisors.create />
             </div>
@@ -31,7 +31,6 @@
             <flux:table :paginate="$this->supervisors">
                 <flux:table.columns>
                     <flux:table.column>Supervisor</flux:table.column>
-                    <flux:table.column>Supervisor ID</flux:table.column>
                     <flux:table.column>Company / Institution</flux:table.column>
                     <flux:table.column>Contact</flux:table.column>
                     <flux:table.column>Actions</flux:table.column>
@@ -48,9 +47,6 @@
                                         <span class="text-xs text-zinc-500">{{ $supervisor->email }}</span>
                                     </div>
                                 </div>
-                            </flux:table.cell>
-                            <flux:table.cell class="whitespace-nowrap font-medium">
-                                {{ $supervisor->supervisorProfile?->supervisor_id ?? '' }}
                             </flux:table.cell>
                             <flux:table.cell>
                                 <div class="flex flex-col">

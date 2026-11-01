@@ -84,7 +84,6 @@ class UserFactory extends Factory
                 SupervisorProfile::query()->firstOrCreate(
                     ['user_id' => $user->id],
                     [
-                        'supervisor_id' => 'SUP-'.str_pad((string) $user->id, 4, '0', STR_PAD_LEFT),
                         'company_name' => 'Demo Company',
                         'company_address' => 'Makati City, Metro Manila',
                     ],

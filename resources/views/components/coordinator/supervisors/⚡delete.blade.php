@@ -69,9 +69,6 @@ new class extends Component {
                 <div class="text-sm text-zinc-500">
                     {{ $supervisor->email }}
                 </div>
-                <div class="mt-1 text-sm text-zinc-400">
-                    Supervisor ID: {{ $supervisor->supervisorProfile?->supervisor_id ?? '' }}
-                </div>
             </div>
         </div>
     </div>

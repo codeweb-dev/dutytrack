@@ -5,7 +5,6 @@ namespace App\Livewire\Forms;
 use App\Enums\Role as EnumsRole;
 use App\Models\User;
 use App\Support\AuditLogger;
-use App\Support\StaffDirectory;
 use Flux\Flux;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -25,8 +24,6 @@ class SupervisorForm extends Form
     public ?string $existing_photo_path = null;
 
     public ?string $existing_photo_url = null;
-
-    public string $supervisor_id = '';
 
     public string $first_name = '';
 
@@ -57,16 +54,8 @@ class SupervisorForm extends Form
     public function rules(): array
     {
         $userId = $this->supervisor?->id;
-        $supervisorProfileId = $this->supervisor?->supervisorProfile?->id;
-
         return [
             'photo' => ['nullable', 'image', 'max:2048'],
-            'supervisor_id' => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('supervisor_profiles', 'supervisor_id')->ignore($supervisorProfileId),
-            ],
             'first_name' => ['required', 'string', 'max:255'],
             'middle_name' => ['nullable', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
@@ -89,7 +78,6 @@ class SupervisorForm extends Form
     public function validationAttributes(): array
     {
         return [
-            'supervisor_id' => 'supervisor ID',
             'first_name' => 'first name',
             'middle_name' => 'middle name',
             'last_name' => 'last name',
@@ -99,19 +87,6 @@ class SupervisorForm extends Form
             'company_address' => 'company address',
             'position_department' => 'position and department',
         ];
-    }
-
-    public function fillFromStaffDirectory(): bool
-    {
-        $supervisor = StaffDirectory::findSupervisor($this->supervisor_id);
-
-        if (! $supervisor) {
-            return false;
-        }
-
-        $this->fillFromDirectoryRecord($supervisor);
-
-        return true;
     }
 
     public function applySupervisorType(): void
@@ -143,21 +118,6 @@ class SupervisorForm extends Form
         $this->password_confirmation = trim($this->last_name);
     }
 
-    private function fillFromDirectoryRecord(array $supervisor): void
-    {
-        $this->supervisor_id = $supervisor['supervisor_id'];
-        $this->first_name = $supervisor['first_name'];
-        $this->middle_name = $supervisor['middle_name'];
-        $this->last_name = $supervisor['last_name'];
-        $this->email = $supervisor['email'];
-        $this->contact_number = $supervisor['contact_number'];
-        $this->company_name = $supervisor['company_name'];
-        $this->company_address = $supervisor['company_address'];
-        $this->fillPasswordFromLastName();
-
-        $this->resetValidation();
-    }
-
     protected function fullName(): string
     {
         return trim(collect([
@@ -179,7 +139,6 @@ class SupervisorForm extends Form
             'email' => $user?->email,
             'contact_number' => $user?->contact_number,
             'status' => $user?->status,
-            'supervisor_id' => $user?->supervisorProfile?->supervisor_id,
             'supervisor_type' => $user?->supervisorProfile?->supervisor_type,
             'company_name' => $user?->supervisorProfile?->company_name,
             'company_address' => $user?->supervisorProfile?->company_address,
@@ -198,7 +157,6 @@ class SupervisorForm extends Form
             ? Storage::url($supervisor->profile_photo_path)
             : null;
 
-        $this->supervisor_id = $supervisor->supervisorProfile?->supervisor_id ?? '';
         $this->first_name = $supervisor->first_name ?? '';
         $this->middle_name = $supervisor->middle_name ?? '';
         $this->last_name = $supervisor->last_name ?? '';
@@ -244,7 +202,6 @@ class SupervisorForm extends Form
             $user->assignRole(EnumsRole::SUPERVISOR->value);
 
             $user->supervisorProfile()->create([
-                'supervisor_id' => $this->supervisor_id,
                 'supervisor_type' => $this->supervisor_type,
                 'company_name' => $this->company_name,
                 'company_address' => $this->company_address ?: null,
@@ -325,7 +282,6 @@ class SupervisorForm extends Form
             $user->syncRoles([EnumsRole::SUPERVISOR->value]);
 
             $user->supervisorProfile()->update([
-                'supervisor_id' => $this->supervisor_id,
                 'supervisor_type' => $this->supervisor_type,
                 'company_name' => $this->company_name,
                 'company_address' => $this->company_address ?: null,
@@ -367,7 +323,6 @@ class SupervisorForm extends Form
         $this->photo = null;
         $this->existing_photo_path = null;
         $this->existing_photo_url = null;
-        $this->supervisor_id = '';
         $this->first_name = '';
         $this->middle_name = '';
         $this->last_name = '';

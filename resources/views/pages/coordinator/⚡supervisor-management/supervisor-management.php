@@ -81,7 +81,6 @@ new #[Title('Supervisor Management')] class extends Component
                 $query->where('users.name', 'like', $search)
                     ->orWhere('users.email', 'like', $search)
                     ->orWhere('users.contact_number', 'like', $search)
-                    ->orWhere('supervisor_profiles.supervisor_id', 'like', $search)
                     ->orWhere('supervisor_profiles.company_name', 'like', $search)
                     ->orWhere('supervisor_profiles.company_address', 'like', $search);
             });
@@ -89,7 +88,6 @@ new #[Title('Supervisor Management')] class extends Component
 
         $sortColumn = [
             'name' => 'users.name',
-            'supervisor_id' => 'supervisor_profiles.supervisor_id',
             'company_name' => 'supervisor_profiles.company_name',
         ][$this->sortBy] ?? 'users.name';
 

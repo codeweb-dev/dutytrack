@@ -47,7 +47,6 @@ test('coordinators can create supervisors owned by their account', function () {
 
     \Livewire\Livewire::actingAs($coordinator)
         ->test('coordinator.supervisors.create')
-        ->set('form.supervisor_id', 'SUP-9001')
         ->set('form.first_name', 'Maria')
         ->set('form.last_name', 'Santos')
         ->set('form.email', 'maria.santos@example.com')

@@ -43,9 +43,6 @@ new class extends Component {
                     :existing="$form->existing_photo_url" />
             </div>
 
-            <flux:input wire:model="form.supervisor_id" label="Supervisor ID" placeholder="SUP-0001"
-                description:trailing="Supervisor ID can be found on the supervisor record." />
-
             <div class="grid grid-cols-2 gap-x-4 gap-y-6">
                 <flux:input wire:model="form.first_name" label="First Name" placeholder="John" />
                 <flux:input wire:model="form.middle_name" label="Middle Name" badge="Optional" placeholder="Doe" />

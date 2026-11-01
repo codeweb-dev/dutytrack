@@ -71,13 +71,6 @@ new class extends Component {
 
             <div class="space-y-4">
                 <div class="flex items-start justify-between gap-4 border-b border-zinc-100 pb-3 dark:border-zinc-800">
-                    <span class="text-sm text-zinc-500">Supervisor ID</span>
-                    <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
-                        {{ $supervisor->supervisorProfile?->supervisor_id ?? '' }}
-                    </span>
-                </div>
-
-                <div class="flex items-start justify-between gap-4 border-b border-zinc-100 pb-3 dark:border-zinc-800">
                     <span class="text-sm text-zinc-500">Position and Department</span>
                     <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
                         {{ $supervisor->supervisorProfile?->position_department ?? '' }}
@@ -126,13 +119,6 @@ new class extends Component {
         </div>
 
         <div class="grid gap-4 md:grid-cols-3">
-            <div class="rounded-2xl bg-zinc-50 p-4 dark:bg-zinc-800/50">
-                <div class="text-xs uppercase tracking-wide text-zinc-400">Supervisor ID</div>
-                <div class="mt-2 text-base font-semibold text-zinc-900 dark:text-white">
-                    {{ $supervisor->supervisorProfile?->supervisor_id ?? '' }}
-                </div>
-            </div>
-
             <div class="rounded-2xl bg-zinc-50 p-4 dark:bg-zinc-800/50">
                 <div class="text-xs uppercase tracking-wide text-zinc-400">Company / Institution</div>
                 <div class="mt-2 text-base font-semibold text-zinc-900 dark:text-white">

@@ -15,11 +15,6 @@ new class extends Component {
         $this->dispatch('supervisor-saved');
     }
 
-    public function updatedFormSupervisorId(): void
-    {
-        $this->form->fillFromStaffDirectory();
-    }
-
     public function updatedFormSupervisorType(): void
     {
         $this->form->applySupervisorType();
@@ -54,9 +49,6 @@ new class extends Component {
                     <div class="w-full">
                         <x-custom-file-upload model="form.photo" label="Upload supervisor photo" accept="image/*" />
                     </div>
-
-                    <flux:input wire:model.live.debounce.300ms="form.supervisor_id" label="Supervisor ID" placeholder="SUP-3001"
-                        description:trailing="Supervisor ID can be found on the supervisor record." />
 
                     <div class="grid grid-cols-2 gap-x-4 gap-y-6">
                         <flux:input wire:model="form.first_name" label="First Name" placeholder="John" />

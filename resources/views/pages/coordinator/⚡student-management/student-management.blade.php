@@ -143,7 +143,7 @@
                                 </flux:modal>
 
                                 @if ($student->status === 'pending')
-                                    <flux:modal :name="'review-student-'.$student->id"
+                                    <flux:modal :name="'review-student-'.$student->id" flyout variant="floating"
                                         class="md:w-2xl">
                                         <livewire:coordinator.student-management.view :student="$student" :key="'review-student-' . $student->id" />
 

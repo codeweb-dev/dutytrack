@@ -112,23 +112,9 @@ new class extends Component
                 <flux:error name="form.company_supervisor_id" />
             </div>
 
-            <flux:field>
-                <flux:label badge="Optional">OJT Required Hours</flux:label>
-
-                <div
-                    class="rounded-2xl border border-zinc-200 bg-zinc-50 px-6 py-8 dark:border-zinc-700 dark:bg-zinc-900">
-                    <div class="flex flex-col items-center">
-                        <flux:input type="number" min="0" step="1" wire:model="form.ojt_required_hours"
-                            class="w-40 text-center text-4xl font-bold" />
-
-                        <div class="mt-2 text-sm uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                            Hours Required
-                        </div>
-                    </div>
-                </div>
-
-                <flux:error name="form.ojt_required_hours" />
-            </flux:field>
+            <flux:input type="number" min="0" step="1" wire:model="form.ojt_required_hours"
+                label="OJT Required Hours" badge="Optional" />
+            <flux:error name="form.ojt_required_hours" />
         </div>
     </flux:fieldset>
 

@@ -17,209 +17,90 @@ new class extends Component
 };
 ?>
 
-<div class="space-y-6">
-    <div>
-        <flux:heading size="lg">Student Profile</flux:heading>
-        <flux:text class="mt-1 text-zinc-500">
-            Complete student information and academic details.
-        </flux:text>
-    </div>
-
-    <div
-        class="overflow-hidden rounded-3xl border border-zinc-200 bg-linear-to-r from-zinc-50 to-white dark:border-zinc-800 dark:from-zinc-900 dark:to-zinc-950">
-        <div class="flex flex-col gap-6 p-6 md:flex-row md:items-center">
-            <flux:avatar size="xl" :src="$student->profile_photo_url" :name="$student->display_name" />
-
-            <div class="min-w-0 flex-1">
-                <div class="flex flex-wrap items-center gap-3">
-                    <h3 class="text-2xl font-semibold tracking-tight">
-                        {{ $student->display_name }}
-                    </h3>
-
-                    <flux:badge color="red" icon="check-badge" inset="top bottom">
-                        Student
-                    </flux:badge>
-                </div>
-
-                <div class="mt-3 grid gap-3 text-sm text-zinc-600 dark:text-zinc-300 md:grid-cols-2">
-                    <div
-                        class="rounded-2xl bg-white/80 px-4 py-3 shadow-sm ring-1 ring-zinc-200 dark:bg-zinc-900/80 dark:ring-zinc-800">
-                        <div class="text-xs uppercase tracking-wide text-zinc-400">Email
-                            Address</div>
-                        <div class="mt-1 font-medium text-zinc-900 dark:text-white">
-                            {{ $student->email }}
-                        </div>
-                    </div>
-
-                    <div
-                        class="rounded-2xl bg-white/80 px-4 py-3 shadow-sm ring-1 ring-zinc-200 dark:bg-zinc-900/80 dark:ring-zinc-800">
-                        <div class="text-xs uppercase tracking-wide text-zinc-400">
-                            Contact Number</div>
-                        <div class="mt-1 font-medium text-zinc-900 dark:text-white">
-                            {{ $student->contact_number ? '+63 ' . $student->contact_number : 'No contact number' }}
-                        </div>
-                    </div>
-
-                </div>
-            </div>
+<div class="space-y-4">
+    <div class="flex items-center gap-3 border-b border-zinc-200 pb-4 dark:border-zinc-800">
+        <flux:avatar size="lg" :src="$student->profile_photo_url" :name="$student->display_name" />
+        <div class="min-w-0 flex-1">
+            <h3 class="truncate text-lg font-semibold text-zinc-900 dark:text-white">{{ $student->display_name }}</h3>
+            <p class="break-words text-sm text-zinc-500 dark:text-zinc-400">{{ $student->email }}</p>
         </div>
     </div>
 
-    <div class="grid gap-6 md:grid-cols-2">
-        <div class="rounded-3xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-            <div class="mb-4">
-                <h4 class="text-sm font-semibold uppercase tracking-wide text-zinc-500">
-                    Personal Information
-                </h4>
-            </div>
-
-            <div class="space-y-4">
-                <div class="flex items-start justify-between gap-4 border-b border-zinc-100 pb-3 dark:border-zinc-800">
-                    <span class="text-sm text-zinc-500">First Name</span>
-                    <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
-                        {{ $student->first_name ?? '' }}
-                    </span>
+    <div class="grid gap-4 sm:grid-cols-2">
+        <section class="rounded-xl border border-zinc-200 bg-zinc-50/70 p-4 dark:border-zinc-800 dark:bg-zinc-900/50">
+            <h4 class="text-base font-semibold text-zinc-900 dark:text-white">Personal Information</h4>
+            <dl class="mt-4 grid gap-y-4">
+                <div>
+                    <dt class="text-sm font-medium text-zinc-500 dark:text-zinc-400">First Name</dt>
+                    <dd class="mt-1 break-words text-base leading-6 font-medium text-zinc-900 dark:text-white">{{ $student->first_name ?: '—' }}</dd>
                 </div>
-
-                <div class="flex items-start justify-between gap-4 border-b border-zinc-100 pb-3 dark:border-zinc-800">
-                    <span class="text-sm text-zinc-500">Middle Name</span>
-                    <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
-                        {{ $student->middle_name ?: '' }}
-                    </span>
+                <div>
+                    <dt class="text-sm font-medium text-zinc-500 dark:text-zinc-400">Middle Name</dt>
+                    <dd class="mt-1 break-words text-base leading-6 font-medium text-zinc-900 dark:text-white">{{ $student->middle_name ?: '—' }}</dd>
                 </div>
-
-                <div class="flex items-start justify-between gap-4 border-b border-zinc-100 pb-3 dark:border-zinc-800">
-                    <span class="text-sm text-zinc-500">Last Name</span>
-                    <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
-                        {{ $student->last_name ?? '' }}
-                    </span>
+                <div>
+                    <dt class="text-sm font-medium text-zinc-500 dark:text-zinc-400">Last Name</dt>
+                    <dd class="mt-1 break-words text-base leading-6 font-medium text-zinc-900 dark:text-white">{{ $student->last_name ?: '—' }}</dd>
                 </div>
-
-                <div class="flex items-start justify-between gap-4 border-b border-zinc-100 pb-3 dark:border-zinc-800">
-                    <span class="text-sm text-zinc-500">Extension Name</span>
-                    <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
-                        {{ $student->studentProfile?->extension_name ?? '' }}
-                    </span>
+                <div>
+                    <dt class="text-sm font-medium text-zinc-500 dark:text-zinc-400">Extension Name</dt>
+                    <dd class="mt-1 break-words text-base leading-6 font-medium text-zinc-900 dark:text-white">{{ $student->studentProfile?->extension_name ?: '—' }}</dd>
                 </div>
-
-                <div class="flex items-start justify-between gap-4">
-                    <span class="text-sm text-zinc-500">Account Role</span>
-                    <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
-                        Student
-                    </span>
+                <div>
+                    <dt class="text-sm font-medium text-zinc-500 dark:text-zinc-400">Contact Number</dt>
+                    <dd class="mt-1 text-base leading-6 font-medium text-zinc-900 dark:text-white">
+                        {{ $student->contact_number ? '+63 ' . $student->contact_number : 'No contact number' }}
+                    </dd>
                 </div>
-            </div>
-        </div>
+            </dl>
+        </section>
 
-        <div class="rounded-3xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-            <div class="mb-4">
-                <h4 class="text-sm font-semibold uppercase tracking-wide text-zinc-500">
-                    Academic Information
-                </h4>
-            </div>
-
-            <div class="space-y-4">
-                <div class="flex items-start justify-between gap-4 border-b border-zinc-100 pb-3 dark:border-zinc-800">
-                    <span class="text-sm text-zinc-500">Student ID</span>
-                    <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
-                        {{ $student->studentProfile?->student_id ?? '' }}
-                    </span>
+        <section class="rounded-xl border border-zinc-200 bg-zinc-50/70 p-4 dark:border-zinc-800 dark:bg-zinc-900/50">
+            <h4 class="text-base font-semibold text-zinc-900 dark:text-white">Academic Information</h4>
+            <dl class="mt-4 grid gap-y-4">
+                <div>
+                    <dt class="text-sm font-medium text-zinc-500 dark:text-zinc-400">Student ID</dt>
+                    <dd class="mt-1 break-words text-base leading-6 font-medium text-zinc-900 dark:text-white">{{ $student->studentProfile?->student_id ?: '—' }}</dd>
                 </div>
-
-                <div class="flex items-start justify-between gap-4 border-b border-zinc-100 pb-3 dark:border-zinc-800">
-                    <span class="text-sm text-zinc-500">Course</span>
-                    <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
-                        {{ $student->studentProfile?->course ?? '' }}
-                    </span>
+                <div>
+                    <dt class="text-sm font-medium text-zinc-500 dark:text-zinc-400">Course</dt>
+                    <dd class="mt-1 break-words text-base leading-6 font-medium text-zinc-900 dark:text-white">{{ $student->studentProfile?->course ?: '—' }}</dd>
                 </div>
-
-                <div class="flex items-start justify-between gap-4 border-b border-zinc-100 pb-3 dark:border-zinc-800">
-                    <span class="text-sm text-zinc-500">Year Level</span>
-                    <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
-                        {{ $student->studentProfile?->year_level ?? '' }}
-                    </span>
+                <div>
+                    <dt class="text-sm font-medium text-zinc-500 dark:text-zinc-400">Year Level</dt>
+                    <dd class="mt-1 break-words text-base leading-6 font-medium text-zinc-900 dark:text-white">{{ $student->studentProfile?->year_level ?: '—' }}</dd>
                 </div>
-
-                <div class="flex items-start justify-between gap-4">
-                    <span class="text-sm text-zinc-500">OJT Required Hours</span>
-                    <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
+                <div>
+                    <dt class="text-sm font-medium text-zinc-500 dark:text-zinc-400">OJT Required Hours</dt>
+                    <dd class="mt-1 text-base leading-6 font-medium text-zinc-900 dark:text-white">
                         {{ \App\Support\HourFormatter::format($student->studentProfile?->ojt_required_hours ?? 0) }}
-                    </span>
+                    </dd>
                 </div>
-            </div>
-        </div>
+            </dl>
+        </section>
+
+        <section class="rounded-xl border border-zinc-200 bg-zinc-50/70 p-4 dark:border-zinc-800 dark:bg-zinc-900/50 sm:col-span-2">
+            <h4 class="text-base font-semibold text-zinc-900 dark:text-white">Address &amp; Guardian</h4>
+            <dl class="mt-4 grid gap-x-6 gap-y-4 sm:grid-cols-2">
+                <div class="sm:col-span-2">
+                    <dt class="text-sm font-medium text-zinc-500 dark:text-zinc-400">Address</dt>
+                    <dd class="mt-1 break-words text-base leading-6 font-medium text-zinc-900 dark:text-white">{{ $student->studentProfile?->address ?: '—' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-zinc-500 dark:text-zinc-400">Guardian Name</dt>
+                    <dd class="mt-1 break-words text-base leading-6 font-medium text-zinc-900 dark:text-white">{{ $student->studentProfile?->guardian_name ?: '—' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-zinc-500 dark:text-zinc-400">Guardian Contact Number</dt>
+                    <dd class="mt-1 text-base leading-6 font-medium text-zinc-900 dark:text-white">
+                        {{ $student->studentProfile?->guardian_contact_number ? '+63 ' . $student->studentProfile->guardian_contact_number : 'No contact number' }}
+                    </dd>
+                </div>
+                <div class="sm:col-span-2">
+                    <dt class="text-sm font-medium text-zinc-500 dark:text-zinc-400">Guardian Address</dt>
+                    <dd class="mt-1 break-words text-base leading-6 font-medium text-zinc-900 dark:text-white">{{ $student->studentProfile?->guardian_address ?: '—' }}</dd>
+                </div>
+            </dl>
+        </section>
     </div>
-
-    <div class="rounded-3xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-        <div class="mb-4">
-            <h4 class="text-sm font-semibold uppercase tracking-wide text-zinc-500">
-                Address &amp; Guardian
-            </h4>
-        </div>
-
-        <div class="space-y-4">
-                <div class="flex items-start justify-between gap-4 border-b border-zinc-100 pb-3 dark:border-zinc-800">
-                    <span class="text-sm text-zinc-500">Address</span>
-                    <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
-                        {{ $student->studentProfile?->address ?? '' }}
-                    </span>
-                </div>
-
-                <div class="flex items-start justify-between gap-4 border-b border-zinc-100 pb-3 dark:border-zinc-800">
-                    <span class="text-sm text-zinc-500">Guardian Name</span>
-                    <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
-                        {{ $student->studentProfile?->guardian_name ?? '' }}
-                    </span>
-                </div>
-
-                <div class="flex items-start justify-between gap-4 border-b border-zinc-100 pb-3 dark:border-zinc-800">
-                    <span class="text-sm text-zinc-500">Guardian Address</span>
-                    <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
-                        {{ $student->studentProfile?->guardian_address ?? '' }}
-                    </span>
-                </div>
-
-                <div class="flex items-start justify-between gap-4 border-b border-zinc-100 pb-3 dark:border-zinc-800">
-                    <span class="text-sm text-zinc-500">Guardian Contact Number</span>
-                    <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
-                        {{ $student->studentProfile?->guardian_contact_number ? '+63 ' . $student->studentProfile->guardian_contact_number : '' }}
-                    </span>
-                </div>
-        </div>
-    </div>
-
-    <div class="rounded-3xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-        <div class="mb-4">
-            <h4 class="text-sm font-semibold uppercase tracking-wide text-zinc-500">
-                Quick Summary
-            </h4>
-        </div>
-
-        <div class="grid gap-4 md:grid-cols-3">
-            <div class="rounded-2xl bg-zinc-50 p-4 dark:bg-zinc-800/50">
-                <div class="text-xs uppercase tracking-wide text-zinc-400">Student ID
-                </div>
-                <div class="mt-2 text-base font-semibold text-zinc-900 dark:text-white">
-                    {{ $student->studentProfile?->student_id ?? '' }}
-                </div>
-            </div>
-
-            <div class="rounded-2xl bg-zinc-50 p-4 dark:bg-zinc-800/50">
-                <div class="text-xs uppercase tracking-wide text-zinc-400">Academic
-                </div>
-                <div class="mt-2 text-base font-semibold text-zinc-900 dark:text-white">
-                    {{ $student->studentProfile?->course ?? '' }}
-                </div>
-            </div>
-
-            <div class="rounded-2xl bg-zinc-50 p-4 dark:bg-zinc-800/50">
-                <div class="text-xs uppercase tracking-wide text-zinc-400">OJT
-                    Requirement</div>
-                <div class="mt-2 text-base font-semibold text-zinc-900 dark:text-white">
-                    {{ \App\Support\HourFormatter::format($student->studentProfile?->ojt_required_hours ?? 0) }}
-                </div>
-            </div>
-        </div>
-    </div>
-
 </div>

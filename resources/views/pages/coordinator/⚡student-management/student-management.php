@@ -72,7 +72,22 @@ new #[Title('Students')] class extends Component
     public function refreshStudents(): void
     {
         $this->resetPage();
-        unset($this->students);
+        unset($this->students, $this->summary);
+    }
+
+    #[Computed]
+    public function summary(): array
+    {
+        $students = User::query()
+            ->whereHas('roles', fn (Builder $query) => $query->where('name', EnumsRole::STUDENT->value))
+            ->where('coordinator_id', Auth::id());
+
+        return [
+            'total' => (clone $students)->count(),
+            'pending' => (clone $students)->where('status', 'pending')->count(),
+            'active' => (clone $students)->where(fn (Builder $query) => $query->whereNull('status')->orWhere('status', '!=', 'pending'))->count(),
+            'assigned' => (clone $students)->whereHas('ojtAssignment', fn (Builder $query) => $query->whereNotNull('company_supervisor_id'))->count(),
+        ];
     }
 
     protected function pendingStudent(int $studentId): User
@@ -101,7 +116,7 @@ new #[Title('Students')] class extends Component
 
         Flux::toast(variant: 'success', heading: 'Student approved.', text: "{$student->display_name} can now log in.");
 
-        unset($this->students);
+        unset($this->students, $this->summary);
     }
 
     // Rejecting removes the sign-up so the student can register again with corrected details.
@@ -125,14 +140,14 @@ new #[Title('Students')] class extends Component
 
         Flux::toast(variant: 'success', heading: 'Sign-up rejected.', text: "{$student->display_name}'s account was removed.");
 
-        unset($this->students);
+        unset($this->students, $this->summary);
     }
 
     #[Computed]
     public function students(): LengthAwarePaginator
     {
         $query = User::query()
-            ->with(['studentProfile', 'coordinator', 'coordinatorProfile'])
+            ->with(['studentProfile', 'coordinator', 'coordinatorProfile', 'ojtAssignment.companySupervisor'])
             ->whereHas('roles', function (Builder $query) {
                 $query->where('name', EnumsRole::STUDENT->value);
             })

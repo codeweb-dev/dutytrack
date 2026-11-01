@@ -1,7 +1,26 @@
 <div class="flex flex-col gap-6">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
-    <div class="mt-8 space-y-4">
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <flux:card class="p-4">
+            <flux:heading>Total Students</flux:heading>
+            <flux:text class="mt-2">{{ $this->summary['total'] }}</flux:text>
+        </flux:card>
+        <flux:card class="p-4">
+            <flux:heading>Pending Approval</flux:heading>
+            <flux:text class="mt-2">{{ $this->summary['pending'] }}</flux:text>
+        </flux:card>
+        <flux:card class="p-4">
+            <flux:heading>Active Students</flux:heading>
+            <flux:text class="mt-2">{{ $this->summary['active'] }}</flux:text>
+        </flux:card>
+        <flux:card class="p-4">
+            <flux:heading>Assigned Students</flux:heading>
+            <flux:text class="mt-2">{{ $this->summary['assigned'] }}</flux:text>
+        </flux:card>
+    </div>
+
+    <div class="space-y-4">
         <div class="flex items-center justify-between">
             <h2 class="text-xl font-semibold">
                 My Students
@@ -48,6 +67,7 @@
                     </flux:table.column>
 
                     <flux:table.column>Contact Number</flux:table.column>
+                    <flux:table.column>Assigned Supervisor</flux:table.column>
 
                     <flux:table.column>
                         OJT Hours
@@ -79,6 +99,23 @@
 
                             <flux:table.cell class="whitespace-nowrap">
                                 {{ $student->contact_number ? '+63 ' . $student->contact_number : 'No contact number' }}
+                            </flux:table.cell>
+
+                            <flux:table.cell>
+                                <div class="flex items-center gap-3">
+                                    <flux:avatar size="md"
+                                        :src="$student->ojtAssignment?->companySupervisor?->profile_photo_url"
+                                        :name="$student->ojtAssignment?->companySupervisor?->display_name ?? 'Unassigned'" />
+
+                                    <div class="flex min-w-0 flex-col whitespace-normal">
+                                        <span class="font-medium">
+                                            {{ $student->ojtAssignment?->companySupervisor?->display_name ?? 'Unassigned' }}
+                                        </span>
+                                        <span class="break-words text-xs text-zinc-500 dark:text-zinc-300">
+                                            {{ $student->ojtAssignment?->companySupervisor?->email ?? 'No supervisor assigned' }}
+                                        </span>
+                                    </div>
+                                </div>
                             </flux:table.cell>
 
                             <flux:table.cell>

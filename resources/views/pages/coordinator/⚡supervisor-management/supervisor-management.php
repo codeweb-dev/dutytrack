@@ -2,6 +2,7 @@
 
 use App\Enums\Role as EnumsRole;
 use App\Models\User;
+use Flux\Flux;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
@@ -30,6 +31,8 @@ new #[Title('Supervisor Management')] class extends Component
     public string $sortDirection = 'asc';
 
     public string $search = '';
+
+    public ?int $selectedSupervisorId = null;
 
     public function updatedSortBy(): void
     {
@@ -61,7 +64,70 @@ new #[Title('Supervisor Management')] class extends Component
     public function refreshSupervisors(): void
     {
         $this->resetPage();
-        unset($this->supervisors);
+        unset($this->supervisors, $this->summary);
+    }
+
+    public function viewAssignedStudents(int $supervisorId): void
+    {
+        $supervisor = User::query()
+            ->role(EnumsRole::SUPERVISOR->value)
+            ->where('coordinator_id', Auth::id())
+            ->findOrFail($supervisorId);
+
+        $this->selectedSupervisorId = $supervisor->id;
+        unset($this->selectedSupervisor, $this->assignedStudents);
+
+        Flux::modal('assigned-students')->show();
+    }
+
+    public function closeAssignedStudents(): void
+    {
+        $this->reset('selectedSupervisorId');
+        unset($this->selectedSupervisor, $this->assignedStudents);
+    }
+
+    #[Computed]
+    public function selectedSupervisor(): ?User
+    {
+        return $this->selectedSupervisorId
+            ? User::query()
+                ->role(EnumsRole::SUPERVISOR->value)
+                ->where('coordinator_id', Auth::id())
+                ->find($this->selectedSupervisorId)
+            : null;
+    }
+
+    #[Computed]
+    public function assignedStudents()
+    {
+        $supervisor = $this->selectedSupervisor;
+
+        if (! $supervisor) {
+            return collect();
+        }
+
+        return User::query()
+            ->with('studentProfile')
+            ->role(EnumsRole::STUDENT->value)
+            ->where('coordinator_id', Auth::id())
+            ->whereHas('ojtAssignment', fn (Builder $query) => $query->where('company_supervisor_id', $supervisor->id))
+            ->orderBy('last_name')
+            ->get();
+    }
+
+    #[Computed]
+    public function summary(): array
+    {
+        $supervisors = User::query()
+            ->role(EnumsRole::SUPERVISOR->value)
+            ->where('coordinator_id', Auth::id());
+
+        return [
+            'total' => (clone $supervisors)->count(),
+            'internal' => (clone $supervisors)->whereHas('supervisorProfile', fn (Builder $query) => $query->where('supervisor_type', 'internal'))->count(),
+            'external' => (clone $supervisors)->whereHas('supervisorProfile', fn (Builder $query) => $query->where('supervisor_type', 'external'))->count(),
+            'active' => (clone $supervisors)->where(fn (Builder $query) => $query->whereNull('status')->orWhere('status', '!=', 'pending'))->count(),
+        ];
     }
 
     #[Computed]
@@ -73,6 +139,10 @@ new #[Title('Supervisor Management')] class extends Component
             ->where('users.coordinator_id', Auth::id())
             ->leftJoin('supervisor_profiles', 'users.id', '=', 'supervisor_profiles.user_id')
             ->select('users.*');
+
+        $query->withCount(['companySupervisorAssignments as assigned_students_count' => fn (Builder $query) => $query->whereHas('student', fn (Builder $studentQuery) => $studentQuery
+            ->role(EnumsRole::STUDENT->value)
+            ->where('coordinator_id', Auth::id()))]);
 
         if ($this->search !== '') {
             $search = '%'.$this->search.'%';

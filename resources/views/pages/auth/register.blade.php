@@ -82,6 +82,8 @@
                 <flux:input name="student_id" :label="__('Student ID')" :value="old('student_id')" required
                     placeholder="2316-02373C" description="{{ __('Found on your school ID card.') }}" />
 
+                <flux:input name="birthdate" :label="__('Birthdate')" :value="old('birthdate')" type="date" required />
+
                 <div class="grid gap-5 sm:grid-cols-2">
                     <flux:field>
                         <flux:label>{{ __('Course') }}</flux:label>

@@ -36,6 +36,7 @@ class CreateNewUser implements CreatesNewUsers
         Validator::make($input, [
             'photo' => ['nullable', 'image', 'max:2048'],
             'student_id' => ['required', 'string', 'max:255', Rule::unique('student_profiles', 'student_id')],
+            'birthdate' => ['required', 'date', 'before:today'],
             'first_name' => ['required', 'string', 'max:255'],
             'middle_name' => ['nullable', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
@@ -75,6 +76,7 @@ class CreateNewUser implements CreatesNewUsers
 
             $user->studentProfile()->create([
                 'student_id' => $input['student_id'],
+                'birthdate' => $input['birthdate'],
                 'course' => $input['course'],
                 'ojt_required_hours' => self::COURSES[$input['course']]['hours'],
                 'address' => $input['address'],

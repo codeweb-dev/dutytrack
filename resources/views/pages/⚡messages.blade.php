@@ -22,6 +22,8 @@ new #[Title('Messages')] class extends Component
 
     public ?int $selectedConversationId = null;
 
+    public string $search = '';
+
     public string $body = '';
 
     public ?int $editingMessageId = null;
@@ -317,7 +319,7 @@ new #[Title('Messages')] class extends Component
     #[Computed]
     public function conversations()
     {
-        return $this->conversationQuery()
+        $conversations = $this->conversationQuery()
             ->with(['student.studentProfile', 'participant', 'latestMessage.sender'])
             ->withCount([
                 'messages as unread_count' => fn (Builder $query) => $query->where('sender_id', '!=', Auth::id())->whereNull('read_at'),
@@ -325,6 +327,10 @@ new #[Title('Messages')] class extends Component
             ->get()
             ->sortByDesc(fn (ChatConversation $conversation) => $conversation->latestMessage?->created_at ?? $conversation->updated_at)
             ->values();
+
+        $search = mb_strtolower(trim($this->search));
+
+        return $search === '' ? $conversations : $conversations->filter(fn (ChatConversation $conversation) => str_contains(mb_strtolower($this->peerFor($conversation)?->name ?? ''), $search))->values();
     }
 
     #[Computed]
@@ -359,6 +365,8 @@ new #[Title('Messages')] class extends Component
             <div class="shrink-0 border-b border-zinc-200 p-4 dark:border-zinc-800">
                 <flux:heading size="lg">Conversations</flux:heading>
                 <flux:text class="mt-1 text-zinc-500">Your available contacts</flux:text>
+                <flux:input wire:model.live.debounce.300ms="search" icon="magnifying-glass"
+                    aria-label="Search contacts" placeholder="Search contacts..." clearable class="mt-4" />
             </div>
 
             <div class="min-h-0 flex-1 overflow-y-auto p-2">
@@ -396,9 +404,14 @@ new #[Title('Messages')] class extends Component
                 @empty
                     <div class="p-8 text-center">
                         <flux:icon name="chat-bubble-left-right" class="mx-auto size-10 text-zinc-400" />
-                        <flux:heading size="md" class="mt-3">No contacts yet</flux:heading>
-                        <flux:text class="mt-1 text-zinc-500">Messages appear after your account is connected to a contact.
-                        </flux:text>
+                        @if (filled($search))
+                            <flux:heading size="md" class="mt-3">No contacts found</flux:heading>
+                            <flux:text class="mt-1 text-zinc-500">Try a different name.</flux:text>
+                        @else
+                            <flux:heading size="md" class="mt-3">No contacts yet</flux:heading>
+                            <flux:text class="mt-1 text-zinc-500">Messages appear after your account is connected to a contact.
+                            </flux:text>
+                        @endif
                     </div>
                 @endforelse
             </div>

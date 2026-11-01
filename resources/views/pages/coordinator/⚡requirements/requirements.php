@@ -37,6 +37,18 @@ new #[Title('Requirement Monitoring')] class extends Component
         unset($this->students, $this->summary);
     }
 
+    public function updatedSortBy(): void
+    {
+        $this->resetPage();
+        unset($this->students);
+    }
+
+    public function updatedSortDirection(): void
+    {
+        $this->resetPage();
+        unset($this->students);
+    }
+
     #[On('student-saved')]
     public function refreshRequirements(): void
     {
@@ -90,10 +102,11 @@ new #[Title('Requirement Monitoring')] class extends Component
         }
 
         $students = $this->applySorting($query, [
+            '' => 'users.last_name',
             'name' => 'users.last_name',
             'student_id' => 'student_profiles.student_id',
             'course' => 'student_profiles.course',
-        ])->orderBy($this->sortBy === '' ? 'users.last_name' : 'users.name')->paginate(8);
+        ])->orderBy('users.name')->paginate(8);
 
         $this->ensureVisibleRequirements($students->getCollection());
 

@@ -49,6 +49,12 @@
                         autocomplete="family-name" placeholder="Dela Cruz" />
                     <flux:input name="middle_name" :label="__('Middle name')" :value="old('middle_name')" badge="Optional"
                         autocomplete="additional-name" placeholder="Santos" />
+                    <flux:select name="extension_name" :label="__('Extension name')" badge="Optional">
+                        <option value="">None</option>
+                        @foreach (['Jr.', 'Sr.', 'II', 'III', 'IV', 'V'] as $extension)
+                            <option value="{{ $extension }}" @selected(old('extension_name') === $extension)>{{ $extension }}</option>
+                        @endforeach
+                    </flux:select>
 
                     <flux:field>
                         <flux:label>{{ __('Contact number') }}</flux:label>

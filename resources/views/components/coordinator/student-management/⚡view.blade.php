@@ -103,6 +103,13 @@ new class extends Component
                     </span>
                 </div>
 
+                <div class="flex items-start justify-between gap-4 border-b border-zinc-100 pb-3 dark:border-zinc-800">
+                    <span class="text-sm text-zinc-500">Extension Name</span>
+                    <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">
+                        {{ $student->studentProfile?->extension_name ?? '' }}
+                    </span>
+                </div>
+
                 <div class="flex items-start justify-between gap-4">
                     <span class="text-sm text-zinc-500">Account Role</span>
                     <span class="text-sm font-medium text-right text-zinc-900 dark:text-white">

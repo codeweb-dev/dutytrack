@@ -58,6 +58,12 @@ new class extends Component {
                             <flux:input wire:model.live.debounce.300ms="form.last_name" label="Last Name"
                                 placeholder="Smith" />
                         </div>
+                        <flux:select wire:model="form.extension_name" label="Extension name" badge="Optional">
+                            <option value="">None</option>
+                            @foreach (['Jr.', 'Sr.', 'II', 'III', 'IV', 'V'] as $extension)
+                                <option value="{{ $extension }}">{{ $extension }}</option>
+                            @endforeach
+                        </flux:select>
                     </div>
 
                     <div class="grid grid-cols-2 gap-x-4 gap-y-6">

@@ -34,6 +34,8 @@ class StudentForm extends Form
 
     public string $last_name = '';
 
+    public ?string $extension_name = '';
+
     public string $email = '';
 
     public string $password = '';
@@ -67,6 +69,7 @@ class StudentForm extends Form
             'first_name' => ['required', 'string', 'max:255'],
             'middle_name' => ['nullable', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
+            'extension_name' => ['nullable', Rule::in(['Jr.', 'Sr.', 'II', 'III', 'IV', 'V'])],
             'email' => [
                 'required',
                 'string',
@@ -104,6 +107,7 @@ class StudentForm extends Form
             'first_name' => $user?->first_name,
             'middle_name' => $user?->middle_name,
             'last_name' => $user?->last_name,
+            'extension_name' => $user?->studentProfile?->extension_name,
             'email' => $user?->email,
             'contact_number' => $user?->contact_number,
             'status' => $user?->status,
@@ -166,6 +170,7 @@ class StudentForm extends Form
         $this->first_name = $student->first_name ?? '';
         $this->middle_name = $student->middle_name ?? '';
         $this->last_name = $student->last_name ?? '';
+        $this->extension_name = $student->studentProfile?->extension_name ?? '';
         $this->email = $student->email ?? '';
         $this->contact_number = $student->contact_number ?? '';
 
@@ -237,6 +242,7 @@ class StudentForm extends Form
 
             $user->studentProfile()->update([
                 'student_id' => $this->student_id,
+                'extension_name' => $this->extension_name ?: null,
                 'birthdate' => $this->birthdate,
                 'course' => $this->course,
                 'ojt_required_hours' => $this->ojt_required_hours ?: 0,
@@ -293,6 +299,7 @@ class StudentForm extends Form
         $this->first_name = '';
         $this->middle_name = '';
         $this->last_name = '';
+        $this->extension_name = '';
         $this->email = '';
         $this->contact_number = '';
         $this->password = '';

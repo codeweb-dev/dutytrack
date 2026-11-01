@@ -31,6 +31,8 @@ class SupervisorForm extends Form
 
     public string $last_name = '';
 
+    public ?string $extension_name = '';
+
     public string $email = '';
 
     public ?string $contact_number = '';
@@ -59,6 +61,7 @@ class SupervisorForm extends Form
             'first_name' => ['required', 'string', 'max:255'],
             'middle_name' => ['nullable', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
+            'extension_name' => ['nullable', Rule::in(['Jr.', 'Sr.', 'II', 'III', 'IV', 'V'])],
             'email' => [
                 'required',
                 'string',
@@ -136,6 +139,7 @@ class SupervisorForm extends Form
             'first_name' => $user?->first_name,
             'middle_name' => $user?->middle_name,
             'last_name' => $user?->last_name,
+            'extension_name' => $user?->supervisorProfile?->extension_name,
             'email' => $user?->email,
             'contact_number' => $user?->contact_number,
             'status' => $user?->status,
@@ -160,6 +164,7 @@ class SupervisorForm extends Form
         $this->first_name = $supervisor->first_name ?? '';
         $this->middle_name = $supervisor->middle_name ?? '';
         $this->last_name = $supervisor->last_name ?? '';
+        $this->extension_name = $supervisor->supervisorProfile?->extension_name ?? '';
         $this->email = $supervisor->email ?? '';
         $this->contact_number = $supervisor->contact_number ?? '';
         $this->supervisor_type = $supervisor->supervisorProfile?->supervisor_type ?? 'external';
@@ -202,6 +207,7 @@ class SupervisorForm extends Form
             $user->assignRole(EnumsRole::SUPERVISOR->value);
 
             $user->supervisorProfile()->create([
+                'extension_name' => $this->extension_name ?: null,
                 'supervisor_type' => $this->supervisor_type,
                 'company_name' => $this->company_name,
                 'company_address' => $this->company_address ?: null,
@@ -282,6 +288,7 @@ class SupervisorForm extends Form
             $user->syncRoles([EnumsRole::SUPERVISOR->value]);
 
             $user->supervisorProfile()->update([
+                'extension_name' => $this->extension_name ?: null,
                 'supervisor_type' => $this->supervisor_type,
                 'company_name' => $this->company_name,
                 'company_address' => $this->company_address ?: null,
@@ -326,6 +333,7 @@ class SupervisorForm extends Form
         $this->first_name = '';
         $this->middle_name = '';
         $this->last_name = '';
+        $this->extension_name = '';
         $this->email = '';
         $this->contact_number = '';
         $this->password = '';

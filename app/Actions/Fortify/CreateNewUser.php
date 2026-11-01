@@ -40,6 +40,7 @@ class CreateNewUser implements CreatesNewUsers
             'first_name' => ['required', 'string', 'max:255'],
             'middle_name' => ['nullable', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
+            'extension_name' => ['nullable', Rule::in(['Jr.', 'Sr.', 'II', 'III', 'IV', 'V'])],
             'email' => $this->emailRules(),
             'contact_number' => ['required', 'string', 'max:20'],
             'course' => ['required', Rule::in(array_keys(self::COURSES))],
@@ -76,6 +77,7 @@ class CreateNewUser implements CreatesNewUsers
 
             $user->studentProfile()->create([
                 'student_id' => $input['student_id'],
+                'extension_name' => $input['extension_name'] ?? null,
                 'birthdate' => $input['birthdate'],
                 'course' => $input['course'],
                 'ojt_required_hours' => self::COURSES[$input['course']]['hours'],

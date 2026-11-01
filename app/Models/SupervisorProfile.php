@@ -8,6 +8,7 @@ class SupervisorProfile extends Model
 {
     protected $fillable = [
         'user_id',
+        'extension_name',
         'supervisor_type',
         'company_name',
         'company_address',

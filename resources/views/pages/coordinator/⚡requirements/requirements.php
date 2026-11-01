@@ -90,10 +90,10 @@ new #[Title('Requirement Monitoring')] class extends Component
         }
 
         $students = $this->applySorting($query, [
-            'name' => 'users.name',
+            'name' => 'users.last_name',
             'student_id' => 'student_profiles.student_id',
             'course' => 'student_profiles.course',
-        ])->orderBy('users.name')->paginate(8);
+        ])->orderBy($this->sortBy === '' ? 'users.last_name' : 'users.name')->paginate(8);
 
         $this->ensureVisibleRequirements($students->getCollection());
 

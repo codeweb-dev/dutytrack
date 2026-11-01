@@ -35,7 +35,7 @@
 
                 <x-filter-modal name="filter-coordinator-requirements" heading="Filter Requirements"
                     description="Sort the students in requirement tracking."
-                    :sorts="['' => 'Default', 'name' => 'Student name', 'student_id' => 'Student ID', 'course' => 'Course']" />
+                    :sorts="['' => 'Default', 'name' => 'Last name', 'student_id' => 'Student ID', 'course' => 'Course']" />
             </div>
         </div>
 

@@ -12,7 +12,7 @@ new class extends Component
     {
         abort_unless((int) $student->coordinator_id === (int) Auth::id(), 403);
 
-        $this->student = $student->load('studentProfile', 'coordinator');
+        $this->student = $student->load('studentProfile');
     }
 };
 ?>
@@ -60,14 +60,6 @@ new class extends Component
                         </div>
                     </div>
 
-                    <div
-                        class="rounded-2xl bg-white/80 px-4 py-3 shadow-sm ring-1 ring-zinc-200 dark:bg-zinc-900/80 dark:ring-zinc-800 md:col-span-2">
-                        <div class="text-xs uppercase tracking-wide text-zinc-400">
-                            Assigned Coordinator</div>
-                        <div class="mt-1 font-medium text-zinc-900 dark:text-white">
-                            {{ $student->coordinator?->name ?? 'Unassigned' }} | {{ $student->coordinator?->coordinatorProfile->department ?? '' }}
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

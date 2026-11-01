@@ -47,14 +47,16 @@
                         Student ID
                     </flux:table.column>
 
-                    <flux:table.column>
-                        Program
-                    </flux:table.column>
+                    <flux:table.column>Contact Number</flux:table.column>
 
                     <flux:table.column>Assigned Supervisor</flux:table.column>
 
                     <flux:table.column>
                         OJT Hours
+                    </flux:table.column>
+
+                    <flux:table.column>
+                        Status
                     </flux:table.column>
 
                     <flux:table.column>Actions</flux:table.column>
@@ -68,19 +70,8 @@
                                     :name="$student->display_name" />
 
                                 <div class="flex flex-col">
-                                    <span class="flex items-center gap-2 font-medium">
-                                        {{ $student->display_name }}
-                                        @if ($student->status === 'pending')
-                                            <flux:badge size="sm" color="amber" inset="top bottom">In review</flux:badge>
-                                        @endif
-                                    </span>
-                                    <div>
-                                        <span class="text-xs text-zinc-500 dark:text-zinc-300">{{ $student->email }}</span>
-                                        <span class="text-xs text-zinc-500 dark:text-zinc-300">
-                                            •
-                                            {{ $student->contact_number ? '+63 ' . $student->contact_number : 'No contact number' }}
-                                        </span>
-                                    </div>
+                                    <span class="font-medium">{{ $student->display_name }}</span>
+                                    <span class="text-xs text-zinc-500 dark:text-zinc-300">{{ $student->email }}</span>
                                 </div>
                             </flux:table.cell>
 
@@ -88,8 +79,8 @@
                                 {{ $student->studentProfile?->student_id ?? '' }}
                             </flux:table.cell>
 
-                            <flux:table.cell>
-                                {{ $student->studentProfile?->course ?? '' }}
+                            <flux:table.cell class="whitespace-nowrap">
+                                {{ $student->contact_number ? '+63 ' . $student->contact_number : 'No contact number' }}
                             </flux:table.cell>
 
                             <flux:table.cell>
@@ -100,6 +91,14 @@
                                 <flux:badge size="sm" inset="top bottom">
                                     {{ \App\Support\HourFormatter::format($student->studentProfile?->ojt_required_hours ?? 0) }}
                                 </flux:badge>
+                            </flux:table.cell>
+
+                            <flux:table.cell class="whitespace-nowrap">
+                                @if ($student->status === 'pending')
+                                    <flux:badge size="sm" color="amber" inset="top bottom">Pending Approval</flux:badge>
+                                @else
+                                    <flux:badge size="sm" color="green" inset="top bottom">Active</flux:badge>
+                                @endif
                             </flux:table.cell>
 
                             <flux:table.cell>

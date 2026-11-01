@@ -379,20 +379,20 @@ new #[Title('Messages')] class extends Component
                             :src="$peer?->profile_photo_path ? $peer->profilePhotoUrl() : null" />
 
                         <span class="min-w-0 flex-1">
-                            <span class="flex items-center gap-2">
+                            <span class="flex min-w-0 items-center gap-2">
                                 <span class="truncate text-sm font-medium text-zinc-900 dark:text-white">
                                     {{ $peer?->name ?? 'Contact' }}
                                 </span>
 
                                 @if ($conversation->unread_count > 0)
-                                    <flux:badge color="red" size="sm" inset="top bottom">
+                                    <flux:badge color="red" size="sm" class="shrink-0">
                                         {{ $conversation->unread_count }}</flux:badge>
                                 @endif
                             </span>
 
-                            <span class="mt-1 flex items-center gap-2">
+                            <span class="mt-1 flex min-w-0 items-center gap-2">
                                 <flux:badge :color="$this->roleColorFor($conversation)" size="sm"
-                                    inset="top bottom">
+                                    class="shrink-0">
                                     {{ $this->roleLabelFor($conversation) }}
                                 </flux:badge>
                                 <span class="truncate text-xs text-zinc-500">

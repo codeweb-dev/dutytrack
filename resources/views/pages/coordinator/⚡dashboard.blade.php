@@ -299,7 +299,7 @@ new #[Title('Coordinator Dashboard')] class extends Component
                                         <div class="font-medium text-zinc-900 dark:text-white">
                                             {{ $student->display_name }}
                                         </div>
-                                        <div class="text-sm text-zinc-500">
+                                        <div class="text-sm text-zinc-500 dark:text-zinc-300">
                                             {{ $student->studentProfile?->student_id ?? 'No student ID' }}
                                         </div>
                                     </div>

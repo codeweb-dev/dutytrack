@@ -117,7 +117,7 @@
                                     <span class="font-medium">
                                         {{ $log->student?->display_name ?? '' }}
                                     </span>
-                                    <span class="text-xs text-zinc-500">
+                                    <span class="text-xs text-zinc-500 dark:text-zinc-300">
                                         {{ $log->student?->email }}
                                     </span>
                                 </div>

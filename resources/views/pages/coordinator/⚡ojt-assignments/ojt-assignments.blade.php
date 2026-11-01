@@ -90,7 +90,7 @@
 
                                 <div class="flex flex-col">
                                     <span class="font-medium">{{ $assignment->student?->display_name ?? '' }}</span>
-                                    <span class="text-xs text-zinc-500">{{ $assignment->student?->email ?? '' }}</span>
+                                    <span class="text-xs text-zinc-500 dark:text-zinc-300">{{ $assignment->student?->email ?? '' }}</span>
                                 </div>
                             </flux:table.cell>
 
@@ -107,7 +107,7 @@
                             <flux:table.cell>
                                 <div class="flex flex-col">
                                     <span>{{ $assignee?->display_name ?? '' }}</span>
-                                    <span class="text-xs text-zinc-500">
+                                    <span class="text-xs text-zinc-500 dark:text-zinc-300">
                                         {{ $assignment->ojt_type === 'internal' ? 'Supervisor' : 'Supervisor' }}
                                     </span>
                                 </div>

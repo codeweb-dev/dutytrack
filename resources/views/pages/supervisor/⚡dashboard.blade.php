@@ -326,7 +326,7 @@ new #[Title('Supervisor Dashboard')] class extends Component
                                         {{ $assignment->student?->name ?? '' }}
                                     </div>
 
-                                    <div class="text-sm text-zinc-500 dark:text-zinc-400">
+                                    <div class="text-sm text-zinc-500 dark:text-zinc-300">
                                         {{ $assignment->student?->studentProfile?->student_id ?? ($assignment->student?->email ?? '') }}
                                     </div>
                                 </div>

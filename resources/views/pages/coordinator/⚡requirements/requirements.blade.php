@@ -78,7 +78,7 @@
 
                                 <div class="flex flex-col">
                                     <span class="font-medium">{{ $student->display_name }}</span>
-                                    <span class="text-xs text-zinc-500">{{ $student->email }}</span>
+                                    <span class="text-xs text-zinc-500 dark:text-zinc-300">{{ $student->email }}</span>
                                 </div>
                             </flux:table.cell>
 

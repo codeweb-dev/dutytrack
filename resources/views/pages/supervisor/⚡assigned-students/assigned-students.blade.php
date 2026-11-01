@@ -80,7 +80,7 @@
 
                                 <div class="flex flex-col">
                                     <span class="font-medium">{{ $assignment->student?->name ?? '' }}</span>
-                                    <span class="text-xs text-zinc-500">{{ $assignment->student?->email ?? '' }}</span>
+                                    <span class="text-xs text-zinc-500 dark:text-zinc-300">{{ $assignment->student?->email ?? '' }}</span>
                                 </div>
                             </flux:table.cell>
 
@@ -100,7 +100,7 @@
                                 @if ($latestAttendance)
                                     <div class="flex flex-col">
                                         <span>{{ $latestAttendance->attendance_date?->format('M d, Y') }}</span>
-                                        <span class="text-xs text-zinc-500">
+                                        <span class="text-xs text-zinc-500 dark:text-zinc-300">
                                             {{ ucfirst($latestAttendance->status ?? 'recorded') }}
                                         </span>
                                     </div>

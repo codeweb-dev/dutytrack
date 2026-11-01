@@ -44,14 +44,14 @@
                                     <flux:avatar size="md" :src="$supervisor->profile_photo_url" :name="$supervisor->display_name" />
                                     <div class="flex flex-col">
                                         <span class="font-medium">{{ $supervisor->display_name }}</span>
-                                        <span class="text-xs text-zinc-500">{{ $supervisor->email }}</span>
+                                        <span class="text-xs text-zinc-500 dark:text-zinc-300">{{ $supervisor->email }}</span>
                                     </div>
                                 </div>
                             </flux:table.cell>
                             <flux:table.cell>
                                 <div class="flex flex-col">
                                     <span>{{ $supervisor->supervisorProfile?->company_name ?? '' }}</span>
-                                    <span class="text-xs text-zinc-500 line-clamp-1">
+                                    <span class="text-xs text-zinc-500 dark:text-zinc-300 line-clamp-1">
                                         {{ $supervisor->supervisorProfile?->company_address ?? 'No address provided' }}
                                     </span>
                                 </div>

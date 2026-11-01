@@ -74,14 +74,14 @@
                             <flux:table.cell class="whitespace-nowrap">
                                 <div class="flex flex-col">
                                     <span class="font-medium">{{ $log->created_at?->format('M d, Y') }}</span>
-                                    <span class="text-xs text-zinc-500">{{ $log->created_at?->format('h:i A') }}</span>
+                                    <span class="text-xs text-zinc-500 dark:text-zinc-300">{{ $log->created_at?->format('h:i A') }}</span>
                                 </div>
                             </flux:table.cell>
 
                             <flux:table.cell>
                                 <div class="flex flex-col">
                                     <span class="font-medium">{{ $log->actor_name ?: 'System' }}</span>
-                                    <span class="text-xs text-zinc-500">
+                                    <span class="text-xs text-zinc-500 dark:text-zinc-300">
                                         {{ $log->actor_role ?: '' }}
                                     </span>
                                 </div>

@@ -75,8 +75,8 @@
                                         @endif
                                     </span>
                                     <div>
-                                        <span class="text-xs text-zinc-500">{{ $student->email }}</span>
-                                        <span class="text-xs text-zinc-500">
+                                        <span class="text-xs text-zinc-500 dark:text-zinc-300">{{ $student->email }}</span>
+                                        <span class="text-xs text-zinc-500 dark:text-zinc-300">
                                             •
                                             {{ $student->contact_number ? '+63 ' . $student->contact_number : 'No contact number' }}
                                         </span>

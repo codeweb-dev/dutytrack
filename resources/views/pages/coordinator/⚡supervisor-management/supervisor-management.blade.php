@@ -92,18 +92,15 @@
                                 @endif
                             </flux:table.cell>
                             <flux:table.cell>
-                                <flux:button variant="primary" size="sm" icon="academic-cap"
+                                <flux:button variant="filled" size="xs" icon="user" class="min-h-8"
                                     wire:click="viewAssignedStudents({{ $supervisor->id }})">
-                                    View students ({{ $supervisor->assigned_students_count }})
+                                    Students ({{ $supervisor->assigned_students_count }})
                                 </flux:button>
                             </flux:table.cell>
                             <flux:table.cell>
                                 <flux:dropdown>
                                     <flux:button variant="ghost" size="sm" icon="ellipsis-horizontal" inset="top bottom" />
                                     <flux:menu>
-                                        <flux:modal.trigger :name="'view-supervisor-'.$supervisor->id">
-                                            <flux:menu.item icon="eye">View</flux:menu.item>
-                                        </flux:modal.trigger>
                                         <flux:modal.trigger :name="'edit-supervisor-'.$supervisor->id">
                                             <flux:menu.item icon="pencil-square">Edit</flux:menu.item>
                                         </flux:modal.trigger>
@@ -114,9 +111,6 @@
                                     </flux:menu>
                                 </flux:dropdown>
 
-                                <flux:modal :name="'view-supervisor-'.$supervisor->id" flyout variant="floating" class="md:w-2xl">
-                                    <livewire:coordinator.supervisors.view :supervisor="$supervisor" :key="'view-supervisor-'.$supervisor->id" />
-                                </flux:modal>
                                 <flux:modal :name="'edit-supervisor-'.$supervisor->id" flyout variant="floating" class="md:w-2xl">
                                     <livewire:coordinator.supervisors.edit :supervisor="$supervisor" :key="'edit-supervisor-'.$supervisor->id" />
                                 </flux:modal>

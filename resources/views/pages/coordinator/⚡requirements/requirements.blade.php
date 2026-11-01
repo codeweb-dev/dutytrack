@@ -52,7 +52,6 @@
                 <flux:table.columns>
                     <flux:table.column>Student</flux:table.column>
                     <flux:table.column>Student ID</flux:table.column>
-                    <flux:table.column>Academic Details</flux:table.column>
                     <flux:table.column>Requirements</flux:table.column>
                     <flux:table.column>Status</flux:table.column>
                     <flux:table.column>Actions</flux:table.column>
@@ -84,10 +83,6 @@
 
                             <flux:table.cell class="whitespace-nowrap font-medium">
                                 {{ $student->studentProfile?->student_id ?? '' }}
-                            </flux:table.cell>
-
-                            <flux:table.cell>
-                                {{ $student->studentProfile?->course ?? '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>

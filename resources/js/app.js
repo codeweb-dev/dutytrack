@@ -4,6 +4,27 @@ Observer.start();
 
 import './pwa';
 
+const docxPreview = document.querySelector('[data-docx-preview]');
+
+if (docxPreview) {
+    const loadDocxPreview = async () => {
+        try {
+            const response = await fetch(docxPreview.dataset.fileUrl);
+            if (!response.ok) throw new Error();
+
+            const { renderAsync } = await import('docx-preview');
+            await renderAsync(await response.blob(), docxPreview, undefined, { renderAltChunks: false });
+            docxPreview.setAttribute('aria-busy', 'false');
+            docxPreview.querySelectorAll('a').forEach((link) => link.removeAttribute('href'));
+        } catch {
+            docxPreview.textContent = 'This document could not be previewed.';
+            docxPreview.setAttribute('aria-busy', 'false');
+        }
+    };
+
+    loadDocxPreview();
+}
+
 let highlighted;
 let highlightedSidebar;
 let positionFrame;

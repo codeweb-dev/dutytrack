@@ -4,7 +4,6 @@ use App\Models\StudentRequirement;
 use App\Models\User;
 use Flux\Flux;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
@@ -148,15 +147,8 @@ new class extends Component
                                     <flux:badge color="amber" size="sm" inset="top bottom">Missing</flux:badge>
                                 @endif
 
-                                @if ($requirement->template_path)
-                                    <flux:button href="{{ asset($requirement->template_path) }}" target="_blank" download
-                                        icon="document-arrow-down" size="xs">
-                                        Template
-                                    </flux:button>
-                                @endif
-
                                 @if ($requirement->file_path)
-                                    <flux:button href="{{ Storage::url($requirement->file_path) }}" target="_blank"
+                                    <flux:button href="{{ route('coordinator.requirements.file', $requirement) }}" target="_blank"
                                         icon="paper-clip" size="xs">
                                         View file
                                     </flux:button>

@@ -1,10 +1,12 @@
 <?php
 
 use App\Models\Evaluation;
+use App\Models\StudentRequirement;
 use App\Support\AccomplishmentReportDocument;
 use App\Support\EvaluationDocument;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/manifest.webmanifest', [\App\Http\Controllers\PwaController::class, 'manifest'])->name('pwa.manifest');
@@ -34,6 +36,27 @@ Route::group(['middleware' => ['role:ojt_coordinator']], function () {
     Route::livewire('/coordinator/supervisor-management', 'pages::coordinator.supervisor-management')->name('coordinator.supervisor-management');
     Route::livewire('/coordinator/ojt-assignments', 'pages::coordinator.ojt-assignments')->name('coordinator.ojt-assignments');
     Route::livewire('/coordinator/requirements', 'pages::coordinator.requirements')->name('coordinator.requirements');
+    Route::get('/coordinator/requirements/{requirement}/file', function (StudentRequirement $requirement) {
+        $student = $requirement->student()
+            ->where('coordinator_id', Auth::id())
+            ->with('studentProfile')
+            ->firstOrFail();
+
+        abort_unless($requirement->file_path && Storage::disk('public')->exists($requirement->file_path), 404);
+
+        return view('pages.coordinator.requirement-file-preview', [
+            'requirement' => $requirement,
+            'student' => $student,
+            'extension' => strtolower(pathinfo($requirement->file_path, PATHINFO_EXTENSION)),
+            'fileUrl' => route('coordinator.requirements.file.content', $requirement),
+        ]);
+    })->name('coordinator.requirements.file');
+    Route::get('/coordinator/requirements/{requirement}/file/content', function (StudentRequirement $requirement) {
+        abort_unless($requirement->student()->where('coordinator_id', Auth::id())->exists(), 404);
+        abort_unless($requirement->file_path && Storage::disk('public')->exists($requirement->file_path), 404);
+
+        return Storage::disk('public')->response($requirement->file_path);
+    })->name('coordinator.requirements.file.content');
     Route::livewire('/coordinator/attendance', 'pages::coordinator.attendance')->name('coordinator.attendance');
     Route::livewire('/coordinator/messages', 'pages::messages')->name('coordinator.messages');
 

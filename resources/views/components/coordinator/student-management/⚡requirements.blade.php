@@ -154,12 +154,14 @@ new class extends Component
                                     </flux:button>
                                 @endif
 
-                                <flux:button wire:click="approveRequirement({{ $requirement->id }})"
-                                    wire:confirm="Approve {{ $requirement->label }}? This cannot be undone."
-                                    :disabled="$requirement->is_completed || ! $requirement->file_path" icon="check" size="xs"
-                                    variant="primary" color="green">
-                                    {{ $requirement->is_completed ? 'Approved' : 'Approve' }}
-                                </flux:button>
+                                @unless ($requirement->is_completed)
+                                    <flux:button wire:click="approveRequirement({{ $requirement->id }})"
+                                        wire:confirm="Approve {{ $requirement->label }}? This cannot be undone."
+                                        :disabled="! $requirement->file_path" icon="check" size="xs"
+                                        variant="primary" color="green">
+                                        Approve
+                                    </flux:button>
+                                @endunless
                             </div>
                         </div>
                     @endforeach

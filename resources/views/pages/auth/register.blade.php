@@ -69,10 +69,8 @@
                         <flux:error name="contact_number" />
                     </flux:field>
 
-                    <div class="sm:col-span-2">
-                        <flux:input name="email" :label="__('Email address')" :value="old('email')" type="email" required
-                            autocomplete="email" placeholder="email@example.com" />
-                    </div>
+                    <flux:input name="email" :label="__('Email address')" :value="old('email')" type="email" required
+                        autocomplete="email" placeholder="email@example.com" />
 
                     <div class="sm:col-span-2">
                         <flux:input name="address" :label="__('Address')" :value="old('address')" required

@@ -41,7 +41,7 @@ beforeEach(function () {
 
 test('students see public holidays and cannot time in on a holiday', function () {
     Carbon::setTestNow(Carbon::parse('2026-04-30 08:00:00'));
-    Cache::forget('public-holidays-ph-v2-2026');
+    Cache::forget('public-holidays-ph-v5-2026');
     Http::fake(['date.nager.at/*' => Http::response([
         ['date' => '2026-04-30', 'localName' => 'Test Holiday', 'name' => 'Test Holiday'],
     ])]);

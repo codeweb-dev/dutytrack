@@ -48,7 +48,7 @@
                                 length="6"
                                 name="code"
                                 label="OTP Code"
-                                label:sr-only
+                                required
                                 class="mx-auto"
                              />
                         </div>
@@ -59,6 +59,7 @@
                             <flux:input
                                 type="text"
                                 name="recovery_code"
+                                label="Recovery code"
                                 x-ref="recovery_code"
                                 x-bind:required="showRecoveryInput"
                                 autocomplete="one-time-code"

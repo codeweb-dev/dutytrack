@@ -369,6 +369,7 @@ new #[Title('Student Dashboard')] class extends Component
                                                 wire:key="submit-{{ $requirement->id }}">
                                                 <flux:input type="file" size="sm" class="flex-1"
                                                     wire:model="requirementFiles.{{ $requirement->key }}"
+                                                    label="Required document" required
                                                     accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
 
                                                 <flux:button wire:click="submitRequirement('{{ $requirement->key }}')"

@@ -37,7 +37,7 @@
                     description="Filter and sort your assigned students by assignment status."
                     :sorts="['' => 'Default', 'student' => 'Student name', 'student_id' => 'Student ID', 'course' => 'Course', 'status' => 'Status']">
 
-                    <flux:radio.group wire:model.live="status" label="Status" variant="pills">
+                    <flux:radio.group wire:model.live="status" label="Status" badge="Optional" variant="pills">
                         <flux:radio value="" label="All" />
                         <flux:radio value="pending" label="Pending" />
                         <flux:radio value="active" label="Active" />

@@ -14,14 +14,14 @@
                 <x-filter-modal name="filter-coordinator-audit-logs" heading="Filter Audit Logs"
                     description="Filter by module and action, and sort the audit trail."
                     :sorts="['created_at' => 'Date & time', 'actor_name' => 'User', 'module' => 'Module', 'action' => 'Action', 'target_label' => 'Target']">
-                    <flux:select wire:model.live="module" label="Module">
+                    <flux:select wire:model.live="module" label="Module" badge="Optional">
                         <option value="">All modules</option>
                         @foreach ($this->modules as $moduleOption)
                             <option value="{{ $moduleOption }}">{{ $moduleOption }}</option>
                         @endforeach
                     </flux:select>
 
-                    <flux:select wire:model.live="action" label="Action">
+                    <flux:select wire:model.live="action" label="Action" badge="Optional">
                         <option value="">All actions</option>
                         @foreach ($this->actions as $actionOption)
                             <option value="{{ $actionOption }}">{{ str($actionOption)->replace('_', ' ')->title() }}

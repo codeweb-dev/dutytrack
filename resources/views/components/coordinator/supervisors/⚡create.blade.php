@@ -51,12 +51,12 @@ new class extends Component {
                     </div>
 
                     <div class="grid grid-cols-2 gap-x-4 gap-y-6">
-                        <flux:input wire:model="form.first_name" label="First Name" placeholder="John" />
+                        <flux:input wire:model="form.first_name" label="First Name" placeholder="John" required />
                         <flux:input wire:model="form.middle_name" label="Middle Name" badge="Optional"
                             placeholder="Doe" />
                         <div class="col-span-2">
                             <flux:input wire:model.live.debounce.300ms="form.last_name" label="Last Name"
-                                placeholder="Smith" />
+                                placeholder="Smith" required />
                         </div>
                         <flux:select wire:model="form.extension_name" label="Extension name" badge="Optional">
                             <option value="">None</option>
@@ -68,10 +68,10 @@ new class extends Component {
 
                     <div class="grid grid-cols-2 gap-x-4 gap-y-6">
                         <flux:input wire:model="form.email" type="email" label="Email"
-                            placeholder="juan@example.com" />
+                            placeholder="juan@example.com" required />
 
                         <flux:field>
-                            <flux:label>Contact Number</flux:label>
+                            <flux:label badge="Optional">Contact Number</flux:label>
 
                             <flux:input.group>
                                 <flux:input.group.prefix>+63</flux:input.group.prefix>
@@ -84,28 +84,28 @@ new class extends Component {
 
                     <div class="grid grid-cols-2 gap-x-4 gap-y-6">
                         <flux:input wire:model="form.password" type="password" label="Password"
-                            placeholder="Enter password" viewable />
+                            placeholder="Enter password" viewable required />
                         <flux:input wire:model="form.password_confirmation" type="password" label="Confirm Password"
-                            placeholder="Confirm password" viewable />
+                            placeholder="Confirm password" viewable required />
                     </div>
 
-                    <flux:radio.group wire:model.live="form.supervisor_type" label="Type" variant="segmented">
+                    <flux:radio.group wire:model.live="form.supervisor_type" label="Type" variant="segmented" required>
                         <flux:radio value="internal" label="Internal" />
                         <flux:radio value="external" label="External" />
                     </flux:radio.group>
 
                     @if ($form->supervisor_type === 'internal')
-                        <flux:input wire:model="form.company_name" label="Institution" placeholder="EARIST CAVITE CAMPUS" />
+                        <flux:input wire:model="form.company_name" label="Institution" placeholder="EARIST CAVITE CAMPUS" required />
                     @else
-                        <flux:input wire:model="form.company_name" label="Company" placeholder="ABC Corporation" />
+                        <flux:input wire:model="form.company_name" label="Company" placeholder="ABC Corporation" required />
                     @endif
 
-                    <flux:input wire:model="form.position_department" label="Position and Department"
+                    <flux:input wire:model="form.position_department" label="Position and Department" badge="Optional"
                         placeholder="e.g. HR Manager, Human Resources" />
 
                     <flux:textarea wire:model="form.company_address"
                         :label="$form->supervisor_type === 'internal' ? 'Institution Address' : 'Company Address'"
-                        placeholder="Enter address" rows="4" />
+                        badge="Optional" placeholder="Enter address" rows="4" />
                 </div>
             </flux:fieldset>
 

@@ -7,8 +7,8 @@
                 description="Filter by date range and sort your entries. The download uses the same date range."
                 :sorts="['' => 'Default', 'date' => 'Date', 'hours' => 'Hours']">
                 <div class="grid grid-cols-2 gap-4">
-                    <flux:input type="date" wire:model.live="from_date" label="From Date" />
-                    <flux:input type="date" wire:model.live="to_date" label="To Date" />
+                    <flux:input type="date" wire:model.live="from_date" label="From Date" badge="Optional" />
+                    <flux:input type="date" wire:model.live="to_date" label="To Date" badge="Optional" />
                 </div>
             </x-filter-modal>
 
@@ -78,10 +78,10 @@
                 </flux:text>
             </div>
 
-            <flux:textarea wire:model="accomplishment" label="Accomplishment" rows="5"
+            <flux:textarea wire:model="accomplishment" label="Accomplishment" rows="5" badge="Optional"
                 placeholder="Describe the tasks or activities completed for this day." />
 
-            <flux:input wire:model="new_photos" type="file" label="Photos" multiple accept="image/*" />
+            <flux:input wire:model="new_photos" type="file" label="Photos" badge="Optional" multiple accept="image/*" />
 
             @if ($editingAttendanceId)
                 @php

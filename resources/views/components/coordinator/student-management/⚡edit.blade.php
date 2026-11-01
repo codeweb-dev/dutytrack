@@ -51,14 +51,14 @@ new class extends Component
             </div>
 
             <flux:input wire:model="form.student_id" label="Student ID" placeholder="2316-02373C"
-                description:trailing="Student ID can be found on the student's ID card." />
-            <flux:input wire:model="form.birthdate" type="date" label="Birthdate" />
+                description:trailing="Student ID can be found on the student's ID card." required />
+            <flux:input wire:model="form.birthdate" type="date" label="Birthdate" required />
 
             <div class="grid grid-cols-2 gap-x-4 gap-y-6">
-                <flux:input wire:model="form.first_name" label="First name" placeholder="John" />
+                <flux:input wire:model="form.first_name" label="First name" placeholder="John" required />
                 <flux:input wire:model="form.middle_name" label="Middle name" badge="Optional" placeholder="Doe" />
                 <div class="col-span-2">
-                    <flux:input wire:model="form.last_name" label="Last name" placeholder="Smith" />
+                    <flux:input wire:model="form.last_name" label="Last name" placeholder="Smith" required />
                 </div>
                 <flux:select wire:model="form.extension_name" label="Extension name" badge="Optional">
                     <option value="">None</option>
@@ -70,10 +70,10 @@ new class extends Component
 
             <div class="grid grid-cols-2 gap-x-4 gap-y-6">
                 <flux:input wire:model="form.email" type="email" label="Email"
-                    placeholder="john.smith@example.com" />
+                    placeholder="john.smith@example.com" required />
 
                 <flux:field>
-                    <flux:label>Contact Number</flux:label>
+                    <flux:label badge="Optional">Contact Number</flux:label>
 
                     <flux:input.group>
                         <flux:input.group.prefix>+63</flux:input.group.prefix>
@@ -85,15 +85,15 @@ new class extends Component
             </div>
 
             <div class="grid grid-cols-2 gap-x-4 gap-y-6">
-                <flux:input wire:model="form.password" type="password" label="New Password"
+                <flux:input wire:model="form.password" type="password" label="New Password" badge="Optional"
                     placeholder="Leave blank to keep current password" viewable />
 
-                <flux:input wire:model="form.password_confirmation" type="password" label="Confirm New Password"
+                <flux:input wire:model="form.password_confirmation" type="password" label="Confirm New Password" badge="Optional"
                     placeholder="Confirm new password" viewable />
             </div>
 
             <div>
-                <flux:select wire:model="form.course" label="Course">
+                <flux:select wire:model="form.course" label="Course" required>
                     <option value="">Select course</option>
                     <option value="BSCS">BSCS</option>
                     <option value="BSIT">BSIT</option>
@@ -113,7 +113,7 @@ new class extends Component
             </div>
 
             <flux:field>
-                <flux:label>OJT Required Hours</flux:label>
+                <flux:label badge="Optional">OJT Required Hours</flux:label>
 
                 <div
                     class="rounded-2xl border border-zinc-200 bg-zinc-50 px-6 py-8 dark:border-zinc-700 dark:bg-zinc-900">

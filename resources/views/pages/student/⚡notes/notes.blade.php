@@ -86,16 +86,22 @@
                         </div>
 
                         <div class="flex min-h-0 flex-1 flex-col px-5 py-5">
-                            <input type="text" wire:model.live.debounce.500ms="note_title" aria-label="Note title"
+                            <label for="note-title" class="mb-2 flex items-center gap-2 text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                                Note title <flux:badge size="sm">Optional</flux:badge>
+                            </label>
+                            <input id="note-title" type="text" wire:model.live.debounce.500ms="note_title" aria-label="Note title"
                                 placeholder="Untitled Note"
                                 class="w-full border-0 bg-transparent p-0 text-3xl font-semibold text-zinc-950 outline-none placeholder:text-zinc-300 focus:ring-0 dark:text-white dark:placeholder:text-zinc-700" />
                             @error('note_title')
                                 <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
                             @enderror
 
-                            <textarea wire:model.live.debounce.700ms="note_body" aria-label="Note body"
+                            <label for="note-body" class="mt-5 mb-2 flex items-center gap-2 text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                                Note body <flux:badge size="sm">Optional</flux:badge>
+                            </label>
+                            <textarea id="note-body" wire:model.live.debounce.700ms="note_body" aria-label="Note body"
                                 placeholder="Start typing..."
-                                class="mt-6 min-h-112 flex-1 resize-none border-0 bg-transparent p-0 text-base leading-8 text-zinc-800 outline-none placeholder:text-zinc-300 focus:ring-0 dark:text-zinc-100 dark:placeholder:text-zinc-700"></textarea>
+                                class="min-h-112 flex-1 resize-none border-0 bg-transparent p-0 text-base leading-8 text-zinc-800 outline-none placeholder:text-zinc-300 focus:ring-0 dark:text-zinc-100 dark:placeholder:text-zinc-700"></textarea>
                             @error('note_body')
                                 <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
                             @enderror

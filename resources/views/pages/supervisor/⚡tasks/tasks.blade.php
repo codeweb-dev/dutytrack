@@ -15,7 +15,7 @@
                     <flux:text class="mt-2">Create a task for one or more assigned trainees.</flux:text>
                 </div>
 
-                <flux:checkbox.group wire:model="student_ids" label="Trainees" variant="cards" class="max-sm:flex-col">
+                <flux:checkbox.group wire:model="student_ids" label="Trainees" variant="cards" class="max-sm:flex-col" required>
                     @foreach ($this->assignableStudents as $student)
                         <flux:checkbox value="{{ $student->id }}" :label="$student->name"
                             :description="$student->studentProfile?->student_id ?? 'No student ID'" />
@@ -23,18 +23,18 @@
                 </flux:checkbox.group>
 
                 <flux:input wire:model="task_title" label="Task Title"
-                    placeholder="Prepare daily accomplishment update" />
+                    placeholder="Prepare daily accomplishment update" required />
 
-                <flux:textarea wire:model="task_description" label="Description" rows="4"
+                <flux:textarea wire:model="task_description" label="Description" rows="4" badge="Optional"
                     placeholder="Add instructions, expected output, links, or reminders." />
 
-                <flux:radio.group wire:model="priority" label="Priority" variant="pills">
+                <flux:radio.group wire:model="priority" label="Priority" variant="pills" required>
                     <flux:radio value="low" label="Low" />
                     <flux:radio value="normal" label="Normal" />
                     <flux:radio value="high" label="High" />
                 </flux:radio.group>
 
-                <flux:input type="date" wire:model="due_date" label="Due Date" />
+                <flux:input type="date" wire:model="due_date" label="Due Date" badge="Optional" />
 
                 <flux:button type="submit" variant="primary" icon="plus" class="w-full">
                     Assign Task

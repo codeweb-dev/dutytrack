@@ -30,7 +30,10 @@
                         if (tooBig) $event.target.value = '';
                         preview = file && !tooBig ? URL.createObjectURL(file) : null;
                     " />
-                <flux:text class="text-xs">{{ __('Upload a profile photo (optional, max 2MB)') }}</flux:text>
+                <div class="flex items-center gap-2">
+                    <flux:text class="text-xs">{{ __('Upload a profile photo (max 2MB)') }}</flux:text>
+                    <flux:badge size="sm">{{ __('Optional') }}</flux:badge>
+                </div>
                 <flux:text x-show="tooBig" x-cloak class="text-xs !text-red-500">{{ __('That photo is larger than 2MB. Please choose a smaller one.') }}</flux:text>
                 <flux:error name="photo" />
             </div>

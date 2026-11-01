@@ -28,16 +28,16 @@ new class extends Component {
                 <flux:legend>Announcement Details</flux:legend>
 
                 <div class="space-y-6">
-                    <flux:input wire:model="form.title" label="Title" placeholder="Scheduled System Maintenance" />
+                    <flux:input wire:model="form.title" label="Title" placeholder="Scheduled System Maintenance" required />
                     
-                    <flux:radio.group wire:model="form.type" label="Priority" variant="pills">
+                    <flux:radio.group wire:model="form.type" label="Priority" variant="pills" required>
                         <flux:radio value="info" label="Info" />
                         <flux:radio value="warning" label="Warning" />
                         <flux:radio value="urgent" label="Urgent" />
                         <flux:radio value="maintenance" label="Maintenance" />
                     </flux:radio.group>
 
-                    <flux:textarea wire:model="form.message" label="Message / Body"
+                    <flux:textarea wire:model="form.message" label="Message / Body" required
                         placeholder="Write the announcement message here..." rows="6" />
                 </div>
             </flux:fieldset>

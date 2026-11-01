@@ -41,14 +41,14 @@
                 <x-filter-modal name="filter-coordinator-attendance" heading="Filter Attendance Records"
                     description="Filter and sort logs by OJT type, status, supervisor, and date range." width="md:w-2xl"
                     :sorts="['' => 'Default', 'student' => 'Student name', 'student_id' => 'Student ID', 'date' => 'Date', 'hours' => 'Hours', 'status' => 'Status']">
-                    <flux:radio.group wire:model.live="ojt_type" label="OJT Type" variant="cards" :indicator="false"
+                    <flux:radio.group wire:model.live="ojt_type" label="OJT Type" badge="Optional" variant="cards" :indicator="false"
                         class="max-sm:flex-col">
                         <flux:radio value="" icon="squares-2x2" label="All Types" description="All OJT types" />
                         <flux:radio value="internal" icon="academic-cap" label="Internal" description="Internal OJT" />
                         <flux:radio value="external" icon="building-office" label="External" description="External OJT" />
                     </flux:radio.group>
 
-                    <flux:radio.group wire:model.live="status" label="Status" variant="pills">
+                    <flux:radio.group wire:model.live="status" label="Status" badge="Optional" variant="pills">
                         <flux:radio value="" label="All Status" />
                         <flux:radio value="present" label="Present" />
                         <flux:radio value="late" label="Late" />
@@ -56,7 +56,7 @@
                         <flux:radio value="incomplete" label="Incomplete" />
                     </flux:radio.group>
 
-                    <flux:select wire:model.live="supervisor_id" placeholder="Supervisor" label="Supervisor">
+                    <flux:select wire:model.live="supervisor_id" placeholder="Supervisor" label="Supervisor" badge="Optional">
                         <option value="">All Supervisors</option>
                         @foreach ($this->supervisors as $supervisor)
                             <option value="{{ $supervisor->id }}">
@@ -66,8 +66,8 @@
                     </flux:select>
 
                     <div class="grid grid-cols-2 gap-x-4 gap-y-6">
-                        <flux:input type="date" wire:model.live="from_date" label="From Date" />
-                        <flux:input type="date" wire:model.live="to_date" label="To Date" />
+                        <flux:input type="date" wire:model.live="from_date" label="From Date" badge="Optional" />
+                        <flux:input type="date" wire:model.live="to_date" label="To Date" badge="Optional" />
                     </div>
                 </x-filter-modal>
             </div>

@@ -59,7 +59,7 @@ new class extends Component
             </div>
 
             <div class="grid gap-6">
-                <flux:select wire:model.live="form.student_id" label="Student">
+                <flux:select wire:model.live="form.student_id" label="Student" required>
                     <option value="">Select student</option>
                     @foreach ($this->students as $student)
                         <option value="{{ $student->id }}">
@@ -69,7 +69,7 @@ new class extends Component
                 </flux:select>
 
                 <flux:radio.group wire:model.live="form.ojt_type" label="OJT Type" variant="cards" :indicator="false"
-                    class="max-sm:flex-col">
+                    class="max-sm:flex-col" required>
                     <flux:radio value="internal" icon="academic-cap" label="Internal"
                         description="Internal OJT" />
                     <flux:radio value="external" icon="briefcase" label="External"
@@ -81,7 +81,7 @@ new class extends Component
                 </flux:text>
 
                     <flux:select wire:key="create-external-supervisor-select"
-                    wire:model.live="form.company_supervisor_id" label="Supervisor">
+                    wire:model.live="form.company_supervisor_id" label="Supervisor" required>
                     <option value="">Select supervisor</option>
                     @foreach ($this->companySupervisors as $supervisor)
                         <option value="{{ $supervisor->id }}">
@@ -90,7 +90,7 @@ new class extends Component
                     @endforeach
                 </flux:select>
 
-                <flux:select wire:model="form.status" label="Status">
+                <flux:select wire:model="form.status" label="Status" required>
                     <option value="pending">Pending</option>
                     <option value="active">Active</option>
                     <option value="completed">Completed</option>

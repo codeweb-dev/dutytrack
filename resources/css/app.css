@@ -60,6 +60,13 @@
     ::file-selector-button {
         border-color: var(--color-gray-200, currentColor);
     }
+
+    ui-field:has([required]) > [data-flux-label]::after,
+    ui-field:has([x-bind\:required]) > [data-flux-label]::after {
+        content: "*";
+        margin-inline-start: 0.25rem;
+        color: var(--color-red-600);
+    }
 }
 
 /* Light mode: zinc-200 card outlines disappear on white, so bump them to zinc-300. */

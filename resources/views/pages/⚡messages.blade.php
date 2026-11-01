@@ -464,7 +464,7 @@ new #[Title('Messages')] class extends Component
                                     @if ($editingMessageId === $message->id)
                                         <div
                                             class="min-w-[min(28rem,70vw)] rounded-lg border border-zinc-200 bg-white p-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-                                            <flux:textarea wire:model="editingBody" rows="auto" class="text-sm"
+                                            <flux:textarea wire:model="editingBody" rows="auto" class="text-sm" label="Message" required
                                                 x-on:keydown.enter="if (!$event.shiftKey && !$event.isComposing) { $event.preventDefault(); $wire.saveMessageEdit() }"
                                                 x-on:keydown.escape="$wire.cancelEditingMessage()" />
                                             <div class="mt-3 flex justify-end gap-2">
@@ -542,7 +542,7 @@ new #[Title('Messages')] class extends Component
 
                 <form wire:submit="sendMessage" class="shrink-0 border-t border-zinc-200 p-4 dark:border-zinc-800">
                     <div class="flex items-center gap-3">
-                        <flux:textarea wire:model="body" rows="auto" placeholder="Type your message..." class="flex-1"
+                        <flux:textarea wire:model="body" rows="auto" label="Message" required placeholder="Type your message..." class="flex-1"
                             x-on:keydown.enter="if (!$event.shiftKey && !$event.isComposing) { $event.preventDefault(); $el.closest('form').requestSubmit() }" />
                         <flux:button type="submit" variant="primary" icon="paper-airplane" />
                     </div>

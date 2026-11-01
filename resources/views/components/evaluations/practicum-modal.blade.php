@@ -17,8 +17,8 @@
             <flux:input label="Cooperating Program" :value="$assignment ? $this->cooperatingProgramFor($assignment) : ''" readonly />
 
             <div class="grid grid-cols-2 gap-3">
-                <flux:input type="date" wire:model="inclusive_from" label="Inclusive Date From" />
-                <flux:input type="date" wire:model="inclusive_to" label="To" />
+                <flux:input type="date" wire:model="inclusive_from" label="Inclusive Date From" required />
+                <flux:input type="date" wire:model="inclusive_to" label="To" required />
             </div>
         </div>
 
@@ -42,7 +42,7 @@
 
                     @foreach ($area['items'] as $itemKey => $label)
                         <div class="grid grid-cols-[1fr_4rem_14rem] items-center border-t border-zinc-100 text-sm dark:border-zinc-800">
-                            <div class="px-4 py-3">{{ $label }}</div>
+                            <div class="px-4 py-3">{{ $label }} <span class="text-red-600" aria-hidden="true">*</span></div>
                             <div class="px-4 py-3 text-center">5.0</div>
                             <div class="flex items-center justify-center gap-1 px-4 py-3">
                                 @for ($score = 1; $score <= 5; $score++)
@@ -50,7 +50,7 @@
                                         <input type="radio"
                                             class="sr-only"
                                             wire:model="evaluation_ratings.{{ $areaKey }}.{{ $itemKey }}"
-                                            value="{{ $score }}">
+                                            value="{{ $score }}" required>
                                         {{ $score }}
                                     </label>
                                 @endfor
@@ -75,7 +75,7 @@
             </div>
         </div>
 
-        <flux:textarea wire:model="evaluation_remarks" label="Comments / Suggestions" rows="4" />
+        <flux:textarea wire:model="evaluation_remarks" label="Comments / Suggestions" rows="4" badge="Optional" />
 
         <div class="flex justify-end gap-3">
             <flux:modal.close>

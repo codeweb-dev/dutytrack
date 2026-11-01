@@ -14,7 +14,7 @@
                 <x-filter-modal name="filter-coordinator-students" heading="Filter Students"
                     description="Filter by account status and sort your students."
                     :sorts="['name' => 'Last name', 'student_id' => 'Student ID', 'course' => 'Course', 'ojt_required_hours' => 'Required hours']">
-                    <flux:radio.group wire:model.live="status" label="Account Status" badge="Optional" variant="pills">
+                    <flux:radio.group wire:model.live="status" label="Account Status" variant="pills">
                         <flux:radio value="" label="All" />
                         <flux:radio value="pending" label="Pending Approval" />
                         <flux:radio value="active" label="Active" />

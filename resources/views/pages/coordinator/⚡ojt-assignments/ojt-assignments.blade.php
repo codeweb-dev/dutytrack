@@ -36,13 +36,13 @@
                 <x-filter-modal name="filter-coordinator-ojt-assignments" heading="Filter Assignments"
                     description="Filter and sort your assigned students by OJT type and assignment status."
                     :sorts="['' => 'Default', 'student' => 'Student last name', 'student_id' => 'Student ID', 'type' => 'OJT type', 'supervisor' => 'Supervisor last name', 'status' => 'Status']">
-                    <flux:select wire:model.live="ojt_type" label="OJT Type" badge="Optional">
+                    <flux:select wire:model.live="ojt_type" label="OJT Type">
                         <option value="">All Types</option>
                         <option value="internal">Internal</option>
                         <option value="external">External</option>
                     </flux:select>
 
-                    <flux:select wire:model.live="status" label="Status" badge="Optional">
+                    <flux:select wire:model.live="status" label="Status">
                         <option value="">All Status</option>
                         <option value="pending">Pending</option>
                         <option value="active">Active</option>

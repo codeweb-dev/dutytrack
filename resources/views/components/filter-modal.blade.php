@@ -23,13 +23,13 @@
 
         @if ($sorts)
             <div class="grid grid-cols-2 gap-4">
-                <flux:select wire:model.live="sortBy" label="Sort by" badge="Optional">
+                <flux:select wire:model.live="sortBy" label="Sort by">
                     @foreach ($sorts as $key => $label)
                         <option value="{{ $key }}">{{ $label }}</option>
                     @endforeach
                 </flux:select>
 
-                <flux:select wire:model.live="sortDirection" label="Order" badge="Optional">
+                <flux:select wire:model.live="sortDirection" label="Order">
                     <option value="asc">Ascending</option>
                     <option value="desc">Descending</option>
                 </flux:select>

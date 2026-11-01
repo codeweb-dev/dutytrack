@@ -7,8 +7,8 @@
                 description="Filter by date range and sort your entries. The download uses the same date range."
                 :sorts="['' => 'Default', 'date' => 'Date', 'hours' => 'Hours']">
                 <div class="grid grid-cols-2 gap-4">
-                    <flux:input type="date" wire:model.live="from_date" label="From Date" badge="Optional" />
-                    <flux:input type="date" wire:model.live="to_date" label="To Date" badge="Optional" />
+                    <flux:input type="date" wire:model.live="from_date" label="From Date" />
+                    <flux:input type="date" wire:model.live="to_date" label="To Date" />
                 </div>
             </x-filter-modal>
 

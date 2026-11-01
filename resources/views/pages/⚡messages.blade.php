@@ -541,13 +541,15 @@ new #[Title('Messages')] class extends Component
                 </div>
 
                 <form wire:submit="sendMessage" class="shrink-0 border-t border-zinc-200 p-4 dark:border-zinc-800">
-                    <div class="flex items-center gap-3">
-                        <div class="min-w-0 flex-1">
-                            <flux:textarea wire:model="body" rows="auto" label="Message" required placeholder="Type your message..." class="w-full"
+                    <flux:field data-hide-required-indicator>
+                        <flux:label>Message</flux:label>
+                        <div class="flex items-center gap-3">
+                            <flux:textarea wire:model="body" rows="auto" required placeholder="Type your message..." class="min-w-0 flex-1"
                                 x-on:keydown.enter="if (!$event.shiftKey && !$event.isComposing) { $event.preventDefault(); $el.closest('form').requestSubmit() }" />
+                            <flux:button type="submit" variant="primary" icon="paper-airplane" />
                         </div>
-                        <flux:button type="submit" variant="primary" icon="paper-airplane" />
-                    </div>
+                        <flux:error name="body" />
+                    </flux:field>
                 </form>
             @else
                 <div class="flex flex-1 items-center justify-center p-8 text-center">

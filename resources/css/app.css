@@ -61,8 +61,8 @@
         border-color: var(--color-gray-200, currentColor);
     }
 
-    ui-field:has([required]) > [data-flux-label]::after,
-    ui-field:has([x-bind\:required]) > [data-flux-label]::after {
+    form ui-field:not([data-hide-required-indicator]):has([required]) > [data-flux-label]::after,
+    form ui-field:not([data-hide-required-indicator]):has([x-bind\:required]) > [data-flux-label]::after {
         content: "*";
         margin-inline-start: 0.25rem;
         color: var(--color-red-600);

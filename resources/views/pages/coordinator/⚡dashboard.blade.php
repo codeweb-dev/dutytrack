@@ -186,7 +186,7 @@ new #[Title('Coordinator Dashboard')] class extends Component
 
     <section class="grid gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(340px,0.95fr)]" data-tour="dashboard-workflow">
         <flux:card>
-            <div class="flex items-start justify-between gap-4">
+            <div class="flex flex-wrap items-start justify-between gap-4">
                 <div>
                     <flux:heading size="lg">Weekly Attendance</flux:heading>
                     <flux:text class="mt-2">
@@ -201,13 +201,18 @@ new #[Title('Coordinator Dashboard')] class extends Component
                 <flux:card class="flex h-64 items-end gap-3 rounded-2xl px-4 pb-4 pt-6 sm:gap-6 sm:px-6">
                     @foreach ($this->weeklyAttendance as $item)
                         <div class="flex min-w-0 flex-1 flex-col items-center gap-3">
-                            <div class="flex h-52 w-full items-end justify-center">
-                                <div class="w-full max-w-16 rounded-full bg-red-400/60"
-                                    style="height: {{ $item['height'] }}%" aria-label="{{ $item['label'] }}: {{ $item['value'] }} attendance logs">
+                            <flux:tooltip
+                                :content="$item['label'].': '.$item['value'].' attendance '.($item['value'] === 1 ? 'log' : 'logs')"
+                                class="block h-44 w-full">
+                                <div class="flex h-full w-full items-end justify-center pt-2">
+                                    <div class="w-full max-w-16 rounded-md {{ $item['value'] > 0 ? 'bg-red-400/60' : 'bg-zinc-100 dark:bg-zinc-800' }}"
+                                        style="height: {{ $item['height'] }}%" tabindex="0" role="img"
+                                        aria-label="{{ $item['label'] }}: {{ $item['value'] }} attendance logs">
+                                    </div>
                                 </div>
-                            </div>
+                            </flux:tooltip>
 
-                            <div class="text-sm font-medium text-zinc-500">
+                            <div class="text-sm font-medium text-zinc-700 dark:text-white">
                                 {{ $item['label'] }}
                             </div>
                         </div>

@@ -93,7 +93,7 @@
                     </div>
                 </flux:card>
             @else
-                <flux:table>
+                <flux:table :paginate="$this->assignments">
                     <flux:table.columns>
                         <flux:table.column>Student</flux:table.column>
                         <flux:table.column>Student ID</flux:table.column>

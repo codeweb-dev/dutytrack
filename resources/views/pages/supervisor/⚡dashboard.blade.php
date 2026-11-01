@@ -164,7 +164,7 @@ new #[Title('Supervisor Dashboard')] class extends Component
                 });
             })
             ->latest('created_at')
-            ->paginate(5);
+            ->paginate(10);
     }
 };
 ?>

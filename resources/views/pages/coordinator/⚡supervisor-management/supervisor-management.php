@@ -93,6 +93,6 @@ new #[Title('Supervisor Management')] class extends Component
 
         $query->orderBy($sortColumn, $this->sortDirection === 'desc' ? 'desc' : 'asc');
 
-        return $query->paginate(5);
+        return $query->paginate(10);
     }
 };

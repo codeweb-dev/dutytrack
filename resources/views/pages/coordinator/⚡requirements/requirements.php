@@ -106,7 +106,7 @@ new #[Title('Requirement Monitoring')] class extends Component
             'name' => 'users.last_name',
             'student_id' => 'student_profiles.student_id',
             'course' => 'student_profiles.course',
-        ])->orderBy('users.name')->paginate(8);
+        ])->orderBy('users.name')->paginate(10);
 
         $this->ensureVisibleRequirements($students->getCollection());
 

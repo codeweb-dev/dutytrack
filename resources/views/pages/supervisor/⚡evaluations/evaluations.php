@@ -8,7 +8,6 @@ use App\Models\Evaluation;
 use App\Models\OjtAssignment;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
@@ -36,8 +35,8 @@ new #[Title('Evaluations')] class extends Component
     public function updatedSearch(): void
     {
         $this->resetPage();
-        unset($this->evaluations);
-        unset($this->assignments);
+        $this->resetPage('assignmentsPage');
+        unset($this->evaluations, $this->assignments);
     }
 
     protected function evaluatorType(): string
@@ -62,11 +61,12 @@ new #[Title('Evaluations')] class extends Component
         $this->reset('search', 'sortBy', 'sortDirection');
 
         $this->resetPage();
-        unset($this->evaluations);
+        $this->resetPage('assignmentsPage');
+        unset($this->evaluations, $this->assignments);
     }
 
     #[Computed]
-    public function assignments(): Collection
+    public function assignments(): LengthAwarePaginator
     {
         return $this->assignmentQuery()
             ->when($this->search !== '', function (Builder $query) {
@@ -84,7 +84,7 @@ new #[Title('Evaluations')] class extends Component
                 });
             })
             ->latest('created_at')
-            ->get();
+            ->paginate(10, ['*'], 'assignmentsPage');
     }
 
     #[Computed]

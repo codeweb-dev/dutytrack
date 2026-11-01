@@ -173,6 +173,6 @@ new #[Title('Students')] class extends Component
 
         $query->orderByRaw("users.status = 'pending' desc")->orderBy($sortColumn, $sortDirection);
 
-        return $query->paginate(5);
+        return $query->paginate(10);
     }
 };

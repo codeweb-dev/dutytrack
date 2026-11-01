@@ -70,7 +70,7 @@ new #[Title('Student Dashboard')] class extends Component
     #[Computed]
     public function recentAttendance(): LengthAwarePaginator
     {
-        return AttendanceLog::query()->where('student_id', $this->studentId())->latest('attendance_date')->latest('created_at')->paginate(5);
+        return AttendanceLog::query()->where('student_id', $this->studentId())->latest('attendance_date')->latest('created_at')->paginate(10);
     }
 
     #[Computed]

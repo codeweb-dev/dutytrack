@@ -82,7 +82,7 @@
                 <flux:heading size="lg">
                     {{ $selectedCalendarDate ? \Illuminate\Support\Carbon::parse($selectedCalendarDate)->format('F j, Y') : 'Attendance Details' }}
                 </flux:heading>
-                <flux:text class="mt-2">{{ $this->selectedAttendance->count() }} attendance records from your assigned students.</flux:text>
+                <flux:text class="mt-2">{{ $this->selectedAttendance->total() }} attendance records from your assigned students.</flux:text>
             </div>
 
             @if ($this->selectedAttendance->isEmpty())
@@ -90,7 +90,7 @@
                     <flux:callout.text>No attendance records for this date.</flux:callout.text>
                 </flux:callout>
             @else
-                <flux:table>
+                <flux:table :paginate="$this->selectedAttendance">
                     <flux:table.columns>
                         <flux:table.column>Student</flux:table.column>
                         <flux:table.column>Student ID</flux:table.column>

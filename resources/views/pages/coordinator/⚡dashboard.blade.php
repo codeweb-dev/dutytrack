@@ -4,15 +4,18 @@ use App\Models\AttendanceLog;
 use App\Models\OjtAssignment;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 new #[Title('Coordinator Dashboard')] class extends Component
 {
+    use WithPagination;
+
     public array $breadcrumbs = [['logo' => 'logo.png', 'href' => '/dashboard'], ['label' => 'Coordinator Dashboard']];
 
     #[Computed]
@@ -143,13 +146,12 @@ new #[Title('Coordinator Dashboard')] class extends Component
     }
 
     #[Computed]
-    public function recentStudents(): Collection
+    public function recentStudents(): LengthAwarePaginator
     {
         return $this->managedStudentsQuery()
             ->with(['studentProfile', 'ojtAssignment.companySupervisor'])
             ->latest('created_at')
-            ->limit(10)
-            ->get();
+            ->paginate(10);
     }
 };
 ?>
@@ -269,7 +271,7 @@ new #[Title('Coordinator Dashboard')] class extends Component
                     </div>
                 </flux:card>
             @else
-                <flux:table>
+                <flux:table :paginate="$this->recentStudents">
                     <flux:table.columns>
                         <flux:table.column>Student</flux:table.column>
                         <flux:table.column>Course</flux:table.column>

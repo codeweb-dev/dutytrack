@@ -1,17 +1,22 @@
 <?php
 
 use App\Models\AttendanceLog;
+use App\Models\User;
 use Flux\Flux;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Title;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 new #[Title('Attendance')] class extends Component
 {
+    use WithPagination;
+
     public array $breadcrumbs = [
         ['logo' => 'logo.png', 'href' => '/dashboard'],
         ['label' => 'Supervisor Workspace', 'href' => '#'],
@@ -64,6 +69,7 @@ new #[Title('Attendance')] class extends Component
         }
 
         $this->selectedCalendarDate = $date;
+        $this->resetPage();
 
         Flux::modal('attendance-day-details')->show();
     }
@@ -126,19 +132,18 @@ new #[Title('Attendance')] class extends Component
     }
 
     #[Computed]
-    public function selectedAttendance()
+    public function selectedAttendance(): LengthAwarePaginator
     {
         if (! $this->selectedCalendarDate) {
-            return collect();
+            return new LengthAwarePaginator([], 0, 10);
         }
 
         return $this->attendanceQuery()
             ->with('student.studentProfile')
             ->whereDate('attendance_date', $this->selectedCalendarDate)
-            ->orderBy('student_id')
-            ->get()
-            ->sortBy(fn (AttendanceLog $attendance) => $attendance->student?->name)
-            ->values();
+            ->orderBy(User::select('name')->whereColumn('users.id', 'attendance_logs.student_id'))
+            ->orderBy('attendance_logs.id')
+            ->paginate(10);
     }
 };
 ?>

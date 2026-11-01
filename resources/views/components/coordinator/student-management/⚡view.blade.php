@@ -22,7 +22,6 @@ new class extends Component
         <flux:avatar size="lg" :src="$student->profile_photo_url" :name="$student->display_name" />
         <div class="min-w-0 flex-1">
             <h3 class="truncate text-lg font-semibold text-zinc-900 dark:text-white">{{ $student->display_name }}</h3>
-            <p class="break-words text-sm text-zinc-500 dark:text-zinc-400">{{ $student->email }}</p>
         </div>
     </div>
 
@@ -45,6 +44,10 @@ new class extends Component
                 <div>
                     <dt class="text-sm font-medium text-zinc-500 dark:text-zinc-400">Extension Name</dt>
                     <dd class="mt-1 break-words text-base leading-6 font-medium text-zinc-900 dark:text-white">{{ $student->studentProfile?->extension_name ?: '—' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-zinc-500 dark:text-zinc-400">Email</dt>
+                    <dd class="mt-1 break-words text-base leading-6 font-medium text-zinc-900 dark:text-white">{{ $student->email }}</dd>
                 </div>
                 <div>
                     <dt class="text-sm font-medium text-zinc-500 dark:text-zinc-400">Contact Number</dt>
@@ -99,6 +102,24 @@ new class extends Component
                 <div class="sm:col-span-2">
                     <dt class="text-sm font-medium text-zinc-500 dark:text-zinc-400">Guardian Address</dt>
                     <dd class="mt-1 break-words text-base leading-6 font-medium text-zinc-900 dark:text-white">{{ $student->studentProfile?->guardian_address ?: '—' }}</dd>
+                </div>
+            </dl>
+        </section>
+
+        <section class="rounded-xl border border-zinc-200 bg-zinc-50/70 p-4 dark:border-zinc-800 dark:bg-zinc-900/50 sm:col-span-2">
+            <h4 class="text-base font-semibold text-zinc-900 dark:text-white">Account Metadata</h4>
+            <dl class="mt-4 grid gap-4 sm:grid-cols-2">
+                <div>
+                    <dt class="text-sm font-medium text-zinc-500 dark:text-zinc-400">Created</dt>
+                    <dd class="mt-1 text-base leading-6 font-medium text-zinc-900 dark:text-white">
+                        {{ $student->created_at?->format('M d, Y h:i A') ?? '—' }}
+                    </dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-zinc-500 dark:text-zinc-400">Last Updated</dt>
+                    <dd class="mt-1 text-base leading-6 font-medium text-zinc-900 dark:text-white">
+                        {{ $student->updated_at?->format('M d, Y h:i A') ?? '—' }}
+                    </dd>
                 </div>
             </dl>
         </section>

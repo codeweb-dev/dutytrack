@@ -32,7 +32,8 @@
                 <flux:table.columns>
                     <flux:table.column>Supervisor</flux:table.column>
                     <flux:table.column>Company / Institution</flux:table.column>
-                    <flux:table.column>Contact</flux:table.column>
+                    <flux:table.column>Status</flux:table.column>
+                    <flux:table.column>Contact Number</flux:table.column>
                     <flux:table.column>Actions</flux:table.column>
                 </flux:table.columns>
 
@@ -56,7 +57,14 @@
                                     </span>
                                 </div>
                             </flux:table.cell>
-                            <flux:table.cell>
+                            <flux:table.cell class="whitespace-nowrap">
+                                @if ($supervisor->status === 'pending')
+                                    <flux:badge size="sm" color="amber" inset="top bottom">Pending Approval</flux:badge>
+                                @else
+                                    <flux:badge size="sm" color="green" inset="top bottom">Active</flux:badge>
+                                @endif
+                            </flux:table.cell>
+                            <flux:table.cell class="whitespace-nowrap">
                                 {{ $supervisor->contact_number ? '+63 '.$supervisor->contact_number : 'No contact number' }}
                             </flux:table.cell>
                             <flux:table.cell>

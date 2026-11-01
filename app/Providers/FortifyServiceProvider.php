@@ -57,7 +57,7 @@ class FortifyServiceProvider extends ServiceProvider
                 ->when(
                     $role === Role::STUDENT->value,
                     fn ($query) => $query->whereHas('studentProfile', fn ($query) => $query
-                        ->where('student_id', $request->input(Fortify::username()))
+                        ->whereRaw('LOWER(student_id) = ?', [Str::lower($request->input(Fortify::username()))])
                         ->whereDate('birthdate', $request->input('birthdate'))),
                     fn ($query) => $query->where('email', $request->input(Fortify::username())),
                 )

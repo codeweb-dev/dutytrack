@@ -9,6 +9,9 @@
                     <flux:text class="mt-1">{{ $this->calendar['month']->format('F Y') }}</flux:text>
                 </div>
                 <div class="flex items-center gap-1">
+                    <flux:modal.trigger name="attendance-holidays">
+                        <flux:button type="button" size="sm" variant="ghost" icon="calendar-days">View all holidays</flux:button>
+                    </flux:modal.trigger>
                     <flux:button type="button" variant="ghost" icon="chevron-left" aria-label="Previous month"
                         wire:click="previousCalendarMonth" />
                     <flux:button type="button" variant="ghost" icon="chevron-right" aria-label="Next month"
@@ -31,12 +34,17 @@
                         'cursor-not-allowed bg-zinc-100 text-zinc-400 dark:bg-zinc-800/40 dark:text-zinc-600' => $day['is_weekend'],
                         'text-zinc-900 dark:text-white' => $day['is_current_month'] && ! $day['is_weekend'],
                         'text-zinc-400 dark:text-zinc-600' => ! $day['is_current_month'],
-                        'border-transparent' => ! $day['is_today'],
+                        'border-transparent' => ! $day['is_today'] && ! $day['holiday'],
+                        'border-amber-300 bg-amber-50 dark:bg-amber-950/30' => $day['holiday'] && ! $day['is_today'],
                         'border-red-500 bg-red-50 font-semibold dark:bg-red-950/30' => $day['is_today'],
                     ])
-                        aria-label="View attendance for {{ $day['date']->format('F j, Y') }}{{ $day['status'] ? ': '.ucfirst($day['status']) : '' }}"
-                        title="{{ $day['date']->format('F j, Y') }}{{ $day['status'] ? ' · '.ucfirst($day['status']) : '' }}">
+                        aria-label="View attendance for {{ $day['date']->format('F j, Y') }}{{ $day['holiday'] ? ': Holiday, '.$day['holiday'] : '' }}{{ $day['status'] ? ': '.ucfirst($day['status']) : '' }}"
+                        title="{{ $day['date']->format('F j, Y') }}{{ $day['holiday'] ? ' · '.$day['holiday'] : '' }}{{ $day['status'] ? ' · '.ucfirst($day['status']) : '' }}">
                         <time datetime="{{ $day['date']->toDateString() }}">{{ $day['date']->format('j') }}</time>
+                        @if ($day['holiday'])
+                            <span class="sr-only">Holiday: {{ $day['holiday'] }}</span>
+                            <span class="mt-1 h-2 w-2 rounded-full bg-amber-500"></span>
+                        @endif
                         @if ($day['status'])
                             <span class="sr-only">{{ ucfirst($day['status']) }}</span>
                             <span @class([
@@ -53,7 +61,7 @@
             </div>
 
             <div class="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-xs text-zinc-600 dark:text-zinc-400">
-                @foreach ([['Present', 'bg-emerald-600'], ['Late', 'bg-amber-500'], ['Incomplete', 'bg-orange-500'], ['Absent', 'bg-red-500']] as [$label, $color])
+                @foreach ([['Present', 'bg-emerald-600'], ['Late', 'bg-amber-500'], ['Incomplete', 'bg-orange-500'], ['Absent', 'bg-red-500'], ['Holiday', 'bg-amber-500']] as [$label, $color])
                     <span class="inline-flex items-center gap-2">
                         <span class="h-2 w-2 rounded-full {{ $color }}"></span>{{ $label }}
                     </span>
@@ -264,7 +272,17 @@
                 @endif
             </div>
 
-            @if ($this->isRestDay())
+            @if (! $this->todayHolidayCheck['available'])
+                <flux:callout icon="exclamation-triangle" color="amber" class="mt-6">
+                    <flux:callout.heading>Holiday check unavailable</flux:callout.heading>
+                    <flux:callout.text>Attendance time in is disabled until public holidays can be verified.</flux:callout.text>
+                </flux:callout>
+            @elseif ($todayHoliday = $this->todayHolidayCheck['holiday'])
+                <flux:callout icon="calendar-days" variant="secondary" class="mt-6">
+                    <flux:callout.heading>Public holiday</flux:callout.heading>
+                    <flux:callout.text>{{ $todayHoliday['name'] }}. Attendance time in is unavailable today.</flux:callout.text>
+                </flux:callout>
+            @elseif ($this->isRestDay())
                 <flux:callout icon="calendar" variant="secondary" class="mt-6">
                     <flux:callout.heading>Rest day</flux:callout.heading>
                     <flux:callout.text>OJT attendance is not recorded on Saturdays and Sundays.</flux:callout.text>
@@ -428,6 +446,40 @@
             @else
                 <flux:callout icon="information-circle">
                     <flux:callout.text>No attendance record for this date.</flux:callout.text>
+                </flux:callout>
+            @endif
+
+            <div class="flex justify-end">
+                <flux:modal.close>
+                    <flux:button type="button" variant="ghost">Close</flux:button>
+                </flux:modal.close>
+            </div>
+        </div>
+    </flux:modal>
+
+    <flux:modal name="attendance-holidays" class="md:w-2xl">
+        <div class="space-y-6">
+            <div>
+                <flux:heading size="lg">Public holidays {{ $this->calendar['month']->format('Y') }}</flux:heading>
+                <flux:text class="mt-2">Philippines public holidays for the selected calendar year.</flux:text>
+            </div>
+
+            @if ($this->holidays)
+                <ul class="divide-y divide-zinc-200 dark:divide-zinc-700">
+                    @foreach ($this->holidays as $holiday)
+                        <li wire:key="holiday-{{ $holiday['date'] }}" class="flex justify-between gap-4 py-3">
+                            <span>{{ $holiday['name'] }}</span>
+                            <time datetime="{{ $holiday['date'] }}" class="shrink-0 text-zinc-500">{{ \Illuminate\Support\Carbon::parse($holiday['date'])->format('M j, Y') }}</time>
+                        </li>
+                    @endforeach
+                </ul>
+            @elseif (! $this->holidaysAvailable)
+                <flux:callout icon="exclamation-triangle" color="amber">
+                    <flux:callout.text>Public holidays could not be loaded. Time in is disabled until the holiday list can be verified.</flux:callout.text>
+                </flux:callout>
+            @else
+                <flux:callout icon="information-circle">
+                    <flux:callout.text>No public holidays are available for this year.</flux:callout.text>
                 </flux:callout>
             @endif
 

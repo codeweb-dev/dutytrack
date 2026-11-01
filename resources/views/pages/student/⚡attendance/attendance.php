@@ -5,6 +5,8 @@ use App\Models\OjtAssignment;
 use Carbon\CarbonInterface;
 use Flux\Flux;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
@@ -219,6 +221,10 @@ new #[Title('My Attendance')] class extends Component
 
     public function recordNextPunch(): void
     {
+        if (in_array($this->nextPunch(), ['morning_time_in', 'afternoon_time_in'], true) && $this->holidayTimeInBlocked()) {
+            return;
+        }
+
         if ($this->restDayBlocked()) {
             return;
         }
@@ -413,6 +419,10 @@ new #[Title('My Attendance')] class extends Component
             return;
         }
 
+        if ($this->holidayTimeInBlocked()) {
+            return;
+        }
+
         $assignment = $this->assignment;
 
         if (! $assignment) {
@@ -487,6 +497,75 @@ new #[Title('My Attendance')] class extends Component
     }
 
     #[Computed]
+    public function holidays(): array
+    {
+        return $this->holidayDataForYear(Carbon::createFromFormat('!Y-m', $this->calendarMonth)->year)['holidays'];
+    }
+
+    #[Computed]
+    public function holidaysAvailable(): bool
+    {
+        return $this->holidayDataForYear(Carbon::createFromFormat('!Y-m', $this->calendarMonth)->year)['available'];
+    }
+
+    #[Computed]
+    public function todayHolidayCheck(): array
+    {
+        $holidayData = $this->holidayDataForYear((int) now()->format('Y'));
+
+        return [
+            'available' => $holidayData['available'],
+            'holiday' => collect($holidayData['holidays'])->firstWhere('date', $this->today()),
+        ];
+    }
+
+    // shortcut: national public holidays only; add a local source if school or employer closures should count.
+    protected function holidayDataForYear(int $year): array
+    {
+        return Cache::remember("public-holidays-ph-v2-{$year}", now()->addDay(), function () use ($year): array {
+            try {
+                $response = Http::acceptJson()->timeout(3)->get("https://date.nager.at/api/v3/PublicHolidays/{$year}/PH");
+
+                if (! $response->successful()) {
+                    return ['available' => false, 'holidays' => []];
+                }
+
+                return ['available' => true, 'holidays' => collect($response->json())
+                    ->filter(fn ($holiday) => is_array($holiday) && isset($holiday['date']) && ($holiday['localName'] ?? $holiday['name'] ?? null))
+                    ->map(fn ($holiday) => [
+                        'date' => $holiday['date'],
+                        'name' => $holiday['localName'] ?? $holiday['name'],
+                    ])
+                    ->values()
+                    ->all()];
+            } catch (\Throwable) {
+                return ['available' => false, 'holidays' => []];
+            }
+        });
+    }
+
+    protected function holidayTimeInBlocked(): bool
+    {
+        $holidayCheck = $this->todayHolidayCheck;
+
+        if (! $holidayCheck['available']) {
+            Flux::toast(variant: 'warning', heading: 'Holiday check unavailable.', text: 'Attendance time in is disabled until public holidays can be verified.');
+
+            return true;
+        }
+
+        $holiday = $holidayCheck['holiday'];
+
+        if (! $holiday) {
+            return false;
+        }
+
+        Flux::toast(variant: 'warning', heading: 'Public holiday.', text: "Attendance time in is unavailable today ({$holiday['name']}).");
+
+        return true;
+    }
+
+    #[Computed]
     public function assignment(): ?OjtAssignment
     {
         return OjtAssignment::query()
@@ -516,6 +595,7 @@ new #[Title('My Attendance')] class extends Component
             ->whereBetween('attendance_date', [$start->toDateString(), $end->toDateString()])
             ->get(['attendance_date', 'status'])
             ->keyBy(fn (AttendanceLog $attendance) => $attendance->attendance_date->toDateString());
+        $holidaysByDate = collect($this->holidays)->keyBy('date');
 
         $days = [];
 
@@ -526,6 +606,7 @@ new #[Title('My Attendance')] class extends Component
                 'is_current_month' => $date->format('Y-m') === $month->format('Y-m'),
                 'is_today' => $date->isToday(),
                 'is_weekend' => $date->isWeekend(),
+                'holiday' => $holidaysByDate->get($key)['name'] ?? null,
                 'status' => $attendanceByDate->get($key)?->status,
             ];
         }

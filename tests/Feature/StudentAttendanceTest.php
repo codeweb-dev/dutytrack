@@ -6,6 +6,8 @@ use App\Models\AttendanceSubmission;
 use App\Models\OjtAssignment;
 use App\Models\User;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Role as PermissionRole;
 
@@ -32,6 +34,29 @@ function createStudentWithAssignment(): User
 
     return $student;
 }
+
+beforeEach(function () {
+    Http::fake(['date.nager.at/*' => Http::response([])]);
+});
+
+test('students see public holidays and cannot time in on a holiday', function () {
+    Carbon::setTestNow(Carbon::parse('2026-04-30 08:00:00'));
+    Cache::forget('public-holidays-ph-v2-2026');
+    Http::fake(['date.nager.at/*' => Http::response([
+        ['date' => '2026-04-30', 'localName' => 'Test Holiday', 'name' => 'Test Holiday'],
+    ])]);
+
+    $student = createStudentWithAssignment();
+    $this->actingAs($student);
+
+    Livewire::test('pages::student.attendance')
+        ->assertSee('Test Holiday')
+        ->call('recordNextPunch')
+        ->call('bypassAttendance', 60)
+        ->assertHasNoErrors();
+
+    expect(AttendanceLog::query()->where('student_id', $student->id)->exists())->toBeFalse();
+});
 
 test('students can view their attendance page', function () {
     Carbon::setTestNow(Carbon::parse('2026-04-30 08:00:00'));

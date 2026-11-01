@@ -31,7 +31,7 @@
 
             <div class="flex items-center gap-3">
                 <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
-                    placeholder="Search student or assignee..." clearable />
+                    placeholder="Search student or supervisor..." clearable />
 
                 <x-filter-modal name="filter-coordinator-ojt-assignments" heading="Filter Assignments"
                     description="Filter and sort your assigned students by OJT type and assignment status."
@@ -66,14 +66,13 @@
                 </div>
             </flux:card>
         @else
-            <flux:table :paginate="$this->assignments">
+            <flux:table :paginate="$this->assignments" class="w-full">
                 <flux:table.columns>
-                    <flux:table.column>Student</flux:table.column>
-                    <flux:table.column>Student ID</flux:table.column>
-                    <flux:table.column>Type</flux:table.column>
-                    <flux:table.column>Assigned To</flux:table.column>
-                    <flux:table.column>Status</flux:table.column>
-                    <flux:table.column>Actions</flux:table.column>
+                    <flux:table.column class="w-[28%]">Student</flux:table.column>
+                    <flux:table.column class="w-[28%]">Supervisor</flux:table.column>
+                    <flux:table.column class="w-[14%]">Type</flux:table.column>
+                    <flux:table.column class="w-[18%]">Status</flux:table.column>
+                    <flux:table.column class="w-[12%]">Actions</flux:table.column>
                 </flux:table.columns>
 
                 <flux:table.rows>
@@ -84,33 +83,36 @@
                         @endphp
 
                         <flux:table.row :key="$assignment->id">
-                            <flux:table.cell class="flex items-center gap-3">
-                                <flux:avatar size="md" :src="$assignment->student?->profile_photo_url"
-                                    :name="$assignment->student?->display_name" />
+                            <flux:table.cell>
+                                <div class="flex items-center gap-3">
+                                    <flux:avatar size="md" :src="$assignment->student?->profile_photo_url"
+                                        :name="$assignment->student?->display_name" />
 
-                                <div class="flex flex-col">
-                                    <span class="font-medium">{{ $assignment->student?->display_name ?? '' }}</span>
-                                    <span class="text-xs text-zinc-500 dark:text-zinc-300">{{ $assignment->student?->email ?? '' }}</span>
+                                    <div class="flex min-w-0 flex-col whitespace-normal">
+                                        <span class="font-medium">{{ $assignment->student?->display_name ?? '' }}</span>
+                                        <span class="break-words text-xs text-zinc-500 dark:text-zinc-300">{{ $assignment->student?->email ?? '' }}</span>
+                                    </div>
                                 </div>
                             </flux:table.cell>
 
-                            <flux:table.cell class="whitespace-nowrap font-medium">
-                                {{ $assignment->student?->studentProfile?->student_id ?? '' }}
+                            <flux:table.cell>
+                                <div class="flex items-center gap-3">
+                                    <flux:avatar size="md" :src="$assignee?->profile_photo_url"
+                                        :name="$assignee?->display_name ?? 'Unassigned'" />
+
+                                    <div class="flex min-w-0 flex-col whitespace-normal">
+                                        <span class="font-medium">{{ $assignee?->display_name ?? 'Unassigned' }}</span>
+                                        <span class="break-words text-xs text-zinc-500 dark:text-zinc-300">
+                                            {{ $assignee?->email ?? 'No supervisor assigned' }}
+                                        </span>
+                                    </div>
+                                </div>
                             </flux:table.cell>
 
                             <flux:table.cell>
                                 <flux:badge size="sm" color="sky" inset="top bottom">
                                     {{ ucfirst($assignment->ojt_type) }}
                                 </flux:badge>
-                            </flux:table.cell>
-
-                            <flux:table.cell>
-                                <div class="flex flex-col">
-                                    <span>{{ $assignee?->display_name ?? '' }}</span>
-                                    <span class="text-xs text-zinc-500 dark:text-zinc-300">
-                                        {{ $assignment->ojt_type === 'internal' ? 'Supervisor' : 'Supervisor' }}
-                                    </span>
-                                </div>
                             </flux:table.cell>
 
                             <flux:table.cell>

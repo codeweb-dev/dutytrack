@@ -13,7 +13,7 @@
 
                 <x-filter-modal name="filter-coordinator-students" heading="Filter Students"
                     description="Filter by account status and sort your students."
-                    :sorts="['name' => 'Last name', 'student_id' => 'Student ID', 'course' => 'Course', 'ojt_required_hours' => 'Required hours']">
+                    :sorts="['name' => 'Last name', 'student_id' => 'Student ID', 'assigned_supervisor' => 'Assigned Supervisor']">
                     <flux:radio.group wire:model.live="status" label="Account Status" variant="pills">
                         <flux:radio value="" label="All" />
                         <flux:radio value="pending" label="Pending Approval" />
@@ -49,8 +49,6 @@
 
                     <flux:table.column>Contact Number</flux:table.column>
 
-                    <flux:table.column>Assigned Supervisor</flux:table.column>
-
                     <flux:table.column>
                         OJT Hours
                     </flux:table.column>
@@ -81,10 +79,6 @@
 
                             <flux:table.cell class="whitespace-nowrap">
                                 {{ $student->contact_number ? '+63 ' . $student->contact_number : 'No contact number' }}
-                            </flux:table.cell>
-
-                            <flux:table.cell>
-                                {{ $student->ojtAssignment?->companySupervisor?->display_name ?? 'Not assigned' }}
                             </flux:table.cell>
 
                             <flux:table.cell>

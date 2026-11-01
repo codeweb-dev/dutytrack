@@ -132,7 +132,7 @@ new #[Title('Students')] class extends Component
     public function students(): LengthAwarePaginator
     {
         $query = User::query()
-            ->with(['studentProfile', 'coordinator', 'coordinatorProfile', 'ojtAssignment.companySupervisor'])
+            ->with(['studentProfile', 'coordinator', 'coordinatorProfile'])
             ->whereHas('roles', function (Builder $query) {
                 $query->where('name', EnumsRole::STUDENT->value);
             })
@@ -164,9 +164,13 @@ new #[Title('Students')] class extends Component
         $allowedSorts = [
             'name' => 'users.last_name',
             'student_id' => 'student_profiles.student_id',
-            'course' => 'student_profiles.course',
-            'ojt_required_hours' => 'student_profiles.ojt_required_hours',
+            'assigned_supervisor' => 'assigned_supervisors.last_name',
         ];
+
+        if ($this->sortBy === 'assigned_supervisor') {
+            $query->leftJoin('ojt_assignments', 'users.id', '=', 'ojt_assignments.student_id')
+                ->leftJoin('users as assigned_supervisors', 'ojt_assignments.company_supervisor_id', '=', 'assigned_supervisors.id');
+        }
 
         $sortColumn = $allowedSorts[$this->sortBy] ?? 'users.last_name';
         $sortDirection = $this->sortDirection === 'desc' ? 'desc' : 'asc';

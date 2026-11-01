@@ -325,7 +325,7 @@ new #[Title('Messages')] class extends Component
                 'messages as unread_count' => fn (Builder $query) => $query->where('sender_id', '!=', Auth::id())->whereNull('read_at'),
             ])
             ->get()
-            ->sortByDesc(fn (ChatConversation $conversation) => $conversation->latestMessage?->created_at ?? $conversation->updated_at)
+            ->sortBy(fn (ChatConversation $conversation) => mb_strtolower($this->peerFor($conversation)?->last_name ?? ''))
             ->values();
 
         $search = mb_strtolower(trim($this->search));

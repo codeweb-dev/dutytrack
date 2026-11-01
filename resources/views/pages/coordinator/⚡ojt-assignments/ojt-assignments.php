@@ -117,10 +117,10 @@ new #[Title('OJT Assignments')] class extends Component
             ->when($this->status !== '', fn (Builder $query) => $query->where('status', $this->status));
 
         return $this->applySorting($query, [
-            'student' => User::select('name')->whereColumn('users.id', 'ojt_assignments.student_id'),
+            'student' => User::select('last_name')->whereColumn('users.id', 'ojt_assignments.student_id'),
             'student_id' => StudentProfile::select('student_id')->whereColumn('student_profiles.user_id', 'ojt_assignments.student_id'),
             'type' => 'ojt_type',
-            'supervisor' => User::select('name')->whereColumn('users.id', 'ojt_assignments.company_supervisor_id'),
+            'supervisor' => User::select('last_name')->whereColumn('users.id', 'ojt_assignments.company_supervisor_id'),
             'status' => 'status',
         ])
             ->latest('created_at')

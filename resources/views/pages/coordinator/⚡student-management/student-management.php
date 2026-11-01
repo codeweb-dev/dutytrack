@@ -162,13 +162,13 @@ new #[Title('Students')] class extends Component
         }
 
         $allowedSorts = [
-            'name' => 'users.name',
+            'name' => 'users.last_name',
             'student_id' => 'student_profiles.student_id',
             'course' => 'student_profiles.course',
             'ojt_required_hours' => 'student_profiles.ojt_required_hours',
         ];
 
-        $sortColumn = $allowedSorts[$this->sortBy] ?? 'users.name';
+        $sortColumn = $allowedSorts[$this->sortBy] ?? 'users.last_name';
         $sortDirection = $this->sortDirection === 'desc' ? 'desc' : 'asc';
 
         $query->orderByRaw("users.status = 'pending' desc")->orderBy($sortColumn, $sortDirection);

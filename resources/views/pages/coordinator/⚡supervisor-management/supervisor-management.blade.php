@@ -13,7 +13,7 @@
 
                 <x-filter-modal name="filter-coordinator-supervisors" heading="Filter Supervisors"
                     description="Sort your supervisors."
-                    :sorts="['name' => 'Supervisor name', 'company_name' => 'Company / institution']" />
+                    :sorts="['name' => 'Last name', 'company_name' => 'Company / institution']" />
 
                 <livewire:coordinator.supervisors.create />
             </div>

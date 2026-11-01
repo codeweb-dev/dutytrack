@@ -87,9 +87,9 @@ new #[Title('Supervisor Management')] class extends Component
         }
 
         $sortColumn = [
-            'name' => 'users.name',
+            'name' => 'users.last_name',
             'company_name' => 'supervisor_profiles.company_name',
-        ][$this->sortBy] ?? 'users.name';
+        ][$this->sortBy] ?? 'users.last_name';
 
         $query->orderBy($sortColumn, $this->sortDirection === 'desc' ? 'desc' : 'asc');
 

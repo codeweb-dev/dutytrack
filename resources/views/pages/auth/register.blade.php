@@ -46,20 +46,20 @@
                 </div>
 
                 <div class="grid gap-5 sm:grid-cols-2">
-                    <flux:input name="first_name" :label="__('First name')" :value="old('first_name')" required autofocus
+                    <flux:input class="sm:order-1" name="first_name" :label="__('First name')" :value="old('first_name')" required autofocus
                         autocomplete="given-name" placeholder="Juan" />
-                    <flux:input name="last_name" :label="__('Last name')" :value="old('last_name')" required
-                        autocomplete="family-name" placeholder="Dela Cruz" />
-                    <flux:input name="middle_name" :label="__('Middle name')" :value="old('middle_name')" badge="Optional"
+                    <flux:input class="sm:order-3" name="middle_name" :label="__('Middle name')" :value="old('middle_name')" badge="Optional"
                         autocomplete="additional-name" placeholder="Santos" />
-                    <flux:select name="extension_name" :label="__('Extension name')" badge="Optional">
+                    <flux:input class="sm:order-2" name="last_name" :label="__('Last name')" :value="old('last_name')" required
+                        autocomplete="family-name" placeholder="Dela Cruz" />
+                    <flux:select class="sm:order-4" name="extension_name" :label="__('Extension name')" badge="Optional">
                         <option value="">None</option>
                         @foreach (['Jr.', 'Sr.', 'II', 'III', 'IV', 'V'] as $extension)
                             <option value="{{ $extension }}" @selected(old('extension_name') === $extension)>{{ $extension }}</option>
                         @endforeach
                     </flux:select>
 
-                    <flux:field>
+                    <flux:field class="sm:order-5">
                         <flux:label>{{ __('Contact number') }}</flux:label>
                         <flux:input.group>
                             <flux:input.group.prefix>+63</flux:input.group.prefix>
@@ -69,10 +69,10 @@
                         <flux:error name="contact_number" />
                     </flux:field>
 
-                    <flux:input name="email" :label="__('Email address')" :value="old('email')" type="email" required
+                    <flux:input class="sm:order-6" name="email" :label="__('Email address')" :value="old('email')" type="email" required
                         autocomplete="email" placeholder="email@example.com" />
 
-                    <div class="sm:col-span-2">
+                    <div class="sm:col-span-2 sm:order-7">
                         <flux:input name="address" :label="__('Address')" :value="old('address')" required
                             autocomplete="street-address" placeholder="Street, Barangay, City" />
                     </div>
@@ -142,7 +142,7 @@
             </section>
 
             <!-- Security -->
-            <section class="flex flex-col gap-5">
+            <section class="flex flex-col gap-5" x-data="{ password: '' }">
                 <div class="flex items-center gap-3">
                     <flux:heading>{{ __('Account security') }}</flux:heading>
                     <flux:separator class="flex-1" />
@@ -150,10 +150,59 @@
 
                 <div class="grid gap-5 sm:grid-cols-2">
                     <flux:input name="password" :label="__('Password')" type="password" required
-                        autocomplete="new-password" :placeholder="__('Password')" viewable />
+                        autocomplete="new-password" :placeholder="__('Password')" viewable x-model="password" />
 
                     <flux:input name="password_confirmation" :label="__('Confirm password')" type="password" required
                         autocomplete="new-password" :placeholder="__('Confirm password')" viewable />
+
+                    <div class="rounded-xl border border-zinc-200 bg-zinc-50/80 p-4 sm:col-span-2 dark:border-white/10 dark:bg-white/5">
+                        <p class="mb-3 text-xs font-semibold text-zinc-700 dark:text-zinc-200">
+                            {{ __('Your password must include') }}
+                        </p>
+                        <ul class="space-y-2 text-sm sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-2 sm:space-y-0"
+                            aria-label="{{ __('Password requirements') }}">
+                            <li class="flex items-center gap-2.5 transition-colors"
+                                :class="Array.from(password).length >= 12 ? 'text-emerald-600 dark:text-emerald-400' : 'text-zinc-500 dark:text-zinc-400'">
+                                <span aria-hidden="true" class="flex size-5 shrink-0 items-center justify-center rounded-full bg-zinc-200/70 text-xs dark:bg-white/10"
+                                    :class="Array.from(password).length >= 12 ? 'bg-emerald-100 dark:bg-emerald-400/15' : ''"
+                                    x-text="Array.from(password).length >= 12 ? '✓' : '○'"></span>
+                                {{ __('At least 12 characters') }}
+                            </li>
+                            <li class="flex items-center gap-2.5 transition-colors"
+                                :class="/\p{Lu}/u.test(password) ? 'text-emerald-600 dark:text-emerald-400' : 'text-zinc-500 dark:text-zinc-400'">
+                                <span aria-hidden="true" class="flex size-5 shrink-0 items-center justify-center rounded-full bg-zinc-200/70 text-xs dark:bg-white/10"
+                                    :class="/\p{Lu}/u.test(password) ? 'bg-emerald-100 dark:bg-emerald-400/15' : ''"
+                                    x-text="/\p{Lu}/u.test(password) ? '✓' : '○'"></span>
+                                {{ __('An uppercase letter') }}
+                            </li>
+                            <li class="flex items-center gap-2.5 transition-colors"
+                                :class="/\p{Ll}/u.test(password) ? 'text-emerald-600 dark:text-emerald-400' : 'text-zinc-500 dark:text-zinc-400'">
+                                <span aria-hidden="true" class="flex size-5 shrink-0 items-center justify-center rounded-full bg-zinc-200/70 text-xs dark:bg-white/10"
+                                    :class="/\p{Ll}/u.test(password) ? 'bg-emerald-100 dark:bg-emerald-400/15' : ''"
+                                    x-text="/\p{Ll}/u.test(password) ? '✓' : '○'"></span>
+                                {{ __('A lowercase letter') }}
+                            </li>
+                            <li class="flex items-center gap-2.5 transition-colors"
+                                :class="/\p{N}/u.test(password) ? 'text-emerald-600 dark:text-emerald-400' : 'text-zinc-500 dark:text-zinc-400'">
+                                <span aria-hidden="true" class="flex size-5 shrink-0 items-center justify-center rounded-full bg-zinc-200/70 text-xs dark:bg-white/10"
+                                    :class="/\p{N}/u.test(password) ? 'bg-emerald-100 dark:bg-emerald-400/15' : ''"
+                                    x-text="/\p{N}/u.test(password) ? '✓' : '○'"></span>
+                                {{ __('A number') }}
+                            </li>
+                            <li class="flex items-center gap-2.5 transition-colors"
+                                :class="/[\p{Z}\p{S}\p{P}]/u.test(password) ? 'text-emerald-600 dark:text-emerald-400' : 'text-zinc-500 dark:text-zinc-400'">
+                                <span aria-hidden="true" class="flex size-5 shrink-0 items-center justify-center rounded-full bg-zinc-200/70 text-xs dark:bg-white/10"
+                                    :class="/[\p{Z}\p{S}\p{P}]/u.test(password) ? 'bg-emerald-100 dark:bg-emerald-400/15' : ''"
+                                    x-text="/[\p{Z}\p{S}\p{P}]/u.test(password) ? '✓' : '○'"></span>
+                                {{ __('A symbol (such as !, @, or #)') }}
+                            </li>
+                        </ul>
+                        @if (app()->isProduction())
+                            <p class="mt-3 text-xs text-zinc-500 dark:text-zinc-400">
+                                {{ __('Your password is also checked against known data breaches.') }}
+                            </p>
+                        @endif
+                    </div>
                 </div>
             </section>
 

@@ -52,7 +52,12 @@ new #[Title('Evaluations')] class extends Component
     protected function assignmentQuery(): Builder
     {
         return OjtAssignment::query()
-            ->with(['student.studentProfile', 'student.coordinator', 'evaluations'])
+            ->with([
+                'student.studentProfile',
+                'student.coordinator',
+                'student.evaluations' => fn ($query) => $query
+                    ->where('evaluator_type', $this->evaluatorType()),
+            ])
             ->where('company_supervisor_id', Auth::id());
     }
 

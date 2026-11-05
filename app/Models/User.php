@@ -119,6 +119,11 @@ class User extends Authenticatable
             ->whereIn('key', StudentRequirement::activeKeys());
     }
 
+    public function evaluations()
+    {
+        return $this->hasMany(Evaluation::class, 'student_id');
+    }
+
     public function ojtAssignment()
     {
         return $this->hasOne(OjtAssignment::class, 'student_id');

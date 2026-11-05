@@ -77,7 +77,7 @@
         @endif
     </div>
 
-    <flux:modal name="supervisor-evaluation-students" class="md:w-5xl">
+    <flux:modal name="supervisor-evaluation-students" class="md:w-7xl">
         <div class="space-y-6">
             <div>
                 <flux:heading size="lg">Trainees to Evaluate</flux:heading>
@@ -106,8 +106,7 @@
                     <flux:table.rows>
                         @foreach ($this->assignments as $assignment)
                             @php
-                                $myEvaluations = $assignment->evaluations->where('evaluator_id', auth()->id());
-                                $latestEvaluation = $myEvaluations->sortByDesc('created_at')->first();
+                                $myEvaluation = $assignment->student?->evaluations->sortByDesc('created_at')->first();
                             @endphp
 
                             <flux:table.row :key="$assignment->id">
@@ -116,11 +115,11 @@
                                 <flux:table.cell>{{ $assignment->student?->studentProfile?->course ?? '' }}</flux:table.cell>
                                 <flux:table.cell>{{ $this->cooperatingProgramFor($assignment) }}</flux:table.cell>
                                 <flux:table.cell>
-                                    @if ($latestEvaluation)
+                                    @if ($myEvaluation)
                                         <div class="flex flex-col">
-                                            <span class="font-medium">{{ $myEvaluations->count() }} submitted</span>
+                                            <span class="font-medium">Submitted</span>
                                             <span class="text-xs text-zinc-500 dark:text-zinc-300">
-                                                Latest: {{ $latestEvaluation->evaluation_date?->format('M d, Y') }}
+                                                {{ $myEvaluation->evaluation_date?->format('M d, Y') }}
                                             </span>
                                         </div>
                                     @else
@@ -128,10 +127,14 @@
                                     @endif
                                 </flux:table.cell>
                                 <flux:table.cell>
-                                    <flux:button type="button" size="sm" icon="check-badge"
-                                        wire:click="openEvaluationModal({{ $assignment->id }})">
-                                        Evaluate
-                                    </flux:button>
+                                    @if ($myEvaluation)
+                                        <flux:badge color="green" inset="top bottom">Evaluated</flux:badge>
+                                    @else
+                                        <flux:button type="button" size="sm" icon="check-badge"
+                                            wire:click="openEvaluationModal({{ $assignment->id }})">
+                                            Evaluate
+                                        </flux:button>
+                                    @endif
                                 </flux:table.cell>
                             </flux:table.row>
                         @endforeach

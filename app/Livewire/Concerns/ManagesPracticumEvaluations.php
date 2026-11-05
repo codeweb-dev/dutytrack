@@ -8,6 +8,7 @@ use App\Support\PracticumEvaluationForm;
 use Flux\Flux;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 trait ManagesPracticumEvaluations
 {
@@ -32,6 +33,16 @@ trait ManagesPracticumEvaluations
             ->whereKey($assignmentId)
             ->firstOrFail();
 
+        if (Evaluation::query()
+            ->where('student_id', $assignment->student_id)
+            ->where('evaluator_type', $this->evaluatorType())
+            ->exists()) {
+            unset($this->assignments);
+            Flux::toast(variant: 'warning', heading: 'Already evaluated.', text: 'You can submit only one evaluation per student.');
+
+            return;
+        }
+
         $this->evaluation_assignment_id = $assignment->id;
         $this->inclusive_from = '';
         $this->inclusive_to = '';
@@ -51,27 +62,51 @@ trait ManagesPracticumEvaluations
     {
         $this->validate($this->evaluationRules());
 
-        $assignment = $this->assignmentQuery()
-            ->with(['student.coordinator'])
-            ->whereKey($this->evaluation_assignment_id)
-            ->firstOrFail();
-
         $rating = PracticumEvaluationForm::total($this->evaluation_ratings);
 
-        Evaluation::query()->create([
-            'student_id' => $assignment->student_id,
-            'ojt_assignment_id' => $assignment->id,
-            'evaluator_id' => Auth::id(),
-            'evaluator_type' => $this->evaluatorType(),
-            'evaluation_date' => now()->toDateString(),
-            'inclusive_from' => $this->inclusive_from,
-            'inclusive_to' => $this->inclusive_to,
-            'cooperating_program' => $this->cooperatingProgramFor($assignment),
-            'ratings' => $this->evaluation_ratings,
-            'rating' => $rating,
-            'remarks' => trim($this->evaluation_remarks) !== '' ? trim($this->evaluation_remarks) : null,
-            'status' => 'submitted',
-        ]);
+        $alreadyEvaluated = DB::transaction(function () use ($rating): bool {
+            $assignment = $this->assignmentQuery()
+                ->with(['student.coordinator'])
+                ->whereKey($this->evaluation_assignment_id)
+                ->firstOrFail();
+
+            // Serialize submissions for this student before checking for an existing evaluation.
+            $assignment->student()->lockForUpdate()->firstOrFail();
+
+            if (Evaluation::query()
+                ->where('student_id', $assignment->student_id)
+                ->where('evaluator_type', $this->evaluatorType())
+                ->lockForUpdate()
+                ->first()) {
+                return true;
+            }
+
+            Evaluation::query()->create([
+                'student_id' => $assignment->student_id,
+                'ojt_assignment_id' => $assignment->id,
+                'evaluator_id' => Auth::id(),
+                'evaluator_type' => $this->evaluatorType(),
+                'evaluation_date' => now()->toDateString(),
+                'inclusive_from' => $this->inclusive_from,
+                'inclusive_to' => $this->inclusive_to,
+                'cooperating_program' => $this->cooperatingProgramFor($assignment),
+                'ratings' => $this->evaluation_ratings,
+                'rating' => $rating,
+                'remarks' => trim($this->evaluation_remarks) !== '' ? trim($this->evaluation_remarks) : null,
+                'status' => 'submitted',
+            ]);
+
+            return false;
+        });
+
+        if ($alreadyEvaluated) {
+            $this->resetEvaluationForm();
+            unset($this->assignments);
+            Flux::modal($this->evaluationModalName())->close();
+            Flux::toast(variant: 'warning', heading: 'Already evaluated.', text: 'You can submit only one evaluation per student.');
+
+            return;
+        }
 
         $this->resetEvaluationForm();
         unset($this->assignments, $this->evaluations, $this->summary);

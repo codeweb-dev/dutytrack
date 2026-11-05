@@ -85,7 +85,7 @@ Route::group(['middleware' => ['role:supervisor']], function () {
 Route::group(['middleware' => ['role:student']], function () {
     Route::livewire('/student/dashboard', 'pages::student.dashboard')->name('student.dashboard');
     Route::livewire('/student/attendance', 'pages::student.attendance')->name('student.attendance');
-    Route::livewire('/student/evaluations', 'pages::student.evaluations')->name('student.evaluations');
+    Route::redirect('/student/evaluations', '/student/dashboard#evaluations')->name('student.evaluations');
     Route::livewire('/student/reports-submissions', 'pages::student.reports-submissions')->name('student.reports-submissions');
     Route::livewire('/student/tasks', 'pages::student.tasks')->name('student.tasks');
     Route::livewire('/student/notes', 'pages::student.notes')->name('student.notes');

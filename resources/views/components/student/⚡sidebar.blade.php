@@ -15,13 +15,6 @@ new class extends Component {};
         wire:navigate>
         Attendance
     </flux:sidebar.item>
-
-
-    <flux:sidebar.item icon="check-badge" data-tour="nav-evaluations" :href="route('student.evaluations')" :current="request()->routeIs('student.evaluations')"
-        wire:navigate>
-        Evaluations
-    </flux:sidebar.item>
-
     <flux:sidebar.item icon="chat-bubble-left-right" data-tour="nav-messages" :href="route('student.messages')" :current="request()->routeIs('student.messages')"
         wire:navigate>
         Messages

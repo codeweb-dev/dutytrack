@@ -42,7 +42,7 @@ new class extends Component
     {
         $columns = collect($this->columns)->keyBy('status');
 
-        return collect(['pending', 'in_progress', 'done', 'in_review'])
+        return collect(['pending', 'in_progress', 'in_review', 'done'])
             ->map(fn (string $status): array => $columns->get($status))
             ->filter()
             ->values()

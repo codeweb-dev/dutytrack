@@ -8,7 +8,13 @@
         <form method="POST" action="{{ route('login.store') }}" class="flex flex-col gap-6" x-data="{ role: @js(old('role', 'student')) }">
             @csrf
 
-            <flux:select name="role" :label="__('Log in as')" x-model="role" required>
+            <flux:select name="role" :label="__('Log in as')" x-model="role" required
+                x-on:change="
+                    $el.form.querySelectorAll('input:not([type=hidden]), ui-checkbox').forEach(input => {
+                        if (input.type === 'checkbox' || input.localName === 'ui-checkbox') input.checked = false;
+                        else input.value = '';
+                    })
+                ">
                 <option value="student">{{ __('Student') }}</option>
                 <option value="ojt_coordinator">{{ __('OJT Coordinator') }}</option>
                 <option value="supervisor">{{ __('Supervisor') }}</option>

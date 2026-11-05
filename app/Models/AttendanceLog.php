@@ -18,9 +18,7 @@ class AttendanceLog extends Model
         'time_in_longitude',
         'time_in_location_accuracy',
         'hours_rendered',
-        'overtime_enabled',
         'status',
-        'remarks',
     ];
 
     protected $casts = [
@@ -32,13 +30,18 @@ class AttendanceLog extends Model
         'time_in_latitude' => 'float',
         'time_in_longitude' => 'float',
         'time_in_location_accuracy' => 'integer',
-        'overtime_enabled' => 'boolean',
         'hours_rendered' => 'decimal:2',
     ];
 
     public function isComplete(): bool
     {
         return $this->afternoon_time_out !== null;
+    }
+
+    public function isLate(): bool
+    {
+        return $this->morning_time_in !== null
+            && $this->morning_time_in->greaterThan($this->morning_time_in->copy()->setTime(8, 0));
     }
 
     public function displayMorningTimeIn()

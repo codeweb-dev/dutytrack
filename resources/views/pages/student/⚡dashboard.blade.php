@@ -231,6 +231,9 @@ new #[Title('Student Dashboard')] class extends Component
                                             <flux:badge size="sm" color="sky" inset="top bottom">
                                                 {{ ucfirst($log->status ?? 'recorded') }}
                                             </flux:badge>
+                                            @if ($log->isLate() && $log->status !== 'late')
+                                                <flux:badge size="sm" color="amber" inset="top bottom">Late</flux:badge>
+                                            @endif
                                         </div>
                                     </flux:table.cell>
 

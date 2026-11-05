@@ -24,15 +24,11 @@ new #[Title('My Attendance')] class extends Component
 
     public string $description = 'Record your daily OJT attendance and review your attendance history.';
 
-    public ?string $remarks = null;
-
     public ?float $time_in_latitude = null;
 
     public ?float $time_in_longitude = null;
 
     public ?int $time_in_location_accuracy = null;
-
-    public bool $overtime_enabled = false;
 
     #[Locked]
     public string $calendarMonth;
@@ -43,7 +39,6 @@ new #[Title('My Attendance')] class extends Component
     public function mount(): void
     {
         $this->calendarMonth = now()->format('Y-m');
-        $this->overtime_enabled = (bool) ($this->todayAttendance?->overtime_enabled ?? false);
     }
 
     public function previousCalendarMonth(): void
@@ -110,7 +105,7 @@ new #[Title('My Attendance')] class extends Component
         unset($this->todayAttendance, $this->calendar, $this->selectedAttendance, $this->summary);
     }
 
-    protected function calculateSessionMinutes(?CarbonInterface $timeIn, ?CarbonInterface $timeOut): int
+    protected function calculateSessionMinutes(?CarbonInterface $timeIn, ?CarbonInterface $timeOut, CarbonInterface $latestEnd): int
     {
         if (! $timeIn || ! $timeOut) {
             return 0;
@@ -120,9 +115,7 @@ new #[Title('My Attendance')] class extends Component
             ? $timeIn->copy()
             : $this->workdayStart($timeIn);
 
-        $countedEnd = $this->overtime_enabled
-            ? $timeOut->copy()
-            : $timeOut->copy()->min($this->workdayEnd($timeIn));
+        $countedEnd = $timeOut->copy()->min($latestEnd);
 
         return $countedEnd->greaterThan($countedStart)
             ? max($countedStart->diffInMinutes($countedEnd), 0)
@@ -131,15 +124,33 @@ new #[Title('My Attendance')] class extends Component
 
     protected function calculateHours(AttendanceLog $attendance, CarbonInterface $afternoonTimeOut): float
     {
-        $minutes = $this->calculateSessionMinutes($attendance->displayMorningTimeIn(), $attendance->morning_time_out)
-            + $this->calculateSessionMinutes($attendance->afternoon_time_in, $afternoonTimeOut);
+        $morningTimeIn = $attendance->displayMorningTimeIn();
+        $minutes = $this->calculateSessionMinutes(
+            $morningTimeIn,
+            $attendance->morning_time_out,
+            $morningTimeIn ? $this->morningCutoff($morningTimeIn) : now(),
+        ) + $this->calculateSessionMinutes(
+            $attendance->afternoon_time_in,
+            $afternoonTimeOut,
+            $attendance->afternoon_time_in ? $this->workdayEnd($attendance->afternoon_time_in) : now(),
+        );
 
         return round($minutes / 60, 2);
     }
 
     protected function workdayStart(CarbonInterface $date): Carbon
     {
-        return Carbon::instance($date->copy())->setTime(7, 0);
+        return Carbon::instance($date->copy())->setTime(8, 0);
+    }
+
+    protected function morningCutoff(CarbonInterface $date): Carbon
+    {
+        return Carbon::instance($date->copy())->setTime(12, 0);
+    }
+
+    protected function afternoonStart(CarbonInterface $date): Carbon
+    {
+        return Carbon::instance($date->copy())->setTime(13, 0);
     }
 
     protected function workdayEnd(CarbonInterface $date): Carbon
@@ -152,9 +163,17 @@ new #[Title('My Attendance')] class extends Component
         return $timeIn->greaterThan($this->workdayStart($timeIn)) ? 'late' : 'incomplete';
     }
 
-    protected function completedStatus(CarbonInterface $timeIn): string
+    protected function attendanceStatus(AttendanceLog $attendance, float $hours): string
     {
-        return $timeIn->greaterThan($this->workdayStart($timeIn)) ? 'late' : 'present';
+        if ($hours < 8) {
+            return 'incomplete';
+        }
+
+        $morningTimeIn = $attendance->displayMorningTimeIn();
+
+        return $morningTimeIn && $morningTimeIn->greaterThan($this->workdayStart($morningTimeIn))
+            ? 'late'
+            : 'present';
     }
 
     public function mapUrl(?float $latitude = null, ?float $longitude = null): ?string
@@ -174,29 +193,58 @@ new #[Title('My Attendance')] class extends Component
 
     public function nextPunch(): ?string
     {
+        return $this->nextPunchAt(now());
+    }
+
+    protected function nextPunchAt(CarbonInterface $now): ?string
+    {
         $attendance = $this->todayAttendance;
 
         if (! $attendance) {
-            return 'morning_time_in';
+            if ($now->lessThan($this->morningCutoff($now))) {
+                return 'morning_time_in';
+            }
+
+            return $now->greaterThanOrEqualTo($this->afternoonStart($now))
+                && $now->lessThan($this->workdayEnd($now))
+                ? 'afternoon_time_in'
+                : null;
         }
 
         if ($attendance->isComplete()) {
             return null;
         }
 
+        if (! $attendance->morning_time_in) {
+            if ($attendance->morning_time_out) {
+                return null;
+            }
+
+            if (! $attendance->afternoon_time_in) {
+                return $now->greaterThanOrEqualTo($this->afternoonStart($now))
+                    && $now->lessThan($this->workdayEnd($now))
+                    ? 'afternoon_time_in'
+                    : null;
+            }
+
+            return $now->greaterThanOrEqualTo($attendance->afternoon_time_in) ? 'afternoon_time_out' : null;
+        }
+
         if (! $attendance->morning_time_out) {
-            return 'morning_time_out';
+            return $attendance->afternoon_time_in
+                ? null
+                : ($now->greaterThanOrEqualTo($attendance->morning_time_in) ? 'morning_time_out' : null);
         }
 
         if (! $attendance->afternoon_time_in) {
-            return 'afternoon_time_in';
+            return $now->greaterThanOrEqualTo($this->afternoonStart($now))
+                && $now->lessThan($this->workdayEnd($now))
+                && $now->greaterThanOrEqualTo($attendance->morning_time_out)
+                ? 'afternoon_time_in'
+                : null;
         }
 
-        if (! $attendance->afternoon_time_out) {
-            return 'afternoon_time_out';
-        }
-
-        return null;
+        return $now->greaterThanOrEqualTo($attendance->afternoon_time_in) ? 'afternoon_time_out' : null;
     }
 
     public function nextPunchLabel(): string
@@ -206,8 +254,21 @@ new #[Title('My Attendance')] class extends Component
             'morning_time_out' => 'Morning Time Out',
             'afternoon_time_in' => 'Afternoon Time In',
             'afternoon_time_out' => 'Afternoon Time Out',
-            default => 'Attendance Complete',
+            default => $this->unavailablePunchLabel(),
         };
+    }
+
+    protected function unavailablePunchLabel(): string
+    {
+        if ($this->todayAttendance?->isComplete()) {
+            return 'Attendance Complete';
+        }
+
+        $now = now();
+
+        return $now->greaterThanOrEqualTo($this->workdayEnd($now))
+            ? 'Attendance Closed'
+            : 'Afternoon In starts at 1:00 PM';
     }
 
     public function nextPunchIcon(): string
@@ -219,9 +280,18 @@ new #[Title('My Attendance')] class extends Component
         };
     }
 
-    public function recordNextPunch(): void
+    public function recordNextPunch(string $requestedPunch): void
     {
-        if (in_array($this->nextPunch(), ['morning_time_in', 'afternoon_time_in'], true) && $this->holidayTimeInBlocked()) {
+        $now = now();
+        $nextPunch = $this->nextPunchAt($now);
+
+        if (! $nextPunch || $requestedPunch !== $nextPunch) {
+            Flux::toast(variant: 'warning', heading: 'Attendance action unavailable.', text: 'Your attendance step or the allowed time window has changed.');
+
+            return;
+        }
+
+        if (in_array($nextPunch, ['morning_time_in', 'afternoon_time_in'], true) && $this->holidayTimeInBlocked()) {
             return;
         }
 
@@ -229,18 +299,16 @@ new #[Title('My Attendance')] class extends Component
             return;
         }
 
-        $nextPunch = $this->nextPunch();
-
         match ($nextPunch) {
-            'morning_time_in' => $this->clockMorningIn(),
-            'morning_time_out' => $this->clockMorningOut(),
-            'afternoon_time_in' => $this->clockAfternoonIn(),
-            'afternoon_time_out' => $this->clockAfternoonOut(),
+            'morning_time_in' => $this->clockMorningIn($now),
+            'morning_time_out' => $this->clockMorningOut($now),
+            'afternoon_time_in' => $this->clockAfternoonIn($now),
+            'afternoon_time_out' => $this->clockAfternoonOut($now),
             default => $this->attendanceAlreadyComplete(),
         };
     }
 
-    protected function clockMorningIn(): void
+    protected function clockMorningIn(CarbonInterface $timeIn): void
     {
         $assignment = $this->assignment;
 
@@ -250,46 +318,38 @@ new #[Title('My Attendance')] class extends Component
             return;
         }
 
-        if ($this->todayAttendance) {
-            Flux::toast(variant: 'warning', heading: 'Already clocked in.', text: 'You already have an attendance record for today.');
-
-            return;
-        }
-
         $this->validate([
             'time_in_latitude' => ['required', 'numeric', 'between:-90,90'],
             'time_in_longitude' => ['required', 'numeric', 'between:-180,180'],
             'time_in_location_accuracy' => ['nullable', 'integer', 'min:0', 'max:100000'],
-            'remarks' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        $timeIn = now();
-
-        AttendanceLog::create([
+        $attendance = AttendanceLog::query()->firstOrCreate([
             'student_id' => $this->studentId(),
+            'attendance_date' => $timeIn->toDateString(),
+        ], [
             'ojt_assignment_id' => $assignment->id,
-            'attendance_date' => $this->today(),
             'morning_time_in' => $timeIn,
             'time_in_latitude' => $this->time_in_latitude,
             'time_in_longitude' => $this->time_in_longitude,
             'time_in_location_accuracy' => $this->time_in_location_accuracy,
             'hours_rendered' => 0,
-            'overtime_enabled' => false,
             'status' => $this->clockInStatus($timeIn),
-            'remarks' => $this->remarks,
         ]);
+
+        if (! $attendance->wasRecentlyCreated) {
+            $this->attendanceActionUnavailable();
+
+            return;
+        }
 
         $this->clearFormState();
 
         Flux::toast(variant: 'success', heading: 'Morning time in recorded.', text: 'Your morning time in has been saved.');
     }
 
-    protected function clockMorningOut(): void
+    protected function clockMorningOut(CarbonInterface $timeOut): void
     {
-        $this->validate([
-            'remarks' => ['nullable', 'string', 'max:1000'],
-        ]);
-
         $attendance = $this->todayAttendance;
 
         if (! $attendance) {
@@ -298,65 +358,81 @@ new #[Title('My Attendance')] class extends Component
             return;
         }
 
-        if ($attendance->morning_time_out) {
-            Flux::toast(variant: 'warning', heading: 'Morning out already recorded.', text: 'Your morning time out has already been saved.');
+        $attendance->morning_time_out = $timeOut;
+        $hours = $this->calculateHours($attendance, $timeOut);
+        $updated = AttendanceLog::query()->whereKey($attendance->id)
+            ->whereNotNull('morning_time_in')
+            ->whereNull('morning_time_out')
+            ->whereNull('afternoon_time_in')
+            ->update([
+                'morning_time_out' => $timeOut,
+                'hours_rendered' => $hours,
+            ]);
+
+        if (! $updated) {
+            $this->attendanceActionUnavailable();
 
             return;
         }
-
-        $attendance->update([
-            'morning_time_out' => now(),
-            'remarks' => $this->remarks ?: $attendance->remarks,
-        ]);
 
         $this->clearFormState();
 
         Flux::toast(variant: 'success', heading: 'Morning time out recorded.', text: 'Your morning session has been saved.');
     }
 
-    protected function clockAfternoonIn(): void
+    protected function clockAfternoonIn(CarbonInterface $timeIn): void
     {
-        $this->validate([
-            'remarks' => ['nullable', 'string', 'max:1000'],
-        ]);
-
         $attendance = $this->todayAttendance;
 
         if (! $attendance) {
-            Flux::toast(variant: 'warning', heading: 'No morning time in found.', text: 'Please record morning time in first.');
+            $assignment = $this->assignment;
 
-            return;
+            if (! $assignment) {
+                Flux::toast(variant: 'warning', heading: 'No assignment yet.', text: 'You need an OJT assignment before creating attendance.');
+
+                return;
+            }
+
+            $attendance = AttendanceLog::query()->firstOrCreate([
+                'student_id' => $this->studentId(),
+                'attendance_date' => $timeIn->toDateString(),
+            ], [
+                'ojt_assignment_id' => $assignment->id,
+                'afternoon_time_in' => $timeIn,
+                'hours_rendered' => 0,
+                'status' => 'incomplete',
+            ]);
+
+            if (! $attendance->wasRecentlyCreated) {
+                $this->attendanceActionUnavailable();
+
+                return;
+            }
+        } else {
+            $query = AttendanceLog::query()->whereKey($attendance->id)
+                ->whereNull('afternoon_time_in')
+                ->whereNull('afternoon_time_out');
+
+            if ($attendance->morning_time_in) {
+                $query->whereNotNull('morning_time_out');
+            } else {
+                $query->whereNull('morning_time_out');
+            }
+
+            if (! $query->update(['afternoon_time_in' => $timeIn])) {
+                $this->attendanceActionUnavailable();
+
+                return;
+            }
         }
-
-        if (! $attendance->morning_time_out) {
-            Flux::toast(variant: 'warning', heading: 'Morning out needed.', text: 'Please record morning time out before afternoon time in.');
-
-            return;
-        }
-
-        if ($attendance->afternoon_time_in) {
-            Flux::toast(variant: 'warning', heading: 'Afternoon in already recorded.', text: 'Your afternoon time in has already been saved.');
-
-            return;
-        }
-
-        $attendance->update([
-            'afternoon_time_in' => now(),
-            'remarks' => $this->remarks ?: $attendance->remarks,
-        ]);
 
         $this->clearFormState();
 
         Flux::toast(variant: 'success', heading: 'Afternoon time in recorded.', text: 'Your afternoon time in has been saved.');
     }
 
-    protected function clockAfternoonOut(): void
+    protected function clockAfternoonOut(CarbonInterface $timeOut): void
     {
-        $this->validate([
-            'overtime_enabled' => ['boolean'],
-            'remarks' => ['nullable', 'string', 'max:1000'],
-        ]);
-
         $attendance = $this->todayAttendance;
 
         if (! $attendance) {
@@ -371,23 +447,23 @@ new #[Title('My Attendance')] class extends Component
             return;
         }
 
-        if ($attendance->afternoon_time_out) {
-            $this->attendanceAlreadyComplete();
+        $hours = $this->calculateHours($attendance, $timeOut);
+
+        $updated = AttendanceLog::query()->whereKey($attendance->id)
+            ->whereNotNull('afternoon_time_in')
+            ->whereNull('afternoon_time_out')
+            ->when($attendance->morning_time_in, fn ($query) => $query->whereNotNull('morning_time_out'))
+            ->update([
+                'afternoon_time_out' => $timeOut,
+                'hours_rendered' => $hours,
+                'status' => $this->attendanceStatus($attendance, $hours),
+            ]);
+
+        if (! $updated) {
+            $this->attendanceActionUnavailable();
 
             return;
         }
-
-        $timeOut = now();
-        $timeIn = $attendance->displayMorningTimeIn();
-        $hours = $this->calculateHours($attendance, $timeOut);
-
-        $attendance->update([
-            'afternoon_time_out' => $timeOut,
-            'hours_rendered' => $hours,
-            'overtime_enabled' => $this->overtime_enabled,
-            'status' => $this->completedStatus($timeIn),
-            'remarks' => $this->remarks ?: $attendance->remarks,
-        ]);
 
         $this->clearFormState();
 
@@ -399,90 +475,17 @@ new #[Title('My Attendance')] class extends Component
         Flux::toast(variant: 'warning', heading: 'Attendance complete.', text: 'Today already has a completed attendance record.');
     }
 
+    protected function attendanceActionUnavailable(): void
+    {
+        Flux::toast(variant: 'warning', heading: 'Attendance action unavailable.', text: 'This attendance step was already recorded or is no longer valid.');
+    }
+
     protected function clearFormState(): void
     {
-        $this->remarks = null;
         $this->time_in_latitude = null;
         $this->time_in_longitude = null;
         $this->time_in_location_accuracy = null;
-        $this->overtime_enabled = false;
         $this->resetAttendanceState();
-    }
-
-    public function bypassAttendance(int $minutes): void
-    {
-        if (! in_array($minutes, [60, 480], true)) {
-            abort(404);
-        }
-
-        if ($this->restDayBlocked()) {
-            return;
-        }
-
-        if ($this->holidayTimeInBlocked()) {
-            return;
-        }
-
-        $assignment = $this->assignment;
-
-        if (! $assignment) {
-            Flux::toast(variant: 'warning', heading: 'No assignment yet.', text: 'You need an OJT assignment before creating attendance.');
-
-            return;
-        }
-
-        $attendance = $this->todayAttendance;
-
-        if ($attendance?->isComplete()) {
-            Flux::toast(variant: 'warning', heading: 'Attendance complete.', text: 'Today already has a completed attendance record.');
-
-            return;
-        }
-
-        if ($minutes === 480) {
-            $timeIn = now()->setTime(7, 0);
-            $morningTimeOut = now()->setTime(12, 0);
-            $afternoonTimeIn = now()->setTime(13, 0);
-            $timeOut = now()->setTime(16, 0);
-        } else {
-            $timeOut = now();
-            $timeIn = $timeOut->copy()->subMinutes($minutes);
-            $morningTimeOut = $timeOut->copy();
-            $afternoonTimeIn = $timeOut->copy();
-        }
-
-        $hours = round($minutes / 60, 2);
-
-        if (! $attendance) {
-            $attendance = AttendanceLog::query()->create([
-                'student_id' => $this->studentId(),
-                'ojt_assignment_id' => $assignment->id,
-                'attendance_date' => $this->today(),
-                'morning_time_in' => $timeIn,
-                'time_in_latitude' => $this->time_in_latitude,
-                'time_in_longitude' => $this->time_in_longitude,
-                'time_in_location_accuracy' => $this->time_in_location_accuracy,
-                'hours_rendered' => 0,
-                'overtime_enabled' => true,
-                'status' => $this->clockInStatus($timeIn),
-                'remarks' => $this->remarks,
-            ]);
-        }
-
-        $attendance->update([
-            'morning_time_in' => $timeIn,
-            'morning_time_out' => $morningTimeOut,
-            'afternoon_time_in' => $afternoonTimeIn,
-            'afternoon_time_out' => $timeOut,
-            'hours_rendered' => $hours,
-            'overtime_enabled' => true,
-            'status' => $this->completedStatus($timeIn),
-            'remarks' => $this->remarks ?: $attendance->remarks,
-        ]);
-
-        $this->clearFormState();
-
-        Flux::toast(variant: 'success', heading: 'Attendance bypassed.', text: "{$minutes} minutes were logged for approval.");
     }
 
     public function badgeColor(string $status): string
@@ -596,7 +599,7 @@ new #[Title('My Attendance')] class extends Component
         $attendanceByDate = AttendanceLog::query()
             ->where('student_id', $this->studentId())
             ->whereBetween('attendance_date', [$start->toDateString(), $end->toDateString()])
-            ->get(['attendance_date', 'status'])
+            ->get(['attendance_date', 'morning_time_in', 'status'])
             ->keyBy(fn (AttendanceLog $attendance) => $attendance->attendance_date->toDateString());
         $holidaysByDate = collect($this->holidays)->keyBy('date');
 
@@ -611,6 +614,7 @@ new #[Title('My Attendance')] class extends Component
                 'is_weekend' => $date->isWeekend(),
                 'holiday' => $holidaysByDate->get($key)['name'] ?? null,
                 'status' => $attendanceByDate->get($key)?->status,
+                'late' => $attendanceByDate->get($key)?->isLate() ?? false,
             ];
         }
 
@@ -638,7 +642,10 @@ new #[Title('My Attendance')] class extends Component
         return [
             'total' => (clone $query)->count(),
             'present' => (clone $query)->where('status', 'present')->count(),
-            'incomplete' => (clone $query)->whereNull('afternoon_time_out')->count(),
+            'incomplete' => (clone $query)->where(fn ($query) => $query
+                ->whereNull('afternoon_time_out')
+                ->orWhere('status', 'incomplete'))
+                ->count(),
             'hours' => (float) (clone $query)->sum('hours_rendered'),
         ];
     }

@@ -17,7 +17,6 @@ return new class extends Migration
             $table->foreignId('student_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('ojt_assignment_id')->constrained('ojt_assignments')->cascadeOnDelete();
             $table->decimal('hours_rendered', 5, 2)->default(0);
-            $table->boolean('overtime_enabled')->default(false);
             $table->date('attendance_date');
             $table->timestamp('morning_time_in')->nullable();
             $table->timestamp('morning_time_out')->nullable();
@@ -27,7 +26,6 @@ return new class extends Migration
             $table->decimal('time_in_longitude', 10, 7)->nullable();
             $table->unsignedInteger('time_in_location_accuracy')->nullable();
             $table->enum('status', ['present', 'late', 'absent', 'incomplete'])->default('present');
-            $table->text('remarks')->nullable();
             $table->timestamps();
             $table->unique(['student_id', 'attendance_date']);
             $table->index(['attendance_date', 'status']);

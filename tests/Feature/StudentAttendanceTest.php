@@ -51,8 +51,7 @@ test('students see public holidays and cannot time in on a holiday', function ()
 
     Livewire::test('pages::student.attendance')
         ->assertSee('Test Holiday')
-        ->call('recordNextPunch')
-        ->call('bypassAttendance', 60)
+        ->call('recordNextPunch', 'morning_time_in')
         ->assertHasNoErrors();
 
     expect(AttendanceLog::query()->where('student_id', $student->id)->exists())->toBeFalse();
@@ -95,7 +94,7 @@ test('students can record morning and afternoon attendance', function () {
         ->set('time_in_latitude', 14.599512)
         ->set('time_in_longitude', 120.984222)
         ->set('time_in_location_accuracy', 12)
-        ->call('recordNextPunch')
+        ->call('recordNextPunch', 'morning_time_in')
         ->assertHasNoErrors();
 
     $attendance = AttendanceLog::query()->where('student_id', $student->id)->first();
@@ -110,19 +109,21 @@ test('students can record morning and afternoon attendance', function () {
     Carbon::setTestNow(Carbon::parse('2026-04-30 12:00:00'));
 
     Livewire::test('pages::student.attendance')
-        ->call('recordNextPunch')
+        ->call('recordNextPunch', 'morning_time_out')
         ->assertHasNoErrors();
+
+    expect((float) $attendance->fresh()->hours_rendered)->toBe(4.0);
 
     Carbon::setTestNow(Carbon::parse('2026-04-30 13:00:00'));
 
     Livewire::test('pages::student.attendance')
-        ->call('recordNextPunch')
+        ->call('recordNextPunch', 'afternoon_time_in')
         ->assertHasNoErrors();
 
     Carbon::setTestNow(Carbon::parse('2026-04-30 17:00:00'));
 
     Livewire::test('pages::student.attendance')
-        ->call('recordNextPunch')
+        ->call('recordNextPunch', 'afternoon_time_out')
         ->assertHasNoErrors();
 
     $attendance->refresh();
@@ -131,51 +132,62 @@ test('students can record morning and afternoon attendance', function () {
     expect($attendance->morning_time_out->format('H:i'))->toBe('12:00');
     expect($attendance->afternoon_time_in->format('H:i'))->toBe('13:00');
     expect($attendance->afternoon_time_out->format('H:i'))->toBe('17:00');
-    expect((float) $attendance->hours_rendered)->toBe(9.0);
-
-});
-
-test('students can bypass attendance time for testing', function () {
-    Carbon::setTestNow(Carbon::parse('2026-04-30 09:00:00'));
-
-    $student = createStudentWithAssignment();
-
-    $this->actingAs($student);
-
-    Livewire::test('pages::student.attendance')
-        ->call('bypassAttendance', 60)
-        ->assertHasNoErrors();
-
-    $attendance = AttendanceLog::query()->where('student_id', $student->id)->first();
-
-    expect($attendance)->not->toBeNull();
-    expect($attendance->morning_time_in->format('H:i'))->toBe('08:00');
-    expect($attendance->morning_time_out->format('H:i'))->toBe('09:00');
-    expect($attendance->afternoon_time_in->format('H:i'))->toBe('09:00');
-    expect($attendance->afternoon_time_out->format('H:i'))->toBe('09:00');
-    expect((float) $attendance->hours_rendered)->toBe(1.0);
-});
-
-test('student full day attendance bypass starts at seven am', function () {
-    Carbon::setTestNow(Carbon::parse('2026-04-30 09:00:00'));
-
-    $student = createStudentWithAssignment();
-
-    $this->actingAs($student);
-
-    Livewire::test('pages::student.attendance')
-        ->call('bypassAttendance', 480)
-        ->assertHasNoErrors();
-
-    $attendance = AttendanceLog::query()->where('student_id', $student->id)->first();
-
-    expect($attendance)->not->toBeNull();
-    expect($attendance->morning_time_in->format('H:i'))->toBe('07:00');
-    expect($attendance->morning_time_out->format('H:i'))->toBe('12:00');
-    expect($attendance->afternoon_time_in->format('H:i'))->toBe('13:00');
-    expect($attendance->afternoon_time_out->format('H:i'))->toBe('16:00');
     expect((float) $attendance->hours_rendered)->toBe(8.0);
-    expect($attendance->status)->toBe('present');
+
+});
+
+test('students who miss morning in can start an afternoon-only attendance', function () {
+    Carbon::setTestNow(Carbon::parse('2026-04-30 12:59:00'));
+
+    $student = createStudentWithAssignment();
+    $this->actingAs($student);
+
+    Livewire::test('pages::student.attendance')
+        ->assertSee('Afternoon In starts at 1:00 PM');
+
+    Carbon::setTestNow(Carbon::parse('2026-04-30 13:00:00'));
+
+    Livewire::test('pages::student.attendance')
+        ->call('recordNextPunch', 'morning_time_in')
+        ->assertHasNoErrors();
+
+    expect(AttendanceLog::query()->where('student_id', $student->id)->exists())->toBeFalse();
+
+    Livewire::test('pages::student.attendance')
+        ->assertSee('Afternoon Time In')
+        ->call('recordNextPunch', 'afternoon_time_in')
+        ->assertHasNoErrors();
+
+    $attendance = AttendanceLog::query()->where('student_id', $student->id)->firstOrFail();
+    expect($attendance->morning_time_in)->toBeNull();
+    expect($attendance->afternoon_time_in->format('H:i'))->toBe('13:00');
+
+    Carbon::setTestNow(Carbon::parse('2026-04-30 16:00:00'));
+
+    Livewire::test('pages::student.attendance')
+        ->call('recordNextPunch', 'afternoon_time_out')
+        ->assertHasNoErrors();
+
+    expect($attendance->fresh()->status)->toBe('incomplete');
+    expect((float) $attendance->fresh()->hours_rendered)->toBe(3.0);
+});
+
+test('students cannot replay a stale attendance action', function () {
+    Carbon::setTestNow(Carbon::parse('2026-04-30 07:30:00'));
+
+    $student = createStudentWithAssignment();
+    $this->actingAs($student);
+
+    Livewire::test('pages::student.attendance')
+        ->set('time_in_latitude', 14.599512)
+        ->set('time_in_longitude', 120.984222)
+        ->call('recordNextPunch', 'morning_time_in')
+        ->call('recordNextPunch', 'morning_time_in')
+        ->assertHasNoErrors();
+
+    $attendance = AttendanceLog::query()->where('student_id', $student->id)->firstOrFail();
+    expect($attendance->morning_time_in->format('H:i'))->toBe('07:30');
+    expect($attendance->morning_time_out)->toBeNull();
 });
 
 test('students submit accomplishments after completed attendance and download report docs', function () {
@@ -285,8 +297,8 @@ test('student attendance renders saved location with laravel maps leaflet', func
         ->assertSee('14.599512, 120.984222', false);
 });
 
-test('early time in only counts from seven am', function () {
-    Carbon::setTestNow(Carbon::parse('2026-04-30 06:30:00'));
+test('early time in is credited from eight am', function () {
+    Carbon::setTestNow(Carbon::parse('2026-04-30 07:30:00'));
 
     $student = createStudentWithAssignment();
 
@@ -295,36 +307,55 @@ test('early time in only counts from seven am', function () {
     Livewire::test('pages::student.attendance')
         ->set('time_in_latitude', 14.599512)
         ->set('time_in_longitude', 120.984222)
-        ->call('recordNextPunch')
+        ->call('recordNextPunch', 'morning_time_in')
         ->assertHasNoErrors();
 
     Carbon::setTestNow(Carbon::parse('2026-04-30 12:00:00'));
 
     Livewire::test('pages::student.attendance')
-        ->call('recordNextPunch')
+        ->call('recordNextPunch', 'morning_time_out')
         ->assertHasNoErrors();
 
     Carbon::setTestNow(Carbon::parse('2026-04-30 13:00:00'));
 
     Livewire::test('pages::student.attendance')
-        ->call('recordNextPunch')
+        ->call('recordNextPunch', 'afternoon_time_in')
         ->assertHasNoErrors();
 
     Carbon::setTestNow(Carbon::parse('2026-04-30 17:00:00'));
 
     Livewire::test('pages::student.attendance')
-        ->call('recordNextPunch')
+        ->call('recordNextPunch', 'afternoon_time_out')
         ->assertHasNoErrors();
 
     $attendance = AttendanceLog::query()->where('student_id', $student->id)->first();
 
-    expect($attendance->morning_time_in->format('H:i'))->toBe('06:30');
+    expect($attendance->morning_time_in->format('H:i'))->toBe('07:30');
     expect($attendance->status)->toBe('present');
-    expect((float) $attendance->hours_rendered)->toBe(9.0);
+    expect((float) $attendance->hours_rendered)->toBe(8.0);
 });
 
-test('students are marked late after seven am', function () {
-    Carbon::setTestNow(Carbon::parse('2026-04-30 07:02:00'));
+test('time in at 7:59 and exactly 8 is not late', function () {
+    foreach (['07:59', '08:00'] as $time) {
+        Carbon::setTestNow(Carbon::parse("2026-04-30 {$time}:00"));
+
+        $student = createStudentWithAssignment();
+        $this->actingAs($student);
+
+        Livewire::test('pages::student.attendance')
+            ->set('time_in_latitude', 14.599512)
+            ->set('time_in_longitude', 120.984222)
+            ->call('recordNextPunch', 'morning_time_in')
+            ->assertHasNoErrors();
+
+        $attendance = AttendanceLog::query()->where('student_id', $student->id)->firstOrFail();
+        expect($attendance->isLate())->toBeFalse();
+        expect($attendance->morning_time_in->format('H:i'))->toBe($time);
+    }
+});
+
+test('students are marked late after eight am', function () {
+    Carbon::setTestNow(Carbon::parse('2026-04-30 08:02:00'));
 
     $student = createStudentWithAssignment();
 
@@ -333,88 +364,58 @@ test('students are marked late after seven am', function () {
     Livewire::test('pages::student.attendance')
         ->set('time_in_latitude', 14.599512)
         ->set('time_in_longitude', 120.984222)
-        ->call('recordNextPunch')
+        ->call('recordNextPunch', 'morning_time_in')
         ->assertHasNoErrors();
 
     $attendance = AttendanceLog::query()->where('student_id', $student->id)->first();
 
     expect($attendance->status)->toBe('late');
-    expect($attendance->morning_time_in->format('H:i'))->toBe('07:02');
+    expect($attendance->morning_time_in->format('H:i'))->toBe('08:02');
 });
 
-test('overtime controls whether hours continue after five pm', function () {
-    Carbon::setTestNow(Carbon::parse('2026-04-30 07:00:00'));
+test('afternoon time out is preserved but credited only through five pm', function () {
+    Carbon::setTestNow(Carbon::parse('2026-04-30 13:00:00'));
 
     $student = createStudentWithAssignment();
-
     $this->actingAs($student);
 
     Livewire::test('pages::student.attendance')
-        ->set('time_in_latitude', 14.599512)
-        ->set('time_in_longitude', 120.984222)
-        ->call('recordNextPunch')
+        ->call('recordNextPunch', 'afternoon_time_in')
         ->assertHasNoErrors();
-
-    Carbon::setTestNow(Carbon::parse('2026-04-30 12:00:00'));
 
     Livewire::test('pages::student.attendance')
-        ->call('recordNextPunch')
+        ->call('recordNextPunch', 'afternoon_time_in')
         ->assertHasNoErrors();
 
-    Carbon::setTestNow(Carbon::parse('2026-04-30 13:00:00'));
+    $attendance = AttendanceLog::query()->where('student_id', $student->id)->firstOrFail();
+    expect($attendance->afternoon_time_in->format('H:i'))->toBe('13:00');
+    expect($attendance->afternoon_time_out)->toBeNull();
+
+    Carbon::setTestNow(Carbon::parse('2026-04-30 17:30:00'));
 
     Livewire::test('pages::student.attendance')
-        ->call('recordNextPunch')
+        ->call('recordNextPunch', 'afternoon_time_out')
         ->assertHasNoErrors();
 
-    Carbon::setTestNow(Carbon::parse('2026-04-30 18:00:00'));
-
-    Livewire::test('pages::student.attendance')
-        ->set('overtime_enabled', true)
-        ->call('recordNextPunch')
-        ->assertHasNoErrors();
-
-    $attendance = AttendanceLog::query()->where('student_id', $student->id)->first();
-
-    expect($attendance->overtime_enabled)->toBeTrue();
-    expect((float) $attendance->hours_rendered)->toBe(10.0);
+    $attendance->refresh();
+    expect($attendance->morning_time_in)->toBeNull();
+    expect($attendance->afternoon_time_out->format('H:i'))->toBe('17:30');
+    expect((float) $attendance->hours_rendered)->toBe(4.0);
+    expect($attendance->status)->toBe('incomplete');
 });
 
-test('hours stop at five pm when overtime is not enabled', function () {
-    Carbon::setTestNow(Carbon::parse('2026-04-30 07:00:00'));
+test('time in is rejected after five pm', function () {
+    Carbon::setTestNow(Carbon::parse('2026-04-30 18:00:00'));
 
     $student = createStudentWithAssignment();
-
     $this->actingAs($student);
 
     Livewire::test('pages::student.attendance')
-        ->set('time_in_latitude', 14.599512)
-        ->set('time_in_longitude', 120.984222)
-        ->call('recordNextPunch')
+        ->assertSee('Attendance Closed')
+        ->call('recordNextPunch', 'morning_time_in')
         ->assertHasNoErrors();
 
-    Carbon::setTestNow(Carbon::parse('2026-04-30 12:00:00'));
-
-    Livewire::test('pages::student.attendance')
-        ->call('recordNextPunch')
-        ->assertHasNoErrors();
-
-    Carbon::setTestNow(Carbon::parse('2026-04-30 13:00:00'));
-
-    Livewire::test('pages::student.attendance')
-        ->call('recordNextPunch')
-        ->assertHasNoErrors();
-
-    Carbon::setTestNow(Carbon::parse('2026-04-30 18:00:00'));
-
-    Livewire::test('pages::student.attendance')
-        ->call('recordNextPunch')
-        ->assertHasNoErrors();
-
-    $attendance = AttendanceLog::query()->where('student_id', $student->id)->first();
-
-    expect($attendance->overtime_enabled)->toBeFalse();
-    expect((float) $attendance->hours_rendered)->toBe(9.0);
+    expect(AttendanceLog::query()->where('student_id', $student->id)->exists())->toBeFalse();
 });
 
 test('students cannot record attendance on weekends', function () {
@@ -428,8 +429,7 @@ test('students cannot record attendance on weekends', function () {
         ->assertSee('Rest day')
         ->set('time_in_latitude', 14.5995)
         ->set('time_in_longitude', 120.9842)
-        ->call('recordNextPunch')
-        ->call('bypassAttendance', 480);
+        ->call('recordNextPunch', 'morning_time_in');
 
     expect(AttendanceLog::query()->where('student_id', $student->id)->exists())->toBeFalse();
 });

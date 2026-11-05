@@ -97,7 +97,6 @@
                     <flux:table.column>Hours</flux:table.column>
                     <flux:table.column>Location</flux:table.column>
                     <flux:table.column>Status</flux:table.column>
-                    <flux:table.column>Remarks</flux:table.column>
                 </flux:table.columns>
 
                 <flux:table.rows>
@@ -159,9 +158,6 @@
 
                             <flux:table.cell>
                                 {{ \App\Support\HourFormatter::format($log->hours_rendered) }}
-                                @if ($log->overtime_enabled)
-                                    <flux:badge size="sm" color="blue" inset="top bottom">OT</flux:badge>
-                                @endif
                             </flux:table.cell>
 
                             <flux:table.cell>
@@ -177,11 +173,11 @@
                                 <flux:badge size="sm" :color="$this->badgeColor($log->status)" inset="top bottom">
                                     {{ ucfirst($log->status ?? 'recorded') }}
                                 </flux:badge>
+                                @if ($log->isLate() && $log->status !== 'late')
+                                    <flux:badge size="sm" color="amber" inset="top bottom">Late</flux:badge>
+                                @endif
                             </flux:table.cell>
 
-                            <flux:table.cell>
-                                {{ $log->remarks ?: '' }}
-                            </flux:table.cell>
                         </flux:table.row>
                     @endforeach
                 </flux:table.rows>

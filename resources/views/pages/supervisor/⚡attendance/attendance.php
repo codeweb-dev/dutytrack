@@ -126,7 +126,10 @@ new #[Title('Attendance')] class extends Component
         return [
             'total' => (clone $query)->count(),
             'present' => (clone $query)->where('status', 'present')->count(),
-            'incomplete' => (clone $query)->whereNull('afternoon_time_out')->count(),
+            'incomplete' => (clone $query)->where(fn ($query) => $query
+                ->whereNull('afternoon_time_out')
+                ->orWhere('status', 'incomplete'))
+                ->count(),
             'hours' => (float) (clone $query)->sum('hours_rendered'),
         ];
     }

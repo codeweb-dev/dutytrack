@@ -1,4 +1,4 @@
-<div class="flex flex-col gap-6">
+<div wire:poll.30s class="flex flex-col gap-6">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
     <section class="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(24rem,1fr)]">
@@ -38,8 +38,8 @@
                         'border-amber-300 bg-amber-50 dark:bg-amber-950/30' => $day['holiday'] && ! $day['is_today'],
                         'border-red-500 bg-red-50 font-semibold dark:bg-red-950/30' => $day['is_today'],
                     ])
-                        aria-label="View attendance for {{ $day['date']->format('F j, Y') }}{{ $day['holiday'] ? ': Holiday, '.$day['holiday'] : '' }}{{ $day['status'] ? ': '.ucfirst($day['status']) : '' }}"
-                        title="{{ $day['date']->format('F j, Y') }}{{ $day['holiday'] ? ' · '.$day['holiday'] : '' }}{{ $day['status'] ? ' · '.ucfirst($day['status']) : '' }}">
+                        aria-label="View attendance for {{ $day['date']->format('F j, Y') }}{{ $day['holiday'] ? ': Holiday, '.$day['holiday'] : '' }}{{ $day['status'] ? ': '.ucfirst($day['status']) : '' }}{{ $day['late'] ? ', Late' : '' }}"
+                        title="{{ $day['date']->format('F j, Y') }}{{ $day['holiday'] ? ' · '.$day['holiday'] : '' }}{{ $day['status'] ? ' · '.ucfirst($day['status']) : '' }}{{ $day['late'] ? ' · Late' : '' }}">
                         <time datetime="{{ $day['date']->toDateString() }}">{{ $day['date']->format('j') }}</time>
                         @if ($day['holiday'])
                             <span class="sr-only">Holiday: {{ $day['holiday'] }}</span>
@@ -55,6 +55,10 @@
                                 'bg-red-500' => $day['status'] === 'absent',
                                 'bg-zinc-500' => ! in_array($day['status'], ['present', 'late', 'incomplete', 'absent'], true),
                             ])></span>
+                        @endif
+                        @if ($day['late'] && $day['status'] !== 'late')
+                            <span class="sr-only">Late</span>
+                            <span class="mt-1 h-2 w-2 rounded-full bg-amber-500"></span>
                         @endif
                     </button>
                 @endforeach
@@ -106,6 +110,9 @@
                     <flux:badge :color="$this->badgeColor($this->todayAttendance->status)" inset="top bottom">
                         {{ ucfirst($this->todayAttendance->status) }}
                     </flux:badge>
+                    @if ($this->todayAttendance->isLate() && $this->todayAttendance->status !== 'late')
+                        <flux:badge color="amber" inset="top bottom">Late</flux:badge>
+                    @endif
                 @else
                     <flux:badge color="zinc" inset="top bottom">Not recorded</flux:badge>
                 @endif
@@ -288,34 +295,7 @@
                     <flux:callout.text>OJT attendance is not recorded on Saturdays and Sundays.</flux:callout.text>
                 </flux:callout>
             @else
-            <form wire:submit="recordNextPunch" class="mt-6 space-y-4">
-                @if ($this->nextPunch() === 'afternoon_time_out')
-                    <flux:switch wire:model="overtime_enabled" label="Enable OT"
-                        description="Continue counting rendered hours after 5:00 PM." />
-                @endif
-
-                <flux:textarea wire:model="remarks" label="Remarks" rows="3" badge="Optional"
-                    placeholder="Add a note for this attendance record" />
-
-                @if ($this->assignment && $this->nextPunch())
-                    <flux:callout icon="cube" variant="secondary" inline>
-                        <flux:callout.heading>Your Testing Bypass</flux:callout.heading>
-                        <flux:callout.text>Create a completed attendance log without waiting for the timer.
-                        </flux:callout.text>
-
-                        <x-slot name="actions">
-                            <flux:button type="button" variant="ghost" icon="bolt"
-                                wire:click="bypassAttendance(60)">
-                                Add 1 hour
-                            </flux:button>
-                            <flux:button type="button" variant="primary" icon="bolt"
-                                wire:click="bypassAttendance(480)">
-                                Add full day
-                            </flux:button>
-                        </x-slot>
-                    </flux:callout>
-                @endif
-
+            <form wire:submit="recordNextPunch('{{ $this->nextPunch() }}')" class="mt-6 space-y-4">
                 @if (!$this->assignment)
                     <flux:callout icon="exclamation-triangle" color="amber">
                         <flux:callout.heading>No OJT assignment found</flux:callout.heading>
@@ -332,8 +312,8 @@
                             {{ $this->nextPunchLabel() }}
                         </flux:button>
                     @else
-                        <flux:button variant="ghost" icon="check-circle" disabled>
-                            Attendance Complete
+                        <flux:button type="button" variant="ghost" icon="check-circle" disabled>
+                            {{ $this->nextPunchLabel() }}
                         </flux:button>
                     @endif
 
@@ -394,8 +374,8 @@
                     <flux:badge :color="$this->badgeColor($this->selectedAttendance->status)" inset="top bottom">
                         {{ ucfirst($this->selectedAttendance->status) }}
                     </flux:badge>
-                    @if ($this->selectedAttendance->overtime_enabled)
-                        <flux:badge color="blue" inset="top bottom">Overtime enabled</flux:badge>
+                    @if ($this->selectedAttendance->isLate() && $this->selectedAttendance->status !== 'late')
+                        <flux:badge color="amber" inset="top bottom">Late</flux:badge>
                     @endif
                 </div>
 
@@ -419,10 +399,6 @@
                     <div>
                         <flux:heading>Rendered Hours</flux:heading>
                         <flux:text class="mt-1">{{ \App\Support\HourFormatter::format($this->selectedAttendance->hours_rendered) }}</flux:text>
-                    </div>
-                    <div>
-                        <flux:heading>Remarks</flux:heading>
-                        <flux:text class="mt-1 whitespace-pre-line">{{ $this->selectedAttendance->remarks ?: 'No remarks.' }}</flux:text>
                     </div>
                     <div>
                         <flux:heading>Time-in Location</flux:heading>

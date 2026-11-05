@@ -111,6 +111,9 @@
                                     <flux:badge size="sm" :color="$this->badgeColor($attendance->status)" inset="top bottom">
                                         {{ ucfirst($attendance->status ?? 'recorded') }}
                                     </flux:badge>
+                                    @if ($attendance->isLate() && $attendance->status !== 'late')
+                                        <flux:badge size="sm" color="amber" inset="top bottom">Late</flux:badge>
+                                    @endif
                                 </flux:table.cell>
                                 <flux:table.cell>{{ $attendance->displayMorningTimeIn()?->format('h:i A') ?? '—' }}</flux:table.cell>
                                 <flux:table.cell>{{ $attendance->displayMorningTimeOut()?->format('h:i A') ?? '—' }}</flux:table.cell>

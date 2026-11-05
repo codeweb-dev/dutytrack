@@ -101,7 +101,7 @@
                                     <div class="flex flex-col">
                                         <span>{{ $latestAttendance->attendance_date?->format('M d, Y') }}</span>
                                         <span class="text-xs text-zinc-500 dark:text-zinc-300">
-                                            {{ ucfirst($latestAttendance->status ?? 'recorded') }}
+                                            {{ ucfirst($latestAttendance->status ?? 'recorded') }}{{ $latestAttendance->isLate() && $latestAttendance->status !== 'late' ? ' · Late' : '' }}
                                         </span>
                                     </div>
                                 @else

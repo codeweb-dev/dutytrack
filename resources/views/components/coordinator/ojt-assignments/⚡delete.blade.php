@@ -41,10 +41,10 @@ new class extends Component
 
             AuditLogger::log(
                 module: 'OJT Assignments',
-                action: 'deleted',
+                action: 'archived',
                 target: $assignment,
                 targetLabel: $label,
-                description: 'Deleted an OJT assignment.',
+                description: 'Archived an OJT assignment.',
                 oldValues: $oldValues,
             );
 
@@ -53,8 +53,8 @@ new class extends Component
 
         Flux::toast(
             variant: 'success',
-            heading: 'Assignment deleted.',
-            text: 'The student assignment has been removed successfully.'
+            heading: 'Assignment archived.',
+            text: 'The assignment can be restored from the Archive.'
         );
 
         Flux::modal('delete-ojt-assignment-'.$this->assignment->id)->close();
@@ -66,9 +66,9 @@ new class extends Component
 
 <div class="space-y-4">
     <div class="space-y-2">
-        <flux:heading size="lg">Delete assignment?</flux:heading>
+        <flux:heading size="lg">Archive assignment?</flux:heading>
         <flux:text class="text-zinc-500">
-            You are about to remove this student assignment. The student will become unassigned again.
+            This hides the assignment from active lists. The student will become unassigned until it is restored.
         </flux:text>
     </div>
 
@@ -114,8 +114,8 @@ new class extends Component
             <flux:button variant="filled" class="w-full">Cancel</flux:button>
         </flux:modal.close>
 
-        <flux:button wire:click="delete" variant="danger" icon="trash" class="w-full">
-            Delete Assignment
+        <flux:button wire:click="delete" variant="filled" icon="archive-box" class="w-full">
+            Archive Assignment
         </flux:button>
     </div>
 </div>

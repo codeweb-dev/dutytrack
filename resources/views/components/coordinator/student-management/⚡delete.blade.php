@@ -4,7 +4,6 @@ use App\Models\User;
 use Flux\Flux;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 
 new class extends Component
@@ -25,14 +24,10 @@ new class extends Component
 
             abort_unless((int) $student->coordinator_id === (int) Auth::id(), 403);
 
-            if ($student->profile_photo_path) {
-                Storage::disk('public')->delete($student->profile_photo_path);
-            }
-
             $student->delete();
         });
 
-        Flux::toast(variant: 'success', heading: 'Student deleted.', text: 'The student has been removed successfully.');
+        Flux::toast(variant: 'success', heading: 'Student archived.', text: 'The student can be restored from the Archive.');
 
         Flux::modal('delete-student-'.$this->student->id)->close();
 
@@ -43,9 +38,9 @@ new class extends Component
 
 <div class="space-y-3">
     <div class="space-y-2">
-        <flux:heading size="lg">Delete student?</flux:heading>
+        <flux:heading size="lg">Archive student?</flux:heading>
         <flux:text class="text-zinc-500">
-            You are about to permanently remove this student record. This action cannot be undone.
+            This student will be hidden from active lists. Their account and data can be restored from the Archive.
         </flux:text>
     </div>
 
@@ -66,20 +61,6 @@ new class extends Component
             </div>
         </div>
     </div>
-
-    <flux:callout variant="danger" icon="exclamation-triangle">
-        <flux:callout.heading>
-            Permanent action
-        </flux:callout.heading>
-
-        <flux:callout.text>
-            <p>
-                Deleting this student will remove the account, academic profile, and uploaded profile photo from
-                storage.
-                This cannot be reversed.
-            </p>
-        </flux:callout.text>
-    </flux:callout>
 
     <div class="grid gap-4 md:grid-cols-3">
         <div class="rounded-2xl bg-zinc-50 p-4 dark:bg-zinc-800/50">
@@ -109,8 +90,8 @@ new class extends Component
             <flux:button variant="filled" class="w-full">Cancel</flux:button>
         </flux:modal.close>
 
-        <flux:button wire:click="delete" variant="danger" icon="trash" class="w-full">
-            Delete Student
+        <flux:button wire:click="delete" variant="filled" icon="archive-box" class="w-full">
+            Archive Student
         </flux:button>
     </div>
 </div>

@@ -59,6 +59,34 @@
                             </flux:button>
                         </div>
                     @endforelse
+
+                    <div class="border-t border-zinc-200 px-2 py-3 dark:border-zinc-800">
+                        <button type="button" wire:click="$toggle('showArchivedNotes')"
+                            class="flex w-full items-center justify-between text-sm font-medium text-zinc-600 dark:text-zinc-300">
+                            <span>Archived notes</span>
+                            <span>{{ $this->archivedNotes->count() }}</span>
+                        </button>
+
+                        @if ($showArchivedNotes)
+                            <div class="mt-2 space-y-2">
+                                @forelse ($this->archivedNotes as $note)
+                                    <div wire:key="archived-student-note-{{ $note->id }}"
+                                        class="flex items-center justify-between gap-2 rounded-lg bg-white px-3 py-2 text-sm dark:bg-zinc-900">
+                                        <div class="min-w-0">
+                                            <div class="truncate font-medium">{{ $note->title }}</div>
+                                            <div class="text-xs text-zinc-500">{{ $note->deleted_at?->format('M d, Y') }}</div>
+                                        </div>
+                                        <flux:button type="button" size="sm" variant="ghost" icon="arrow-uturn-left"
+                                            wire:click="restoreNote({{ $note->id }})">
+                                            Restore
+                                        </flux:button>
+                                    </div>
+                                @empty
+                                    <p class="px-1 py-2 text-xs text-zinc-500">No archived notes.</p>
+                                @endforelse
+                            </div>
+                        @endif
+                    </div>
                 </div>
             </aside>
 
@@ -79,8 +107,8 @@
                                     wire:click="togglePin">
                                     {{ $is_pinned ? 'Unpin' : 'Pin' }}
                                 </flux:button>
-                                <flux:button type="button" size="sm" variant="danger" icon="trash" wire:click="deleteSelectedNote">
-                                    Delete
+                                <flux:button type="button" size="sm" variant="ghost" icon="archive-box" wire:click="deleteSelectedNote">
+                                    Archive
                                 </flux:button>
                             </div>
                         </div>

@@ -135,7 +135,7 @@
                                         <flux:menu.separator />
 
                                         <flux:modal.trigger :name="'delete-ojt-assignment-'.$assignment->id">
-                                            <flux:menu.item variant="danger" icon="trash">Delete</flux:menu.item>
+                                            <flux:menu.item icon="archive-box">Archive</flux:menu.item>
                                         </flux:modal.trigger>
                                     </flux:menu>
                                 </flux:dropdown>

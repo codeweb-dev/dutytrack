@@ -11,7 +11,7 @@ new class extends Component {
     {
         $this->announcement->delete();
 
-        Flux::toast(variant: 'success', heading: 'Announcement deleted.', text: 'The announcement has been removed successfully.');
+        Flux::toast(variant: 'success', heading: 'Announcement archived.', text: 'It can be restored from the Archive.');
 
         Flux::modal('delete-announcement-' . $this->announcement->id)->close();
 
@@ -32,9 +32,9 @@ new class extends Component {
 
 <div class="space-y-6">
     <div class="space-y-2">
-        <flux:heading size="lg">Delete announcement?</flux:heading>
+        <flux:heading size="lg">Archive announcement?</flux:heading>
         <flux:text class="text-zinc-500">
-            You are about to permanently remove this announcement. This action cannot be undone.
+            This announcement will be hidden from users and can be restored from the Archive.
         </flux:text>
     </div>
 
@@ -55,23 +55,13 @@ new class extends Component {
         </div>
     </div>
 
-    <flux:callout variant="danger" icon="exclamation-triangle">
-        <flux:callout.heading>
-            Permanent action
-        </flux:callout.heading>
-
-        <flux:callout.text>
-            <p>This announcement will be permanently removed from the system and will no longer be visible to users.</p>
-        </flux:callout.text>
-    </flux:callout>
-
     <div class="flex gap-2">
         <flux:modal.close class="w-full">
             <flux:button variant="filled" class="w-full">Cancel</flux:button>
         </flux:modal.close>
 
-        <flux:button wire:click="delete" variant="danger" icon="trash" class="w-full">
-            Delete Announcement
+        <flux:button wire:click="delete" variant="filled" icon="archive-box" class="w-full">
+            Archive Announcement
         </flux:button>
     </div>
 </div>

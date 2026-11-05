@@ -53,5 +53,10 @@ new class extends Component {};
             :current="request()->routeIs('coordinator.audit-logs')" wire:navigate>
             Audit Logs
         </flux:sidebar.item>
+
+        <flux:sidebar.item icon="archive-box" href="{{ route('coordinator.archive') }}"
+            :current="request()->routeIs('coordinator.archive')" wire:navigate>
+            Archive
+        </flux:sidebar.item>
     </flux:sidebar.group>
 </flux:sidebar.nav>

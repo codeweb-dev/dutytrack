@@ -32,6 +32,8 @@ new #[Title('Notes')] class extends Component
 
     public bool $is_pinned = false;
 
+    public bool $showArchivedNotes = false;
+
     public ?string $last_saved = null;
 
     public function mount(): void
@@ -188,7 +190,21 @@ new #[Title('Notes')] class extends Component
             $this->resetEditor();
         }
 
-        Flux::toast(variant: 'success', heading: 'Note deleted.', text: 'The note was removed.');
+        Flux::toast(variant: 'success', heading: 'Note archived.', text: 'You can restore it from Archived notes.');
+    }
+
+    public function restoreNote(int $noteId): void
+    {
+        $note = StudentNote::onlyTrashed()
+            ->where('student_id', $this->studentId())
+            ->findOrFail($noteId);
+
+        $note->restore();
+        $this->loadNote($note);
+        $this->showArchivedNotes = false;
+        unset($this->notes, $this->archivedNotes);
+
+        Flux::toast(variant: 'success', heading: 'Note restored.');
     }
 
     public function preview(?string $body): string
@@ -204,6 +220,15 @@ new #[Title('Notes')] class extends Component
         return $this->filteredNotesQuery()
             ->orderByDesc('is_pinned')
             ->latest('updated_at')
+            ->get();
+    }
+
+    #[Computed]
+    public function archivedNotes(): Collection
+    {
+        return StudentNote::onlyTrashed()
+            ->where('student_id', $this->studentId())
+            ->latest('deleted_at')
             ->get();
     }
 

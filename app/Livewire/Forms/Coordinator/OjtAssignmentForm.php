@@ -34,7 +34,7 @@ class OjtAssignmentForm extends Form
                 'required',
                 'integer',
                 Rule::exists('users', 'id'),
-                Rule::unique('ojt_assignments', 'student_id')->ignore($assignmentId),
+                Rule::unique('ojt_assignments', 'student_id')->whereNull('deleted_at')->ignore($assignmentId),
             ],
             'ojt_type' => ['required', Rule::in(['internal', 'external'])],
             'company_supervisor_id' => [

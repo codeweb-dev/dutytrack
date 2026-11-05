@@ -13,7 +13,7 @@ new class extends Component {
 
         $this->log->delete();
 
-        Flux::toast(variant: 'success', heading: 'Audit log deleted.', text: 'The audit log record has been removed successfully.');
+        Flux::toast(variant: 'success', heading: 'Audit log archived.', text: 'It can be restored from the Archive.');
 
         Flux::modal('delete-audit-log-' . $logId)->close();
 
@@ -41,9 +41,9 @@ new class extends Component {
 
 <div class="space-y-6">
     <div class="space-y-2">
-        <flux:heading size="lg">Delete audit log?</flux:heading>
+        <flux:heading size="lg">Archive audit log?</flux:heading>
         <flux:text class="text-zinc-500">
-            You are about to permanently remove this audit log entry. This action cannot be undone.
+            This entry will be hidden from the active audit log and can be restored from the Archive.
         </flux:text>
     </div>
 
@@ -96,19 +96,6 @@ new class extends Component {
         </div>
     </div>
 
-    <flux:callout variant="danger" icon="exclamation-triangle">
-        <flux:callout.heading>
-            Permanent action
-        </flux:callout.heading>
-
-        <flux:callout.text>
-            <p>
-                Deleting this audit log will permanently remove the activity record from the system.
-                This cannot be reversed.
-            </p>
-        </flux:callout.text>
-    </flux:callout>
-
     <div class="flex gap-2">
         <flux:spacer />
 
@@ -116,8 +103,8 @@ new class extends Component {
             <flux:button variant="ghost">Cancel</flux:button>
         </flux:modal.close>
 
-        <flux:button wire:click="delete" variant="danger" icon="trash">
-            Delete Record
+        <flux:button wire:click="delete" variant="filled" icon="archive-box">
+            Archive Record
         </flux:button>
     </div>
 </div>

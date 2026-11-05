@@ -4,7 +4,6 @@ use App\Models\User;
 use Flux\Flux;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 
 new class extends Component {
@@ -34,14 +33,10 @@ new class extends Component {
         DB::transaction(function () {
             $supervisor = $this->supervisor->load('supervisorProfile');
 
-            if ($supervisor->profile_photo_path) {
-                Storage::disk('public')->delete($supervisor->profile_photo_path);
-            }
-
             $supervisor->delete();
         });
 
-        Flux::toast(variant: 'success', heading: 'Supervisor deleted.', text: 'The supervisor has been removed successfully.');
+        Flux::toast(variant: 'success', heading: 'Supervisor archived.', text: 'The supervisor can be restored from the Archive.');
 
         Flux::modal('delete-supervisor-' . $this->supervisor->id)->close();
 
@@ -52,9 +47,9 @@ new class extends Component {
 
 <div class="space-y-6">
     <div class="space-y-2">
-        <flux:heading size="lg">Delete supervisor?</flux:heading>
+        <flux:heading size="lg">Archive supervisor?</flux:heading>
         <flux:text class="text-zinc-500">
-            You are about to permanently remove this supervisor record. This action cannot be undone.
+            This supervisor will be hidden from active lists. Their account and data can be restored from the Archive.
         </flux:text>
     </div>
 
@@ -72,20 +67,6 @@ new class extends Component {
             </div>
         </div>
     </div>
-
-    <flux:callout variant="danger" icon="exclamation-triangle">
-        <flux:callout.heading>
-            Permanent action
-        </flux:callout.heading>
-
-        <flux:callout.text>
-            <p>
-                Deleting this supervisor will remove the account, supervisor profile, and uploaded profile photo from
-                storage.
-                This cannot be reversed.
-            </p>
-        </flux:callout.text>
-    </flux:callout>
 
     <div class="grid gap-4 md:grid-cols-2">
         <div class="rounded-2xl bg-zinc-50 p-4 dark:bg-zinc-800/50">
@@ -117,8 +98,8 @@ new class extends Component {
             <flux:button variant="ghost">Cancel</flux:button>
         </flux:modal.close>
 
-        <flux:button wire:click="delete" variant="danger" icon="trash">
-            Delete Supervisor
+        <flux:button wire:click="delete" variant="filled" icon="archive-box">
+            Archive Supervisor
         </flux:button>
     </div>
 </div>

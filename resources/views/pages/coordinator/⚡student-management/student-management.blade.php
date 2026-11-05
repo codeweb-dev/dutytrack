@@ -145,7 +145,7 @@
 
                                             <flux:menu.item variant="danger" icon="x-circle"
                                                 wire:click="reject({{ $student->id }})"
-                                                wire:confirm="Reject {{ $student->display_name }}'s sign-up? Their account will be removed so they can sign up again.">
+                                                wire:confirm="Reject and archive {{ $student->display_name }}'s sign-up? It can be restored from the Archive.">
                                                 Reject
                                             </flux:menu.item>
 
@@ -163,7 +163,7 @@
                                         <flux:menu.separator />
 
                                         <flux:modal.trigger :name="'delete-student-'.$student->id">
-                                            <flux:menu.item variant="danger" icon="trash">Delete</flux:menu.item>
+                                            <flux:menu.item icon="archive-box">Archive</flux:menu.item>
                                         </flux:modal.trigger>
                                     </flux:menu>
                                 </flux:dropdown>

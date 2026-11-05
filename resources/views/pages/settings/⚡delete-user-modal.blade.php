@@ -10,16 +10,15 @@ new class extends Component {
 
     public string $password = '';
 
-    /**
-     * Delete the currently authenticated user.
-     */
+    /** Archive the currently authenticated user. */
     public function deleteUser(Logout $logout): void
     {
         $this->validate([
             'password' => $this->currentPasswordRules(),
         ]);
 
-        tap(Auth::user(), $logout(...))->delete();
+        Auth::user()->delete();
+        $logout();
 
         $this->redirect('/', navigate: true);
     }
@@ -28,10 +27,10 @@ new class extends Component {
 <flux:modal name="confirm-user-deletion" :show="$errors->isNotEmpty()" focusable class="max-w-lg">
     <form method="POST" wire:submit="deleteUser" class="space-y-6">
         <div>
-            <flux:heading size="lg">{{ __('Are you sure you want to delete your account?') }}</flux:heading>
+            <flux:heading size="lg">{{ __('Are you sure you want to archive your account?') }}</flux:heading>
 
             <flux:subheading>
-                {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.') }}
+                {{ __('Your account will be hidden and you will be signed out. A coordinator can restore it from the Archive. Please enter your password to confirm.') }}
             </flux:subheading>
         </div>
 
@@ -42,8 +41,8 @@ new class extends Component {
                 <flux:button variant="filled">{{ __('Cancel') }}</flux:button>
             </flux:modal.close>
 
-            <flux:button variant="danger" type="submit" data-test="confirm-delete-user-button">
-                {{ __('Delete account') }}
+            <flux:button variant="filled" type="submit" data-test="confirm-delete-user-button">
+                {{ __('Archive account') }}
             </flux:button>
         </div>
     </form>

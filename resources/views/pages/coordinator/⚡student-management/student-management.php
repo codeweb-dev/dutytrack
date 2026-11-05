@@ -7,7 +7,6 @@ use Flux\Flux;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
@@ -119,7 +118,7 @@ new #[Title('Students')] class extends Component
         unset($this->students, $this->summary);
     }
 
-    // Rejecting removes the sign-up so the student can register again with corrected details.
+    // Keep rejected sign-ups in the Archive so they can be restored.
     public function reject(int $studentId): void
     {
         $student = $this->pendingStudent($studentId);
@@ -132,13 +131,9 @@ new #[Title('Students')] class extends Component
             description: 'Rejected a Student sign-up.',
         );
 
-        if ($student->profile_photo_path) {
-            Storage::disk('public')->delete($student->profile_photo_path);
-        }
-
         $student->delete();
 
-        Flux::toast(variant: 'success', heading: 'Sign-up rejected.', text: "{$student->display_name}'s account was removed.");
+        Flux::toast(variant: 'success', heading: 'Sign-up archived.', text: "{$student->display_name}'s account can be restored from the Archive.");
 
         unset($this->students, $this->summary);
     }

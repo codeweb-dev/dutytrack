@@ -6,7 +6,6 @@ use App\Models\OjtAssignment;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Title;
@@ -131,15 +130,25 @@ new #[Title('Messages')] class extends Component
         $message = $this->authorizeOwnMessage($messageId);
         $conversation = $message->conversation;
 
-        DB::transaction(function () use ($message): void {
-            $message->update(['body' => '']);
-            $message->delete();
-        });
+        $message->delete();
         $conversation?->touch();
 
         if ($this->editingMessageId === $messageId) {
             $this->cancelEditingMessage();
         }
+
+        unset($this->selectedConversation, $this->chatMessages, $this->conversations);
+    }
+
+    public function restoreMessage(int $messageId): void
+    {
+        $message = $this->authorizeOwnMessage($messageId, withTrashed: true);
+
+        abort_unless($message->trashed(), 404);
+
+        $conversation = $message->conversation;
+        $message->restore();
+        $conversation?->touch();
 
         unset($this->selectedConversation, $this->chatMessages, $this->conversations);
     }
@@ -258,9 +267,15 @@ new #[Title('Messages')] class extends Component
         return $conversation->load(['student.studentProfile', 'participant', 'latestMessage.sender']);
     }
 
-    protected function authorizeOwnMessage(int $messageId): ChatMessage
+    protected function authorizeOwnMessage(int $messageId, bool $withTrashed = false): ChatMessage
     {
-        $message = ChatMessage::query()->with('conversation')->findOrFail($messageId);
+        $query = ChatMessage::query()->with('conversation');
+
+        if ($withTrashed) {
+            $query->withTrashed();
+        }
+
+        $message = $query->findOrFail($messageId);
 
         abort_unless((int) $message->sender_id === (int) Auth::id(), 403);
         abort_unless($this->conversationQuery()->whereKey($message->chat_conversation_id)->exists(), 403);
@@ -396,7 +411,7 @@ new #[Title('Messages')] class extends Component
                                     {{ $this->roleLabelFor($conversation) }}
                                 </flux:badge>
                                 <span class="truncate text-xs text-zinc-500">
-                                    {{ $conversation->latestMessage?->deleted_at ? 'This message was deleted.' : ($conversation->latestMessage?->body ?? 'No messages yet.') }}
+                                    {{ $conversation->latestMessage?->deleted_at ? 'Message archived.' : ($conversation->latestMessage?->body ?? 'No messages yet.') }}
                                 </span>
                             </span>
                         </span>
@@ -481,7 +496,7 @@ new #[Title('Messages')] class extends Component
                                     @else
                                         <div
                                             class="rounded-lg px-4 py-3 text-sm shadow-sm {{ $mine ? 'bg-red-600 text-white' : 'border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-white' }}">
-                                            {{ $message->deleted_at ? 'This message was deleted.' : $message->body }}
+                                            {{ $message->deleted_at ? 'This message is archived.' : $message->body }}
                                         </div>
                                     @endif
 
@@ -492,19 +507,25 @@ new #[Title('Messages')] class extends Component
                                                 wire:click="startEditingMessage({{ $message->id }})" />
                                             <flux:modal.trigger name="delete-message-{{ $message->id }}">
                                                 <flux:button type="button" size="sm" variant="ghost"
-                                                    icon="trash" />
+                                                    icon="archive-box" title="Archive message" />
                                             </flux:modal.trigger>
                                         </div>
+                                    @endif
+
+                                    @if ($mine && $message->deleted_at)
+                                        <flux:button type="button" size="sm" variant="ghost" icon="arrow-uturn-left"
+                                            wire:click="restoreMessage({{ $message->id }})">
+                                            Restore
+                                        </flux:button>
                                     @endif
 
                                     @if ($mine && ! $message->deleted_at)
                                     <flux:modal name="delete-message-{{ $message->id }}" class="min-w-[22rem]">
                                         <div class="space-y-6">
                                             <div>
-                                                <flux:heading size="lg">Delete message?</flux:heading>
+                                                <flux:heading size="lg">Archive message?</flux:heading>
                                                 <flux:text class="mt-2">
-                                                    You're about to delete this message.<br>
-                                                    This action cannot be reversed.
+                                                    This hides the message from the conversation. You can restore it later.
                                                 </flux:text>
                                             </div>
                                             <div class="flex gap-2">
@@ -513,7 +534,7 @@ new #[Title('Messages')] class extends Component
                                                     <flux:button variant="ghost">Cancel</flux:button>
                                                 </flux:modal.close>
                                                 <flux:button wire:click="deleteMessage({{ $message->id }})"
-                                                    variant="danger">Delete message
+                                                    variant="filled">Archive message
                                                 </flux:button>
                                             </div>
                                         </div>

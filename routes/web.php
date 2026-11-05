@@ -63,6 +63,7 @@ Route::group(['middleware' => ['role:ojt_coordinator']], function () {
     // System Management
     Route::livewire('/coordinator/announcements', 'pages::coordinator.announcements')->name('coordinator.announcements');
     Route::livewire('/coordinator/audit-logs', 'pages::coordinator.audit-logs')->name('coordinator.audit-logs');
+    Route::livewire('/coordinator/archive', 'pages::coordinator.archive')->name('coordinator.archive');
 });
 
 Route::group(['middleware' => ['role:supervisor']], function () {

@@ -21,14 +21,14 @@
     </div>
 
     <div class="space-y-4">
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
             <h2 class="text-xl font-semibold">
                 My Students
             </h2>
 
-            <div class="flex items-center gap-3">
+            <div class="flex w-full flex-wrap items-center gap-3 xl:w-auto">
                 <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
-                    placeholder="Search students..." clearable />
+                    placeholder="Search students..." clearable class="w-full sm:w-64" />
 
                 <x-filter-modal name="filter-coordinator-students" heading="Filter Students"
                     description="Filter by account status and sort your students."
@@ -40,14 +40,14 @@
                     </flux:radio.group>
                 </x-filter-modal>
 
-                <flux:button href="{{ route('coordinator.requirements') }}" icon:trailing="arrow-up-right">
+                <flux:button href="{{ route('coordinator.requirements') }}" icon:trailing="arrow-up-right" class="w-full sm:w-auto">
                     View Requirements
                 </flux:button>
             </div>
         </div>
 
         @if ($this->students->isEmpty())
-            <flux:card class="flex flex-col items-center gap-4 py-24">
+            <flux:card class="flex flex-col items-center gap-4 py-16 sm:py-24">
                 <flux:icon name="academic-cap" class="size-12" />
                 <div class="text-center">
                     <flux:heading size="xl">No students found</flux:heading>

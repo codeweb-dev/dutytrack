@@ -2,7 +2,7 @@
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
     <section class="space-y-4">
-        <div class="flex items-center justify-end gap-3 w-full">
+        <div class="flex w-full flex-wrap items-center justify-end gap-3">
             <x-filter-modal name="filter-student-reports" heading="Filter Accomplishment Report"
                 description="Filter by date range and sort your entries. The download uses the same date range."
                 :sorts="['' => 'Default', 'date' => 'Date', 'hours' => 'Hours']">

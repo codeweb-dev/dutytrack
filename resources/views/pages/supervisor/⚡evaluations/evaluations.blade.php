@@ -7,9 +7,9 @@
                 Submitted Evaluations
             </h2>
 
-            <div class="flex items-center gap-3">
+            <div class="flex w-full flex-wrap items-center gap-3 xl:w-auto">
                 <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
-                    placeholder="Search evaluations..." clearable />
+                    placeholder="Search evaluations..." clearable class="w-full sm:w-64" />
 
                 <x-filter-modal name="filter-supervisor-evaluations" heading="Filter Evaluations"
                     description="Sort your submitted evaluations."

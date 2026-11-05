@@ -372,7 +372,7 @@ new #[Title('Messages')] class extends Component
 };
 ?>
 
-<div wire:poll.5s="pollMessages" class="flex h-[calc(100vh-7rem)] min-h-0 flex-col gap-6 overflow-hidden">
+<div wire:poll.5s="pollMessages" class="duty-messages flex h-[calc(100vh-7rem)] min-h-0 flex-col gap-6 overflow-hidden">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
     <div class="grid min-h-0 flex-1 overflow-hidden rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 lg:grid-cols-[20rem_1fr]">

@@ -441,8 +441,8 @@ select:focus[data-flux-control] {
 }
 @media (max-width: 1023px) {
     .duty-messages > .grid {
-        min-height: 760px;
-        grid-template-rows: minmax(180px, 250px) minmax(450px, 1fr);
+        min-height: 0;
+        grid-template-rows: minmax(120px, 30%) minmax(0, 1fr);
     }
 }
 @media (prefers-reduced-motion: reduce) {

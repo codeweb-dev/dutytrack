@@ -22,7 +22,7 @@
             </div>
         </div>
 
-        <div class="overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-700">
+        <div class="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-700">
             <div class="grid grid-cols-[1fr_4rem_14rem] bg-zinc-50 text-xs font-semibold uppercase tracking-wide text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
                 <div class="px-4 py-3">Directions for Evaluation</div>
                 <div class="px-4 py-3 text-center">Weight</div>

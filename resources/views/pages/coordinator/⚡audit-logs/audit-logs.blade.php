@@ -7,9 +7,9 @@
                 All Audit Logs
             </h2>
 
-            <div class="flex items-center gap-3">
+            <div class="flex w-full flex-wrap items-center gap-3 lg:w-auto">
                 <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
-                    placeholder="Search audit logs..." clearable />
+                    placeholder="Search audit logs..." clearable class="w-full sm:w-64" />
 
                 <x-filter-modal name="filter-coordinator-audit-logs" heading="Filter Audit Logs"
                     description="Filter by module and action, and sort the audit trail."

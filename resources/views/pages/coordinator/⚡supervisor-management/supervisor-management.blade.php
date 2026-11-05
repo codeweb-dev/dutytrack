@@ -21,14 +21,14 @@
     </div>
 
     <div class="space-y-4">
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
             <h2 class="text-xl font-semibold">
                 My Supervisors
             </h2>
 
-            <div class="flex items-center gap-3">
+            <div class="flex w-full flex-wrap items-center gap-3 xl:w-auto">
                 <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
-                    aria-label="Search supervisors..." placeholder="Search supervisors..." clearable />
+                    aria-label="Search supervisors..." placeholder="Search supervisors..." clearable class="w-full sm:w-64" />
 
                 <x-filter-modal name="filter-coordinator-supervisors" heading="Filter Supervisors"
                     description="Sort your supervisors."

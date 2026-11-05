@@ -34,9 +34,9 @@
                 Student Attendance
             </h2>
 
-            <div class="flex items-center gap-3">
+            <div class="flex w-full flex-wrap items-center gap-3 xl:w-auto">
                 <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
-                    placeholder="Search student..." clearable />
+                    placeholder="Search student..." clearable class="w-full sm:w-64" />
 
                 <x-filter-modal name="filter-coordinator-attendance" heading="Filter Attendance Records"
                     description="Filter and sort logs by OJT type, status, supervisor, and date range." width="md:w-2xl"

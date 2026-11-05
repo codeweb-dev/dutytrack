@@ -29,9 +29,9 @@
                 Requirement Tracking
             </h2>
 
-            <div class="flex items-center gap-3">
+            <div class="flex w-full flex-wrap items-center gap-3 xl:w-auto">
                 <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
-                    placeholder="Search students..." clearable />
+                    placeholder="Search students..." clearable class="w-full sm:w-64" />
 
                 <x-filter-modal name="filter-coordinator-requirements" heading="Filter Requirements"
                     description="Sort the students in requirement tracking."

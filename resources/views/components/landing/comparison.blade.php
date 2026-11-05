@@ -27,7 +27,7 @@
                 class="bg-white dark:bg-zinc-900 rounded-2xl p-8 border-3 border-red-500 shadow-lg shadow-red-100 dark:shadow-red-950/30">
                 <div class="flex items-center gap-3 mb-7">
                     <div class="flex items-center gap-2 font-bold text-lg text-gray-900 dark:text-white">
-                        <img src="{{ asset('logo.png') }}" alt="Duty Track Logo" width="32" height="32" />
+                        <img src="{{ asset('logo.png') }}" alt="Duty Track Logo" width="48" height="48" />
                         <h3 class="text-3xl font-bold text-gray-900 dark:text-white">DutyTrack</h3>
                     </div>
                 </div>

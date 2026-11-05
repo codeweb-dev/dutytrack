@@ -504,6 +504,7 @@ body.duty-auth, body.duty-public { padding-top: env(safe-area-inset-top, 0px); }
     [data-flux-modal] > dialog { min-width: 0; max-width: calc(100vw - 24px); }
     .duty-topbar [data-flux-button] { min-width: 44px; }
 }
+body.duty-app :where(*) { overflow-wrap: anywhere; }
 .duty-tour-backdrop {
     position: fixed;
     inset: 0;

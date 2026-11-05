@@ -375,8 +375,16 @@ new #[Title('Messages')] class extends Component
 <div wire:poll.5s="pollMessages" class="duty-messages flex h-[calc(100vh-7rem)] min-h-0 flex-col gap-6 overflow-hidden">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
+    <div class="flex items-center gap-2 lg:hidden">
+        <flux:input wire:model.live.debounce.300ms="search" icon="magnifying-glass"
+            aria-label="Search contacts" placeholder="Search contacts..." clearable class="min-w-0 flex-1" />
+        <flux:modal.trigger name="mobile-contacts">
+            <flux:button type="button" icon="users">Contacts</flux:button>
+        </flux:modal.trigger>
+    </div>
+
     <div class="grid min-h-0 flex-1 overflow-hidden rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 lg:grid-cols-[20rem_1fr]">
-        <aside class="flex min-h-0 flex-col border-b border-zinc-200 dark:border-zinc-800 lg:border-b-0 lg:border-r">
+        <aside class="hidden min-h-0 flex-col border-b border-zinc-200 dark:border-zinc-800 lg:flex lg:border-b-0 lg:border-r">
             <div class="shrink-0 border-b border-zinc-200 p-4 dark:border-zinc-800">
                 <flux:heading size="lg">Conversations</flux:heading>
                 <flux:text class="mt-1 text-zinc-500">Your available contacts</flux:text>
@@ -454,7 +462,6 @@ new #[Title('Messages')] class extends Component
                     </div>
 
                     <div class="flex items-center gap-2">
-                        <flux:button type="button" size="sm" wire:click="refreshMessages">Refresh</flux:button>
                         <flux:badge :color="$this->roleColorFor($this->selectedConversation)" inset="top bottom">
                             {{ $this->chatBadgeFor($this->selectedConversation) }}
                         </flux:badge>
@@ -584,4 +591,48 @@ new #[Title('Messages')] class extends Component
             @endif
         </section>
     </div>
+
+    <flux:modal name="mobile-contacts" class="w-[calc(100vw-2rem)] max-w-lg!">
+        <div class="mb-4">
+            <flux:heading size="lg">Choose a contact</flux:heading>
+            <flux:text class="mt-1 text-zinc-500">Select a conversation to open.</flux:text>
+            <flux:input wire:model.live.debounce.300ms="search" icon="magnifying-glass"
+                aria-label="Search contacts" placeholder="Search contacts..." clearable class="mt-4" />
+        </div>
+
+        <div class="max-h-[55dvh] space-y-1 overflow-y-auto">
+            @forelse ($this->conversations as $conversation)
+                @php($peer = $this->peerFor($conversation))
+
+                <flux:modal.close>
+                    <button type="button" wire:click="selectConversation({{ $conversation->id }})"
+                        aria-pressed="{{ $selectedConversationId === $conversation->id ? 'true' : 'false' }}"
+                        class="flex w-full items-center gap-3 rounded-lg p-3 text-left transition hover:bg-zinc-100 dark:hover:bg-zinc-800 {{ $selectedConversationId === $conversation->id ? 'bg-zinc-100 dark:bg-zinc-800' : '' }}">
+                        <flux:avatar size="sm" :name="$peer?->display_name ?? 'Contact'"
+                            :src="$peer?->profile_photo_path ? $peer->profilePhotoUrl() : null" />
+                        <span class="min-w-0 flex-1 truncate text-sm font-medium text-zinc-900 dark:text-white">
+                            {{ $peer?->display_name ?? 'Contact' }}
+                        </span>
+                        <flux:badge :color="$this->roleColorFor($conversation)" size="sm" class="shrink-0">
+                            {{ $this->roleLabelFor($conversation) }}
+                        </flux:badge>
+                        @if ($conversation->unread_count > 0)
+                            <flux:badge color="red" size="sm" class="shrink-0">
+                                {{ $conversation->unread_count }}</flux:badge>
+                        @endif
+                    </button>
+                </flux:modal.close>
+            @empty
+                <div class="p-8 text-center">
+                    <flux:icon name="chat-bubble-left-right" class="mx-auto size-10 text-zinc-400" />
+                    <flux:heading size="md" class="mt-3">
+                        {{ filled($search) ? 'No contacts found' : 'No contacts yet' }}
+                    </flux:heading>
+                    <flux:text class="mt-1 text-zinc-500">
+                        {{ filled($search) ? 'Try a different name.' : 'Messages appear after your account is connected to a contact.' }}
+                    </flux:text>
+                </div>
+            @endforelse
+        </div>
+    </flux:modal>
 </div>

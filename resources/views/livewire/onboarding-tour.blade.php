@@ -2,7 +2,7 @@
     @if ($mode === 'welcome')
         <div class="duty-tour-backdrop" aria-hidden="true"></div>
         <section class="duty-tour-dialog" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
-            <div class="mb-4 flex size-12 items-center justify-center rounded-2xl bg-emerald-50 text-forest dark:bg-emerald-950">
+            <div class="mb-4 flex size-12 items-center justify-center rounded-2xl bg-accent/10 text-accent-content">
                 <flux:icon name="sparkles" class="size-6" />
             </div>
             <h2 id="onboarding-title" class="text-xl font-semibold text-zinc-950 dark:text-white">Welcome to DutyTrack!</h2>
@@ -25,7 +25,7 @@
             data-tour-fallback="{{ $current['fallback'] ?? '' }}"
             wire:key="tour-step-{{ $step }}"
         >
-            <p class="text-xs font-semibold uppercase tracking-wider text-forest">Step {{ $step + 1 }} of {{ count($steps) }}</p>
+            <p class="text-xs font-semibold uppercase tracking-wider text-accent-content">Step {{ $step + 1 }} of {{ count($steps) }}</p>
             <h2 id="tour-title" class="mt-2 text-lg font-semibold text-zinc-950 dark:text-white">{{ $current['title'] }}</h2>
             <p class="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-300">{{ $current['text'] }}</p>
             <div class="mt-5 flex items-center justify-between gap-3">

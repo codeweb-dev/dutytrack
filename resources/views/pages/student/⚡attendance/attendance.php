@@ -299,6 +299,10 @@ new #[Title('My Attendance')] class extends Component
             return;
         }
 
+        if ($this->outsideGeofence()) {
+            return;
+        }
+
         match ($nextPunch) {
             'morning_time_in' => $this->clockMorningIn($now),
             'morning_time_out' => $this->clockMorningOut($now),
@@ -306,6 +310,38 @@ new #[Title('My Attendance')] class extends Component
             'afternoon_time_out' => $this->clockAfternoonOut($now),
             default => $this->attendanceAlreadyComplete(),
         };
+    }
+
+    // ponytail: trusts browser GPS, so a spoofed location passes; anti-spoofing would need a native app.
+    protected function outsideGeofence(): bool
+    {
+        $assignment = $this->assignment;
+
+        if (! $assignment?->hasGeofence()) {
+            return false;
+        }
+
+        if ($this->time_in_latitude === null || $this->time_in_longitude === null) {
+            Flux::toast(variant: 'warning', heading: 'Location required.', text: 'Allow location access so your attendance location can be verified.');
+
+            return true;
+        }
+
+        $distance = $assignment->distanceFromGeofence($this->time_in_latitude, $this->time_in_longitude);
+
+        if ($distance <= $assignment->geofence_radius) {
+            return false;
+        }
+
+        $this->clearFormState();
+
+        Flux::toast(
+            variant: 'danger',
+            heading: 'Outside your OJT location.',
+            text: sprintf('You are about %s m away. Attendance is only allowed within %d m of your assigned OJT location.', number_format($distance), $assignment->geofence_radius),
+        );
+
+        return true;
     }
 
     protected function clockMorningIn(CarbonInterface $timeIn): void

@@ -295,12 +295,41 @@
                     <flux:callout.text>OJT attendance is not recorded on Saturdays and Sundays.</flux:callout.text>
                 </flux:callout>
             @else
-            <form wire:submit="recordNextPunch('{{ $this->nextPunch() }}')" class="mt-6 space-y-4">
+            <form x-data="{
+                geofenced: @js((bool) $this->assignment?->hasGeofence()),
+                submit(punch) {
+                    if (!this.geofenced || !navigator.geolocation) {
+                        $wire.recordNextPunch(punch);
+                        return;
+                    }
+
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            $wire.time_in_latitude = position.coords.latitude;
+                            $wire.time_in_longitude = position.coords.longitude;
+                            $wire.time_in_location_accuracy = Math.round(position.coords.accuracy || 0);
+                            $wire.recordNextPunch(punch);
+                        },
+                        () => $wire.recordNextPunch(punch),
+                        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
+                    );
+                },
+            }" x-on:submit.prevent="submit('{{ $this->nextPunch() }}')" class="mt-6 space-y-4">
                 @if (!$this->assignment)
                     <flux:callout icon="exclamation-triangle" color="amber">
                         <flux:callout.heading>No OJT assignment found</flux:callout.heading>
                         <flux:callout.text>
                             Ask your coordinator to assign your OJT placement before recording attendance.
+                        </flux:callout.text>
+                    </flux:callout>
+                @endif
+
+                @if ($this->assignment?->hasGeofence())
+                    <flux:callout icon="map-pin" variant="secondary">
+                        <flux:callout.heading>Location-restricted attendance</flux:callout.heading>
+                        <flux:callout.text>
+                            You can only record attendance within {{ $this->assignment->geofence_radius }} m of your assigned OJT location.
+                            <flux:callout.link :href="$this->mapUrl($this->assignment->geofence_latitude, $this->assignment->geofence_longitude)" target="_blank">Open map</flux:callout.link>
                         </flux:callout.text>
                     </flux:callout>
                 @endif

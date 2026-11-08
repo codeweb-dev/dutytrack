@@ -28,6 +28,12 @@ class OjtAssignmentForm extends Form
 
     public ?string $remarks = null;
 
+    public ?float $geofence_latitude = null;
+
+    public ?float $geofence_longitude = null;
+
+    public ?int $geofence_radius = null;
+
     public function rules(): array
     {
         $assignmentId = $this->assignment?->id;
@@ -47,6 +53,9 @@ class OjtAssignmentForm extends Form
             ],
             'status' => ['required', Rule::in(['pending', 'active', 'completed', 'cancelled'])],
             'remarks' => ['nullable', 'string', 'max:1000'],
+            'geofence_latitude' => ['required', 'numeric', 'between:-90,90'],
+            'geofence_longitude' => ['required', 'numeric', 'between:-180,180'],
+            'geofence_radius' => ['required', 'integer', 'min:10', 'max:5000'],
         ];
     }
 
@@ -56,6 +65,9 @@ class OjtAssignmentForm extends Form
             'student_id' => 'student',
             'ojt_type' => 'OJT type',
             'company_supervisor_id' => 'supervisor',
+            'geofence_latitude' => 'pinned latitude',
+            'geofence_longitude' => 'pinned longitude',
+            'geofence_radius' => 'attendance radius',
         ];
     }
 
@@ -164,6 +176,9 @@ class OjtAssignmentForm extends Form
             'company_supervisor_name' => $assignment?->companySupervisor?->name,
             'status' => $assignment?->status,
             'remarks' => $assignment?->remarks,
+            'geofence_latitude' => $assignment?->geofence_latitude,
+            'geofence_longitude' => $assignment?->geofence_longitude,
+            'geofence_radius' => $assignment?->geofence_radius,
         ];
     }
 
@@ -190,6 +205,9 @@ class OjtAssignmentForm extends Form
         $this->company_supervisor_id = $assignment->company_supervisor_id;
         $this->status = $assignment->status;
         $this->remarks = $assignment->remarks;
+        $this->geofence_latitude = $assignment->geofence_latitude;
+        $this->geofence_longitude = $assignment->geofence_longitude;
+        $this->geofence_radius = $assignment->geofence_radius;
 
         $this->resetValidation();
     }
@@ -212,6 +230,9 @@ class OjtAssignmentForm extends Form
                 'company_supervisor_id' => $this->company_supervisor_id,
                 'status' => $this->status,
                 'remarks' => $this->remarks ?: null,
+                'geofence_latitude' => $this->geofence_latitude,
+                'geofence_longitude' => $this->geofence_longitude,
+                'geofence_radius' => $this->geofence_radius,
             ]);
 
             $assignment = $assignment->fresh([
@@ -271,6 +292,9 @@ class OjtAssignmentForm extends Form
                 'company_supervisor_id' => $this->company_supervisor_id,
                 'status' => $this->status,
                 'remarks' => $this->remarks ?: null,
+                'geofence_latitude' => $this->geofence_latitude,
+                'geofence_longitude' => $this->geofence_longitude,
+                'geofence_radius' => $this->geofence_radius,
             ]);
 
             $assignment = $assignment->fresh([
@@ -306,6 +330,9 @@ class OjtAssignmentForm extends Form
         $this->company_supervisor_id = null;
         $this->status = 'active';
         $this->remarks = null;
+        $this->geofence_latitude = null;
+        $this->geofence_longitude = null;
+        $this->geofence_radius = null;
 
         $this->resetValidation();
     }

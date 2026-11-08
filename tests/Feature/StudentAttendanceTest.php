@@ -468,3 +468,48 @@ test('students cannot record attendance on weekends', function () {
 
     expect(AttendanceLog::query()->where('student_id', $student->id)->exists())->toBeFalse();
 });
+
+test('students can only record attendance inside the pinned OJT location', function () {
+    Carbon::setTestNow(Carbon::parse('2026-04-30 07:00:00'));
+
+    $student = createStudentWithAssignment();
+    $student->ojtAssignment->update([
+        'geofence_latitude' => 14.599512,
+        'geofence_longitude' => 120.984222,
+        'geofence_radius' => 100,
+    ]);
+
+    $this->actingAs($student);
+
+    // ~1.1 km north of the pin.
+    Livewire::test('pages::student.attendance')
+        ->assertSee('Location-restricted attendance')
+        ->set('time_in_latitude', 14.609512)
+        ->set('time_in_longitude', 120.984222)
+        ->call('recordNextPunch', 'morning_time_in');
+
+    expect(AttendanceLog::query()->where('student_id', $student->id)->exists())->toBeFalse();
+
+    Livewire::test('pages::student.attendance')
+        ->call('recordNextPunch', 'morning_time_in');
+
+    expect(AttendanceLog::query()->where('student_id', $student->id)->exists())->toBeFalse();
+
+    // ~50 m from the pin.
+    Livewire::test('pages::student.attendance')
+        ->set('time_in_latitude', 14.599962)
+        ->set('time_in_longitude', 120.984222)
+        ->call('recordNextPunch', 'morning_time_in')
+        ->assertHasNoErrors();
+
+    expect(AttendanceLog::query()->where('student_id', $student->id)->exists())->toBeTrue();
+
+    Carbon::setTestNow(Carbon::parse('2026-04-30 12:00:00'));
+
+    Livewire::test('pages::student.attendance')
+        ->set('time_in_latitude', 14.609512)
+        ->set('time_in_longitude', 120.984222)
+        ->call('recordNextPunch', 'morning_time_out');
+
+    expect(AttendanceLog::query()->where('student_id', $student->id)->first()->morning_time_out)->toBeNull();
+});

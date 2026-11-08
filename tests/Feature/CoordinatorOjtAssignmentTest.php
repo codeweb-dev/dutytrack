@@ -84,6 +84,9 @@ test('coordinator can create an internal assignment for their own student', func
         ->set('form.ojt_type', 'internal')
         ->set('form.company_supervisor_id', $supervisor->id)
         ->set('form.status', 'active')
+        ->set('form.geofence_latitude', 14.599512)
+        ->set('form.geofence_longitude', 120.984222)
+        ->set('form.geofence_radius', 100)
         ->set('form.remarks', 'Assigned to faculty adviser.')
         ->call('save')
         ->assertHasNoErrors();
@@ -108,6 +111,9 @@ test('coordinator can create an external assignment for their own student', func
         ->set('form.ojt_type', 'external')
         ->set('form.company_supervisor_id', $supervisor->id)
         ->set('form.status', 'active')
+        ->set('form.geofence_latitude', 14.599512)
+        ->set('form.geofence_longitude', 120.984222)
+        ->set('form.geofence_radius', 100)
         ->call('save')
         ->assertHasNoErrors();
 
@@ -133,6 +139,9 @@ test('coordinator can switch from internal to external before saving an assignme
         ->set('form.ojt_type', 'external')
         ->set('form.company_supervisor_id', $supervisor->id)
         ->set('form.status', 'active')
+        ->set('form.geofence_latitude', 14.599512)
+        ->set('form.geofence_longitude', 120.984222)
+        ->set('form.geofence_radius', 100)
         ->call('save')
         ->assertHasNoErrors();
 
@@ -152,6 +161,9 @@ test('coordinator cannot complete an assignment before requirements and hours ar
         'ojt_type' => 'internal',
         'company_supervisor_id' => $supervisor->id,
         'status' => 'active',
+        'geofence_latitude' => 14.599512,
+        'geofence_longitude' => 120.984222,
+        'geofence_radius' => 100,
     ]);
 
     $this->actingAs($coordinator);
@@ -173,6 +185,9 @@ test('coordinator can complete an assignment after approved requirements and req
         'ojt_type' => 'internal',
         'company_supervisor_id' => $supervisor->id,
         'status' => 'active',
+        'geofence_latitude' => 14.599512,
+        'geofence_longitude' => 120.984222,
+        'geofence_radius' => 100,
     ]);
 
     foreach (StudentRequirement::ensureForStudent($student) as $requirement) {
@@ -209,6 +224,9 @@ test('coordinator cannot assign another coordinators student', function () {
         ->set('form.ojt_type', 'internal')
         ->set('form.company_supervisor_id', $supervisor->id)
         ->set('form.status', 'active')
+        ->set('form.geofence_latitude', 14.599512)
+        ->set('form.geofence_longitude', 120.984222)
+        ->set('form.geofence_radius', 100)
         ->call('save')
         ->assertForbidden();
 
@@ -225,6 +243,24 @@ test('coordinator cannot assign a student account as supervisor', function () {
         ->set('form.company_supervisor_id', $student->id)
         ->call('save')
         ->assertForbidden();
+
+    expect(OjtAssignment::query()->where('student_id', $student->id)->exists())->toBeFalse();
+});
+
+test('coordinator must pin an attendance location for an assignment', function () {
+    $coordinator = createCoordinatorForAssignments();
+    $student = createManagedStudent($coordinator);
+    $supervisor = createCompanySupervisor();
+
+    $this->actingAs($coordinator);
+
+    Livewire::test('coordinator.ojt-assignments.create')
+        ->set('form.student_id', $student->id)
+        ->set('form.ojt_type', 'internal')
+        ->set('form.company_supervisor_id', $supervisor->id)
+        ->set('form.status', 'active')
+        ->call('save')
+        ->assertHasErrors(['form.geofence_latitude', 'form.geofence_longitude', 'form.geofence_radius']);
 
     expect(OjtAssignment::query()->where('student_id', $student->id)->exists())->toBeFalse();
 });

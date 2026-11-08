@@ -97,6 +97,12 @@ new class extends Component
                     <option value="cancelled">Cancelled</option>
                 </flux:select>
 
+                <flux:field>
+                    <flux:label badge="Required">Attendance Location</flux:label>
+                    <flux:description>Pin where the student must be to record attendance.</flux:description>
+                    <x-geofence-picker-map id="create-geofence-map" />
+                </flux:field>
+
                 <flux:textarea wire:model="form.remarks" label="Remarks" rows="4" badge="Optional"
                     placeholder="Add assignment notes, deployment details, or coordinator remarks." />
             </div>

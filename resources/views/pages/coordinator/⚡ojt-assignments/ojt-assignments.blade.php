@@ -145,7 +145,7 @@
                                     <livewire:coordinator.ojt-assignments.edit :assignment="$assignment" :key="'edit-ojt-assignment-' . $assignment->id" />
                                 </flux:modal>
 
-                                <flux:modal :name="'delete-ojt-assignment-'.$assignment->id" class="min-w-88">
+                                <flux:modal :name="'delete-ojt-assignment-'.$assignment->id" class="w-[calc(100vw-2rem)] max-w-sm!">
                                     <livewire:coordinator.ojt-assignments.delete :assignment="$assignment" :key="'delete-ojt-assignment-' . $assignment->id" />
                                 </flux:modal>
                             </flux:table.cell>

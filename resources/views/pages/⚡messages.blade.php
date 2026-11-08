@@ -527,7 +527,7 @@ new #[Title('Messages')] class extends Component
                                     @endif
 
                                     @if ($mine && ! $message->deleted_at)
-                                    <flux:modal name="delete-message-{{ $message->id }}" class="min-w-[22rem]">
+                                    <flux:modal name="delete-message-{{ $message->id }}" class="w-[calc(100vw-2rem)] max-w-sm!">
                                         <div class="space-y-6">
                                             <div>
                                                 <flux:heading size="lg">Archive message?</flux:heading>

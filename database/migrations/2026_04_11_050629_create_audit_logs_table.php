@@ -29,6 +29,7 @@ return new class extends Migration
             $table->ipAddress('ip_address')->nullable();
             $table->text('user_agent')->nullable();
             $table->timestamps();
+            $table->softDeletes();
             $table->index(['module', 'action']);
             $table->index(['target_type', 'target_id']);
             $table->index('created_at');

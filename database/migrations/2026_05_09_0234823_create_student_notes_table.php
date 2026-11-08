@@ -18,6 +18,7 @@ return new class extends Migration
             $table->longText('body')->nullable();
             $table->boolean('is_pinned')->default(false);
             $table->timestamps();
+            $table->softDeletes();
 
             $table->index(['student_id', 'is_pinned', 'updated_at']);
         });

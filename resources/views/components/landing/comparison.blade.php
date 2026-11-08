@@ -1,4 +1,4 @@
-<section class="py-24 px-6 bg-gray-100 dark:bg-zinc-950" id="comparison">
+<section class="bg-gray-100 px-4 py-16 dark:bg-zinc-950 sm:px-6 sm:py-20 lg:py-24" id="comparison">
     <div class="max-w-6xl mx-auto">
         <div
             class="text-center mb-14
@@ -23,11 +23,29 @@
             opacity-0 translate-y-8
             intersect:opacity-100 intersect:translate-y-0
             transition-all duration-600 delay-150 ease-out intersect-once">
+            <div class="bg-white dark:bg-zinc-900 rounded-2xl p-8 border border-gray-200 dark:border-zinc-800">
+                <h3 class="text-3xl font-bold text-gray-900 dark:text-white mb-7">Other Methods</h3>
+                <ul class="space-y-4">
+                    @foreach (['Attendance tracked on paper or spreadsheets', 'Tasks tracked manually', 'Reports take hours to compile', 'Hard to see who is falling behind'] as $item)
+                        <li class="flex items-center gap-3">
+                            <span
+                                class="w-8 h-8 rounded-full border-2 border-gray-300 dark:border-zinc-600 flex items-center justify-center flex-shrink-0">
+                                <svg class="size-3 text-gray-400 dark:text-zinc-500" viewBox="0 0 12 12" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                    <path d="M2 2l8 8M10 2l-8 8" />
+                                </svg>
+                            </span>
+                            <span class="text-md text-gray-500 dark:text-zinc-400">{{ $item }}</span>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+
             <div
                 class="bg-white dark:bg-zinc-900 rounded-2xl p-8 border-3 border-red-500 shadow-lg shadow-red-100 dark:shadow-red-950/30">
                 <div class="flex items-center gap-3 mb-7">
                     <div class="flex items-center gap-2 font-bold text-lg text-gray-900 dark:text-white">
-                        <img src="{{ asset('logo.png') }}" alt="Duty Track Logo" width="48" height="48" />
+                        <img src="{{ asset('logo.png') }}" alt="DutyTrack logo" width="48" height="48" />
                         <h3 class="text-3xl font-bold text-gray-900 dark:text-white">DutyTrack</h3>
                     </div>
                 </div>
@@ -43,24 +61,6 @@
                             </span>
                             <span
                                 class="text-md font-medium text-gray-900 dark:text-zinc-100">{{ $item }}</span>
-                        </li>
-                    @endforeach
-                </ul>
-            </div>
-
-            <div class="bg-white dark:bg-zinc-900 rounded-2xl p-8 border border-gray-200 dark:border-zinc-800">
-                <h3 class="text-3xl font-bold text-gray-900 dark:text-white mb-7">Traditional Methods</h3>
-                <ul class="space-y-4">
-                    @foreach (['Attendance tracked on paper or spreadsheets', 'Tasks tracked manually', 'Reports take hours to compile', 'Hard to see who is falling behind'] as $item)
-                        <li class="flex items-center gap-3">
-                            <span
-                                class="w-8 h-8 rounded-full border-2 border-gray-300 dark:border-zinc-600 flex items-center justify-center flex-shrink-0">
-                                <svg class="size-3 text-gray-400 dark:text-zinc-500" viewBox="0 0 12 12" fill="none"
-                                    stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                                    <path d="M2 2l8 8M10 2l-8 8" />
-                                </svg>
-                            </span>
-                            <span class="text-md text-gray-500 dark:text-zinc-400">{{ $item }}</span>
                         </li>
                     @endforeach
                 </ul>

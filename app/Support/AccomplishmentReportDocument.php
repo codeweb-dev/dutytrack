@@ -8,13 +8,25 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class AccomplishmentReportDocument
 {
-    public static function download(User $student, ?string $from = null, ?string $to = null): Response
+    public static function download(User $student, mixed $from = null, mixed $to = null): Response
     {
-        $fromDate = $from ? Carbon::parse($from)->startOfDay() : null;
-        $toDate = $to ? Carbon::parse($to)->endOfDay() : null;
+        $toRules = ['nullable', 'date_format:Y-m-d'];
+
+        if (is_string($from) && $from !== '') {
+            $toRules[] = 'after_or_equal:from';
+        }
+
+        $dates = Validator::make(compact('from', 'to'), [
+            'from' => ['nullable', 'date_format:Y-m-d'],
+            'to' => $toRules,
+        ])->validate();
+
+        $fromDate = $dates['from'] ? Carbon::createFromFormat('!Y-m-d', $dates['from'])->startOfDay() : null;
+        $toDate = $dates['to'] ? Carbon::createFromFormat('!Y-m-d', $dates['to'])->endOfDay() : null;
 
         $logs = AttendanceLog::query()
             ->with(['submission', 'assignment.companySupervisor'])
@@ -57,7 +69,7 @@ class AccomplishmentReportDocument
             ->mapWithKeys(function (AttendanceLog $log): array {
                 $photos = collect($log->submission?->photo_paths ?? [])
                     ->map(function (string $path): ?string {
-                        $disk = Storage::disk('public');
+                        $disk = Storage::disk('local');
 
                         if (! $disk->exists($path)) {
                             return null;

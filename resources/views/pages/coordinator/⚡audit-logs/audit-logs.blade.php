@@ -134,7 +134,7 @@
                                     <livewire:coordinator.audit-logs.view :log="$log" :key="'view-audit-log-' . $log->id" />
                                 </flux:modal>
 
-                                <flux:modal :name="'delete-audit-log-'.$log->id" class="min-w-88">
+                                <flux:modal :name="'delete-audit-log-'.$log->id" class="w-[calc(100vw-2rem)] max-w-sm!">
                                     <livewire:coordinator.audit-logs.delete :log="$log" :key="'delete-audit-log-' . $log->id" />
                                 </flux:modal>
                             </flux:table.cell>

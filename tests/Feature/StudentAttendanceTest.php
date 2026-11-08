@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Role as PermissionRole;
 
@@ -238,6 +239,40 @@ test('students submit accomplishments after completed attendance and download re
         ->assertSee('ACCOMPLISHMENT', false)
         ->assertSee('Prepared deployment checklist and encoded inventory updates.', false)
         ->assertSee('Photos', false);
+});
+
+test('accomplishment report download rejects malformed date filters', function () {
+    $student = createStudentWithAssignment();
+
+    $this->actingAs($student)
+        ->get(route('student.reports-submissions.download', ['from' => 'not-a-date']))
+        ->assertSessionHasErrors('from');
+});
+
+test('accomplishment photos are private to the student and assigned supervisor', function () {
+    Storage::fake('local');
+    $student = createStudentWithAssignment();
+    $assignment = OjtAssignment::query()->where('student_id', $student->id)->firstOrFail();
+    $attendance = AttendanceLog::query()->create([
+        'student_id' => $student->id,
+        'ojt_assignment_id' => $assignment->id,
+        'attendance_date' => now()->toDateString(),
+        'hours_rendered' => 0,
+        'status' => 'incomplete',
+    ]);
+    $path = 'accomplishment-photos/'.$attendance->id.'/report.jpg';
+    Storage::disk('local')->put($path, 'private report photo');
+    $submission = AttendanceSubmission::query()->create([
+        'attendance_log_id' => $attendance->id,
+        'student_id' => $student->id,
+        'ojt_assignment_id' => $assignment->id,
+        'photo_paths' => [$path],
+    ]);
+    $photo = route('reports.photo', [$submission, 0]);
+
+    $this->actingAs($student)->get($photo)->assertOk();
+    $this->actingAs($assignment->companySupervisor)->get($photo)->assertOk();
+    $this->actingAs(createStudentWithAssignment())->get($photo)->assertNotFound();
 });
 
 test('mentors can read assigned student report submissions', function () {

@@ -84,6 +84,19 @@ return [
 
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
 
+    'coordinator_accounts' => [
+        'bscs' => [
+            'name' => env('COORDINATOR_BSCS_NAME'),
+            'email' => env('COORDINATOR_BSCS_EMAIL'),
+            'password' => env('COORDINATOR_BSCS_PASSWORD'),
+        ],
+        'bsit' => [
+            'name' => env('COORDINATOR_BSIT_NAME'),
+            'email' => env('COORDINATOR_BSIT_EMAIL'),
+            'password' => env('COORDINATOR_BSIT_PASSWORD'),
+        ],
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Encryption Key

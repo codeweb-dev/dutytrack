@@ -48,7 +48,7 @@
 
     <p
         class="anim-sub text-base sm:text-lg text-balance text-gray-500 dark:text-zinc-400 max-w-2xl mx-auto mb-9 mt-6 leading-relaxed">
-        A centralized dashboard that allows academic staffs to monitor attendance,
+        A centralized dashboard for OJT coordinators and immediate supervisors to monitor attendance,
         track duty hours, manage tasks, and evaluate
         internship performance.
     </p>

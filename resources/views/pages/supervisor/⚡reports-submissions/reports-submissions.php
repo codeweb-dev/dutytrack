@@ -12,7 +12,7 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-new #[Title('Reports / Submissions')] class extends Component
+new #[Title('Accomplishment Reports')] class extends Component
 {
     use WithPagination;
     use WithSorting;
@@ -20,12 +20,12 @@ new #[Title('Reports / Submissions')] class extends Component
     public array $breadcrumbs = [
         ['logo' => 'logo.png', 'href' => '/dashboard'],
         ['label' => 'Supervisor Workspace', 'href' => '#'],
-        ['label' => 'Reports / Submissions'],
+        ['label' => 'Accomplishment Reports'],
     ];
 
-    public string $title = 'Reports / Submissions';
+    public string $title = 'Accomplishment Reports';
 
-    public string $description = 'Read completed trainee accomplishment submissions and photos.';
+    public string $description = 'Review students’ daily accomplishment reports and attached photos.';
 
     public string $search = '';
 

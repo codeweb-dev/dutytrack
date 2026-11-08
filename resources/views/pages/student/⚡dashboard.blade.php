@@ -149,12 +149,12 @@ new #[Title('Student Dashboard')] class extends Component
         $oldPath = $requirement->file_path;
 
         $requirement->update([
-            'file_path' => $this->requirementFiles[$key]->store('student-requirements/'.$this->studentId(), 'public'),
+            'file_path' => $this->requirementFiles[$key]->store('student-requirements/'.$this->studentId(), 'local'),
             'submitted_at' => now(),
         ]);
 
         if ($oldPath) {
-            Storage::disk('public')->delete($oldPath);
+            Storage::disk('local')->delete($oldPath);
         }
 
         unset($this->requirementFiles[$key], $this->requirements, $this->requirementSummary, $this->requirementSteps);
@@ -435,7 +435,7 @@ new #[Title('Student Dashboard')] class extends Component
                                             @endif
 
                                             @if ($requirement->file_path)
-                                                <flux:button href="{{ Storage::url($requirement->file_path) }}"
+                                                <flux:button href="{{ route('student.requirements.file', $requirement) }}"
                                                     target="_blank" icon="paper-clip" size="xs">
                                                     View file
                                                 </flux:button>

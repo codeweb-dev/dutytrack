@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('step');
             $table->unsignedSmallInteger('sort_order')->default(0);
             $table->string('template_path')->nullable();
+            $table->string('file_path')->nullable();
             $table->boolean('is_completed')->default(false);
             $table->timestamp('submitted_at')->nullable();
             $table->timestamp('completed_at')->nullable();

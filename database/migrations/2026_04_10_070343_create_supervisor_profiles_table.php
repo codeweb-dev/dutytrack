@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('supervisor_profiles', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->unique()->constrained()->cascadeOnDelete();
-            $table->string('supervisor_id')->unique();
+            $table->string('supervisor_type')->default('external');
+            $table->string('extension_name')->nullable();
             $table->string('company_name');
             $table->text('company_address')->nullable();
             $table->string('position_department')->nullable();

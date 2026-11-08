@@ -17,6 +17,7 @@ return new class extends Migration
             $table->longText('message');
             $table->string('type')->default('info');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

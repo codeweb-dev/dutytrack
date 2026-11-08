@@ -73,7 +73,7 @@
     <flux:modal name="student-report-submission" class="md:w-2xl">
         <form wire:submit="saveSubmission" class="space-y-6">
             <div>
-                <flux:heading size="lg">Daily Submission</flux:heading>
+                <flux:heading size="lg">Daily Accomplishment Report</flux:heading>
                 <flux:text class="mt-2">Add the accomplishment and photos for this completed attendance day.
                 </flux:text>
             </div>
@@ -91,7 +91,7 @@
                 @if ($selectedLog?->submission && count($selectedLog->submission->photoUrls()))
                     <div class="grid gap-3 sm:grid-cols-3">
                         @foreach ($selectedLog->submission->photoUrls() as $url)
-                            <img src="{{ $url }}" alt="Submission photo"
+                            <img src="{{ $url }}" alt="Accomplishment report photo"
                                 class="aspect-video w-full rounded border border-zinc-200 object-cover dark:border-zinc-700">
                         @endforeach
                     </div>
@@ -102,7 +102,7 @@
                 <flux:modal.close>
                     <flux:button type="button" variant="ghost">Cancel</flux:button>
                 </flux:modal.close>
-                <flux:button type="submit" variant="primary" icon="check">Save Submission</flux:button>
+                <flux:button type="submit" variant="primary" icon="check">Save Report</flux:button>
             </div>
         </form>
     </flux:modal>

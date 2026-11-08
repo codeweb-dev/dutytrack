@@ -196,7 +196,7 @@
                                     <livewire:coordinator.student-management.edit :student="$student" :key="'edit-student-' . $student->id" />
                                 </flux:modal>
 
-                                <flux:modal :name="'delete-student-'.$student->id" class="min-w-88">
+                                <flux:modal :name="'delete-student-'.$student->id" class="w-[calc(100vw-2rem)] max-w-sm!">
                                     <livewire:coordinator.student-management.delete :student="$student"
                                         :key="'delete-student-' . $student->id" />
                                 </flux:modal>

@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
 
 class AttendanceSubmission extends Model
 {
@@ -21,8 +20,8 @@ class AttendanceSubmission extends Model
 
     public function photoUrls(): array
     {
-        return collect($this->photo_paths ?? [])
-            ->map(fn (string $path): string => Storage::disk('public')->url($path))
+        return collect($this->photo_paths ?? [])->keys()
+            ->map(fn (int $index): string => route('reports.photo', [$this, $index]))
             ->all();
     }
 

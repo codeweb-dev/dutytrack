@@ -18,6 +18,8 @@ return new class extends Migration
                 ->constrained()
                 ->cascadeOnDelete();
             $table->string('student_id')->unique();
+            $table->date('birthdate')->nullable();
+            $table->string('extension_name')->nullable();
             $table->string('course');
             $table->string('year_level')->default('4th Year');
             $table->string('address')->nullable();

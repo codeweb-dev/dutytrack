@@ -90,9 +90,15 @@ new #[Title('Accomplishment Report')] class extends Component
         ]);
 
         $existingPhotos = $submission->photo_paths ?? [];
+        if (count($existingPhotos) + count($this->new_photos) > 6) {
+            $this->addError('new_photos', 'A report can include up to six photos.');
+
+            return;
+        }
+
         $uploadedPhotos = collect($this->new_photos)
             ->filter(fn ($photo): bool => $photo instanceof TemporaryUploadedFile)
-            ->map(fn (TemporaryUploadedFile $photo): string => $photo->store('accomplishment-photos', 'public'))
+            ->map(fn (TemporaryUploadedFile $photo): string => $photo->store('accomplishment-photos/'.$this->editingAttendanceId, 'local'))
             ->all();
 
         $submission->fill([
@@ -106,7 +112,7 @@ new #[Title('Accomplishment Report')] class extends Component
         unset($this->completedAttendances);
 
         Flux::modal('student-report-submission')->close();
-        Flux::toast(variant: 'success', heading: 'Submission saved.', text: 'Your accomplishment report entry has been updated.');
+        Flux::toast(variant: 'success', heading: 'Report saved.', text: 'Your accomplishment report entry has been updated.');
     }
 
     public function downloadUrl(): string

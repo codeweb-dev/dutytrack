@@ -2,13 +2,16 @@
 
 namespace App\Livewire\Forms\Coordinator;
 
+use App\Models\AttendanceLog;
 use App\Models\OjtAssignment;
+use App\Models\StudentRequirement;
 use App\Models\User;
 use App\Support\AuditLogger;
 use Flux\Flux;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Livewire\Form;
 
 class OjtAssignmentForm extends Form
@@ -83,6 +86,52 @@ class OjtAssignmentForm extends Form
         return $student;
     }
 
+    protected function ensureCompletionEligible(User $student): void
+    {
+        if ($this->status !== 'completed') {
+            return;
+        }
+
+        $requirements = StudentRequirement::query()
+            ->where('student_id', $student->id)
+            ->whereIn('key', StudentRequirement::activeKeys())
+            ->get(['key', 'is_completed']);
+
+        if (
+            $requirements->count() !== count(StudentRequirement::definitions())
+            || $requirements->contains(fn (StudentRequirement $requirement) => ! $requirement->is_completed)
+        ) {
+            throw ValidationException::withMessages([
+                'form.status' => 'All required student documents must be approved before completion.',
+            ]);
+        }
+
+        $requiredHours = (int) $student->studentProfile?->ojt_required_hours;
+        $renderedHours = (float) AttendanceLog::query()->where('student_id', $student->id)->sum('hours_rendered');
+
+        if ($requiredHours < 1 || $renderedHours < $requiredHours) {
+            throw ValidationException::withMessages([
+                'form.status' => 'The required OJT hours must be configured and rendered before completion.',
+            ]);
+        }
+    }
+
+    protected function lockAndEnsureSingleAssignment(User $student, ?int $ignoreAssignmentId = null): void
+    {
+        User::query()->whereKey($student->id)->lockForUpdate()->firstOrFail();
+
+        $assignmentExists = OjtAssignment::query()
+            ->where('student_id', $student->id)
+            ->when($ignoreAssignmentId, fn ($query) => $query->where('id', '!=', $ignoreAssignmentId))
+            ->exists();
+
+        if ($assignmentExists) {
+            throw ValidationException::withMessages([
+                'form.student_id' => 'This student already has an active OJT assignment.',
+            ]);
+        }
+    }
+
     protected function ensureCompanySupervisor(?int $supervisorId = null): User
     {
         $supervisorId ??= $this->company_supervisor_id;
@@ -152,8 +201,11 @@ class OjtAssignmentForm extends Form
         $student = $this->ensureManagedStudent();
 
         $this->ensureCompanySupervisor();
+        $this->ensureCompletionEligible($student);
 
         DB::transaction(function () use ($student) {
+            $this->lockAndEnsureSingleAssignment($student);
+
             $assignment = OjtAssignment::create([
                 'student_id' => $student->id,
                 'ojt_type' => $this->ojt_type,
@@ -201,8 +253,11 @@ class OjtAssignmentForm extends Form
         $student = $this->ensureManagedStudent();
 
         $this->ensureCompanySupervisor();
+        $this->ensureCompletionEligible($student);
 
         DB::transaction(function () use ($student) {
+            $this->lockAndEnsureSingleAssignment($student, $this->assignment?->id);
+
             $assignment = $this->assignment->load([
                 'student.studentProfile',
                 'companySupervisor',

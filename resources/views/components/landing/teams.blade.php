@@ -1,4 +1,4 @@
-<section class="py-24 px-6 bg-gray-100 dark:bg-zinc-950" id="teams">
+<section class="bg-gray-100 px-4 py-16 dark:bg-zinc-950 sm:px-6 sm:py-20 lg:py-24" id="teams">
     <div class="max-w-6xl mx-auto">
         <div class="text-center mb-16
             opacity-0 translate-y-6

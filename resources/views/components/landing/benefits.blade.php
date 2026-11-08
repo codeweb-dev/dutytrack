@@ -1,4 +1,4 @@
-<section class="py-24 px-6 bg-gray-100 dark:bg-zinc-950" id="benefits">
+<section class="bg-gray-100 px-4 py-16 dark:bg-zinc-950 sm:px-6 sm:py-20 lg:py-24" id="benefits">
     <div class="max-w-6xl mx-auto">
         <div class="text-center mb-16">
             <div
@@ -56,7 +56,7 @@
                     [
                         'title' => 'Evaluation System',
                         'desc' =>
-                            'Academic staffs can rate student performance and provide feedback to improve training outcomes.',
+                            'Immediate supervisors assess student performance and share feedback for coordinator review.',
                         'icon' =>
                             '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
                         'delay' => '0',

@@ -19,7 +19,8 @@ return new class extends Migration
             $table->enum('status', ['pending', 'active', 'completed', 'cancelled'])->default('active');
             $table->text('remarks')->nullable();
             $table->timestamps();
-            $table->unique('student_id');
+            $table->softDeletes();
+            $table->index('student_id');
         });
     }
 

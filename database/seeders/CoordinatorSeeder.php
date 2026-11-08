@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use App\Enums\Role;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Validator;
+use RuntimeException;
 
 class CoordinatorSeeder extends Seeder
 {
@@ -12,24 +14,33 @@ class CoordinatorSeeder extends Seeder
      * OJT coordinators per program. Students signing up are routed by course:
      * BSCS => Computer Science, BSIT => Information Technology.
      */
-    private const COORDINATORS = [
-        ['last_name' => 'Dumpit', 'email' => 'dumpit@dutytrack.test', 'program' => 'Computer Science'],
-        ['last_name' => 'Rowee', 'email' => 'rowee@dutytrack.test', 'program' => 'Information Technology'],
-    ];
-
     public function run(): void
     {
-        foreach (self::COORDINATORS as $coordinator) {
+        $coordinators = [
+            [...config('app.coordinator_accounts.bscs'), 'program' => 'Computer Science'],
+            [...config('app.coordinator_accounts.bsit'), 'program' => 'Information Technology'],
+        ];
+
+        Validator::make($coordinators, [
+            '*.name' => ['required', 'string', 'max:255'],
+            '*.email' => ['required', 'email', 'max:255'],
+            '*.password' => ['required', 'string', 'min:12'],
+        ])->validate();
+
+        foreach ($coordinators as $coordinator) {
             $user = User::firstOrCreate(
                 ['email' => $coordinator['email']],
                 [
-                    'name' => $coordinator['last_name'],
-                    'last_name' => $coordinator['last_name'],
-                    'password' => 'password',
+                    'name' => $coordinator['name'],
+                    'password' => $coordinator['password'],
                     'status' => 'active',
                     'email_verified_at' => now(),
                 ],
             );
+
+            if (! $user->hasRole(Role::OJTCOORDINATOR->value) && $user->roles()->exists()) {
+                throw new RuntimeException('A configured coordinator email already belongs to another role.');
+            }
 
             $user->assignRole(Role::OJTCOORDINATOR->value);
 

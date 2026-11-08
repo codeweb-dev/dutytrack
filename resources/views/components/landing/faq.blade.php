@@ -1,4 +1,4 @@
-<section class="py-24 px-6 bg-gray-100 dark:bg-zinc-950" id="faq">
+<section class="bg-gray-100 px-4 py-16 dark:bg-zinc-950 sm:px-6 sm:py-20 lg:py-24" id="faq">
     <div class="max-w-3xl mx-auto">
         <div
             class="text-center mb-14
@@ -6,15 +6,14 @@
             intersect:opacity-100 intersect:translate-y-0
             transition-all duration-500 ease-out intersect-once">
             <div class="inline-block mb-5">
-                <flux:badge rounded icon="sparkles" color="red">FAQ's</flux:badge>
+                <flux:badge rounded icon="sparkles" color="red">FAQs</flux:badge>
             </div>
             <h2
                 class="text-4xl lg:text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight mb-4">
                 Common Questions<br>With Clear Answers
             </h2>
             <p class="text-lg text-gray-500 dark:text-zinc-400 leading-relaxed">
-                Here are answers to the most common<br>
-                things people ask before getting started.
+                Answers to common questions about using DutyTrack.
             </p>
         </div>
 
@@ -32,9 +31,9 @@
                             'Students time in and out through the platform. DutyTrack automatically logs timestamps, calculates hours, and flags any discrepancies — no manual entry needed from supervisors.',
                     ],
                     [
-                        'q' => 'Do academic staffs need to install anything?',
+                        'q' => 'Do OJT coordinators and immediate supervisors need to install anything?',
                         'a' =>
-                            'No. DutyTrack is fully web-based. Academic staffs can access everything from any browser without installing any software.',
+                            'No. DutyTrack runs in a web browser. Coordinators, immediate supervisors, and students can sign in from a supported device.',
                     ],
                     [
                         'q' => 'How are OJT duty hours calculated?',
@@ -44,7 +43,7 @@
                     [
                         'q' => 'Can multiple supervisors monitor the same student?',
                         'a' =>
-                            'Yes. Multiple supervisors or coordinators can be assigned to a student and each will have their own view into that student\'s attendance, hours, and task progress.',
+                            'One immediate supervisor is assigned to a student at a time. The student\'s coordinator can also monitor attendance, hours, and task progress.',
                     ],
                     [
                         'q' => 'Is student data kept secure?',
@@ -61,7 +60,7 @@
                         toggle() { open = open === {{ $i }} ? null : {{ $i }} }
                     }">
                     <button class="w-full flex items-center justify-between px-6 py-5 text-left cursor-pointer"
-                        x-on:click="toggle()">
+                        x-on:click="toggle()" aria-controls="faq-answer-{{ $i }}" :aria-expanded="isOpen">
                         <span
                             class="text-lg font-semibold text-gray-900 dark:text-white pr-4">{{ $faq['q'] }}</span>
                         <span
@@ -79,7 +78,7 @@
                         </span>
                     </button>
 
-                    <div x-show="isOpen"
+                    <div id="faq-answer-{{ $i }}" x-show="isOpen"
                         x-transition:enter="transition-all ease-[cubic-bezier(0.4,0,0.2,1)] duration-400"
                         x-transition:enter-start="opacity-0 max-h-0" x-transition:enter-end="opacity-100 max-h-96"
                         x-transition:leave="transition-all ease-[cubic-bezier(0.4,0,0.2,1)] duration-300"

@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\AttendanceSubmission;
 use App\Models\Evaluation;
 use App\Models\StudentRequirement;
 use App\Support\AccomplishmentReportDocument;
@@ -27,22 +28,44 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     Route::livewire('/announcements', 'pages::announcement')->name('announcements');
+
+    Route::get('/reports/{submission}/photos/{index}', function (AttendanceSubmission $submission, int $index) {
+        $user = Auth::user();
+        $allowed = ($user->hasRole('student') && (int) $submission->student_id === (int) $user->id)
+            || ($user->hasRole('ojt_coordinator') && $submission->student()->where('coordinator_id', $user->id)->exists())
+            || ($user->hasRole('supervisor') && $submission->assignment()->where('company_supervisor_id', $user->id)->exists());
+        $path = $submission->photo_paths[$index] ?? null;
+
+        abort_unless($allowed && is_string($path) && Storage::disk('local')->exists($path), 404);
+
+        return Storage::disk('local')->response($path);
+    })->whereNumber('index')->name('reports.photo');
 });
 
-Route::group(['middleware' => ['role:ojt_coordinator']], function () {
+Route::group(['middleware' => ['auth', 'verified', 'role:ojt_coordinator']], function () {
     Route::livewire('/coordinator/dashboard', 'pages::coordinator.dashboard')->name('coordinator.dashboard');
 
     Route::livewire('/coordinator/student-management', 'pages::coordinator.student-management')->name('coordinator.student-management');
     Route::livewire('/coordinator/supervisor-management', 'pages::coordinator.supervisor-management')->name('coordinator.supervisor-management');
     Route::livewire('/coordinator/ojt-assignments', 'pages::coordinator.ojt-assignments')->name('coordinator.ojt-assignments');
     Route::livewire('/coordinator/requirements', 'pages::coordinator.requirements')->name('coordinator.requirements');
+    Route::livewire('/coordinator/evaluations', 'pages::coordinator.evaluations')->name('coordinator.evaluations');
+    Route::get('/coordinator/evaluations/{evaluation}/download', function (Evaluation $evaluation) {
+        abort_unless(
+            $evaluation->evaluator_type === 'company_supervisor'
+                && $evaluation->student()->where('coordinator_id', Auth::id())->exists(),
+            404,
+        );
+
+        return EvaluationDocument::download($evaluation);
+    })->name('coordinator.evaluations.download');
     Route::get('/coordinator/requirements/{requirement}/file', function (StudentRequirement $requirement) {
         $student = $requirement->student()
             ->where('coordinator_id', Auth::id())
             ->with('studentProfile')
             ->firstOrFail();
 
-        abort_unless($requirement->file_path && Storage::disk('public')->exists($requirement->file_path), 404);
+        abort_unless($requirement->file_path && Storage::disk('local')->exists($requirement->file_path), 404);
 
         return view('pages.coordinator.requirement-file-preview', [
             'requirement' => $requirement,
@@ -53,9 +76,9 @@ Route::group(['middleware' => ['role:ojt_coordinator']], function () {
     })->name('coordinator.requirements.file');
     Route::get('/coordinator/requirements/{requirement}/file/content', function (StudentRequirement $requirement) {
         abort_unless($requirement->student()->where('coordinator_id', Auth::id())->exists(), 404);
-        abort_unless($requirement->file_path && Storage::disk('public')->exists($requirement->file_path), 404);
+        abort_unless($requirement->file_path && Storage::disk('local')->exists($requirement->file_path), 404);
 
-        return Storage::disk('public')->response($requirement->file_path);
+        return Storage::disk('local')->response($requirement->file_path);
     })->name('coordinator.requirements.file.content');
     Route::livewire('/coordinator/attendance', 'pages::coordinator.attendance')->name('coordinator.attendance');
     Route::livewire('/coordinator/messages', 'pages::messages')->name('coordinator.messages');
@@ -66,7 +89,7 @@ Route::group(['middleware' => ['role:ojt_coordinator']], function () {
     Route::livewire('/coordinator/archive', 'pages::coordinator.archive')->name('coordinator.archive');
 });
 
-Route::group(['middleware' => ['role:supervisor']], function () {
+Route::group(['middleware' => ['auth', 'verified', 'role:supervisor']], function () {
     Route::livewire('/supervisor/dashboard', 'pages::supervisor.dashboard')->name('supervisor.dashboard');
     Route::livewire('/supervisor/assigned-students', 'pages::supervisor.assigned-students')->name('supervisor.assigned-students');
     Route::livewire('/supervisor/attendance', 'pages::supervisor.attendance')->name('supervisor.attendance');
@@ -82,7 +105,7 @@ Route::group(['middleware' => ['role:supervisor']], function () {
     })->name('supervisor.evaluations.download');
 });
 
-Route::group(['middleware' => ['role:student']], function () {
+Route::group(['middleware' => ['auth', 'verified', 'role:student']], function () {
     Route::livewire('/student/dashboard', 'pages::student.dashboard')->name('student.dashboard');
     Route::livewire('/student/attendance', 'pages::student.attendance')->name('student.attendance');
     Route::redirect('/student/evaluations', '/student/dashboard#evaluations')->name('student.evaluations');
@@ -91,6 +114,13 @@ Route::group(['middleware' => ['role:student']], function () {
     Route::livewire('/student/notes', 'pages::student.notes')->name('student.notes');
     Route::livewire('/student/messages', 'pages::messages')->name('student.messages');
     Route::livewire('/student/pomodoro', 'pages::student.pomodoro')->name('student.pomodoro');
+
+    Route::get('/student/requirements/{requirement}/file', function (StudentRequirement $requirement) {
+        abort_unless((int) $requirement->student_id === (int) Auth::id(), 404);
+        abort_unless($requirement->file_path && Storage::disk('local')->exists($requirement->file_path), 404);
+
+        return Storage::disk('local')->response($requirement->file_path);
+    })->name('student.requirements.file');
 
     Route::get('/student/evaluations/{evaluation}/download', function (Evaluation $evaluation) {
         abort_unless($evaluation->student_id === Auth::id(), 403);

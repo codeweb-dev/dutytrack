@@ -1,7 +1,9 @@
 <?php
 
 use App\Enums\Role as AppRole;
+use App\Models\AttendanceLog;
 use App\Models\OjtAssignment;
+use App\Models\StudentRequirement;
 use App\Models\User;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Role as PermissionRole;
@@ -62,6 +64,10 @@ function createCompanySupervisor(array $attributes = []): User
     ], $attributes));
 
     $supervisor->assignRole(AppRole::SUPERVISOR->value);
+    $supervisor->supervisorProfile()->create([
+        'supervisor_type' => 'internal',
+        'company_name' => 'Evergreen College',
+    ]);
 
     return $supervisor;
 }
@@ -93,6 +99,7 @@ test('coordinator can create an external assignment for their own student', func
     $coordinator = createCoordinatorForAssignments();
     $student = createManagedStudent($coordinator);
     $supervisor = createCompanySupervisor();
+    $supervisor->supervisorProfile()->update(['supervisor_type' => 'external']);
 
     $this->actingAs($coordinator);
 
@@ -115,6 +122,7 @@ test('coordinator can switch from internal to external before saving an assignme
     $coordinator = createCoordinatorForAssignments();
     $student = createManagedStudent($coordinator);
     $supervisor = createCompanySupervisor();
+    $supervisor->supervisorProfile()->update(['supervisor_type' => 'external']);
 
     $this->actingAs($coordinator);
 
@@ -133,6 +141,59 @@ test('coordinator can switch from internal to external before saving an assignme
     expect($assignment)->not->toBeNull();
     expect($assignment->ojt_type)->toBe('external');
     expect($assignment->company_supervisor_id)->toBe($supervisor->id);
+});
+
+test('coordinator cannot complete an assignment before requirements and hours are complete', function () {
+    $coordinator = createCoordinatorForAssignments();
+    $student = createManagedStudent($coordinator);
+    $supervisor = createCompanySupervisor();
+    $assignment = OjtAssignment::create([
+        'student_id' => $student->id,
+        'ojt_type' => 'internal',
+        'company_supervisor_id' => $supervisor->id,
+        'status' => 'active',
+    ]);
+
+    $this->actingAs($coordinator);
+
+    Livewire::test('coordinator.ojt-assignments.edit', ['assignment' => $assignment])
+        ->set('form.status', 'completed')
+        ->call('save')
+        ->assertHasErrors('form.status');
+
+    expect($assignment->fresh()->status)->toBe('active');
+});
+
+test('coordinator can complete an assignment after approved requirements and required hours', function () {
+    $coordinator = createCoordinatorForAssignments();
+    $student = createManagedStudent($coordinator);
+    $supervisor = createCompanySupervisor();
+    $assignment = OjtAssignment::create([
+        'student_id' => $student->id,
+        'ojt_type' => 'internal',
+        'company_supervisor_id' => $supervisor->id,
+        'status' => 'active',
+    ]);
+
+    foreach (StudentRequirement::ensureForStudent($student) as $requirement) {
+        $requirement->update(['is_completed' => true]);
+    }
+    AttendanceLog::create([
+        'student_id' => $student->id,
+        'ojt_assignment_id' => $assignment->id,
+        'attendance_date' => now()->toDateString(),
+        'hours_rendered' => 600,
+        'status' => 'present',
+    ]);
+
+    $this->actingAs($coordinator);
+
+    Livewire::test('coordinator.ojt-assignments.edit', ['assignment' => $assignment])
+        ->set('form.status', 'completed')
+        ->call('save')
+        ->assertHasNoErrors();
+
+    expect($assignment->fresh()->status)->toBe('completed');
 });
 
 test('coordinator cannot assign another coordinators student', function () {

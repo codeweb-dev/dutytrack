@@ -4,6 +4,7 @@ use App\Models\StudentRequirement;
 use App\Models\User;
 use Flux\Flux;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
@@ -33,7 +34,7 @@ new class extends Component
             return;
         }
 
-        if (! $requirement->file_path) {
+        if (! $requirement->file_path || ! Storage::disk('local')->exists($requirement->file_path)) {
             Flux::toast(
                 variant: 'danger',
                 heading: 'No file attached.',

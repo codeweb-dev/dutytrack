@@ -78,7 +78,7 @@ test('coordinator student management only shows the logged in coordinators stude
 });
 
 test('students submit a requirement with an attached file', function () {
-    Storage::fake('public');
+    Storage::fake('local');
 
     $coordinator = createCoordinator();
     $student = createStudentForCoordinator($coordinator);
@@ -101,16 +101,36 @@ test('students submit a requirement with an attached file', function () {
 
     expect($requirement?->submitted_at)->not->toBeNull();
     expect($requirement?->is_completed)->toBeFalse();
-    Storage::disk('public')->assertExists($requirement->file_path);
+    Storage::disk('local')->assertExists($requirement->file_path);
+});
+
+test('students can only view their own private requirement files', function () {
+    Storage::fake('local');
+    $coordinator = createCoordinator();
+    $student = createStudentForCoordinator($coordinator);
+    $otherStudent = createStudentForCoordinator($coordinator);
+    $requirement = StudentRequirement::ensureForStudent($student)->firstWhere('key', 'parents_waiver');
+    Storage::disk('local')->put('student-requirements/waiver.pdf', 'waiver');
+    $requirement->update(['file_path' => 'student-requirements/waiver.pdf']);
+
+    $this->actingAs($student)
+        ->get(route('student.requirements.file', $requirement))
+        ->assertOk();
+
+    $this->actingAs($otherStudent)
+        ->get(route('student.requirements.file', $requirement))
+        ->assertNotFound();
 });
 
 test('coordinators approve requirements and approval cannot be undone', function () {
+    Storage::fake('local');
     $coordinator = createCoordinator();
     $student = createStudentForCoordinator($coordinator);
 
     $requirement = StudentRequirement::ensureForStudent($student)
         ->firstWhere('key', 'parents_waiver');
 
+    Storage::disk('local')->put('student-requirements/waiver.pdf', 'waiver');
     $requirement->update(['file_path' => 'student-requirements/waiver.pdf', 'submitted_at' => now()]);
 
     $this->actingAs($coordinator);

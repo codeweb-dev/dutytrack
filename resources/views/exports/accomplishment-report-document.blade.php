@@ -98,7 +98,7 @@
             text-align: center;
         }
 
-        .superior {
+        .immediate-supervisor {
             margin-top: 22pt;
             font-size: 14pt;
             font-weight: bold;
@@ -186,7 +186,7 @@
                 </tr>
             </table>
 
-            <p class="superior">Immediate Supervisor: {{ $supervisorName }}</p>
+            <p class="immediate-supervisor">Immediate Supervisor: {{ $supervisorName }}</p>
         @empty
             <p>No completed attendance records found for the selected date range.</p>
         @endforelse

@@ -21,7 +21,7 @@
                         <div class="flex flex-wrap gap-2">
                             @foreach ($log->submission->photoUrls() as $url)
                                 <a href="{{ $url }}" target="_blank">
-                                    <img src="{{ $url }}" alt="Submission photo"
+                                    <img src="{{ $url }}" alt="Accomplishment report photo"
                                         class="size-12 rounded border border-zinc-200 object-cover dark:border-zinc-700">
                                 </a>
                             @endforeach
@@ -34,7 +34,7 @@
         @empty
             <flux:table.row>
                 <flux:table.cell colspan="6" class="py-8 text-center text-zinc-500">
-                    No submissions found.
+                    No accomplishment reports found.
                 </flux:table.cell>
             </flux:table.row>
         @endforelse

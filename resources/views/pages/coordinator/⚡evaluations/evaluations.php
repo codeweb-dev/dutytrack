@@ -76,7 +76,7 @@ new #[Title('Evaluation Review')] class extends Component
         });
 
         unset($this->evaluations);
-        Flux::toast(variant: 'success', heading: 'Evaluation reviewed.');
+        Flux::toast(variant: 'success', text: 'Evaluation reviewed.');
     }
 
     #[Computed]

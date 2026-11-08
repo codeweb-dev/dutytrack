@@ -204,7 +204,7 @@ new #[Title('Notes')] class extends Component
         $this->showArchivedNotes = false;
         unset($this->notes, $this->archivedNotes);
 
-        Flux::toast(variant: 'success', heading: 'Note restored.');
+        Flux::toast(variant: 'success', text: 'Note restored.');
     }
 
     public function preview(?string $body): string

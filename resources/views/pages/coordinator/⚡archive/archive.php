@@ -94,7 +94,7 @@ new #[Title('Archive')] class extends Component
         Announcement::onlyTrashed()->findOrFail($announcementId)->restore();
         unset($this->archivedAnnouncements);
 
-        Flux::toast(variant: 'success', heading: 'Announcement restored.');
+        Flux::toast(variant: 'success', text: 'Announcement restored.');
     }
 
     public function restoreAssignment(int $assignmentId): void
@@ -112,7 +112,7 @@ new #[Title('Archive')] class extends Component
         $assignment->restore();
         unset($this->archivedAssignments);
 
-        Flux::toast(variant: 'success', heading: 'Assignment restored.');
+        Flux::toast(variant: 'success', text: 'Assignment restored.');
     }
 
     public function restoreAuditLog(int $logId): void
@@ -120,6 +120,6 @@ new #[Title('Archive')] class extends Component
         AuditLog::onlyTrashed()->findOrFail($logId)->restore();
         unset($this->archivedAuditLogs);
 
-        Flux::toast(variant: 'success', heading: 'Audit log restored.');
+        Flux::toast(variant: 'success', text: 'Audit log restored.');
     }
 };

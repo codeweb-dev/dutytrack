@@ -35,6 +35,8 @@ new #[Title('Students')] class extends Component
 
     public string $status = '';
 
+    public string $rejectionReason = '';
+
     public function updatedStatus(): void
     {
         $this->resetPage();
@@ -118,10 +120,15 @@ new #[Title('Students')] class extends Component
         unset($this->students, $this->summary);
     }
 
-    // Keep rejected sign-ups in the Archive so they can be restored.
+    // Keep rejected sign-ups in the Archive so they can be restored; the reason is shown at login.
     public function reject(int $studentId): void
     {
+        $this->validate(['rejectionReason' => ['required', 'string', 'max:1000']], attributes: ['rejectionReason' => 'reason']);
+
         $student = $this->pendingStudent($studentId);
+
+        $student->update(['rejection_reason' => trim($this->rejectionReason)]);
+        $this->reset('rejectionReason');
 
         AuditLogger::log(
             module: 'Students',
@@ -132,6 +139,8 @@ new #[Title('Students')] class extends Component
         );
 
         $student->delete();
+
+        Flux::modal('reject-student-'.$student->id)->close();
 
         Flux::toast(variant: 'success', heading: 'Sign-up archived.', text: "{$student->display_name}'s account can be restored from the Archive.");
 

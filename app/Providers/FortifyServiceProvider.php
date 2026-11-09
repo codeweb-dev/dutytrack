@@ -52,7 +52,7 @@ class FortifyServiceProvider extends ServiceProvider
                 'birthdate' => [$request->input('role') === Role::STUDENT->value ? 'required' : 'nullable', 'date', 'before:today'],
             ])['role'];
 
-            $user = User::query()
+            $query = User::query()
                 ->whereHas('roles', fn ($query) => $query->where('name', $role))
                 ->when(
                     $role === Role::STUDENT->value,
@@ -60,16 +60,26 @@ class FortifyServiceProvider extends ServiceProvider
                         ->whereRaw('LOWER(student_id) = ?', [Str::lower($request->input(Fortify::username()))])
                         ->whereDate('birthdate', $request->input('birthdate'))),
                     fn ($query) => $query->where('email', $request->input(Fortify::username())),
-                )
-                ->first();
+                );
+
+            $user = (clone $query)->first();
+
+            // Rejected sign-ups are archived; tell the student why instead of "invalid credentials".
+            $user ??= $query->onlyTrashed()->whereNotNull('rejection_reason')->latest('deleted_at')->first();
 
             if (! $user || ! Hash::check($request->input('password'), $user->password)) {
                 return null;
             }
 
+            if ($user->trashed()) {
+                throw ValidationException::withMessages([
+                    'account' => __('Your sign-up was rejected by your OJT coordinator. Reason: :reason', ['reason' => $user->rejection_reason]),
+                ]);
+            }
+
             if ($user->status === 'pending') {
                 throw ValidationException::withMessages([
-                    Fortify::username() => __('Your account is still under review by your OJT coordinator.'),
+                    'account' => __('Your account is still under review by your OJT coordinator.'),
                 ]);
             }
 

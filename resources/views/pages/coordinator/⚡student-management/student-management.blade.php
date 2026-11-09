@@ -128,11 +128,9 @@
                                                 <flux:menu.item icon="check-circle">Approve</flux:menu.item>
                                             </flux:modal.trigger>
 
-                                            <flux:menu.item variant="danger" icon="x-circle"
-                                                wire:click="reject({{ $student->id }})"
-                                                wire:confirm="Reject and archive {{ $student->display_name }}'s sign-up? It can be restored from the Archive.">
-                                                Reject
-                                            </flux:menu.item>
+                                            <flux:modal.trigger :name="'reject-student-'.$student->id">
+                                                <flux:menu.item variant="danger" icon="x-circle">Reject</flux:menu.item>
+                                            </flux:modal.trigger>
 
                                             <flux:menu.separator />
                                         @else
@@ -173,6 +171,28 @@
                                                 Confirm &amp; Approve
                                             </flux:button>
                                         </div>
+                                    </flux:modal>
+
+                                    <flux:modal :name="'reject-student-'.$student->id" class="w-[calc(100vw-2rem)] max-w-md!">
+                                        <form wire:submit="reject({{ $student->id }})" class="space-y-6">
+                                            <div>
+                                                <flux:heading size="lg">Reject sign-up</flux:heading>
+                                                <flux:text class="mt-2">
+                                                    {{ $student->display_name }} will see this reason when they try to log in. The sign-up can be restored from the Archive.
+                                                </flux:text>
+                                            </div>
+
+                                            <flux:textarea wire:model="rejectionReason" label="Reason" rows="4" required
+                                                placeholder="e.g. Student ID does not match the masterlist." />
+
+                                            <div class="flex justify-end gap-2">
+                                                <flux:modal.close>
+                                                    <flux:button variant="ghost">Cancel</flux:button>
+                                                </flux:modal.close>
+
+                                                <flux:button type="submit" variant="danger" icon="x-circle">Reject</flux:button>
+                                            </div>
+                                        </form>
                                     </flux:modal>
                                 @endif
 

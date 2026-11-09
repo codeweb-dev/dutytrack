@@ -114,10 +114,17 @@ test('coordinators can reject a pending sign-up so the student can register agai
     $student = User::where('email', 'jamie@example.com')->first();
 
     $this->actingAs(User::where('email', 'dumpit@dutytrack.test')->first());
-    Livewire::test('pages::coordinator.student-management')->call('reject', $student->id);
+    Livewire::test('pages::coordinator.student-management')
+        ->call('reject', $student->id)->assertHasErrors('rejectionReason')
+        ->set('rejectionReason', 'Student ID does not match the masterlist.')
+        ->call('reject', $student->id)->assertHasNoErrors();
     auth()->logout();
 
     expect(User::find($student->id))->toBeNull();
+
+    $this->post(route('login.store'), ['role' => AppRole::STUDENT->value, 'email' => '2026-0001', 'birthdate' => '2004-01-01', 'password' => 'password'])
+        ->assertSessionHasErrors(['account' => 'Your sign-up was rejected by your OJT coordinator. Reason: Student ID does not match the masterlist.']);
+    $this->assertGuest();
 
     $this->post(route('register.store'), studentSignup(['course' => 'BSCS']))->assertSessionHasNoErrors();
 });

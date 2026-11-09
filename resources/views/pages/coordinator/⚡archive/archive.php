@@ -83,7 +83,7 @@ new #[Title('Archive')] class extends Component
                 ->orWhereHas('roles', fn (Builder $roles) => $roles->where('name', Role::OJTCOORDINATOR->value)))
             ->findOrFail($userId);
 
-        $user->restore();
+        $user->forceFill(['rejection_reason' => null])->restore();
         unset($this->archivedUsers);
 
         Flux::toast(variant: 'success', heading: 'Account restored.', text: 'The account is active again.');

@@ -290,7 +290,7 @@ new #[Title('Student Dashboard')] class extends Component
                                 <flux:table.rows>
                                     <flux:table.row :key="$evaluation->id">
                                         <flux:table.cell>
-                                            {{ $evaluation->evaluator?->name ?? 'Supervisor' }}
+                                            {{ $evaluation->evaluator?->display_name ?? 'Supervisor' }}
                                         </flux:table.cell>
                                         <flux:table.cell>
                                             {{ $evaluation->inclusive_from?->format('M d, Y') ?? '' }}

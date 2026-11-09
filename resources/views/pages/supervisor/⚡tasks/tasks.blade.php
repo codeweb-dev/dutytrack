@@ -122,7 +122,7 @@
                                         <div class="min-w-0 text-sm text-neutral-500">
                                             @if ($taskCard['students']->count() === 1)
                                                 <span
-                                                    class="block truncate">{{ $taskCard['students']->first()?->name ?? 'Trainee' }}</span>
+                                                    class="block truncate">{{ $taskCard['students']->first()?->display_name ?? 'Trainee' }}</span>
                                                 <span class="block truncate text-xs">
                                                     {{ $taskCard['students']->first()?->studentProfile?->student_id ?? 'No student ID' }}
                                                 </span>
@@ -147,7 +147,7 @@
 
                                                 <flux:menu>
                                                     <flux:menu.item icon="eye">
-                                                        {{ $taskCard['students']->count() === 1 ? $taskCard['students']->first()?->name ?? 'Trainee' : $taskCard['students']->count() . ' trainees' }}
+                                                        {{ $taskCard['students']->count() === 1 ? $taskCard['students']->first()?->display_name ?? 'Trainee' : $taskCard['students']->count() . ' trainees' }}
                                                     </flux:menu.item>
                                                     <flux:menu.item icon="calendar">
                                                         {{ $task->due_date?->format('M d, Y') ?? 'No due date' }}

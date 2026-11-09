@@ -281,7 +281,7 @@ new #[Title('Supervisor Dashboard')] class extends Component
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ $assignment->student?->coordinator?->name ?? '' }}
+                                {{ $assignment->student?->coordinator?->display_name ?? '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>

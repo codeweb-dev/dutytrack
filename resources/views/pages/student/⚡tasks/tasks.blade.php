@@ -65,11 +65,11 @@
                                 <div class="flex items-center justify-between gap-2 px-4 pb-2 pt-3">
                                     <div class="flex min-w-0 items-center gap-2">
                                         <flux:avatar.group>
-                                            <flux:avatar size="xs" name="{{ $task->assignedBy?->name ?? 'Supervisor' }}" />
+                                            <flux:avatar size="xs" name="{{ $task->assignedBy?->display_name ?? 'Supervisor' }}" />
                                         </flux:avatar.group>
 
                                         <div class="min-w-0 text-sm text-neutral-500">
-                                            <span class="block truncate">{{ $task->assignedBy?->name ?? 'Supervisor' }}</span>
+                                            <span class="block truncate">{{ $task->assignedBy?->display_name ?? 'Supervisor' }}</span>
                                         </div>
                                     </div>
 

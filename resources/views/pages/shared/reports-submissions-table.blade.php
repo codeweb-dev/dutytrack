@@ -11,7 +11,7 @@
     <flux:table.rows>
         @forelse ($logs as $log)
             <flux:table.row :key="$log->id">
-                <flux:table.cell>{{ $log->student?->name ?? '' }}</flux:table.cell>
+                <flux:table.cell>{{ $log->student?->display_name ?? '' }}</flux:table.cell>
                 <flux:table.cell>{{ $log->student?->studentProfile?->student_id ?? '' }}</flux:table.cell>
                 <flux:table.cell>{{ $log->attendance_date?->format('M d, Y') }}</flux:table.cell>
                 <flux:table.cell>{{ \App\Support\HourFormatter::format($log->hours_rendered) }}</flux:table.cell>

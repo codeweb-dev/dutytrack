@@ -129,7 +129,7 @@ class StudentForm extends Form
             'guardian_address' => $user?->studentProfile?->guardian_address,
             'guardian_contact_number' => $user?->studentProfile?->guardian_contact_number,
             'coordinator_id' => $user?->coordinator_id,
-            'coordinator_name' => $user?->coordinator?->name,
+            'coordinator_name' => $user?->coordinator?->display_name,
         ];
     }
 

@@ -131,11 +131,11 @@ class OjtAssignmentForm extends Form
 
         return [
             'student_id' => $assignment?->student_id,
-            'student_name' => $assignment?->student?->name,
+            'student_name' => $assignment?->student?->display_name,
             'student_number' => $assignment?->student?->studentProfile?->student_id,
             'ojt_type' => $assignment?->ojt_type,
             'company_supervisor_id' => $assignment?->company_supervisor_id,
-            'company_supervisor_name' => $assignment?->companySupervisor?->name,
+            'company_supervisor_name' => $assignment?->companySupervisor?->display_name,
             'geofence_latitude' => $assignment?->geofence_latitude,
             'geofence_longitude' => $assignment?->geofence_longitude,
             'geofence_radius' => $assignment?->geofence_radius,
@@ -144,8 +144,8 @@ class OjtAssignmentForm extends Form
 
     protected function assignmentLabel(OjtAssignment $assignment): string
     {
-        $studentName = $assignment->student?->name ?? 'Student';
-        $assignee = $assignment->companySupervisor?->name ?? 'Supervisor';
+        $studentName = $assignment->student?->display_name ?? 'Student';
+        $assignee = $assignment->companySupervisor?->display_name ?? 'Supervisor';
 
         return $studentName.' -> '.$assignee;
     }

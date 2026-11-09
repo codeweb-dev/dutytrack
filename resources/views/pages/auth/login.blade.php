@@ -22,7 +22,7 @@
             <flux:error name="role" />
 
             <flux:field>
-                <flux:label x-text="role === 'student' ? @js(__('Student ID')) : @js(__('Email address'))"></flux:label>
+                <flux:label><span x-text="role === 'student' ? @js(__('Student ID')) : @js(__('Email address'))">{{ __('Student ID') }}</span></flux:label>
                 <flux:input name="email" :value="old('email')" x-bind:type="role === 'student' ? 'text' : 'email'" required autofocus
                     x-bind:autocomplete="role === 'student' ? 'username' : 'email'" />
                 <flux:error name="email" />

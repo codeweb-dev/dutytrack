@@ -264,3 +264,28 @@ test('coordinators can monitor attendance for their own students', function () {
         ->assertSee($ownedStudent->display_name)
         ->assertDontSee($otherStudent->display_name);
 });
+
+test('editing a student requires a profile photo when none exists', function () {
+    Storage::fake('public');
+
+    $coordinator = createCoordinator();
+    $student = createStudentForCoordinator($coordinator, ['contact_number' => '9123456789', 'profile_photo_path' => null]);
+    $student->studentProfile->update([
+        'birthdate' => '2004-01-01',
+        'address' => 'Street, City',
+        'guardian_name' => 'Maria Dela Cruz',
+        'guardian_address' => 'Street, City',
+        'guardian_contact_number' => '9123456789',
+    ]);
+
+    $this->actingAs($coordinator);
+
+    Livewire::test('coordinator.student-management.edit', ['student' => $student])
+        ->call('save')
+        ->assertHasErrors(['form.photo' => 'required'])
+        ->set('form.photo', UploadedFile::fake()->image('me.jpg'))
+        ->call('save')
+        ->assertHasNoErrors();
+
+    expect($student->fresh()->profile_photo_path)->not->toBeNull();
+});

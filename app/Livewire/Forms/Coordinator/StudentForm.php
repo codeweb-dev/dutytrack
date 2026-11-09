@@ -41,13 +41,17 @@ class StudentForm extends Form
 
     public string $password_confirmation = '';
 
-    public string $course = '';
-
     public ?string $contact_number = '';
 
     public ?string $middle_name = '';
 
-    public int $ojt_required_hours = 0;
+    public ?string $address = '';
+
+    public ?string $guardian_name = '';
+
+    public ?string $guardian_address = '';
+
+    public ?string $guardian_contact_number = '';
 
     public function rules(): array
     {
@@ -55,7 +59,7 @@ class StudentForm extends Form
         $studentProfileId = $this->student?->studentProfile?->id;
 
         return [
-            'photo' => ['nullable', 'image', 'max:2048'],
+            'photo' => [Rule::requiredIf(! $this->existing_photo_path), 'nullable', 'image', 'max:2048'],
             'student_id' => [
                 'required',
                 'string',
@@ -74,10 +78,12 @@ class StudentForm extends Form
                 'max:255',
                 Rule::unique('users', 'email')->ignore($userId),
             ],
-            'contact_number' => ['nullable', 'string', 'max:20'],
+            'contact_number' => ['required', 'string', 'max:20'],
+            'address' => ['required', 'string', 'max:255'],
+            'guardian_name' => ['required', 'string', 'max:255'],
+            'guardian_address' => ['required', 'string', 'max:255'],
+            'guardian_contact_number' => ['required', 'string', 'max:20'],
             'password' => [$this->student ? 'nullable' : 'required', 'string', 'min:3', 'confirmed'],
-            'course' => ['required', 'string', 'max:50'],
-            'ojt_required_hours' => ['nullable', 'integer', 'min:0'],
         ];
     }
 
@@ -90,8 +96,15 @@ class StudentForm extends Form
             'middle_name' => 'middle name',
             'last_name' => 'last name',
             'contact_number' => 'contact number',
-            'ojt_required_hours' => 'OJT required hours',
+            'guardian_name' => 'guardian name',
+            'guardian_address' => 'guardian address',
+            'guardian_contact_number' => 'guardian contact number',
         ];
+    }
+
+    public function messages(): array
+    {
+        return ['photo.required' => 'Please upload a profile photo.'];
     }
 
     protected function studentAuditData(?User $user = null): array
@@ -111,6 +124,10 @@ class StudentForm extends Form
             'birthdate' => $user?->studentProfile?->birthdate,
             'course' => $user?->studentProfile?->course,
             'ojt_required_hours' => $user?->studentProfile?->ojt_required_hours,
+            'address' => $user?->studentProfile?->address,
+            'guardian_name' => $user?->studentProfile?->guardian_name,
+            'guardian_address' => $user?->studentProfile?->guardian_address,
+            'guardian_contact_number' => $user?->studentProfile?->guardian_contact_number,
             'coordinator_id' => $user?->coordinator_id,
             'coordinator_name' => $user?->coordinator?->name,
         ];
@@ -160,8 +177,10 @@ class StudentForm extends Form
 
         $this->student_id = $student->studentProfile?->student_id ?? '';
         $this->birthdate = $student->studentProfile?->birthdate;
-        $this->course = $student->studentProfile?->course ?? '';
-        $this->ojt_required_hours = (int) ($student->studentProfile?->ojt_required_hours ?? 0);
+        $this->address = $student->studentProfile?->address ?? '';
+        $this->guardian_name = $student->studentProfile?->guardian_name ?? '';
+        $this->guardian_address = $student->studentProfile?->guardian_address ?? '';
+        $this->guardian_contact_number = $student->studentProfile?->guardian_contact_number ?? '';
         $this->password = '';
         $this->password_confirmation = '';
         $this->photo = null;
@@ -209,7 +228,7 @@ class StudentForm extends Form
                 'first_name' => $this->first_name,
                 'middle_name' => $this->middle_name ?: null,
                 'last_name' => $this->last_name,
-                'contact_number' => $this->contact_number ?: null,
+                'contact_number' => $this->contact_number,
                 'email' => $this->email,
                 'profile_photo_path' => $photoPath,
             ]);
@@ -224,8 +243,10 @@ class StudentForm extends Form
                 'student_id' => $this->student_id,
                 'extension_name' => $this->extension_name ?: null,
                 'birthdate' => $this->birthdate,
-                'course' => $this->course,
-                'ojt_required_hours' => $this->ojt_required_hours ?: 0,
+                'address' => $this->address,
+                'guardian_name' => $this->guardian_name,
+                'guardian_address' => $this->guardian_address,
+                'guardian_contact_number' => $this->guardian_contact_number,
             ]);
 
             $user = $user->fresh(['studentProfile', 'coordinator']);
@@ -273,8 +294,10 @@ class StudentForm extends Form
         $this->contact_number = '';
         $this->password = '';
         $this->password_confirmation = '';
-        $this->course = '';
-        $this->ojt_required_hours = 0;
+        $this->address = '';
+        $this->guardian_name = '';
+        $this->guardian_address = '';
+        $this->guardian_contact_number = '';
         $this->resetValidation();
     }
 }

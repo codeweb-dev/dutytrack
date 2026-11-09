@@ -55,7 +55,12 @@ new #[Title('Notes')] class extends Component
 
     protected function filteredNotesQuery(): Builder
     {
-        return $this->baseNotesQuery()
+        return $this->searched($this->baseNotesQuery());
+    }
+
+    protected function searched(Builder $query): Builder
+    {
+        return $query
             ->when($this->search !== '', function (Builder $query) {
                 $search = '%'.$this->search.'%';
 
@@ -103,7 +108,7 @@ new #[Title('Notes')] class extends Component
 
     public function updatedSearch(): void
     {
-        unset($this->notes);
+        unset($this->notes, $this->archivedNotes);
     }
 
     public function updatedNoteTitle(): void
@@ -226,8 +231,7 @@ new #[Title('Notes')] class extends Component
     #[Computed]
     public function archivedNotes(): Collection
     {
-        return StudentNote::onlyTrashed()
-            ->where('student_id', $this->studentId())
+        return $this->searched(StudentNote::onlyTrashed()->where('student_id', $this->studentId()))
             ->latest('deleted_at')
             ->get();
     }

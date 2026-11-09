@@ -76,3 +76,22 @@ test('students only see their own notes', function () {
         ->call('selectNote', $otherNote->id)
         ->assertNotFound();
 });
+
+test('the archive button swaps the sidebar to archived notes', function () {
+    $student = createStudentNotesStudent();
+    StudentNote::query()->create(['student_id' => $student->id, 'title' => 'Still active', 'body' => '']);
+    $archived = StudentNote::query()->create(['student_id' => $student->id, 'title' => 'Old reminder', 'body' => '']);
+    $archived->delete();
+
+    $this->actingAs($student);
+
+    Livewire::test('pages::student.notes')
+        ->assertSee('Still active')
+        ->assertDontSee('Old reminder')
+        ->set('showArchivedNotes', true)
+        ->assertSee('Old reminder')
+        ->assertDontSee('Still active')
+        ->call('restoreNote', $archived->id)
+        ->assertSet('showArchivedNotes', false)
+        ->assertSee('Old reminder');
+});

@@ -509,7 +509,8 @@ body.duty-app :where(*) { overflow-wrap: anywhere; }
     position: fixed;
     inset: 0;
     z-index: 50;
-    background: rgb(10 10 10 / 62%);
+    background: rgb(10 10 10 / 55%);
+    backdrop-filter: blur(2px);
 }
 
 .duty-tour-dialog,
@@ -517,10 +518,10 @@ body.duty-app :where(*) { overflow-wrap: anywhere; }
     position: fixed;
     z-index: 70;
     width: min(100% - 2rem, 28rem);
-    border: 1px solid rgb(228 228 231);
+    border: 1px solid var(--color-zinc-300);
     border-radius: 1rem;
-    background: white;
-    padding: 1.5rem;
+    background: var(--color-white);
+    padding: 1.75rem;
     box-shadow: 0 24px 70px rgb(0 0 0 / 24%);
 }
 
@@ -546,20 +547,22 @@ body.duty-app :where(*) { overflow-wrap: anywhere; }
     z-index: 60 !important;
 }
 
+/* Match Flux modals: neutral zinc-800 surface, zinc-700 border. */
 .dark .duty-tour-dialog,
 .dark .duty-tour-tooltip {
-    border-color: rgb(63 63 70);
-    background: rgb(24 24 27);
+    border-color: var(--color-zinc-700);
+    background: var(--color-zinc-800);
 }
 
 @media (prefers-reduced-motion: no-preference) {
     .duty-tour-dialog,
     .duty-tour-tooltip {
-        animation: duty-tour-enter 160ms ease-out;
+        animation: duty-tour-enter 180ms ease-out;
     }
 }
 
+/* Animate `scale`, not `transform`, so the translate(-50%, -50%) centering is never overridden. */
 @keyframes duty-tour-enter {
-    from { opacity: 0; transform: translateY(6px); }
-    to { opacity: 1; }
+    from { opacity: 0; scale: 0.95; }
+    to { opacity: 1; scale: 1; }
 }

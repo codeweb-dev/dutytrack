@@ -10,6 +10,7 @@
 
 @php
     $file = data_get($this, $model);
+    $inputId = $this->getId() . '_' . str_replace('.', '_', $model);
 @endphp
 
 <div x-data="{
@@ -20,10 +21,10 @@
     x-on:drop.prevent="isDropping = false" x-on:livewire-upload-start="isUploading = true; progress = 0"
     x-on:livewire-upload-finish="isUploading = false; progress = 100" x-on:livewire-upload-error="isUploading = false"
     x-on:livewire-upload-progress="progress = $event.detail.progress" class="w-full">
-    <label for="{{ str_replace('.', '_', $model) }}"
+    <label for="{{ $inputId }}"
         class="relative flex min-h-56 w-full cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-zinc-300 bg-white p-6 text-center transition hover:border-zinc-400 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:border-zinc-600 dark:hover:bg-zinc-800/60"
         :class="isDropping ? 'border-primary-500 bg-primary-50 dark:bg-primary-950/20' : ''">
-        <input id="{{ str_replace('.', '_', $model) }}" type="file" accept="{{ $accept }}"
+        <input id="{{ $inputId }}" type="file" accept="{{ $accept }}"
             @if ($capture) capture="{{ $capture }}" @endif wire:model="{{ $model }}" class="hidden" />
 
         @if ($preview && $file)

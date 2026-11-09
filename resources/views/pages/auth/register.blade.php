@@ -35,6 +35,20 @@
                 <flux:error name="photo" />
             </div>
 
+            <!-- Student ID: prefills the form from the masterlist -->
+            <div x-data="{ found: false }" class="flex flex-col gap-2">
+                <flux:input name="student_id" :label="__('Student ID')" :value="old('student_id')" required autofocus
+                    placeholder="2316-02373C" description="{{ __('Found on your school ID card. We\'ll fill in your details if you\'re on the class list.') }}"
+                    x-on:input.debounce.400ms="
+                        const res = await fetch('{{ route('register.lookup') }}?student_id=' + encodeURIComponent($el.value));
+                        found = res.ok;
+                        if (res.ok) for (const [field, value] of Object.entries(await res.json())) $el.form.elements[field].value = value ?? '';
+                    " />
+                <flux:text x-show="found" x-cloak class="text-xs !text-emerald-600 dark:!text-emerald-400">
+                    {{ __('Found you on the class list. Check your details below.') }}
+                </flux:text>
+            </div>
+
             <!-- Personal Information -->
             <section class="flex flex-col gap-5">
                 <div class="flex items-center gap-3">
@@ -43,7 +57,7 @@
                 </div>
 
                 <div class="grid gap-5 sm:grid-cols-2">
-                    <flux:input class="sm:order-1" name="first_name" :label="__('First name')" :value="old('first_name')" required autofocus
+                    <flux:input class="sm:order-1" name="first_name" :label="__('First name')" :value="old('first_name')" required
                         autocomplete="given-name" placeholder="Juan" />
                     <flux:input class="sm:order-3" name="middle_name" :label="__('Middle name')" :value="old('middle_name')" badge="Optional"
                         autocomplete="additional-name" placeholder="Santos" />
@@ -82,9 +96,6 @@
                     <flux:heading>{{ __('Academic information') }}</flux:heading>
                     <flux:separator class="flex-1" />
                 </div>
-
-                <flux:input name="student_id" :label="__('Student ID')" :value="old('student_id')" required
-                    placeholder="2316-02373C" description="{{ __('Found on your school ID card.') }}" />
 
                 <flux:input name="birthdate" :label="__('Birthdate')" :value="old('birthdate')" type="date" required />
 

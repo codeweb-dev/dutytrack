@@ -121,3 +121,17 @@ test('coordinators can reject a pending sign-up so the student can register agai
 
     $this->post(route('register.store'), studentSignup(['course' => 'BSCS']))->assertSessionHasNoErrors();
 });
+
+test('student id lookup returns masterlist details for prefilling sign up', function () {
+    $this->getJson(route('register.lookup', ['student_id' => ' 2316-02373c ']))
+        ->assertOk()
+        ->assertExactJson([
+            'course' => 'BSCS',
+            'last_name' => 'Labrague',
+            'first_name' => 'Allen',
+            'middle_name' => 'Ingraham',
+            'extension_name' => null,
+        ]);
+
+    $this->getJson(route('register.lookup', ['student_id' => 'NOT-AN-ID']))->assertNotFound();
+});

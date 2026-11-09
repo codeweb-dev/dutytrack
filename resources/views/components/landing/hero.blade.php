@@ -34,7 +34,7 @@
         <span
             class="anim-word !block text-5xl sm:text-7xl lg:text-8xl font-extrabold tracking-tight leading-none mb-4 sm:mb-5 text-gray-900 dark:text-white">Duty
             Track</span>
-        <span class="anim-word">A web-based OJT Tracking and</span>&#32;<span class="anim-word">Duty
+        <span class="anim-word">A Web-Based OJT Tracking and</span>&#32;<span class="anim-word">Duty
             Hours,</span>&#32;<span class="anim-word">Monitoring System,</span>&#32;<span
             class="anim-word">and</span>&#32;<span class="anim-word relative inline-block">
             Productivity

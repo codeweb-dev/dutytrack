@@ -20,6 +20,11 @@ Route::get('/sw.js', [\App\Http\Controllers\PwaController::class, 'worker'])->na
 
 Route::view('/', 'welcome')->name('home');
 
+// Prefills sign-up from the student masterlist; throttled so the list can't be scraped quickly.
+Route::get('/register/lookup', fn () => config('masterlist')[strtoupper(trim((string) Request::query('student_id')))] ?? abort(404))
+    ->middleware(['guest', 'throttle:30,1'])
+    ->name('register.lookup');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', function () {
         $user = Auth::user();

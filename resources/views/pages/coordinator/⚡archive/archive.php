@@ -56,8 +56,8 @@ new #[Title('Archive')] class extends Component
     {
         return OjtAssignment::onlyTrashed()
             ->with([
-                'student' => fn (Builder $query) => $query->withTrashed()->with('studentProfile'),
-                'companySupervisor' => fn (Builder $query) => $query->withTrashed(),
+                'student' => fn ($query) => $query->withTrashed()->with('studentProfile'),
+                'companySupervisor' => fn ($query) => $query->withTrashed(),
             ])
             ->whereHas('student', fn (Builder $query) => $query->withTrashed()->where('coordinator_id', Auth::id()))
             ->latest('deleted_at')

@@ -197,3 +197,23 @@ test('coordinator must pin an attendance location for an assignment', function (
 
     expect(OjtAssignment::query()->where('student_id', $student->id)->exists())->toBeFalse();
 });
+
+test('coordinator can view archived assignments on the archive page', function () {
+    $coordinator = createCoordinatorForAssignments();
+    $student = createManagedStudent($coordinator);
+    $supervisor = createCompanySupervisor();
+
+    OjtAssignment::create([
+        'student_id' => $student->id,
+        'ojt_type' => 'internal',
+        'company_supervisor_id' => $supervisor->id,
+        'geofence_latitude' => 14.599512,
+        'geofence_longitude' => 120.984222,
+        'geofence_radius' => 100,
+    ])->delete();
+
+    $this->actingAs($coordinator)
+        ->get(route('coordinator.archive'))
+        ->assertOk()
+        ->assertSee($student->display_name);
+});

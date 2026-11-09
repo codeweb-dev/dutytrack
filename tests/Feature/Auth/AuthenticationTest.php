@@ -70,7 +70,7 @@ test('two factor is disabled and previously enrolled users can log in with their
 
     $this->assertAuthenticatedAs($user);
     $this->get(route('two-factor.show'))->assertForbidden();
-    $this->get(route('profile.edit'))->assertOk()->assertDontSee('Two-factor auth');
+    $this->get(route('user-password.edit'))->assertOk()->assertDontSee('Two-factor auth');
 });
 
 test('users can logout', function () {

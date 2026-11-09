@@ -18,7 +18,7 @@
                 <flux:button x-data x-on:click="$flux.dark = ! $flux.dark" icon="moon" variant="subtle"
                     aria-label="Toggle dark mode" />
 
-                <flux:button icon="cog-6-tooth" variant="subtle" :href="route('profile.edit')" />
+                <flux:button icon="cog-6-tooth" variant="subtle" :href="route('user-password.edit')" />
 
                 <flux:separator vertical class="my-5" />
 
@@ -49,7 +49,7 @@
                             <flux:menu.separator />
 
                             <flux:menu.radio.group>
-                                <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>
+                                <flux:menu.item :href="route('user-password.edit')" icon="cog" wire:navigate>
                                     {{ __('Settings') }}
                                 </flux:menu.item>
                             </flux:menu.radio.group>

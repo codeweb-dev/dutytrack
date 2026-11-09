@@ -46,7 +46,15 @@
                 <flux:table.rows>
                     @foreach ($this->evaluations as $evaluation)
                         <flux:table.row :key="$evaluation->id">
-                            <flux:table.cell>{{ $evaluation->student?->name ?? '' }}</flux:table.cell>
+                            <flux:table.cell class="flex items-center gap-3">
+                                <flux:avatar size="md" :src="$evaluation->student?->profile_photo_url"
+                                    :name="$evaluation->student?->display_name" />
+
+                                <div class="flex flex-col">
+                                    <span class="font-medium">{{ $evaluation->student?->display_name }}</span>
+                                    <span class="text-xs text-zinc-500 dark:text-zinc-300">{{ $evaluation->student?->email }}</span>
+                                </div>
+                            </flux:table.cell>
                             <flux:table.cell>{{ $evaluation->student?->studentProfile?->student_id ?? '' }}</flux:table.cell>
                             <flux:table.cell>{{ $evaluation->student?->studentProfile?->course ?? '' }}</flux:table.cell>
                             <flux:table.cell>
@@ -77,7 +85,7 @@
         @endif
     </div>
 
-    <flux:modal name="supervisor-evaluation-students" class="md:w-7xl">
+    <flux:modal name="supervisor-evaluation-students" class="w-[calc(100vw-2rem)] max-w-6xl!">
         <div class="space-y-6">
             <div>
                 <flux:heading size="lg">Trainees to Evaluate</flux:heading>
@@ -98,7 +106,6 @@
                         <flux:table.column>Student</flux:table.column>
                         <flux:table.column>Student ID</flux:table.column>
                         <flux:table.column>Course</flux:table.column>
-                        <flux:table.column>Cooperating Program</flux:table.column>
                         <flux:table.column>Evaluation</flux:table.column>
                         <flux:table.column>Actions</flux:table.column>
                     </flux:table.columns>
@@ -110,10 +117,17 @@
                             @endphp
 
                             <flux:table.row :key="$assignment->id">
-                                <flux:table.cell>{{ $assignment->student?->name ?? '' }}</flux:table.cell>
+                                <flux:table.cell class="flex items-center gap-3">
+                                    <flux:avatar size="md" :src="$assignment->student?->profile_photo_url"
+                                        :name="$assignment->student?->display_name" />
+
+                                    <div class="flex flex-col">
+                                        <span class="font-medium">{{ $assignment->student?->display_name }}</span>
+                                        <span class="text-xs text-zinc-500 dark:text-zinc-300">{{ $assignment->student?->email }}</span>
+                                    </div>
+                                </flux:table.cell>
                                 <flux:table.cell>{{ $assignment->student?->studentProfile?->student_id ?? '' }}</flux:table.cell>
                                 <flux:table.cell>{{ $assignment->student?->studentProfile?->course ?? '' }}</flux:table.cell>
-                                <flux:table.cell>{{ $this->cooperatingProgramFor($assignment) }}</flux:table.cell>
                                 <flux:table.cell>
                                     @if ($myEvaluation)
                                         <div class="flex flex-col">

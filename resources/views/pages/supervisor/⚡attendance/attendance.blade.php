@@ -105,7 +105,7 @@
                     <flux:table.rows>
                         @foreach ($this->selectedAttendance as $attendance)
                             <flux:table.row :key="$attendance->id">
-                                <flux:table.cell>{{ $attendance->student?->name ?? 'Unknown student' }}</flux:table.cell>
+                                <flux:table.cell>{{ $attendance->student?->display_name ?? 'Unknown student' }}</flux:table.cell>
                                 <flux:table.cell class="whitespace-nowrap font-medium">{{ $attendance->student?->studentProfile?->student_id ?? '—' }}</flux:table.cell>
                                 <flux:table.cell>
                                     <flux:badge size="sm" :color="$this->badgeColor($attendance->status)" inset="top bottom">

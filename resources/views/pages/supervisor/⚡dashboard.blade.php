@@ -267,7 +267,7 @@ new #[Title('Supervisor Dashboard')] class extends Component
                             <flux:table.cell>
                                 <div class="space-y-1">
                                     <div class="font-medium text-zinc-950 dark:text-white">
-                                        {{ $assignment->student?->name ?? '' }}
+                                        {{ $assignment->student?->display_name ?? '' }}
                                     </div>
 
                                     <div class="text-sm text-zinc-500 dark:text-zinc-300">

@@ -12,7 +12,7 @@
         </div>
 
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <flux:input label="Name" :value="$student?->name ?? ''" readonly />
+            <flux:input label="Name" :value="$student?->display_name ?? ''" readonly />
             <flux:input label="Course" :value="$profile?->course ?? ''" readonly />
             <flux:input label="Cooperating Program" :value="$assignment ? $this->cooperatingProgramFor($assignment) : ''" readonly />
 
@@ -23,7 +23,7 @@
         </div>
 
         <div class="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-700">
-            <div class="grid grid-cols-[1fr_4rem_14rem] bg-zinc-50 text-xs font-semibold uppercase tracking-wide text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+            <div class="grid grid-cols-[1fr_6rem_14rem] bg-zinc-50 text-xs font-semibold uppercase tracking-wide text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
                 <div class="px-4 py-3">Directions for Evaluation</div>
                 <div class="px-4 py-3 text-center">Weight</div>
                 <div class="px-4 py-3 text-center">Rating</div>
@@ -41,7 +41,7 @@
                     </div>
 
                     @foreach ($area['items'] as $itemKey => $label)
-                        <div class="grid grid-cols-[1fr_4rem_14rem] items-center border-t border-zinc-100 text-sm dark:border-zinc-800">
+                        <div class="grid grid-cols-[1fr_6rem_14rem] items-center border-t border-zinc-100 text-sm dark:border-zinc-800">
                             <div class="px-4 py-3">{{ $label }} <span class="text-red-600" aria-hidden="true">*</span></div>
                             <div class="px-4 py-3 text-center">5.0</div>
                             <div class="flex items-center justify-center gap-1 px-4 py-3">
@@ -58,7 +58,7 @@
                         </div>
                     @endforeach
 
-                    <div class="grid grid-cols-[1fr_4rem_14rem] border-t border-zinc-200 bg-zinc-50 text-sm font-semibold dark:border-zinc-700 dark:bg-zinc-800">
+                    <div class="grid grid-cols-[1fr_6rem_14rem] border-t border-zinc-200 bg-zinc-50 text-sm font-semibold dark:border-zinc-700 dark:bg-zinc-800">
                         <div class="px-4 py-3 text-right">Subtotal</div>
                         <div class="px-4 py-3 text-center">{{ number_format($area['subtotal'], 1) }}</div>
                         <div class="px-4 py-3 text-center">
@@ -68,7 +68,7 @@
                 </div>
             @endforeach
 
-            <div class="grid grid-cols-[1fr_4rem_14rem] border-t border-zinc-300 bg-zinc-100 text-sm font-bold dark:border-zinc-700 dark:bg-zinc-800">
+            <div class="grid grid-cols-[1fr_6rem_14rem] border-t border-zinc-300 bg-zinc-100 text-sm font-bold dark:border-zinc-700 dark:bg-zinc-800">
                 <div class="px-4 py-3 text-right">TOTAL RATING</div>
                 <div class="px-4 py-3 text-center">100.0</div>
                 <div class="px-4 py-3 text-center">{{ number_format($this->evaluationTotal(), 1) }}</div>

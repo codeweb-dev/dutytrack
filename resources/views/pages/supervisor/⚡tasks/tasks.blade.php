@@ -17,7 +17,7 @@
 
                 <flux:checkbox.group wire:model="student_ids" label="Trainees" variant="cards" class="max-sm:flex-col" required>
                     @foreach ($this->assignableStudents as $student)
-                        <flux:checkbox value="{{ $student->id }}" :label="$student->name"
+                        <flux:checkbox value="{{ $student->id }}" :label="$student->display_name"
                             :description="$student->studentProfile?->student_id ?? 'No student ID'" />
                     @endforeach
                 </flux:checkbox.group>
@@ -108,8 +108,8 @@
                                     <div class="flex min-w-0 items-center gap-2">
                                         <flux:avatar.group>
                                             @foreach ($taskCard['visible_students'] as $student)
-                                                <flux:tooltip :content="$student->name">
-                                                    <flux:avatar size="xs" name="{{ $student->name }}" />
+                                                <flux:tooltip :content="$student->display_name">
+                                                    <flux:avatar size="xs" name="{{ $student->display_name }}" />
                                                 </flux:tooltip>
                                             @endforeach
 

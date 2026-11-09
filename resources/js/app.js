@@ -4,6 +4,7 @@ Observer.start();
 
 import './pwa';
 import './resume-builder';
+import './pomodoro';
 
 const docxPreview = document.querySelector('[data-docx-preview]');
 

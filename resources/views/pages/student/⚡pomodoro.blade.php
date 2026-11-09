@@ -7,282 +7,161 @@ new class extends Component
     public array $breadcrumbs = [['logo' => 'logo.png', 'href' => '/dashboard'], ['label' => 'Productivity', 'href' => '#'], ['label' => 'Pomodoro Timer']];
 
     public string $title = 'Pomodoro Timer';
-    public string $description = 'Stay focused with a clean study timer built in the Flux style.';
+    public string $description = 'Stay focused with timed work sessions and short recovery breaks.';
 };
 ?>
 
-<div
-    x-data="pomodoroTimer()"
-    x-init="init()"
-    class="flex h-full w-full flex-1 flex-col gap-5"
->
+<div x-data="pomodoroPage()" class="flex flex-col gap-8">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
-    <div>
-        <flux:card
-            class="relative overflow-hidden bg-white p-5 dark:bg-zinc-900"
-        >
-            <div class="relative flex h-full flex-col gap-6">
+    <div class="grid items-start gap-6 lg:grid-cols-5">
+        <div class="flex min-w-0 flex-col gap-6 lg:col-span-3">
+            <flux:card>
                 <div class="flex flex-wrap items-start justify-between gap-4">
-                    <div class="space-y-3">
-                        <div class="flex flex-wrap gap-2">
-                            <template x-for="preset in presets" :key="preset.key">
-                                <button
-                                    type="button"
-                                    x-on:click="switchMode(preset.key)"
-                                    x-bind:class="mode === preset.key
-                                        ? 'border-transparent bg-zinc-950 text-white shadow-lg shadow-zinc-950/15 dark:bg-white dark:text-zinc-950'
-                                        : 'border-zinc-200/80 bg-white/80 text-zinc-600 hover:border-zinc-300 hover:text-zinc-950 dark:border-white/10 dark:bg-white/5 dark:text-zinc-300 dark:hover:border-white/20 dark:hover:text-white'"
-                                    class="inline-flex items-center gap-2 rounded-2xl border px-4 py-2 text-sm font-medium transition"
-                                >
-                                    <span
-                                        class="size-2.5 rounded-full"
-                                        x-bind:class="preset.dot"
-                                    ></span>
-                                    <span x-text="preset.label"></span>
-                                </button>
-                            </template>
-                        </div>
+                    <div>
+                        <flux:heading size="lg" x-text="$store.pomodoro.activeLabel"></flux:heading>
+                        <flux:text class="mt-2">
+                            Cycle <span x-text="$store.pomodoro.cycleCount"></span> of 4
+                        </flux:text>
+                    </div>
 
-                        <div class="space-y-2">
-                            <flux:heading size="xl">
-                                <span x-text="activeLabel"></span>
-                            </flux:heading>
+                    <flux:radio.group x-model="$store.pomodoro.selectedMode" variant="segmented" size="sm" aria-label="Timer mode">
+                        <flux:radio value="focus" label="Focus" />
+                        <flux:radio value="short_break" label="Short Break" />
+                        <flux:radio value="long_break" label="Long Break" />
+                    </flux:radio.group>
+                </div>
 
-                            <flux:text class="max-w-2xl">
-                                Use focused work sessions and short recovery breaks to keep momentum through classwork,
-                                reports, or OJT documentation.
+                <div class="mt-8 flex justify-center">
+                    <div class="relative size-64 sm:size-72">
+                        <svg class="size-full -rotate-90" viewBox="0 0 240 240" aria-hidden="true">
+                            <circle cx="120" cy="120" r="96" class="fill-none stroke-zinc-200 dark:stroke-zinc-600" stroke-width="10" />
+                            <circle
+                                cx="120"
+                                cy="120"
+                                r="96"
+                                class="fill-none transition-all duration-500"
+                                x-bind:class="$store.pomodoro.activePreset.stroke"
+                                stroke-width="10"
+                                stroke-linecap="round"
+                                stroke-dasharray="603.19"
+                                x-bind:stroke-dashoffset="603.19 - (603.19 * $store.pomodoro.progress)"
+                            />
+                        </svg>
+
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <div class="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
+                                <span class="size-2 rounded-full" x-bind:class="$store.pomodoro.activePreset.dot"></span>
+                                <span x-text="$store.pomodoro.isRunning ? 'In session' : 'Paused'"></span>
+                            </div>
+
+                            <p class="mt-2 text-6xl font-semibold tracking-tight tabular-nums text-zinc-950 dark:text-white" x-text="$store.pomodoro.formattedTime"></p>
+
+                            <flux:text class="mt-2">
+                                <span x-text="Math.ceil($store.pomodoro.timeLeft / 60)"></span>
+                                <span x-text="Math.ceil($store.pomodoro.timeLeft / 60) === 1 ? 'minute left' : 'minutes left'"></span>
                             </flux:text>
                         </div>
                     </div>
-
-                    <div class="grid grid-cols-3 gap-3">
-                        <flux:card class="px-4 py-3 dark:bg-white/5">
-                            <flux:text class="uppercase tracking-[0.2em] text-xs">Sessions</flux:text>
-                            <flux:heading size="xl" class="mt-2" x-text="completedSessions"></flux:heading>
-                        </flux:card>
-
-                        <flux:card class="px-4 py-3 dark:bg-white/5">
-                            <flux:text class="uppercase tracking-[0.2em] text-xs">Focus Time</flux:text>
-                            <flux:heading size="xl" class="mt-2" x-text="focusMinutes + 'm'"></flux:heading>
-                        </flux:card>
-
-                        <flux:card class="px-4 py-3 dark:bg-white/5">
-                            <flux:text class="uppercase tracking-[0.2em] text-xs">Progress</flux:text>
-                            <flux:heading size="xl" class="mt-2" x-text="Math.round(progress * 100) + '%'"></flux:heading>
-                        </flux:card>
-                    </div>
                 </div>
 
-                <div class="grid items-center gap-6 lg:grid-cols-[minmax(18rem,24rem)_minmax(0,1fr)]">
-                    <div class="mx-auto flex w-full max-w-[24rem] justify-center">
-                        <div class="relative">
-                            <svg class="h-84 w-84 -rotate-90 sm:h-96 sm:w-96" viewBox="0 0 240 240" aria-hidden="true">
-                                <circle
-                                    cx="120"
-                                    cy="120"
-                                    r="96"
-                                    class="fill-none stroke-zinc-200/90 dark:stroke-white/10"
-                                    stroke-width="18"
-                                />
-                                <circle
-                                    cx="120"
-                                    cy="120"
-                                    r="96"
-                                    class="fill-none stroke-[url(#timerGradient)] transition-all duration-500"
-                                    stroke-width="18"
-                                    stroke-linecap="round"
-                                    stroke-dasharray="603.19"
-                                    x-bind:stroke-dashoffset="603.19 - (603.19 * progress)"
-                                />
-                                <defs>
-                                    <linearGradient id="timerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                        <stop offset="0%" stop-color="#f87171"></stop>
-                                        <stop offset="55%" stop-color="#60a5fa"></stop>
-                                        <stop offset="100%" stop-color="#34d399"></stop>
-                                    </linearGradient>
-                                </defs>
-                            </svg>
+                <div class="mt-8 flex items-center justify-center gap-3">
+                    <flux:button x-on:click="$store.pomodoro.adjustTime(-60)" variant="ghost" icon="minus" aria-label="Remove one minute" />
 
-                            <div class="absolute inset-0 flex flex-col items-center justify-center rounded-full">
-                                <div class="mb-4 inline-flex items-center gap-2 rounded-full border border-zinc-200/70 bg-white/75 px-3 py-1 text-xs font-medium uppercase tracking-[0.22em] text-zinc-500 backdrop-blur dark:border-white/10 dark:bg-white/5 dark:text-zinc-300">
-                                    <span class="size-2.5 rounded-full" x-bind:class="activeDot"></span>
-                                    <span x-text="isRunning ? 'In session' : 'Ready to focus'"></span>
-                                </div>
+                    <flux:button x-on:click="$store.pomodoro.toggleTimer()" variant="primary" class="min-w-36">
+                        <flux:icon name="play" x-show="!$store.pomodoro.isRunning" class="size-4" />
+                        <flux:icon name="pause" x-show="$store.pomodoro.isRunning" class="size-4" />
+                        <span x-text="$store.pomodoro.isRunning ? 'Pause' : 'Start'"></span>
+                    </flux:button>
 
-                                <p class="text-[4rem] font-semibold leading-none tracking-[-0.06em] text-zinc-950 dark:text-white sm:text-[4.75rem]" x-text="formattedTime"></p>
-
-                                <p class="mt-3 text-sm text-zinc-500 dark:text-zinc-400">
-                                    <span x-text="Math.ceil(timeLeft / 60)"></span>
-                                    <span x-text="Math.ceil(timeLeft / 60) === 1 ? 'minute left' : 'minutes left'"></span>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="space-y-5">
-                        <flux:card class="dark:bg-white/5">
-                            <div class="flex flex-wrap gap-3">
-                                <flux:button x-on:click="toggleTimer()" color="red" variant="primary">
-                                    <flux:icon icon="play" x-show="!isRunning" class="size-4" />
-                                    <flux:icon icon="pause" x-show="isRunning" class="size-4" />
-                                    <span x-text="isRunning ? 'Pause Session' : 'Start Session'"></span>
-                                </flux:button>
-
-                                <flux:button x-on:click="resetTimer()" variant="outline" icon="arrow-path">
-                                    Reset
-                                </flux:button>
-
-                                <flux:button x-on:click="skipSession()" variant="ghost" icon="forward">
-                                    Skip
-                                </flux:button>
-                            </div>
-
-                            <div class="mt-5 grid gap-3 sm:grid-cols-3">
-                                <button
-                                    type="button"
-                                    x-on:click="adjustTime(-60)"
-                                    class="rounded-xl border border-zinc-200/80 bg-white px-4 py-3 text-left transition hover:border-zinc-300 hover:bg-zinc-50 dark:border-white/10 dark:bg-white/5 dark:hover:border-white/20 dark:hover:bg-white/10"
-                                >
-                                    <flux:text class="uppercase tracking-[0.22em]">Adjust</flux:text>
-                                    <flux:heading size="lg" class="mt-2">-1 min</flux:heading>
-                                </button>
-
-                                <button
-                                    type="button"
-                                    x-on:click="adjustTime(60)"
-                                    class="rounded-xl border border-zinc-200/80 bg-white px-4 py-3 text-left transition hover:border-zinc-300 hover:bg-zinc-50 dark:border-white/10 dark:bg-white/5 dark:hover:border-white/20 dark:hover:bg-white/10"
-                                >
-                                    <flux:text class="uppercase tracking-[0.22em]">Adjust</flux:text>
-                                    <flux:heading size="lg" class="mt-2">+1 min</flux:heading>
-                                </button>
-
-                                <div class="rounded-xl border border-zinc-200/80 bg-white px-4 py-3 dark:border-white/10 dark:bg-white/5">
-                                    <flux:text class="uppercase tracking-[0.22em]">Cycle</flux:text>
-                                    <flux:heading size="lg" class="mt-2">
-                                        <span x-text="cycleCount"></span> / 4
-                                    </flux:heading>
-                                </div>
-                            </div>
-                        </flux:card>
-
-                        <div class="grid gap-3 sm:grid-cols-3">
-                            <template x-for="preset in presets" :key="preset.key + '-panel'">
-                                <button
-                                    type="button"
-                                    x-on:click="switchMode(preset.key)"
-                                    x-bind:class="mode === preset.key
-                                        ? 'border-transparent bg-zinc-950 text-white shadow-lg shadow-zinc-950/15 dark:bg-white dark:text-zinc-950'
-                                        : 'border-zinc-200/80 bg-white/80 text-zinc-700 hover:border-zinc-300 dark:border-white/10 dark:bg-white/5 dark:text-zinc-300 dark:hover:border-white/20'"
-                                    class="rounded-xl border p-4 text-left transition"
-                                >
-                                    <p class="text-xs uppercase tracking-[0.22em] opacity-60" x-text="preset.short"></p>
-                                    <p class="mt-3 text-2xl font-semibold" x-text="preset.minutes + ' min'"></p>
-                                    <p class="mt-2 text-sm opacity-75" x-text="preset.description"></p>
-                                </button>
-                            </template>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </flux:card>
-
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-5">
-            <flux:card class="p-0 dark:bg-zinc-900">
-                <div class="border-b border-zinc-200/70 px-5 py-4 dark:border-white/10">
-                    <flux:heading size="lg">Session Plan</flux:heading>
-                    <flux:subheading size="sm">A simple rhythm for focused student work.</flux:subheading>
+                    <flux:button x-on:click="$store.pomodoro.adjustTime(60)" variant="ghost" icon="plus" aria-label="Add one minute" />
                 </div>
 
-                <div class="space-y-3 p-5">
-                    <template x-for="(item, index) in timeline" :key="item.title">
-                        <div class="flex gap-3 rounded-2xl border border-zinc-200/70 bg-zinc-50/80 p-4 dark:border-white/10 dark:bg-white/5">
-                            <div class="flex flex-col items-center pt-1">
-                                <div
-                                    class="flex size-8 items-center justify-center rounded-full text-xs font-semibold"
-                                    x-bind:class="index === activeTimelineIndex
-                                        ? 'bg-red-500 text-white'
-                                        : 'bg-zinc-200 text-zinc-700 dark:bg-white/10 dark:text-zinc-300'"
-                                    x-text="index + 1"
-                                ></div>
-                            </div>
-
-                            <div class="min-w-0 flex-1">
-                                <div class="flex items-center justify-between gap-3">
-                                    <p class="text-sm font-semibold text-zinc-950 dark:text-white" x-text="item.title"></p>
-                                    <span class="text-xs uppercase tracking-[0.22em] text-zinc-400 dark:text-zinc-500" x-text="item.length"></span>
-                                </div>
-                                <p class="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-300" x-text="item.description"></p>
-                            </div>
-                        </div>
-                    </template>
+                <div class="mt-3 flex justify-center gap-2">
+                    <flux:button x-on:click="$store.pomodoro.resetTimer()" variant="subtle" size="sm" icon="arrow-path">Reset</flux:button>
+                    <flux:button x-on:click="$store.pomodoro.skipSession()" variant="subtle" size="sm" icon="forward">Skip</flux:button>
                 </div>
             </flux:card>
 
-            <flux:card class="p-0 dark:bg-zinc-900">
-                <div class="border-b border-zinc-200/70 px-5 py-4 dark:border-white/10">
-                    <flux:heading size="lg">Focus Tips</flux:heading>
-                    <flux:subheading size="sm">Small habits that make the timer more effective.</flux:subheading>
-                </div>
+            <flux:card>
+                <flux:heading size="lg">Focus Tips</flux:heading>
+                <flux:text class="mt-2">Small habits that make the timer more effective.</flux:text>
 
-                <div class="space-y-3 p-5">
-                    <div class="rounded-2xl border border-zinc-200/70 bg-zinc-50/80 p-4 dark:border-white/10 dark:bg-white/5">
-                        <p class="text-sm font-semibold text-zinc-950 dark:text-white">Pick one concrete task</p>
-                        <p class="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-300">
-                            Decide what “done” looks like before you press start so the session stays intentional.
-                        </p>
-                    </div>
-
-                    <div class="rounded-2xl border border-zinc-200/70 bg-zinc-50/80 p-4 dark:border-white/10 dark:bg-white/5">
-                        <p class="text-sm font-semibold text-zinc-950 dark:text-white">Use the break properly</p>
-                        <p class="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-300">
-                            Stand up, stretch, drink water, then come back with a clear head for the next block.
-                        </p>
-                    </div>
-
-                    <div class="rounded-2xl border border-zinc-200/70 bg-zinc-50/80 p-4 dark:border-white/10 dark:bg-white/5">
-                        <p class="text-sm font-semibold text-zinc-950 dark:text-white">Protect your attention</p>
-                        <p class="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-300">
-                            Silence notifications and keep only the tabs or files you need for the current session.
-                        </p>
-                    </div>
+                <div class="mt-6 grid gap-6 sm:grid-cols-3">
+                    @foreach ([
+                        ['icon' => 'check-circle', 'title' => 'Pick one concrete task', 'text' => 'Decide what “done” looks like before you press start so the session stays intentional.'],
+                        ['icon' => 'heart', 'title' => 'Use the break properly', 'text' => 'Stand up, stretch, drink water, then come back with a clear head for the next block.'],
+                        ['icon' => 'bell-slash', 'title' => 'Protect your attention', 'text' => 'Silence notifications and keep only the tabs or files you need for the current session.'],
+                    ] as $tip)
+                        <div>
+                            <div class="inline-flex rounded-2xl bg-zinc-50 p-3 text-zinc-900 ring-1 ring-zinc-200 dark:bg-zinc-800 dark:text-white dark:ring-zinc-700">
+                                <flux:icon :name="$tip['icon']" class="size-5" />
+                            </div>
+                            <div class="mt-4 text-sm font-semibold text-zinc-900 dark:text-white">{{ $tip['title'] }}</div>
+                            <flux:text class="mt-1">{{ $tip['text'] }}</flux:text>
+                        </div>
+                    @endforeach
                 </div>
             </flux:card>
         </div>
+
+        <section class="grid gap-4 lg:col-span-2">
+            <div class="grid gap-4 sm:grid-cols-2">
+                <flux:card>
+                    <div class="flex items-start justify-between gap-4">
+                        <flux:heading size="lg">Sessions</flux:heading>
+                        <div class="rounded-2xl bg-zinc-50 p-3 text-zinc-900 ring-1 ring-zinc-200 dark:bg-zinc-800 dark:text-white dark:ring-zinc-700">
+                            <flux:icon name="check-badge" class="size-5" />
+                        </div>
+                    </div>
+                    <div class="mt-6 text-5xl font-semibold tracking-tight text-zinc-950 dark:text-white" x-text="$store.pomodoro.completedSessions"></div>
+                    <flux:text class="mt-6">Focus blocks completed</flux:text>
+                </flux:card>
+
+                <flux:card>
+                    <div class="flex items-start justify-between gap-4">
+                        <flux:heading size="lg">Focus Time</flux:heading>
+                        <div class="rounded-2xl bg-zinc-50 p-3 text-zinc-900 ring-1 ring-zinc-200 dark:bg-zinc-800 dark:text-white dark:ring-zinc-700">
+                            <flux:icon name="clock" class="size-5" />
+                        </div>
+                    </div>
+                    <div class="mt-6 text-5xl font-semibold tracking-tight text-zinc-950 dark:text-white" x-text="$store.pomodoro.focusMinutes + 'm'"></div>
+                    <flux:text class="mt-6">Total minutes focused</flux:text>
+                </flux:card>
+            </div>
+
+            <flux:card>
+                <flux:heading size="lg">Session Plan</flux:heading>
+                <flux:text class="mt-2">A simple rhythm for focused student work.</flux:text>
+
+                <ol class="mt-6 space-y-5">
+                    <template x-for="(item, index) in timeline" :key="item.title">
+                        <li class="flex gap-4">
+                            <div
+                                class="flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold ring-2"
+                                x-bind:class="index === activeTimelineIndex
+                                    ? 'bg-red-600 text-white ring-red-600'
+                                    : 'bg-white text-zinc-500 ring-zinc-300 dark:bg-zinc-900 dark:text-zinc-300 dark:ring-zinc-700'"
+                                x-text="index + 1"
+                            ></div>
+
+                            <div class="min-w-0 flex-1">
+                                <div class="flex items-center justify-between gap-3">
+                                    <div class="text-sm font-semibold text-zinc-900 dark:text-white" x-text="item.title"></div>
+                                    <flux:text size="sm" x-text="item.length"></flux:text>
+                                </div>
+                                <flux:text class="mt-1" x-text="item.description"></flux:text>
+                            </div>
+                        </li>
+                    </template>
+                </ol>
+            </flux:card>
+        </section>
     </div>
 
     <script>
-        function pomodoroTimer() {
+        function pomodoroPage() {
             return {
-                presets: [
-                    {
-                        key: 'focus',
-                        label: 'Focus',
-                        short: 'Work',
-                        minutes: 25,
-                        seconds: 1500,
-                        description: 'Deep work for your current priority.',
-                        dot: 'bg-red-400'
-                    },
-                    {
-                        key: 'short_break',
-                        label: 'Short Break',
-                        short: 'Break',
-                        minutes: 5,
-                        seconds: 300,
-                        description: 'Quick reset between work sprints.',
-                        dot: 'bg-sky-400'
-                    },
-                    {
-                        key: 'long_break',
-                        label: 'Long Break',
-                        short: 'Recover',
-                        minutes: 15,
-                        seconds: 900,
-                        description: 'Recharge after a set of focus sessions.',
-                        dot: 'bg-emerald-400'
-                    }
-                ],
                 timeline: [
                     {
                         title: 'Focus Sprint',
@@ -305,194 +184,8 @@ new class extends Component
                         description: 'Reset fully before the next round of concentrated work.'
                     }
                 ],
-                mode: 'focus',
-                duration: 1500,
-                timeLeft: 1500,
-                isRunning: false,
-                timer: null,
-                completedSessions: 0,
-                focusMinutes: 0,
-                cycleCount: 1,
-
-                init() {
-                    this.loadState();
-
-                    window.addEventListener('beforeunload', () => this.persistState());
-                },
-
-                get formattedTime() {
-                    const minutes = String(Math.floor(this.timeLeft / 60)).padStart(2, '0');
-                    const seconds = String(this.timeLeft % 60).padStart(2, '0');
-
-                    return `${minutes}:${seconds}`;
-                },
-
-                get progress() {
-                    if (this.duration <= 0) {
-                        return 0;
-                    }
-
-                    return Math.min(1, Math.max(0, (this.duration - this.timeLeft) / this.duration));
-                },
-
-                get activeLabel() {
-                    const preset = this.presets.find((item) => item.key === this.mode);
-                    return preset ? preset.label : 'Focus';
-                },
-
-                get activeDot() {
-                    const preset = this.presets.find((item) => item.key === this.mode);
-                    return preset ? preset.dot : 'bg-red-400';
-                },
-
                 get activeTimelineIndex() {
-                    if (this.mode === 'short_break') {
-                        return 1;
-                    }
-
-                    if (this.mode === 'long_break') {
-                        return 3;
-                    }
-
-                    return 0;
-                },
-
-                toggleTimer() {
-                    if (this.isRunning) {
-                        this.pauseTimer();
-                        return;
-                    }
-
-                    this.startTimer();
-                },
-
-                startTimer() {
-                    if (this.isRunning) {
-                        return;
-                    }
-
-                    this.isRunning = true;
-
-                    this.timer = setInterval(() => {
-                        if (this.timeLeft > 0) {
-                            this.timeLeft -= 1;
-                            this.persistState();
-                            return;
-                        }
-
-                        this.completeSession();
-                    }, 1000);
-                },
-
-                pauseTimer() {
-                    this.isRunning = false;
-                    clearInterval(this.timer);
-                    this.timer = null;
-                    this.persistState();
-                },
-
-                resetTimer() {
-                    this.pauseTimer();
-                    this.timeLeft = this.duration;
-                    this.persistState();
-                },
-
-                skipSession() {
-                    this.pauseTimer();
-                    this.completeSession();
-                },
-
-                adjustTime(amount) {
-                    this.pauseTimer();
-
-                    this.duration = Math.max(60, this.duration + amount);
-                    this.timeLeft = Math.max(0, Math.min(this.timeLeft + amount, this.duration));
-
-                    if (this.timeLeft === 0) {
-                        this.timeLeft = this.duration;
-                    }
-
-                    this.persistState();
-                },
-
-                switchMode(key) {
-                    const preset = this.presets.find((item) => item.key === key);
-
-                    if (!preset) {
-                        return;
-                    }
-
-                    this.pauseTimer();
-                    this.mode = preset.key;
-                    this.duration = preset.seconds;
-                    this.timeLeft = preset.seconds;
-                    this.persistState();
-                },
-
-                completeSession() {
-                    const completedMode = this.mode;
-
-                    this.pauseTimer();
-
-                    if (completedMode === 'focus') {
-                        this.completedSessions += 1;
-                        this.focusMinutes += Math.round(this.duration / 60);
-
-                        if (this.cycleCount >= 4) {
-                            this.cycleCount = 1;
-                            this.switchMode('long_break');
-                        } else {
-                            this.cycleCount += 1;
-                            this.switchMode('short_break');
-                        }
-                    } else {
-                        this.switchMode('focus');
-                    }
-
-                    if (window.$flux?.toast) {
-                        window.$flux.toast({
-                            heading: 'Session complete',
-                            text: completedMode === 'focus'
-                                ? 'Nice work. Time for a well-earned break.'
-                                : 'Break finished. Ready for another focus block.'
-                        });
-                    }
-
-                    this.persistState();
-                },
-
-                persistState() {
-                    const state = {
-                        mode: this.mode,
-                        duration: this.duration,
-                        timeLeft: this.timeLeft,
-                        completedSessions: this.completedSessions,
-                        focusMinutes: this.focusMinutes,
-                        cycleCount: this.cycleCount
-                    };
-
-                    localStorage.setItem('student-pomodoro-state', JSON.stringify(state));
-                },
-
-                loadState() {
-                    const stored = localStorage.getItem('student-pomodoro-state');
-
-                    if (!stored) {
-                        return;
-                    }
-
-                    try {
-                        const state = JSON.parse(stored);
-
-                        this.mode = state.mode ?? this.mode;
-                        this.duration = state.duration ?? this.duration;
-                        this.timeLeft = state.timeLeft ?? this.timeLeft;
-                        this.completedSessions = state.completedSessions ?? this.completedSessions;
-                        this.focusMinutes = state.focusMinutes ?? this.focusMinutes;
-                        this.cycleCount = state.cycleCount ?? this.cycleCount;
-                    } catch (error) {
-                        localStorage.removeItem('student-pomodoro-state');
-                    }
+                    return { short_break: 1, long_break: 3 }[this.$store.pomodoro.mode] ?? 0;
                 }
             };
         }

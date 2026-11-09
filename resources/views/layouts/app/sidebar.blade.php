@@ -29,6 +29,33 @@
 
         <flux:spacer />
 
+        @if ($user->hasRole('student') && ! request()->routeIs('student.pomodoro'))
+            <div x-data x-cloak x-show="$store.pomodoro.isActive"
+                class="rounded-xl border border-zinc-200 bg-white p-3 in-data-flux-sidebar-collapsed-desktop:hidden dark:border-zinc-700 dark:bg-zinc-800">
+                <div class="flex items-center justify-between gap-3">
+                    <a href="{{ route('student.pomodoro') }}" wire:navigate class="min-w-0">
+                        <div class="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+                            <span class="size-2 rounded-full" x-bind:class="$store.pomodoro.activePreset.dot"></span>
+                            <span x-text="$store.pomodoro.activeLabel + ($store.pomodoro.isRunning ? '' : ' · Paused')"></span>
+                        </div>
+                        <div class="mt-1 text-2xl font-semibold tracking-tight tabular-nums text-zinc-950 dark:text-white"
+                            x-text="$store.pomodoro.formattedTime"></div>
+                    </a>
+
+                    <flux:button x-on:click="$store.pomodoro.toggleTimer()" variant="primary" size="sm" square
+                        x-bind:aria-label="$store.pomodoro.isRunning ? 'Pause timer' : 'Resume timer'">
+                        <flux:icon name="play" x-show="!$store.pomodoro.isRunning" class="size-4" />
+                        <flux:icon name="pause" x-show="$store.pomodoro.isRunning" class="size-4" />
+                    </flux:button>
+                </div>
+
+                <div class="mt-3 h-1 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-700">
+                    <div class="h-full rounded-full transition-all duration-500" x-bind:class="$store.pomodoro.activePreset.dot"
+                        x-bind:style="`width: ${$store.pomodoro.progress * 100}%`"></div>
+                </div>
+            </div>
+        @endif
+
         <flux:sidebar.nav>
             <flux:sidebar.item icon="information-circle" x-data x-on:click="$dispatch('onboarding-replay')">
                 {{ __('Help') }}

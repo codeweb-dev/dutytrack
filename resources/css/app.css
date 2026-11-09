@@ -75,6 +75,10 @@ html:not(.dark) .border-zinc-200 {
     border-color: var(--color-zinc-300);
 }
 
+[x-cloak] {
+    display: none !important;
+}
+
 [data-flux-field]:not(ui-radio, ui-checkbox) {
     @apply grid gap-2;
 }

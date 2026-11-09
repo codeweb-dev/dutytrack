@@ -2,7 +2,6 @@
 
 use App\Models\AttendanceLog;
 use App\Models\OjtAssignment;
-use App\Models\StudentRequirement;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
@@ -81,77 +80,6 @@ new #[Title('Coordinator Dashboard')] class extends Component
                 'link' => 'View attendance',
             ],
         ];
-    }
-
-    #[Computed]
-    public function hoursProgress(): array
-    {
-        $students = $this->managedStudentsQuery()
-            ->leftJoin('student_profiles', 'users.id', '=', 'student_profiles.user_id')
-            ->select('users.id', 'student_profiles.ojt_required_hours')
-            ->selectSub(AttendanceLog::query()->selectRaw('coalesce(sum(hours_rendered), 0)')->whereColumn('student_id', 'users.id'), 'rendered_hours')
-            ->get();
-
-        $required = (float) $students->sum('ojt_required_hours');
-        $rendered = (float) $students->sum(fn ($student) => min((float) $student->rendered_hours, (float) $student->ojt_required_hours));
-        $completed = $students->filter(fn ($student) => $student->ojt_required_hours > 0 && $student->rendered_hours >= $student->ojt_required_hours)->count();
-        $started = $students->filter(fn ($student) => $student->rendered_hours > 0)->count();
-
-        return [
-            'rendered' => $rendered,
-            'required' => $required,
-            'percentage' => $required > 0 ? round($rendered / $required * 100) : 0,
-            'completed' => $completed,
-            'in_progress' => $started - $completed,
-            'not_started' => $students->count() - $started,
-        ];
-    }
-
-    #[Computed]
-    public function requirementsProgress(): array
-    {
-        $total = $this->managedStudentsQuery()->count();
-        $complete = $this->managedStudentsQuery()
-            ->whereHas('studentRequirements')
-            ->whereDoesntHave('studentRequirements', fn (Builder $query) => $query->where('is_completed', false))
-            ->count();
-
-        return [
-            'total' => $total,
-            'complete' => $complete,
-            'pending' => $total - $complete,
-            'percentage' => $total > 0 ? round($complete / $total * 100) : 0,
-            'for_checking' => StudentRequirement::query()
-                ->whereIn('key', StudentRequirement::activeKeys())
-                ->where('is_completed', false)
-                ->whereNotNull('submitted_at')
-                ->whereHas('student', fn (Builder $query) => $query->where('coordinator_id', $this->coordinatorId()))
-                ->count(),
-        ];
-    }
-
-    #[Computed]
-    public function todayAttendance(): array
-    {
-        $counts = $this->managedAttendanceQuery()
-            ->whereDate('attendance_date', today())
-            ->selectRaw('status, COUNT(DISTINCT student_id) as total')
-            ->groupBy('status')
-            ->pluck('total', 'status');
-
-        $assigned = $this->managedStudentsQuery()->whereHas('ojtAssignment', fn (Builder $query) => $query->whereNotNull('company_supervisor_id'))->count();
-
-        $rows = collect([
-            'present' => ['Present', 'bg-emerald-500'],
-            'late' => ['Late', 'bg-amber-500'],
-            'incomplete' => ['Incomplete', 'bg-sky-500'],
-            'absent' => ['Absent', 'bg-red-500'],
-        ])->map(fn (array $meta, string $status) => ['label' => $meta[0], 'color' => $meta[1], 'value' => (int) ($counts[$status] ?? 0)]);
-
-        // ponytail: any status outside the four above is folded into "No log yet".
-        $rows['none'] = ['label' => 'No log yet', 'color' => 'bg-zinc-300 dark:bg-zinc-600', 'value' => max($assigned - $rows->sum('value'), 0)];
-
-        return ['total' => max($assigned, $rows->sum('value')), 'logged' => $rows->except('none')->sum('value'), 'rows' => $rows->values()->all()];
     }
 
     #[Computed]
@@ -365,98 +293,6 @@ new #[Title('Coordinator Dashboard')] class extends Component
                         <span class="size-2.5 rounded-full {{ $segment['dot'] }}"></span>
                         <span class="text-zinc-600 dark:text-zinc-300">{{ $segment['label'] }}</span>
                         <span class="font-medium text-zinc-900 tabular-nums dark:text-white">{{ number_format($segment['value']) }}</span>
-                    </div>
-                @endforeach
-            </div>
-        </flux:card>
-    </section>
-
-    @php
-        $hours = $this->hoursProgress;
-        $requirements = $this->requirementsProgress;
-        $today = $this->todayAttendance;
-    @endphp
-    <section class="grid gap-4 lg:grid-cols-3">
-        <flux:card class="flex flex-col">
-            <div class="flex items-start justify-between gap-4">
-                <flux:heading size="lg">OJT Hours Progress</flux:heading>
-                <flux:button size="xs" variant="ghost" icon-trailing="arrow-right" :href="route('coordinator.certificates')" wire:navigate>Certificates</flux:button>
-            </div>
-
-            <div class="mt-4 flex items-baseline gap-2">
-                <span class="text-4xl font-semibold tracking-tight tabular-nums text-zinc-900 dark:text-white">{{ $hours['percentage'] }}%</span>
-                <flux:text>of required hours rendered</flux:text>
-            </div>
-            <flux:progress :value="$hours['percentage']" color="emerald" class="mt-4" />
-            <flux:text class="mt-2 text-xs">
-                {{ \App\Support\HourFormatter::format($hours['rendered']) }} of {{ \App\Support\HourFormatter::format($hours['required']) }}
-            </flux:text>
-
-            <div class="mt-auto space-y-3 pt-6">
-                @foreach ([['Completed hours', $hours['completed'], 'bg-emerald-500'], ['In progress', $hours['in_progress'], 'bg-amber-500'], ['Not started', $hours['not_started'], 'bg-zinc-300 dark:bg-zinc-600']] as [$label, $value, $dot])
-                    <div class="flex items-center gap-2 text-sm">
-                        <span class="size-2.5 rounded-full {{ $dot }}"></span>
-                        <span class="text-zinc-600 dark:text-zinc-300">{{ $label }}</span>
-                        <span class="ml-auto font-medium tabular-nums text-zinc-900 dark:text-white">{{ number_format($value) }}</span>
-                    </div>
-                @endforeach
-            </div>
-        </flux:card>
-
-        <flux:card class="flex flex-col">
-            <div class="flex items-start justify-between gap-4">
-                <flux:heading size="lg">Requirements</flux:heading>
-                <flux:button size="xs" variant="ghost" icon-trailing="arrow-right" :href="route('coordinator.requirements')" wire:navigate>View</flux:button>
-            </div>
-
-            <div class="mt-4 flex items-baseline gap-2">
-                <span class="text-4xl font-semibold tracking-tight tabular-nums text-zinc-900 dark:text-white">{{ $requirements['percentage'] }}%</span>
-                <flux:text>of students complete</flux:text>
-            </div>
-            <flux:progress :value="$requirements['percentage']" color="blue" class="mt-4" />
-            <flux:text class="mt-2 text-xs">
-                {{ number_format($requirements['complete']) }} of {{ number_format($requirements['total']) }} students submitted everything
-            </flux:text>
-
-            <div class="mt-auto space-y-3 pt-6">
-                @foreach ([['Complete', $requirements['complete'], 'bg-blue-500'], ['Still pending', $requirements['pending'], 'bg-zinc-300 dark:bg-zinc-600'], ['Files to check', $requirements['for_checking'], 'bg-amber-500']] as [$label, $value, $dot])
-                    <div class="flex items-center gap-2 text-sm">
-                        <span class="size-2.5 rounded-full {{ $dot }}"></span>
-                        <span class="text-zinc-600 dark:text-zinc-300">{{ $label }}</span>
-                        <span class="ml-auto font-medium tabular-nums text-zinc-900 dark:text-white">{{ number_format($value) }}</span>
-                    </div>
-                @endforeach
-            </div>
-        </flux:card>
-
-        <flux:card class="flex flex-col">
-            <div class="flex items-start justify-between gap-4">
-                <div>
-                    <flux:heading size="lg">Today's Attendance</flux:heading>
-                    <flux:text class="mt-1 text-xs">{{ today()->format('l, F j') }}</flux:text>
-                </div>
-                <flux:button size="xs" variant="ghost" icon-trailing="arrow-right" :href="route('coordinator.attendance')" wire:navigate>View</flux:button>
-            </div>
-
-            <div class="mt-4 flex items-baseline gap-2">
-                <span class="text-4xl font-semibold tracking-tight tabular-nums text-zinc-900 dark:text-white">{{ number_format($today['logged']) }}</span>
-                <flux:text>of {{ number_format($today['total']) }} deployed students logged</flux:text>
-            </div>
-
-            <div class="mt-4 flex h-1.5 gap-0.5 overflow-hidden rounded-full bg-zinc-200 dark:bg-white/10">
-                @foreach ($today['rows'] as $row)
-                    @if ($today['total'] > 0 && $row['value'] > 0)
-                        <div class="h-full {{ $row['color'] }}" style="width: {{ $row['value'] / $today['total'] * 100 }}%" title="{{ $row['label'] }}: {{ $row['value'] }}"></div>
-                    @endif
-                @endforeach
-            </div>
-
-            <div class="mt-auto space-y-3 pt-6">
-                @foreach ($today['rows'] as $row)
-                    <div class="flex items-center gap-2 text-sm">
-                        <span class="size-2.5 rounded-full {{ $row['color'] }}"></span>
-                        <span class="text-zinc-600 dark:text-zinc-300">{{ $row['label'] }}</span>
-                        <span class="ml-auto font-medium tabular-nums text-zinc-900 dark:text-white">{{ number_format($row['value']) }}</span>
                     </div>
                 @endforeach
             </div>

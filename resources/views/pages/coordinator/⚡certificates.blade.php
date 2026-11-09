@@ -183,10 +183,15 @@ new #[Title('OJT Certificates')] class extends Component
                             </flux:table.cell>
 
                             <flux:table.cell align="end">
-                                <div class="flex justify-end gap-1">
-                                    <flux:button size="xs" icon="eye" :href="route('coordinator.certificates.view', $student)" target="_blank">View</flux:button>
-                                    <flux:button size="xs" variant="primary" icon="arrow-down-tray" :href="route('coordinator.certificates.download', $student)">Download</flux:button>
-                                </div>
+                                <flux:dropdown>
+                                    <flux:button variant="ghost" size="sm" icon="ellipsis-horizontal"
+                                        inset="top bottom" />
+
+                                    <flux:menu>
+                                        <flux:menu.item icon="eye" :href="route('coordinator.certificates.view', $student)" target="_blank">View</flux:menu.item>
+                                        <flux:menu.item icon="arrow-down-tray" :href="route('coordinator.certificates.download', $student)">Download</flux:menu.item>
+                                    </flux:menu>
+                                </flux:dropdown>
                             </flux:table.cell>
                         </flux:table.row>
                     @endforeach

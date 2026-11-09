@@ -4,7 +4,9 @@ use App\Models\AttendanceSubmission;
 use App\Models\Evaluation;
 use App\Models\Resume;
 use App\Models\StudentRequirement;
+use App\Models\User;
 use App\Support\AccomplishmentReportDocument;
+use App\Support\CertificateDocument;
 use App\Support\EvaluationDocument;
 use App\Support\ResumeDocument;
 use Illuminate\Support\Facades\Auth;
@@ -82,6 +84,17 @@ Route::group(['middleware' => ['auth', 'verified', 'role:ojt_coordinator']], fun
 
         return Storage::disk('local')->response($requirement->file_path);
     })->name('coordinator.requirements.file.content');
+    Route::livewire('/coordinator/certificates', 'pages::coordinator.certificates')->name('coordinator.certificates');
+    Route::get('/coordinator/certificates/{student}/view.pdf', function (User $student) {
+        abort_unless((int) $student->coordinator_id === (int) Auth::id(), 404);
+
+        return CertificateDocument::inline($student, requireCompletion: false);
+    })->name('coordinator.certificates.view');
+    Route::get('/coordinator/certificates/{student}/download', function (User $student) {
+        abort_unless((int) $student->coordinator_id === (int) Auth::id(), 404);
+
+        return CertificateDocument::download($student, requireCompletion: false);
+    })->name('coordinator.certificates.download');
     Route::livewire('/coordinator/attendance', 'pages::coordinator.attendance')->name('coordinator.attendance');
     Route::livewire('/coordinator/messages', 'pages::messages')->name('coordinator.messages');
 
@@ -138,6 +151,10 @@ Route::group(['middleware' => ['auth', 'verified', 'role:student']], function ()
 
         return Storage::disk('local')->response($path, headers: ['Cache-Control' => 'private, max-age=31536000']);
     })->whereIn('type', Resume::IMAGES)->name('student.resumes.image');
+
+    Route::livewire('/student/certificate', 'pages::student.certificate')->name('student.certificate');
+    Route::get('/student/certificate/view.pdf', fn () => CertificateDocument::inline(Auth::user()))->name('student.certificate.view');
+    Route::get('/student/certificate/download', fn () => CertificateDocument::download(Auth::user()))->name('student.certificate.download');
 
     Route::get('/student/requirements/{requirement}/file', function (StudentRequirement $requirement) {
         abort_unless((int) $requirement->student_id === (int) Auth::id(), 404);

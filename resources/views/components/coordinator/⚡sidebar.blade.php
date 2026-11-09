@@ -46,6 +46,11 @@ new class extends Component {};
             :current="request()->routeIs('coordinator.evaluations*')" wire:navigate>
             Evaluations
         </flux:sidebar.item>
+
+        <flux:sidebar.item icon="academic-cap" data-tour="nav-certificates" href="{{ route('coordinator.certificates') }}"
+            :current="request()->routeIs('coordinator.certificates')" wire:navigate>
+            Certificates
+        </flux:sidebar.item>
     </flux:sidebar.group>
 
     <flux:sidebar.group expandable icon="shield-check" heading="System Management" data-tour="nav-group-system">

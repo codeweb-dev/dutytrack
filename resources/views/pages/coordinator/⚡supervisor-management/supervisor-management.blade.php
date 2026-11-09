@@ -4,9 +4,9 @@
     <div class="grid grid-cols-1 gap-4 grid-cols-2 xl:grid-cols-5">
         @php($cards = ['' => ['Total Supervisors', 'total', 'users'], 'internal' => ['Internal Supervisors', 'internal', 'building-library'], 'external' => ['External Supervisors', 'external', 'building-office-2'], 'active' => ['Active Supervisors', 'active', 'check-circle'], 'inactive' => ['Inactive Supervisors', 'inactive', 'no-symbol']])
         @foreach ($cards as $value => [$label, $key, $icon])
-            <button type="button" wire:click="$set('status', '{{ $value }}')" class="text-left"
+            <button type="button" wire:click="$set('status', '{{ $value }}')" class="group text-left"
                 aria-pressed="{{ $status === $value ? 'true' : 'false' }}">
-                <flux:card size="xs" class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
+                <flux:card size="xs" class="hover:bg-zinc-50 dark:hover:bg-zinc-700 group-aria-pressed:border-zinc-800 group-aria-pressed:outline-1 group-aria-pressed:outline-zinc-800 dark:group-aria-pressed:border-white dark:group-aria-pressed:outline-white">
                     <flux:heading class="flex items-center gap-2">{{ $label }}
                         <flux:icon :name="$icon" :variant="$status === $value ? 'solid' : 'outline'"
                             class="ml-auto size-5 {{ $status === $value ? 'text-zinc-800 dark:text-white' : 'text-zinc-400' }}" />
@@ -103,6 +103,10 @@
                                     <flux:button variant="ghost" size="sm" icon="ellipsis-horizontal" inset="top bottom" />
 
                                     <flux:menu>
+                                        <flux:modal.trigger :name="'view-supervisor-'.$supervisor->id">
+                                            <flux:menu.item icon="eye">View</flux:menu.item>
+                                        </flux:modal.trigger>
+
                                         <flux:modal.trigger :name="'edit-supervisor-'.$supervisor->id">
                                             <flux:menu.item icon="pencil-square">Edit</flux:menu.item>
                                         </flux:modal.trigger>
@@ -124,6 +128,10 @@
                                         </flux:modal.trigger>
                                     </flux:menu>
                                 </flux:dropdown>
+
+                                <flux:modal :name="'view-supervisor-'.$supervisor->id" flyout variant="floating" class="md:w-2xl">
+                                    <livewire:coordinator.supervisors.view :supervisor="$supervisor" :key="'view-supervisor-'.$supervisor->id" />
+                                </flux:modal>
 
                                 <flux:modal :name="'edit-supervisor-'.$supervisor->id" flyout variant="floating" class="md:w-2xl">
                                     <livewire:coordinator.supervisors.edit :supervisor="$supervisor" :key="'edit-supervisor-'.$supervisor->id" />

@@ -4,9 +4,9 @@
     <div class="grid grid-cols-1 gap-4 grid-cols-2 xl:grid-cols-5">
         @php($cards = ['' => ['Total Announcements', 'total', 'megaphone'], 'info' => ['Info', 'info', 'information-circle'], 'warning' => ['Warning', 'warning', 'exclamation-triangle'], 'urgent' => ['Urgent', 'urgent', 'bell-alert'], 'maintenance' => ['Maintenance', 'maintenance', 'wrench-screwdriver']])
         @foreach ($cards as $value => [$label, $key, $icon])
-            <button type="button" wire:click="$set('type', '{{ $value }}')" class="text-left"
+            <button type="button" wire:click="$set('type', '{{ $value }}')" class="group text-left"
                 aria-pressed="{{ $type === $value ? 'true' : 'false' }}">
-                <flux:card size="xs" class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
+                <flux:card size="xs" class="hover:bg-zinc-50 dark:hover:bg-zinc-700 group-aria-pressed:border-zinc-800 group-aria-pressed:outline-1 group-aria-pressed:outline-zinc-800 dark:group-aria-pressed:border-white dark:group-aria-pressed:outline-white">
                     <flux:heading class="flex items-center gap-2">{{ $label }}
                         <flux:icon :name="$icon" :variant="$type === $value ? 'solid' : 'outline'"
                             class="ml-auto size-5 {{ $type === $value ? 'text-zinc-800 dark:text-white' : 'text-zinc-400' }}" />

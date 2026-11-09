@@ -108,31 +108,9 @@ new #[Title('OJT Assignments')] class extends Component
     #[Computed]
     public function summary(): array
     {
-        $coordinatorId = Auth::id();
-
+        // Unfiltered so the cards keep their counts while acting as the type filter.
         $query = OjtAssignment::query()
-            ->whereHas('student', fn (Builder $studentQuery) => $studentQuery->where('coordinator_id', $coordinatorId))
-            ->when($this->search !== '', function (Builder $query) {
-                $search = '%'.$this->search.'%';
-
-                $query->where(function (Builder $nested) use ($search) {
-                    $nested->whereHas('student', function (Builder $studentQuery) use ($search) {
-                        $studentQuery->where(function (Builder $studentFields) use ($search) {
-                            $studentFields->where('name', 'like', $search)
-                                ->orWhere('first_name', 'like', $search)
-                                ->orWhere('last_name', 'like', $search)
-                                ->orWhere('email', 'like', $search);
-                        })->orWhereHas('studentProfile', function (Builder $profileQuery) use ($search) {
-                            $profileQuery->where('student_id', 'like', $search)
-                                ->orWhere('course', 'like', $search);
-                        });
-                    })->orWhereHas('companySupervisor', function (Builder $supervisorQuery) use ($search) {
-                        $supervisorQuery->where('name', 'like', $search)
-                            ->orWhere('email', 'like', $search);
-                    });
-                });
-            })
-            ->when($this->ojt_type !== '', fn (Builder $query) => $query->where('ojt_type', $this->ojt_type));
+            ->whereHas('student', fn (Builder $studentQuery) => $studentQuery->where('coordinator_id', Auth::id()));
 
         return [
             'total' => (clone $query)->count(),

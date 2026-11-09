@@ -7,8 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
-new class extends Component
-{
+new class extends Component {
     public OjtAssignmentForm $form;
 
     public OjtAssignment $assignment;
@@ -34,8 +33,7 @@ new class extends Component
             ->where('coordinator_id', auth()->id())
             ->role('student')
             ->where(function (Builder $query) {
-                $query->whereDoesntHave('ojtAssignment')
-                    ->orWhere('id', $this->assignment->student_id);
+                $query->whereDoesntHave('ojtAssignment')->orWhere('id', $this->assignment->student_id);
             })
             ->orderBy('first_name')
             ->get();
@@ -44,13 +42,7 @@ new class extends Component
     #[Computed]
     public function companySupervisors()
     {
-        return User::query()
-            ->with('supervisorProfile')
-            ->availableToCoordinator(auth()->id())
-            ->role('supervisor')
-            ->whereHas('supervisorProfile', fn ($query) => $query->where('supervisor_type', $this->form->ojt_type))
-            ->orderBy('first_name')
-            ->get();
+        return User::query()->with('supervisorProfile')->availableToCoordinator(auth()->id())->role('supervisor')->whereHas('supervisorProfile', fn($query) => $query->where('supervisor_type', $this->form->ojt_type))->orderBy('first_name')->get();
     }
 
     public function save(): void
@@ -80,15 +72,10 @@ new class extends Component
         <flux:radio.group wire:model.live="form.ojt_type" label="OJT Type" variant="cards" :indicator="false"
             class="max-sm:flex-col" required>
             <flux:radio value="internal" icon="academic-cap" label="Internal" description="Internal OJT" />
-            <flux:radio value="external" icon="briefcase" label="External"
-                description="External OJT" />
+            <flux:radio value="external" icon="briefcase" label="External" description="External OJT" />
         </flux:radio.group>
 
-        <flux:text>
-            A student can only have one assignee for an OJT assignment.
-        </flux:text>
-
-            <flux:select wire:key="edit-{{ $assignment->id }}-external-supervisor-select"
+        <flux:select wire:key="edit-{{ $assignment->id }}-external-supervisor-select"
             wire:model.live="form.company_supervisor_id" label="Supervisor" required>
             <option value="">Select supervisor</option>
             @foreach ($this->companySupervisors as $supervisor)

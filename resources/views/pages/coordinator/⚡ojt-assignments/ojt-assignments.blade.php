@@ -87,11 +87,9 @@
                                     <flux:avatar size="md" :src="$assignee?->profile_photo_url"
                                         :name="$assignee?->display_name ?? 'Unassigned'" />
 
-                                    <div class="flex min-w-0 flex-col whitespace-normal">
+                                    <div class="flex flex-col">
                                         <span class="font-medium">{{ $assignee?->display_name ?? 'Unassigned' }}</span>
-                                        <span class="break-words text-xs text-zinc-500 dark:text-zinc-300">
-                                            {{ $assignee?->email ?? 'No supervisor assigned' }}
-                                        </span>
+                                        <span class="text-xs text-zinc-500 dark:text-zinc-300">{{ $assignee?->email ?? 'No supervisor assigned' }}</span>
                                     </div>
                                 </div>
                             </flux:table.cell>

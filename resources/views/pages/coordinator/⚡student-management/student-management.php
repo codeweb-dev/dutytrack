@@ -178,6 +178,8 @@ new #[Title('Students')] class extends Component
             $query->where('users.status', 'pending');
         } elseif ($this->status === 'active') {
             $query->where(fn (Builder $query) => $query->whereNull('users.status')->orWhere('users.status', '!=', 'pending'));
+        } elseif ($this->status === 'assigned') {
+            $query->whereHas('ojtAssignment', fn (Builder $query) => $query->whereNotNull('company_supervisor_id'));
         }
 
         $allowedSorts = [

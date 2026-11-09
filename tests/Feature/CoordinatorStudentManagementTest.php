@@ -73,8 +73,35 @@ test('coordinator student management only shows the logged in coordinators stude
     $this->actingAs($coordinatorA)
         ->get(route('coordinator.student-management'))
         ->assertOk()
-        ->assertSee($ownedStudent->name)
-        ->assertDontSee($otherStudent->name);
+        ->assertSee($ownedStudent->display_name)
+        ->assertDontSee($otherStudent->display_name);
+});
+
+test('coordinator summary cards filter students by status', function () {
+    $coordinator = createCoordinator();
+    $pending = createStudentForCoordinator($coordinator, ['name' => 'Pending Card Student', 'status' => 'pending']);
+    $assigned = createStudentForCoordinator($coordinator, ['name' => 'Assigned Card Student']);
+    $unassigned = createStudentForCoordinator($coordinator, ['name' => 'Unassigned Card Student']);
+
+    $supervisor = User::factory()->create();
+    $supervisor->assignRole(AppRole::SUPERVISOR->value);
+
+    OjtAssignment::query()->create([
+        'student_id' => $assigned->id,
+        'ojt_type' => 'internal',
+        'company_supervisor_id' => $supervisor->id,
+    ]);
+
+    $this->actingAs($coordinator);
+
+    $ids = fn ($component) => $component->instance()->students->pluck('id')->sort()->values()->all();
+
+    $component = Livewire::test('pages::coordinator.student-management');
+
+    expect($ids($component->set('status', 'assigned')))->toBe([$assigned->id])
+        ->and($ids($component->set('status', 'pending')))->toBe([$pending->id])
+        ->and($ids($component->set('status', 'active')))->toBe(collect([$assigned->id, $unassigned->id])->sort()->values()->all())
+        ->and($ids($component->set('status', '')))->toHaveCount(3);
 });
 
 test('students submit a requirement with an attached file', function () {
@@ -177,8 +204,8 @@ test('coordinators can monitor requirements for their own students', function ()
         ->get(route('coordinator.requirements'))
         ->assertOk()
         ->assertSee('Requirement Monitoring')
-        ->assertSee($ownedStudent->name)
-        ->assertDontSee($otherStudent->name);
+        ->assertSee($ownedStudent->display_name)
+        ->assertDontSee($otherStudent->display_name);
 });
 
 test('coordinators can monitor attendance for their own students', function () {
@@ -234,6 +261,6 @@ test('coordinators can monitor attendance for their own students', function () {
         ->get(route('coordinator.attendance'))
         ->assertOk()
         ->assertSee('Attendance Monitoring')
-        ->assertSee($ownedStudent->name)
-        ->assertDontSee($otherStudent->name);
+        ->assertSee($ownedStudent->display_name)
+        ->assertDontSee($otherStudent->display_name);
 });

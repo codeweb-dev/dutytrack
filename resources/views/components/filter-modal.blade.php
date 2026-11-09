@@ -1,13 +1,7 @@
-@props([
-    'name',
-    'heading' => 'Filter',
-    'description' => null,
-    'sorts' => [],
-    'width' => 'md:w-xl',
-])
+@props(['name', 'heading' => 'Filter', 'description' => null, 'sorts' => [], 'width' => 'md:w-xl'])
 
 <flux:modal.trigger :name="$name">
-    <flux:button icon="funnel">Filter</flux:button>
+    <flux:button variant="filled" icon="funnel">Filter</flux:button>
 </flux:modal.trigger>
 
 <flux:modal :name="$name" :class="$width">

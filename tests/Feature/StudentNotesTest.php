@@ -3,7 +3,6 @@
 use App\Enums\Role as AppRole;
 use App\Models\StudentNote;
 use App\Models\User;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Role as PermissionRole;
 
@@ -73,7 +72,7 @@ test('students only see their own notes', function () {
 
     $this->actingAs($student);
 
-    expect(fn () => Livewire::test('pages::student.notes')
-        ->call('selectNote', $otherNote->id))
-        ->toThrow(ModelNotFoundException::class);
+    Livewire::test('pages::student.notes')
+        ->call('selectNote', $otherNote->id)
+        ->assertNotFound();
 });

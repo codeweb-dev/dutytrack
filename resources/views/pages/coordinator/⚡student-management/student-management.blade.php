@@ -1,78 +1,66 @@
 <div class="flex flex-col gap-6">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <flux:card class="p-4">
-            <flux:heading>Total Students</flux:heading>
-            <flux:text class="mt-2">{{ $this->summary['total'] }}</flux:text>
-        </flux:card>
-        <flux:card class="p-4">
-            <flux:heading>Pending Approval</flux:heading>
-            <flux:text class="mt-2">{{ $this->summary['pending'] }}</flux:text>
-        </flux:card>
-        <flux:card class="p-4">
-            <flux:heading>Active Students</flux:heading>
-            <flux:text class="mt-2">{{ $this->summary['active'] }}</flux:text>
-        </flux:card>
-        <flux:card class="p-4">
-            <flux:heading>Assigned Students</flux:heading>
-            <flux:text class="mt-2">{{ $this->summary['assigned'] }}</flux:text>
-        </flux:card>
+    <div class="grid grid-cols-1 gap-4 grid-cols-2 xl:grid-cols-4">
+        @php($cards = ['' => ['Total Students', 'total', 'users'], 'pending' => ['Pending Approval', 'pending', 'clock'], 'active' => ['Active Students', 'active', 'check-circle'], 'assigned' => ['Assigned Students', 'assigned', 'briefcase']])
+        @foreach ($cards as $value => [$label, $key, $icon])
+            <button type="button" wire:click="$set('status', '{{ $value }}')" class="text-left"
+                aria-pressed="{{ $status === $value ? 'true' : 'false' }}">
+                <flux:card size="xs" class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
+                    <flux:heading class="flex items-center gap-2">{{ $label }}
+                        <flux:icon :name="$icon" :variant="$status === $value ? 'solid' : 'outline'"
+                            class="ml-auto size-5 {{ $status === $value ? 'text-zinc-800 dark:text-white' : 'text-zinc-400' }}" />
+                    </flux:heading>
+                    <flux:heading size="2xl" class="mt-2">{{ $this->summary[$key] }}</flux:heading>
+                </flux:card>
+            </button>
+        @endforeach
     </div>
 
-    <div class="space-y-4">
-        <div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-            <h2 class="text-xl font-semibold">
-                My Students
-            </h2>
+    <flux:card>
+        <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+            <div>
+                <flux:heading size="xl">{{ $cards[$status][0] ?? 'Total Students' }}</flux:heading>
+            </div>
 
-            <div class="flex w-full flex-wrap items-center gap-3 xl:w-auto">
+            <div class="flex w-full items-center gap-3 xl:w-auto">
                 <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
                     placeholder="Search students..." clearable class="w-full sm:w-64" />
 
                 <x-filter-modal name="filter-coordinator-students" heading="Filter Students"
-                    description="Filter by account status and sort your students."
-                    :sorts="['name' => 'Last name', 'student_id' => 'Student ID', 'assigned_supervisor' => 'Assigned Supervisor']">
+                    description="Filter by account status and sort your students." :sorts="[
+                        'name' => 'Last name',
+                        'student_id' => 'Student ID',
+                        'assigned_supervisor' => 'Assigned Supervisor',
+                    ]">
                     <flux:radio.group wire:model.live="status" label="Account Status" variant="pills">
                         <flux:radio value="" label="All" />
                         <flux:radio value="pending" label="Pending Approval" />
                         <flux:radio value="active" label="Active" />
+                        <flux:radio value="assigned" label="Assigned" />
                     </flux:radio.group>
                 </x-filter-modal>
-
-                <flux:button href="{{ route('coordinator.requirements') }}" icon:trailing="arrow-up-right" class="w-full sm:w-auto">
-                    View Requirements
-                </flux:button>
             </div>
         </div>
 
         @if ($this->students->isEmpty())
-            <flux:card class="flex flex-col items-center gap-4 py-16 sm:py-24">
+            <div class="mt-6 flex flex-col items-center gap-4 py-16 sm:py-24">
                 <flux:icon name="academic-cap" class="size-12" />
                 <div class="text-center">
                     <flux:heading size="xl">No students found</flux:heading>
                     <flux:text class="mt-2">Try adjusting your search or filter to find what you're looking
                         for.</flux:text>
                 </div>
-            </flux:card>
+            </div>
         @else
-            <flux:table :paginate="$this->students">
+            <flux:table :paginate="$this->students" bleed container:class="mt-6"
+                pagination:class="px-[var(--flux-bleed,1.5rem)] pb-3">
                 <flux:table.columns>
-                    <flux:table.column>
-                        Student
-                    </flux:table.column>
-
-                    <flux:table.column>
-                        Student ID
-                    </flux:table.column>
-
+                    <flux:table.column>Student</flux:table.column>
+                    <flux:table.column>Student ID</flux:table.column>
                     <flux:table.column>Assigned Supervisor</flux:table.column>
-
-                    <flux:table.column>
-                        Status
-                    </flux:table.column>
-
-                    <flux:table.column>Actions</flux:table.column>
+                    <flux:table.column>Status</flux:table.column>
+                    <flux:table.column align="end">Actions</flux:table.column>
                 </flux:table.columns>
 
                 <flux:table.rows>
@@ -111,13 +99,14 @@
 
                             <flux:table.cell class="whitespace-nowrap">
                                 @if ($student->status === 'pending')
-                                    <flux:badge size="sm" color="amber" inset="top bottom">Pending Approval</flux:badge>
+                                    <flux:badge size="sm" color="amber" inset="top bottom">Pending Approval
+                                    </flux:badge>
                                 @else
                                     <flux:badge size="sm" color="green" inset="top bottom">Active</flux:badge>
                                 @endif
                             </flux:table.cell>
 
-                            <flux:table.cell>
+                            <flux:table.cell align="end">
                                 <flux:dropdown>
                                     <flux:button variant="ghost" size="sm" icon="ellipsis-horizontal"
                                         inset="top bottom" />
@@ -154,12 +143,14 @@
                                 @if ($student->status !== 'pending')
                                     <flux:modal :name="'view-profile-'.$student->id" flyout variant="floating"
                                         class="md:w-2xl">
-                                        <livewire:coordinator.student-management.view :student="$student" :key="'view-student-' . $student->id" />
+                                        <livewire:coordinator.student-management.view :student="$student"
+                                            :key="'view-student-' . $student->id" />
                                     </flux:modal>
                                 @else
                                     <flux:modal :name="'review-student-'.$student->id" flyout variant="floating"
                                         class="md:w-2xl">
-                                        <livewire:coordinator.student-management.view :student="$student" :key="'review-student-' . $student->id" />
+                                        <livewire:coordinator.student-management.view :student="$student"
+                                            :key="'review-student-' . $student->id" />
 
                                         <div class="mt-6 flex justify-end gap-2">
                                             <flux:modal.close>
@@ -173,24 +164,27 @@
                                         </div>
                                     </flux:modal>
 
-                                    <flux:modal :name="'reject-student-'.$student->id" class="w-[calc(100vw-2rem)] max-w-md!">
+                                    <flux:modal :name="'reject-student-'.$student->id"
+                                        class="w-[calc(100vw-2rem)] max-w-md!">
                                         <form wire:submit="reject({{ $student->id }})" class="space-y-6">
                                             <div>
                                                 <flux:heading size="lg">Reject sign-up</flux:heading>
                                                 <flux:text class="mt-2">
-                                                    {{ $student->display_name }} will see this reason when they try to log in. The sign-up can be restored from the Archive.
+                                                    {{ $student->display_name }} will see this reason when they try to
+                                                    log in. The sign-up can be restored from the Archive.
                                                 </flux:text>
                                             </div>
 
-                                            <flux:textarea wire:model="rejectionReason" label="Reason" rows="4" required
-                                                placeholder="e.g. Student ID does not match the masterlist." />
+                                            <flux:textarea wire:model="rejectionReason" label="Reason" rows="4"
+                                                required placeholder="e.g. Student ID does not match the masterlist." />
 
                                             <div class="flex justify-end gap-2">
                                                 <flux:modal.close>
                                                     <flux:button variant="ghost">Cancel</flux:button>
                                                 </flux:modal.close>
 
-                                                <flux:button type="submit" variant="danger" icon="x-circle">Reject</flux:button>
+                                                <flux:button type="submit" variant="danger" icon="x-circle">Reject
+                                                </flux:button>
                                             </div>
                                         </form>
                                     </flux:modal>
@@ -201,7 +195,8 @@
                                     <livewire:coordinator.student-management.edit :student="$student" :key="'edit-student-' . $student->id" />
                                 </flux:modal>
 
-                                <flux:modal :name="'delete-student-'.$student->id" class="w-[calc(100vw-2rem)] max-w-sm!">
+                                <flux:modal :name="'delete-student-'.$student->id"
+                                    class="w-[calc(100vw-2rem)] max-w-sm!">
                                     <livewire:coordinator.student-management.delete :student="$student"
                                         :key="'delete-student-' . $student->id" />
                                 </flux:modal>
@@ -211,5 +206,5 @@
                 </flux:table.rows>
             </flux:table>
         @endif
-    </div>
+    </flux:card>
 </div>

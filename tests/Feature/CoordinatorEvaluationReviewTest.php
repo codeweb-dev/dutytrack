@@ -5,7 +5,6 @@ use App\Models\Evaluation;
 use App\Models\OjtAssignment;
 use App\Models\User;
 use App\Support\PracticumEvaluationForm;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Livewire\Livewire;
 
 function createEvaluationReviewFixture(User $coordinator): Evaluation
@@ -58,10 +57,10 @@ test('coordinator cannot review another coordinator’s student evaluation', fun
         ->test('pages::coordinator.evaluations')
         ->assertDontSee($evaluation->student->display_name);
 
-    expect(fn () => Livewire::actingAs($otherCoordinator)
+    Livewire::actingAs($otherCoordinator)
         ->test('pages::coordinator.evaluations')
-        ->call('markReviewed', $evaluation->id))
-        ->toThrow(ModelNotFoundException::class);
+        ->call('markReviewed', $evaluation->id)
+        ->assertNotFound();
 
     expect($evaluation->fresh()->status)->toBe('submitted');
 });

@@ -7,36 +7,40 @@
 ])
 
 @php
-$classes = Flux::classes()
-    ->add('font-medium')
-    ->add(match ($accent) {
-        true => 'text-[var(--color-accent-content)]',
-        default => '[:where(&)]:text-zinc-800 [:where(&)]:dark:text-white',
-    })
-    ->add(match ($size) {
-        'xl' => 'text-2xl [&:has(+[data-flux-subheading])]:mb-2 [[data-flux-subheading]+&]:mt-2',
-        'lg' => 'text-base [&:has(+[data-flux-subheading])]:mb-2 [[data-flux-subheading]+&]:mt-2',
-        default => 'text-sm [&:has(+[data-flux-subheading])]:mb-2 [[data-flux-subheading]+&]:mt-2',
-    })
-    ;
+    $classes = Flux::classes()
+        ->add('font-medium')
+        ->add(
+            match ($accent) {
+                true => 'text-[var(--color-accent-content)]',
+                default => '[:where(&)]:text-zinc-800 [:where(&)]:dark:text-white',
+            },
+        )
+        ->add(
+            match ($size) {
+                '2xl' => 'text-4xl [&:has(+[data-flux-subheading])]:mb-2 [[data-flux-subheading]+&]:mt-2',
+                'xl' => 'text-2xl [&:has(+[data-flux-subheading])]:mb-2 [[data-flux-subheading]+&]:mt-2',
+                'lg' => 'text-base [&:has(+[data-flux-subheading])]:mb-2 [[data-flux-subheading]+&]:mt-2',
+                default => 'text-sm [&:has(+[data-flux-subheading])]:mb-2 [[data-flux-subheading]+&]:mt-2',
+            },
+        );
 @endphp
 
 <?php switch ((int) $level): case(1): ?>
-        <h1 {{ $attributes->class($classes) }} data-flux-heading>{{ $slot }}</h1>
+<h1 {{ $attributes->class($classes) }} data-flux-heading>{{ $slot }}</h1>
+@break
 
-        @break
-    <?php case(2): ?>
-        <h2 {{ $attributes->class($classes) }} data-flux-heading>{{ $slot }}</h2>
+<?php case(2): ?>
+<h2 {{ $attributes->class($classes) }} data-flux-heading>{{ $slot }}</h2>
+@break
 
-        @break
-    <?php case(3): ?>
-        <h3 {{ $attributes->class($classes) }} data-flux-heading>{{ $slot }}</h3>
+<?php case(3): ?>
+<h3 {{ $attributes->class($classes) }} data-flux-heading>{{ $slot }}</h3>
+@break
 
-        @break
-    <?php case(4): ?>
-        <h4 {{ $attributes->class($classes) }} data-flux-heading>{{ $slot }}</h4>
+<?php case(4): ?>
+<h4 {{ $attributes->class($classes) }} data-flux-heading>{{ $slot }}</h4>
+@break
 
-        @break
-    <?php default: ?>
-        <div {{ $attributes->class($classes) }} data-flux-heading>{{ $slot }}</div>
+<?php default: ?>
+<div {{ $attributes->class($classes) }} data-flux-heading>{{ $slot }}</div>
 <?php endswitch; ?>

@@ -5,7 +5,6 @@ use App\Enums\Role as AppRole;
 use App\Models\Resume;
 use App\Models\User;
 use App\Support\ResumeDocument;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
@@ -310,9 +309,9 @@ test('students cannot view or modify another student\'s resume', function () {
     $this->get(route('student.resumes.image', [$resume, 'signature']))->assertNotFound();
     $this->get(route('student.resumes'))->assertDontSee($resume->title.'</a>', false);
 
-    expect(fn () => Livewire::test('pages::student.resumes')->call('duplicate', $resume->id))->toThrow(ModelNotFoundException::class);
-    expect(fn () => Livewire::test('pages::student.resumes')->call('confirmDelete', $resume->id))->toThrow(ModelNotFoundException::class);
-    expect(fn () => Livewire::test('resume.photo', ['resumeId' => $resume->id]))->toThrow(ModelNotFoundException::class);
+    Livewire::test('pages::student.resumes')->call('duplicate', $resume->id)->assertNotFound();
+    Livewire::test('pages::student.resumes')->call('confirmDelete', $resume->id)->assertNotFound();
+    Livewire::test('resume.photo', ['resumeId' => $resume->id])->assertNotFound();
 
     expect(Resume::find($resume->id))->not->toBeNull();
 });

@@ -1,8 +1,8 @@
 <div class="flex flex-col gap-4">
-    @if(count($breadcrumbs))
+    @if (count($breadcrumbs))
         <flux:breadcrumbs>
-            @foreach($breadcrumbs as $breadcrumb)
-                @if(!empty($breadcrumb['logo']))
+            @foreach ($breadcrumbs as $breadcrumb)
+                @if (!empty($breadcrumb['logo']))
                     <flux:breadcrumbs.item href="{{ $breadcrumb['href'] ?? '#' }}">
                         <img src="{{ asset($breadcrumb['logo']) }}" alt="logo" class="h-4 w-4 object-cover" />
                     </flux:breadcrumbs.item>
@@ -16,10 +16,10 @@
     @endif
 
     <div>
-        <flux:heading size="xl">{{ $title }}</flux:heading>
+        <flux:heading size="2xl">{{ $title }}</flux:heading>
 
-        @if($description)
-            <flux:text class="mt-1">
+        @if ($description)
+            <flux:text class="mt-2 text-base">
                 {{ $description }}
             </flux:text>
         @endif

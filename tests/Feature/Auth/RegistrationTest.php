@@ -123,15 +123,13 @@ test('coordinators can reject a pending sign-up so the student can register agai
 });
 
 test('student id lookup returns masterlist details for prefilling sign up', function () {
-    $this->getJson(route('register.lookup', ['student_id' => ' 2316-02373c ']))
-        ->assertOk()
-        ->assertExactJson([
-            'course' => 'BSCS',
-            'last_name' => 'Labrague',
-            'first_name' => 'Allen',
-            'middle_name' => 'Ingraham',
-            'extension_name' => null,
-        ]);
+    $student = [
+        'course' => 'BSCS', 'last_name' => 'Student', 'first_name' => 'Jamie', 'middle_name' => 'Lopez', 'extension_name' => null,
+        'birthdate' => '2004-01-01', 'email' => 'jamie@example.com', 'contact_number' => '9123456789',
+        'address' => '123 Main St', 'guardian_name' => 'Maria Student', 'guardian_address' => '123 Main St',
+    ];
+    config(['masterlist' => ['2316-00001C' => $student]]);
 
+    $this->getJson(route('register.lookup', ['student_id' => ' 2316-00001c ']))->assertOk()->assertExactJson($student);
     $this->getJson(route('register.lookup', ['student_id' => 'NOT-AN-ID']))->assertNotFound();
 });

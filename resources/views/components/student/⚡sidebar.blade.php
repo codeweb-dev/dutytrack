@@ -25,6 +25,11 @@ new class extends Component {};
         Accomplishment Report
     </flux:sidebar.item>
 
+    <flux:sidebar.item icon="identification" data-tour="nav-resume-builder" href="{{ route('student.resumes') }}" :current="request()->routeIs('student.resumes*')"
+        wire:navigate>
+        Resume Builder
+    </flux:sidebar.item>
+
     <flux:sidebar.group expandable icon="squares-2x2" heading="Productivity" data-tour="nav-group-productivity">
         <flux:sidebar.item icon="rectangle-stack" data-tour="nav-tasks" href="{{ route('student.tasks') }}" :current="request()->routeIs('student.tasks', 'student.kanban')"
             wire:navigate>

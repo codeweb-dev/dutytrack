@@ -3,6 +3,7 @@ import { Observer } from "tailwindcss-intersect";
 Observer.start();
 
 import './pwa';
+import './resume-builder';
 
 const docxPreview = document.querySelector('[data-docx-preview]');
 

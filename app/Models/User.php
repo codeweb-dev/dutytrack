@@ -119,6 +119,11 @@ class User extends Authenticatable
             ->whereIn('key', StudentRequirement::activeKeys());
     }
 
+    public function resumes()
+    {
+        return $this->hasMany(Resume::class, 'student_id');
+    }
+
     public function evaluations()
     {
         return $this->hasMany(Evaluation::class, 'student_id');

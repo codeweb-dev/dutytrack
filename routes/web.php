@@ -2,13 +2,15 @@
 
 use App\Models\AttendanceSubmission;
 use App\Models\Evaluation;
+use App\Models\Resume;
 use App\Models\StudentRequirement;
 use App\Support\AccomplishmentReportDocument;
 use App\Support\EvaluationDocument;
+use App\Support\ResumeDocument;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 
 Route::get('/manifest.webmanifest', [\App\Http\Controllers\PwaController::class, 'manifest'])->name('pwa.manifest');
 Route::get('/sw.js', [\App\Http\Controllers\PwaController::class, 'worker'])->name('pwa.worker');
@@ -114,6 +116,28 @@ Route::group(['middleware' => ['auth', 'verified', 'role:student']], function ()
     Route::livewire('/student/notes', 'pages::student.notes')->name('student.notes');
     Route::livewire('/student/messages', 'pages::messages')->name('student.messages');
     Route::livewire('/student/pomodoro', 'pages::student.pomodoro')->name('student.pomodoro');
+    Route::livewire('/student/resumes', 'pages::student.resumes')->name('student.resumes');
+    Route::livewire('/student/resumes/{resume}', 'pages::student.resume-builder')->name('student.resumes.edit');
+
+    Route::get('/student/resumes/{resume}/preview.pdf', function (Resume $resume) {
+        abort_unless((int) $resume->student_id === (int) Auth::id(), 404);
+
+        return ResumeDocument::inline($resume);
+    })->name('student.resumes.preview');
+
+    Route::get('/student/resumes/{resume}/download', function (Resume $resume) {
+        abort_unless((int) $resume->student_id === (int) Auth::id(), 404);
+
+        return ResumeDocument::download($resume);
+    })->name('student.resumes.download');
+
+    Route::get('/student/resumes/{resume}/images/{type}', function (Resume $resume, string $type) {
+        $path = $resume->imagePath($type);
+
+        abort_unless((int) $resume->student_id === (int) Auth::id() && $path && Storage::disk('local')->exists($path), 404);
+
+        return Storage::disk('local')->response($path, headers: ['Cache-Control' => 'private, max-age=31536000']);
+    })->whereIn('type', Resume::IMAGES)->name('student.resumes.image');
 
     Route::get('/student/requirements/{requirement}/file', function (StudentRequirement $requirement) {
         abort_unless((int) $requirement->student_id === (int) Auth::id(), 404);

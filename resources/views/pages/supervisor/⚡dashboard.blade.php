@@ -285,9 +285,7 @@ new #[Title('Supervisor Dashboard')] class extends Component
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                <flux:badge color="zinc" inset="top bottom">
-                                        {{ ucfirst($assignment->ojt_type) }}
-                                    </flux:badge>
+                                <x-ojt-type-badge :type="$assignment->ojt_type" inset="top bottom" />
                             </flux:table.cell>
                         </flux:table.row>
                     @empty

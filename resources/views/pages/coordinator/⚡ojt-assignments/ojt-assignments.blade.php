@@ -109,10 +109,7 @@
                             </flux:table.cell>
 
                             <flux:table.cell class="whitespace-nowrap">
-                                <flux:badge size="sm"
-                                    :color="$assignment->ojt_type === 'internal' ? 'sky' : 'violet'" inset="top bottom">
-                                    {{ ucfirst($assignment->ojt_type) }}
-                                </flux:badge>
+                                <x-ojt-type-badge :type="$assignment->ojt_type" inset="top bottom" />
                             </flux:table.cell>
 
                             <flux:table.cell align="end">

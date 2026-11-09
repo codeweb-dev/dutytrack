@@ -319,3 +319,32 @@ test('coordinators can set a student to inactive so they cannot log in until act
     $login()->assertSessionHasNoErrors();
     $this->assertAuthenticatedAs($student);
 });
+
+test('coordinators can set a supervisor to inactive so they cannot log in until activated again', function () {
+    $coordinator = createCoordinator();
+    $supervisor = User::factory()->create(['coordinator_id' => $coordinator->id, 'status' => 'active']);
+    $supervisor->assignRole(AppRole::SUPERVISOR->value);
+    $login = fn () => $this->post(route('login.store'), [
+        'role' => AppRole::SUPERVISOR->value,
+        'email' => $supervisor->email,
+        'password' => 'password',
+    ]);
+
+    $this->actingAs($coordinator);
+    $component = Livewire::test('pages::coordinator.supervisor-management')->call('setInactive', $supervisor->id);
+
+    expect($supervisor->fresh()->status)->toBe('inactive')
+        ->and($component->set('status', 'inactive')->instance()->supervisors->pluck('id')->all())->toBe([$supervisor->id])
+        ->and($component->set('status', 'active')->instance()->supervisors)->toBeEmpty();
+
+    auth()->logout();
+    $login()->assertSessionHasErrors(['account' => 'Your account has been set to inactive by your OJT coordinator.']);
+    $this->assertGuest();
+
+    $this->actingAs($coordinator);
+    Livewire::test('pages::coordinator.supervisor-management')->call('activate', $supervisor->id);
+    auth()->logout();
+
+    $login()->assertSessionHasNoErrors();
+    $this->assertAuthenticatedAs($supervisor);
+});

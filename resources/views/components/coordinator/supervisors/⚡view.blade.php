@@ -65,7 +65,7 @@ new class extends Component {
                 <div>
                     <dt class="text-sm font-medium text-zinc-500 dark:text-zinc-400">Type</dt>
                     <dd class="mt-1 text-base leading-6 font-medium text-zinc-900 dark:text-white">
-                        {{ ucfirst($supervisor->supervisorProfile?->supervisor_type ?? '—') }}
+                        <x-ojt-type-badge :type="$supervisor->supervisorProfile?->supervisor_type" />
                     </dd>
                 </div>
                 <div>

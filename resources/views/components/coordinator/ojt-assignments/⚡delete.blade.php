@@ -85,9 +85,7 @@ new class extends Component
             <div class="grid gap-4 md:grid-cols-2">
                 <div class="rounded-2xl bg-zinc-50 p-4 dark:bg-zinc-800/50">
                     <div class="text-xs uppercase tracking-wide text-zinc-400">Type</div>
-                    <div class="mt-2 text-sm font-semibold text-zinc-900 dark:text-white">
-                        {{ ucfirst($assignment->ojt_type) }}
-                    </div>
+                    <x-ojt-type-badge :type="$assignment->ojt_type" class="mt-2" />
                 </div>
 
                 <div class="rounded-2xl bg-zinc-50 p-4 dark:bg-zinc-800/50">

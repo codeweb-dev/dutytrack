@@ -34,7 +34,7 @@ class CreateNewUser implements CreatesNewUsers
     public function create(array $input): User
     {
         Validator::make($input, [
-            'photo' => ['nullable', 'image', 'max:2048'],
+            'photo' => ['required', 'image', 'max:2048'],
             'student_id' => ['required', 'string', 'max:255', Rule::unique('student_profiles', 'student_id')],
             'birthdate' => ['required', 'date', 'before:today'],
             'first_name' => ['required', 'string', 'max:255'],
@@ -52,6 +52,7 @@ class CreateNewUser implements CreatesNewUsers
         ], [
             'email.unique' => 'An account with this email already exists.',
             'student_id.unique' => 'An account with this student ID already exists.',
+            'photo.required' => 'Please upload a profile photo.',
         ])->validate();
 
         return DB::transaction(function () use ($input) {
@@ -69,7 +70,7 @@ class CreateNewUser implements CreatesNewUsers
                 'contact_number' => $input['contact_number'],
                 'email' => $input['email'],
                 'password' => $input['password'],
-                'profile_photo_path' => isset($input['photo']) ? $input['photo']->store('students/photos', 'public') : null,
+                'profile_photo_path' => $input['photo']->store('students/photos', 'public'),
                 'status' => 'pending',
             ]);
 

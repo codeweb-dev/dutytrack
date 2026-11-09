@@ -13,12 +13,15 @@ beforeEach(function () {
     foreach (AppRole::cases() as $role) {
         PermissionRole::findOrCreate($role->value, 'web');
     }
+
+    Storage::fake('public');
 });
 
 function studentSignup(array $overrides = []): array
 {
     return array_merge([
         'student_id' => '2026-0001',
+        'birthdate' => '2004-01-01',
         'first_name' => 'Jamie',
         'middle_name' => 'Lopez',
         'last_name' => 'Student',
@@ -31,8 +34,14 @@ function studentSignup(array $overrides = []): array
         'guardian_contact_number' => '9987654321',
         'password' => 'password',
         'password_confirmation' => 'password',
+        'photo' => UploadedFile::fake()->image('me.jpg'),
     ], $overrides);
 }
+
+test('profile photo is required to sign up', function () {
+    $this->post(route('register.store'), studentSignup(['photo' => null]))
+        ->assertSessionHasErrors('photo');
+});
 
 test('registration screen can be rendered', function () {
     $response = $this->get(route('register'));

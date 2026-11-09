@@ -23,17 +23,14 @@
                         <flux:icon.camera variant="micro" />
                     </span>
                 </label>
-                <input id="photo" name="photo" type="file" accept="image/*" class="sr-only"
+                <input id="photo" name="photo" type="file" accept="image/*" class="sr-only" required
                     x-on:change="
                         const file = $event.target.files[0];
                         tooBig = !!file && file.size > 2 * 1024 * 1024;
                         if (tooBig) $event.target.value = '';
                         preview = file && !tooBig ? URL.createObjectURL(file) : null;
                     " />
-                <div class="flex items-center gap-2">
-                    <flux:text class="text-xs">{{ __('Upload a profile photo (max 2MB)') }}</flux:text>
-                    <flux:badge size="sm">{{ __('Optional') }}</flux:badge>
-                </div>
+                <flux:text class="text-xs">{{ __('Upload a profile photo (max 2MB)') }}</flux:text>
                 <flux:text x-show="tooBig" x-cloak class="text-xs !text-red-500">{{ __('That photo is larger than 2MB. Please choose a smaller one.') }}</flux:text>
                 <flux:error name="photo" />
             </div>

@@ -27,8 +27,23 @@ new #[Title('Resume Builder')] class extends Component
         return Auth::user()->resumes()->findOrFail($resumeId);
     }
 
+    protected function atLimit(): bool
+    {
+        if (Auth::user()->resumes()->count() < Resume::MAX_PER_STUDENT) {
+            return false;
+        }
+
+        Flux::toast(variant: 'danger', text: 'You can only have up to '.Resume::MAX_PER_STUDENT.' resumes. Delete one to make room.');
+
+        return true;
+    }
+
     public function create(): void
     {
+        if ($this->atLimit()) {
+            return;
+        }
+
         $resume = Auth::user()->resumes()->create([
             'title' => 'My OJT Resume',
             'template' => ResumeTemplate::Earist,
@@ -40,7 +55,13 @@ new #[Title('Resume Builder')] class extends Component
 
     public function duplicate(int $resumeId): void
     {
-        $this->ownResume($resumeId)->duplicate();
+        $resume = $this->ownResume($resumeId);
+
+        if ($this->atLimit()) {
+            return;
+        }
+
+        $resume->duplicate();
         unset($this->resumes);
 
         Flux::toast(variant: 'success', text: 'Resume duplicated.');

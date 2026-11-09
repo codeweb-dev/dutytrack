@@ -1,13 +1,22 @@
 <div class="flex flex-col gap-6">
+    @php($atLimit = $this->resumes->count() >= \App\Models\Resume::MAX_PER_STUDENT)
     <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
         @if ($this->resumes->isNotEmpty())
-            <flux:button variant="primary" icon="plus" wire:click="create" class="shrink-0">
-                New Resume
-            </flux:button>
+            <div class="flex shrink-0 items-center gap-3">
+                <flux:text class="text-sm">{{ $this->resumes->count() }} / {{ \App\Models\Resume::MAX_PER_STUDENT }}</flux:text>
+                <flux:button variant="primary" icon="plus" wire:click="create" :disabled="$atLimit">
+                    New Resume
+                </flux:button>
+            </div>
         @endif
     </div>
+
+    @if ($atLimit)
+        <flux:callout variant="warning" icon="exclamation-triangle"
+            heading="You've reached the limit of {{ \App\Models\Resume::MAX_PER_STUDENT }} resumes. Delete one to create or duplicate another." />
+    @endif
 
     @if ($this->resumes->isEmpty())
         <section class="flex flex-col items-center rounded-lg border border-dashed border-zinc-300 bg-white px-6 py-16 text-center dark:border-zinc-700 dark:bg-zinc-900">
@@ -49,7 +58,7 @@
                                 Edit
                             </flux:button>
                             <flux:button size="sm" variant="ghost" icon="arrow-down-tray" :href="route('student.resumes.download', $resume)" aria-label="Download {{ $resume->title }} as PDF" />
-                            <flux:button size="sm" variant="ghost" icon="document-duplicate" wire:click="duplicate({{ $resume->id }})" aria-label="Duplicate {{ $resume->title }}" />
+                            <flux:button size="sm" variant="ghost" icon="document-duplicate" wire:click="duplicate({{ $resume->id }})" :disabled="$atLimit" aria-label="Duplicate {{ $resume->title }}" />
                             <flux:button size="sm" variant="ghost" icon="trash" wire:click="confirmDelete({{ $resume->id }})" aria-label="Delete {{ $resume->title }}" />
                         </div>
                     </div>

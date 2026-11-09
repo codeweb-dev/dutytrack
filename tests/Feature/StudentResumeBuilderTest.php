@@ -315,3 +315,20 @@ test('students cannot view or modify another student\'s resume', function () {
 
     expect(Resume::find($resume->id))->not->toBeNull();
 });
+
+test('students cannot create or duplicate beyond the resume limit', function () {
+    $student = createResumeStudent();
+    $resume = createResume($student);
+
+    foreach (range(2, Resume::MAX_PER_STUDENT) as $i) {
+        createResume($student);
+    }
+
+    $this->actingAs($student);
+
+    Livewire::test('pages::student.resumes')
+        ->call('create')->assertNoRedirect()
+        ->call('duplicate', $resume->id);
+
+    expect($student->resumes()->count())->toBe(Resume::MAX_PER_STUDENT);
+});

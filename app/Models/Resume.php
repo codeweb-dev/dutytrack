@@ -22,6 +22,8 @@ class Resume extends Model
 
     public const IMAGES = ['photo', 'signature'];
 
+    public const MAX_PER_STUDENT = 6;
+
     public const CERTIFICATION = 'Hereby certify that the foregoing facts written are true and correct to the best of my knowledge and belief.';
 
     protected $fillable = [

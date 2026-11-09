@@ -17,6 +17,10 @@
             map: null,
             marker: null,
             circle: null,
+            query: '',
+            results: [],
+            searching: false,
+            searched: false,
             init() {
                 const boot = () => setTimeout(() => this.$refs.map.offsetParent && this.boot(), 150);
                 boot();
@@ -48,18 +52,44 @@
                     attribution: '&copy; <a href=\'https://www.openstreetmap.org/copyright\'>OpenStreetMap</a> contributors',
                 }).addTo(this.map);
 
-                this.map.on('click', (event) => {
-                    this.$wire.set('form.geofence_latitude', Number(event.latlng.lat.toFixed(7)), false);
-                    this.$wire.set('form.geofence_longitude', Number(event.latlng.lng.toFixed(7)), false);
-
-                    if (!this.$wire.form.geofence_radius) {
-                        this.$wire.set('form.geofence_radius', 100, false);
-                    }
-
-                    this.draw();
-                });
+                this.map.on('click', (event) => this.pin(event.latlng.lat, event.latlng.lng));
 
                 this.draw();
+            },
+            pin(lat, lng) {
+                this.$wire.set('form.geofence_latitude', Number(Number(lat).toFixed(7)), false);
+                this.$wire.set('form.geofence_longitude', Number(Number(lng).toFixed(7)), false);
+
+                if (!this.$wire.form.geofence_radius) {
+                    this.$wire.set('form.geofence_radius', 100, false);
+                }
+
+                this.draw();
+            },
+            async search() {
+                const q = this.query.trim();
+                if (!q || this.searching) {
+                    return;
+                }
+
+                // ponytail: public Nominatim (1 req/s, search on submit only); self-host or swap provider if usage grows.
+                this.searching = true;
+                try {
+                    const response = await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=5&q=' + encodeURIComponent(q));
+                    this.results = response.ok ? await response.json() : [];
+                } catch {
+                    this.results = [];
+                } finally {
+                    this.searching = false;
+                    this.searched = true;
+                }
+            },
+            choose(result) {
+                this.results = [];
+                this.searched = false;
+                this.query = result.display_name;
+                this.pin(result.lat, result.lon);
+                this.map?.setView([parseFloat(result.lat), parseFloat(result.lon)], 17);
             },
             draw() {
                 if (!this.map) {
@@ -97,15 +127,45 @@
             style="{{ $height }}"
         ></div>
 
+        <div class="relative" x-on:click.outside="results = []; searched = false">
+            <div class="flex gap-2">
+                <flux:input
+                    x-model="query"
+                    x-on:keydown.enter.prevent="search()"
+                    icon="magnifying-glass"
+                    placeholder="Search a place or address"
+                    class="flex-1"
+                />
+                <flux:button type="button" x-on:click="search()" x-bind:disabled="searching">
+                    <span x-text="searching ? 'Searching…' : 'Search'"></span>
+                </flux:button>
+            </div>
+
+            <div
+                x-show="results.length || searched"
+                x-cloak
+                class="absolute z-[1000] mt-1 w-full overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
+            >
+                <template x-for="result in results" :key="result.place_id">
+                    <button
+                        type="button"
+                        x-on:click="choose(result)"
+                        x-text="result.display_name"
+                        class="block w-full px-3 py-2 text-left text-sm hover:bg-zinc-100 dark:hover:bg-zinc-700"
+                    ></button>
+                </template>
+                <p x-show="!results.length" class="px-3 py-2 text-sm text-zinc-500">No places found.</p>
+            </div>
+        </div>
+
         <div class="flex items-center justify-between gap-3">
-            <flux:text class="text-xs">Click the map to pin the OJT location.</flux:text>
+            <flux:text class="text-xs">Search or click the map to pin the OJT location.</flux:text>
             <flux:button type="button" size="sm" variant="ghost" icon="x-mark" x-on:click="clear()">Clear pin</flux:button>
         </div>
     </div>
 
-    <div class="grid gap-4 sm:grid-cols-3">
-        <flux:input type="number" step="any" wire:model="form.geofence_latitude" label="Latitude" />
-        <flux:input type="number" step="any" wire:model="form.geofence_longitude" label="Longitude" />
-        <flux:input type="number" min="10" max="5000" wire:model="form.geofence_radius" label="Radius (m)" />
-    </div>
+    <flux:error name="form.geofence_latitude" />
+    <flux:error name="form.geofence_longitude" />
+
+    <flux:input type="number" min="10" max="5000" wire:model="form.geofence_radius" label="Radius (m)" />
 </div>

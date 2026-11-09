@@ -348,3 +348,29 @@ test('coordinators can set a supervisor to inactive so they cannot log in until 
     $login()->assertSessionHasNoErrors();
     $this->assertAuthenticatedAs($supervisor);
 });
+
+test('each supervisor row has its own assigned students modal', function () {
+    $coordinator = createCoordinator();
+    [$supervisorA, $supervisorB] = collect(['A', 'B'])->map(function (string $suffix) use ($coordinator) {
+        $supervisor = User::factory()->create(['coordinator_id' => $coordinator->id, 'status' => 'active']);
+        $supervisor->assignRole(AppRole::SUPERVISOR->value);
+
+        $student = createStudentForCoordinator($coordinator, ['name' => "Trainee {$suffix}", 'first_name' => "Trainee{$suffix}"]);
+        OjtAssignment::query()->create([
+            'student_id' => $student->id,
+            'ojt_type' => 'external',
+            'company_supervisor_id' => $supervisor->id,
+        ]);
+
+        return $supervisor;
+    })->all();
+
+    $this->actingAs($coordinator);
+    $supervisors = Livewire::test('pages::coordinator.supervisor-management')
+        ->assertSeeHtml('assigned-students-'.$supervisorA->id)
+        ->assertSeeHtml('assigned-students-'.$supervisorB->id)
+        ->instance()->supervisors->keyBy('id');
+
+    expect($supervisors[$supervisorA->id]->companySupervisorAssignments->pluck('student.first_name')->all())->toBe(['TraineeA'])
+        ->and($supervisors[$supervisorB->id]->companySupervisorAssignments->pluck('student.first_name')->all())->toBe(['TraineeB']);
+});

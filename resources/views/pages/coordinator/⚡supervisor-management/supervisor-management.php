@@ -37,8 +37,6 @@ new #[Title('Supervisor Management')] class extends Component
 
     public string $status = '';
 
-    public ?int $selectedSupervisorId = null;
-
     public function updatedStatus(): void
     {
         $this->resetPage();
@@ -130,54 +128,6 @@ new #[Title('Supervisor Management')] class extends Component
         unset($this->supervisors, $this->summary);
     }
 
-    public function viewAssignedStudents(int $supervisorId): void
-    {
-        $supervisor = User::query()
-            ->role(EnumsRole::SUPERVISOR->value)
-            ->where('coordinator_id', Auth::id())
-            ->findOrFail($supervisorId);
-
-        $this->selectedSupervisorId = $supervisor->id;
-        unset($this->selectedSupervisor, $this->assignedStudents);
-
-        Flux::modal('assigned-students')->show();
-    }
-
-    public function closeAssignedStudents(): void
-    {
-        $this->reset('selectedSupervisorId');
-        unset($this->selectedSupervisor, $this->assignedStudents);
-    }
-
-    #[Computed]
-    public function selectedSupervisor(): ?User
-    {
-        return $this->selectedSupervisorId
-            ? User::query()
-                ->role(EnumsRole::SUPERVISOR->value)
-                ->where('coordinator_id', Auth::id())
-                ->find($this->selectedSupervisorId)
-            : null;
-    }
-
-    #[Computed]
-    public function assignedStudents()
-    {
-        $supervisor = $this->selectedSupervisor;
-
-        if (! $supervisor) {
-            return collect();
-        }
-
-        return User::query()
-            ->with('studentProfile')
-            ->role(EnumsRole::STUDENT->value)
-            ->where('coordinator_id', Auth::id())
-            ->whereHas('ojtAssignment', fn (Builder $query) => $query->where('company_supervisor_id', $supervisor->id))
-            ->orderBy('last_name')
-            ->get();
-    }
-
     #[Computed]
     public function summary(): array
     {
@@ -204,9 +154,12 @@ new #[Title('Supervisor Management')] class extends Component
             ->leftJoin('supervisor_profiles', 'users.id', '=', 'supervisor_profiles.user_id')
             ->select('users.*');
 
-        $query->withCount(['companySupervisorAssignments as assigned_students_count' => fn (Builder $query) => $query->whereHas('student', fn (Builder $studentQuery) => $studentQuery
+        $ownStudents = fn ($query) => $query->whereHas('student', fn (Builder $studentQuery) => $studentQuery
             ->role(EnumsRole::STUDENT->value)
-            ->where('coordinator_id', Auth::id()))]);
+            ->where('coordinator_id', Auth::id()));
+
+        $query->withCount(['companySupervisorAssignments as assigned_students_count' => $ownStudents])
+            ->with(['companySupervisorAssignments' => fn ($query) => $ownStudents($query)->with('student.studentProfile')]);
 
         if ($this->search !== '') {
             $search = '%'.$this->search.'%';

@@ -82,10 +82,11 @@
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                <flux:button variant="filled" size="xs" icon="user" inset="top bottom"
-                                    wire:click="viewAssignedStudents({{ $supervisor->id }})">
-                                    Students ({{ $supervisor->assigned_students_count }})
-                                </flux:button>
+                                <flux:modal.trigger :name="'assigned-students-'.$supervisor->id">
+                                    <flux:button variant="filled" size="xs" icon="user" inset="top bottom">
+                                        Students ({{ $supervisor->assigned_students_count }})
+                                    </flux:button>
+                                </flux:modal.trigger>
                             </flux:table.cell>
 
                             <flux:table.cell class="whitespace-nowrap">
@@ -141,6 +142,65 @@
                                     <livewire:coordinator.supervisors.delete :supervisor="$supervisor" :key="'delete-supervisor-'.$supervisor->id" />
                                 </flux:modal>
 
+                                <flux:modal :name="'assigned-students-'.$supervisor->id" class="w-[calc(100vw-2rem)] max-w-5xl!">
+                                    <div class="space-y-4 text-left">
+                                        <div>
+                                            <flux:heading size="lg">Assigned Students</flux:heading>
+                                            <flux:subheading>{{ $supervisor->display_name }}</flux:subheading>
+                                        </div>
+
+                                        @php($students = $supervisor->companySupervisorAssignments->pluck('student')->sortBy('last_name'))
+
+                                        @if ($students->isEmpty())
+                                            <flux:card class="py-10 text-center">
+                                                <flux:icon name="academic-cap" class="mx-auto size-10" />
+                                                <flux:heading class="mt-3">No students assigned</flux:heading>
+                                                <flux:text class="mt-1">This supervisor does not have any assigned students yet.</flux:text>
+                                            </flux:card>
+                                        @else
+                                            <div class="max-h-[60vh] overflow-auto">
+                                                <flux:table>
+                                                    <flux:table.columns>
+                                                        <flux:table.column>Student</flux:table.column>
+                                                        <flux:table.column>Student ID / Course</flux:table.column>
+                                                        <flux:table.column>Contact</flux:table.column>
+                                                        <flux:table.column>Required Hours</flux:table.column>
+                                                    </flux:table.columns>
+
+                                                    <flux:table.rows>
+                                                        @foreach ($students as $student)
+                                                            <flux:table.row :key="$student->id">
+                                                                <flux:table.cell>
+                                                                    <div class="flex items-center gap-3">
+                                                                        <flux:avatar size="md" :src="$student->profile_photo_url"
+                                                                            :name="$student->display_name" />
+                                                                        <div class="flex flex-col whitespace-nowrap">
+                                                                            <span class="font-medium">{{ $student->display_name }}</span>
+                                                                            <span class="text-xs text-zinc-500 dark:text-zinc-300">{{ $student->email }}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </flux:table.cell>
+                                                                <flux:table.cell>
+                                                                    <div class="flex flex-col whitespace-normal">
+                                                                        <span class="font-medium">{{ $student->studentProfile?->student_id ?: '—' }}</span>
+                                                                        <span class="text-xs text-zinc-500 dark:text-zinc-300">{{ $student->studentProfile?->course ?: '—' }}</span>
+                                                                    </div>
+                                                                </flux:table.cell>
+                                                                <flux:table.cell class="whitespace-nowrap">
+                                                                    {{ $student->contact_number ? '+63 '.$student->contact_number : '—' }}
+                                                                </flux:table.cell>
+                                                                <flux:table.cell class="whitespace-nowrap">
+                                                                    {{ $student->studentProfile?->ojt_required_hours ? $student->studentProfile->ojt_required_hours.' hrs' : '—' }}
+                                                                </flux:table.cell>
+                                                            </flux:table.row>
+                                                        @endforeach
+                                                    </flux:table.rows>
+                                                </flux:table>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </flux:modal>
+
                                 @if (! in_array($supervisor->status, ['pending', 'inactive'], true))
                                     <flux:modal :name="'inactive-supervisor-'.$supervisor->id"
                                         class="w-[calc(100vw-2rem)] max-w-md!">
@@ -174,57 +234,4 @@
         @endif
     </flux:card>
 
-    <flux:modal name="assigned-students" class="md:w-2xl" @close="closeAssignedStudents">
-        <div class="space-y-4">
-            <div>
-                <flux:heading size="lg">Assigned Students</flux:heading>
-                <flux:subheading>{{ $this->selectedSupervisor?->display_name ?? 'Supervisor' }}</flux:subheading>
-            </div>
-
-            @if ($this->assignedStudents->isEmpty())
-                <flux:card class="py-10 text-center">
-                    <flux:icon name="academic-cap" class="mx-auto size-10" />
-                    <flux:heading class="mt-3">No students assigned</flux:heading>
-                    <flux:text class="mt-1">This supervisor does not have any assigned students yet.</flux:text>
-                </flux:card>
-            @else
-                <div class="max-h-[60vh] overflow-y-auto">
-                    <flux:table>
-                        <flux:table.columns>
-                            <flux:table.column>Student</flux:table.column>
-                            <flux:table.column>Student ID</flux:table.column>
-                            <flux:table.column>Status</flux:table.column>
-                        </flux:table.columns>
-
-                        <flux:table.rows>
-                            @foreach ($this->assignedStudents as $student)
-                                <flux:table.row :key="$student->id">
-                                    <flux:table.cell>
-                                        <div class="flex items-center gap-3">
-                                            <flux:avatar size="md" :src="$student->profile_photo_url"
-                                                :name="$student->display_name" />
-                                            <div class="flex min-w-0 flex-col whitespace-normal">
-                                                <span class="font-medium">{{ $student->display_name }}</span>
-                                                <span class="break-words text-xs text-zinc-500 dark:text-zinc-300">{{ $student->email }}</span>
-                                            </div>
-                                        </div>
-                                    </flux:table.cell>
-                                    <flux:table.cell class="whitespace-nowrap">
-                                        {{ $student->studentProfile?->student_id ?? '—' }}
-                                    </flux:table.cell>
-                                    <flux:table.cell class="whitespace-nowrap">
-                                        @if ($student->status === 'pending')
-                                            <flux:badge size="sm" color="amber">Pending Approval</flux:badge>
-                                        @else
-                                            <flux:badge size="sm" color="green">Active</flux:badge>
-                                        @endif
-                                    </flux:table.cell>
-                                </flux:table.row>
-                            @endforeach
-                        </flux:table.rows>
-                    </flux:table>
-                </div>
-            @endif
-        </div>
-    </flux:modal>
 </div>

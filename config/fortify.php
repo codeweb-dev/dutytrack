@@ -60,7 +60,7 @@ return [
     |
     */
 
-    'lowercase_usernames' => true,
+    'lowercase_usernames' => false, // ponytail: student lookup already compares LOWER(); MySQL email collation is case-insensitive
 
     /*
     |--------------------------------------------------------------------------

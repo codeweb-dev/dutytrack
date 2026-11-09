@@ -110,7 +110,8 @@ if (! $overflow) {
 
     <dialog
         wire:ignore.self {{-- This needs to be here because the dialog element adds a "close" attribute that isn't durable... --}}
-        {{ $dialogAttributes->class($classes) }}
+        {{-- text-start: don't inherit alignment from the parent (e.g. an align="end" table cell) --}}
+        {{ $dialogAttributes->class(['text-start', (string) $classes]) }}
         <?php if ($name): ?> data-modal="{{ $name }}" <?php endif; ?>
         <?php if ($flyout): ?> data-flux-flyout <?php endif; ?>
         <?php if ($overflow): ?> data-flux-modal-overflow <?php endif; ?>

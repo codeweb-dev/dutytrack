@@ -71,7 +71,9 @@ class OnboardingTour extends Component
             return null;
         }
 
-        return $this->redirectRoute($route, ['tour' => 1]);
+        Auth::user()->forceFill(['has_completed_onboarding' => false])->save();
+
+        return $this->redirectRoute($route);
     }
 
     protected function steps(): array

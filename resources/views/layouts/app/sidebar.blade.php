@@ -28,6 +28,14 @@
 
         <flux:spacer />
 
+        @if ($user->hasRole('student'))
+            <flux:sidebar.nav>
+                <flux:sidebar.item icon="information-circle" x-data x-on:click="$dispatch('onboarding-replay')">
+                    {{ __('Help') }}
+                </flux:sidebar.item>
+            </flux:sidebar.nav>
+        @endif
+
         <x-desktop-user-menu class="hidden lg:block" :name="auth()->user()->display_name" />
     </flux:sidebar>
 

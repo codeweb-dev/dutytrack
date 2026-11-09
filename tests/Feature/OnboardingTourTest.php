@@ -70,21 +70,22 @@ test('skip and maybe later persist completion and refresh respects the saved val
         ->assertDontSee('Welcome to DutyTrack!');
 });
 
-test('completed users can replay the tour without resetting completion', function () {
+test('help resets onboarding and shows the tour again on the dashboard', function () {
     $user = onboardingStudent();
     $user->forceFill(['has_completed_onboarding' => true])->save();
 
     Livewire::actingAs($user)
         ->test(OnboardingTour::class)
         ->call('replay')
-        ->assertRedirect(route('student.dashboard', ['tour' => 1]));
+        ->assertRedirect(route('student.dashboard'));
 
-    $this->actingAs($user)
-        ->get(route('student.dashboard', ['tour' => 1]))
+    expect($user->fresh()->has_completed_onboarding)->toBeFalse();
+
+    $this->actingAs($user->fresh())
+        ->get(route('student.dashboard'))
         ->assertOk()
-        ->assertSee('Step 1 of '.count(OnboardingTours::for($user)));
-
-    expect($user->fresh()->has_completed_onboarding)->toBeTrue();
+        ->assertSee('Welcome to DutyTrack!')
+        ->assertSee('Help');
 });
 
 test('each supported role gets only its own navigation walkthrough', function () {

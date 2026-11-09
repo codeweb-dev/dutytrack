@@ -136,13 +136,8 @@
                                 <x-attendance-map id="todayAttendanceMap{{ $this->todayAttendance->id }}"
                                     :latitude="$this->todayAttendance->time_in_latitude" :longitude="$this->todayAttendance->time_in_longitude" />
                             </div>
-                            <flux:text class="mt-2 text-xs">
-                                {{ number_format($this->todayAttendance->time_in_latitude, 6) }},
-                                {{ number_format($this->todayAttendance->time_in_longitude, 6) }}
-                                @if ($this->todayAttendance->time_in_location_accuracy)
-                                    · ±{{ $this->todayAttendance->time_in_location_accuracy }}m
-                                @endif
-                            </flux:text>
+                            <x-location-address class="mt-2 text-xs" :latitude="$this->todayAttendance->time_in_latitude"
+                                :longitude="$this->todayAttendance->time_in_longitude" />
                         @else
                             <flux:text class="mt-3">No location captured.</flux:text>
                         @endif
@@ -432,13 +427,8 @@
                     <div>
                         <flux:heading>Time-in Location</flux:heading>
                         @if ($this->selectedAttendance->hasTimeInLocation())
-                            <flux:text class="mt-1">
-                                {{ number_format($this->selectedAttendance->time_in_latitude, 6) }},
-                                {{ number_format($this->selectedAttendance->time_in_longitude, 6) }}
-                                @if ($this->selectedAttendance->time_in_location_accuracy)
-                                    · ±{{ $this->selectedAttendance->time_in_location_accuracy }}m
-                                @endif
-                            </flux:text>
+                            <x-location-address class="mt-1" :latitude="$this->selectedAttendance->time_in_latitude"
+                                :longitude="$this->selectedAttendance->time_in_longitude" />
                             <flux:button class="mt-2" size="sm" variant="ghost" icon="map"
                                 :href="$this->selectedAttendance->timeInMapUrl()" target="_blank">
                                 Open Map

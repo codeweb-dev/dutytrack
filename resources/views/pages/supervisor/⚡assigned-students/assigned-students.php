@@ -29,39 +29,19 @@ new #[Title('Assigned Students')] class extends Component
 
     public string $search = '';
 
-    public string $status = '';
-
     public function updatedSearch(): void
     {
         $this->resetPage();
         unset($this->assignments);
     }
 
-    public function updatedStatus(): void
-    {
-        $this->resetPage();
-        unset($this->assignments, $this->summary);
-    }
-
     public function clearFilters(): void
     {
         $this->reset('sortBy', 'sortDirection');
         $this->search = '';
-        $this->status = '';
 
         $this->resetPage();
-        unset($this->assignments, $this->summary);
-    }
-
-    public function badgeColor(?string $status): string
-    {
-        return match ($status) {
-            'active' => 'lime',
-            'pending' => 'amber',
-            'completed' => 'sky',
-            'cancelled' => 'red',
-            default => 'zinc',
-        };
+        unset($this->assignments);
     }
 
     protected function assignmentQuery(): Builder
@@ -94,8 +74,7 @@ new #[Title('Assigned Students')] class extends Component
                                 ->orWhere('course', 'like', $search);
                         });
                 });
-            })
-            ->when($this->status !== '', fn (Builder $query) => $query->where('status', $this->status));
+            });
     }
 
     #[Computed]
@@ -105,7 +84,6 @@ new #[Title('Assigned Students')] class extends Component
             'student' => User::select('name')->whereColumn('users.id', 'ojt_assignments.student_id'),
             'student_id' => StudentProfile::select('student_id')->whereColumn('student_profiles.user_id', 'ojt_assignments.student_id'),
             'course' => StudentProfile::select('course')->whereColumn('student_profiles.user_id', 'ojt_assignments.student_id'),
-            'status' => 'status',
         ])
             ->latest('created_at')
             ->paginate(10);
@@ -118,9 +96,6 @@ new #[Title('Assigned Students')] class extends Component
 
         return [
             'total' => (clone $query)->count(),
-            'active' => (clone $query)->where('status', 'active')->count(),
-            'pending' => (clone $query)->where('status', 'pending')->count(),
-            'completed' => (clone $query)->where('status', 'completed')->count(),
         ];
     }
 };

@@ -2,9 +2,7 @@
 
 namespace App\Livewire\Forms\Coordinator;
 
-use App\Models\AttendanceLog;
 use App\Models\OjtAssignment;
-use App\Models\StudentRequirement;
 use App\Models\User;
 use App\Support\AuditLogger;
 use Flux\Flux;
@@ -23,10 +21,6 @@ class OjtAssignmentForm extends Form
     public string $ojt_type = 'internal';
 
     public ?int $company_supervisor_id = null;
-
-    public string $status = 'active';
-
-    public ?string $remarks = null;
 
     public ?float $geofence_latitude = null;
 
@@ -51,8 +45,6 @@ class OjtAssignmentForm extends Form
                 'integer',
                 Rule::exists('supervisor_profiles', 'user_id')->where('supervisor_type', $this->ojt_type),
             ],
-            'status' => ['required', Rule::in(['pending', 'active', 'completed', 'cancelled'])],
-            'remarks' => ['nullable', 'string', 'max:1000'],
             'geofence_latitude' => ['required', 'numeric', 'between:-90,90'],
             'geofence_longitude' => ['required', 'numeric', 'between:-180,180'],
             'geofence_radius' => ['required', 'integer', 'min:10', 'max:5000'],
@@ -96,36 +88,6 @@ class OjtAssignmentForm extends Form
         abort_unless((int) $student->coordinator_id === (int) $this->coordinator()->id, 403);
 
         return $student;
-    }
-
-    protected function ensureCompletionEligible(User $student): void
-    {
-        if ($this->status !== 'completed') {
-            return;
-        }
-
-        $requirements = StudentRequirement::query()
-            ->where('student_id', $student->id)
-            ->whereIn('key', StudentRequirement::activeKeys())
-            ->get(['key', 'is_completed']);
-
-        if (
-            $requirements->count() !== count(StudentRequirement::definitions())
-            || $requirements->contains(fn (StudentRequirement $requirement) => ! $requirement->is_completed)
-        ) {
-            throw ValidationException::withMessages([
-                'form.status' => 'All required student documents must be approved before completion.',
-            ]);
-        }
-
-        $requiredHours = (int) $student->studentProfile?->ojt_required_hours;
-        $renderedHours = (float) AttendanceLog::query()->where('student_id', $student->id)->sum('hours_rendered');
-
-        if ($requiredHours < 1 || $renderedHours < $requiredHours) {
-            throw ValidationException::withMessages([
-                'form.status' => 'The required OJT hours must be configured and rendered before completion.',
-            ]);
-        }
     }
 
     protected function lockAndEnsureSingleAssignment(User $student, ?int $ignoreAssignmentId = null): void
@@ -174,8 +136,6 @@ class OjtAssignmentForm extends Form
             'ojt_type' => $assignment?->ojt_type,
             'company_supervisor_id' => $assignment?->company_supervisor_id,
             'company_supervisor_name' => $assignment?->companySupervisor?->name,
-            'status' => $assignment?->status,
-            'remarks' => $assignment?->remarks,
             'geofence_latitude' => $assignment?->geofence_latitude,
             'geofence_longitude' => $assignment?->geofence_longitude,
             'geofence_radius' => $assignment?->geofence_radius,
@@ -203,8 +163,6 @@ class OjtAssignmentForm extends Form
         $this->student_id = $assignment->student_id;
         $this->ojt_type = $assignment->ojt_type;
         $this->company_supervisor_id = $assignment->company_supervisor_id;
-        $this->status = $assignment->status;
-        $this->remarks = $assignment->remarks;
         $this->geofence_latitude = $assignment->geofence_latitude;
         $this->geofence_longitude = $assignment->geofence_longitude;
         $this->geofence_radius = $assignment->geofence_radius;
@@ -219,7 +177,6 @@ class OjtAssignmentForm extends Form
         $student = $this->ensureManagedStudent();
 
         $this->ensureCompanySupervisor();
-        $this->ensureCompletionEligible($student);
 
         DB::transaction(function () use ($student) {
             $this->lockAndEnsureSingleAssignment($student);
@@ -228,8 +185,6 @@ class OjtAssignmentForm extends Form
                 'student_id' => $student->id,
                 'ojt_type' => $this->ojt_type,
                 'company_supervisor_id' => $this->company_supervisor_id,
-                'status' => $this->status,
-                'remarks' => $this->remarks ?: null,
                 'geofence_latitude' => $this->geofence_latitude,
                 'geofence_longitude' => $this->geofence_longitude,
                 'geofence_radius' => $this->geofence_radius,
@@ -274,7 +229,6 @@ class OjtAssignmentForm extends Form
         $student = $this->ensureManagedStudent();
 
         $this->ensureCompanySupervisor();
-        $this->ensureCompletionEligible($student);
 
         DB::transaction(function () use ($student) {
             $this->lockAndEnsureSingleAssignment($student, $this->assignment?->id);
@@ -290,8 +244,6 @@ class OjtAssignmentForm extends Form
                 'student_id' => $student->id,
                 'ojt_type' => $this->ojt_type,
                 'company_supervisor_id' => $this->company_supervisor_id,
-                'status' => $this->status,
-                'remarks' => $this->remarks ?: null,
                 'geofence_latitude' => $this->geofence_latitude,
                 'geofence_longitude' => $this->geofence_longitude,
                 'geofence_radius' => $this->geofence_radius,
@@ -328,8 +280,6 @@ class OjtAssignmentForm extends Form
         $this->student_id = null;
         $this->ojt_type = 'internal';
         $this->company_supervisor_id = null;
-        $this->status = 'active';
-        $this->remarks = null;
         $this->geofence_latitude = null;
         $this->geofence_longitude = null;
         $this->geofence_radius = null;

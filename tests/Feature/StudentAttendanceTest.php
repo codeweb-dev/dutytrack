@@ -31,7 +31,6 @@ function createStudentWithAssignment(): User
         'student_id' => $student->id,
         'ojt_type' => 'internal',
         'company_supervisor_id' => $mentor->id,
-        'status' => 'active',
     ]);
 
     return $student;

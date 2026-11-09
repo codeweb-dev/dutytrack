@@ -198,14 +198,12 @@ test('coordinators can monitor attendance for their own students', function () {
         'student_id' => $ownedStudent->id,
         'ojt_type' => 'internal',
         'company_supervisor_id' => $mentor->id,
-        'status' => 'active',
     ]);
 
     $otherAssignment = OjtAssignment::query()->create([
         'student_id' => $otherStudent->id,
         'ojt_type' => 'internal',
         'company_supervisor_id' => $mentor->id,
-        'status' => 'active',
     ]);
 
     AttendanceLog::query()->create([

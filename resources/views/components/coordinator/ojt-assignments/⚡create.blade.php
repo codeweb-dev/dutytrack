@@ -90,21 +90,12 @@ new class extends Component
                     @endforeach
                 </flux:select>
 
-                <flux:select wire:model="form.status" label="Status" required>
-                    <option value="pending">Pending</option>
-                    <option value="active">Active</option>
-                    <option value="completed">Completed</option>
-                    <option value="cancelled">Cancelled</option>
-                </flux:select>
 
                 <flux:field>
                     <flux:label badge="Required">Attendance Location</flux:label>
                     <flux:description>Pin where the student must be to record attendance.</flux:description>
                     <x-geofence-picker-map id="create-geofence-map" />
                 </flux:field>
-
-                <flux:textarea wire:model="form.remarks" label="Remarks" rows="4" badge="Optional"
-                    placeholder="Add assignment notes, deployment details, or coordinator remarks." />
             </div>
 
             <flux:button type="submit" variant="primary" class="w-full">Save Assignment</flux:button>

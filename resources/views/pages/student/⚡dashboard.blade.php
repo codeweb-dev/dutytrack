@@ -60,8 +60,8 @@ new #[Title('Student Dashboard')] class extends Component
 
         return [
             [
-                'title' => 'Assignment Status',
-                'value' => $assignment ? ucfirst($assignment->status) : 'Unassigned',
+                'title' => 'Placement',
+                'value' => $assignment ? 'Assigned' : 'Unassigned',
                 'icon' => 'briefcase',
                 'footnote' => $assignment ? ucfirst($assignment->ojt_type).' OJT' : 'Waiting for placement',
             ],

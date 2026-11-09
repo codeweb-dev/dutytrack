@@ -57,7 +57,7 @@ new #[Title('Coordinator Dashboard')] class extends Component
         $totalStudents = $this->managedStudentsQuery()->count();
         $assignedStudents = $this->managedAssignmentsQuery()->count();
         $unassignedStudents = max($totalStudents - $assignedStudents, 0);
-        $pendingAssignments = $this->managedAssignmentsQuery()->where('status', 'pending')->count();
+        $internalAssignments = $this->managedAssignmentsQuery()->where('ojt_type', 'internal')->count();
 
         return [
             [
@@ -70,13 +70,13 @@ new #[Title('Coordinator Dashboard')] class extends Component
                 'title' => 'Pending Placements',
                 'value' => number_format($unassignedStudents),
                 'icon' => 'user-plus',
-                'footnote' => number_format($pendingAssignments).' assignment records still pending',
+                'footnote' => 'Students without a supervisor yet',
             ],
             [
-                'title' => 'Active Assignments',
-                'value' => number_format($this->managedAssignmentsQuery()->where('status', 'active')->count()),
+                'title' => 'Assignments',
+                'value' => number_format($assignedStudents),
                 'icon' => 'briefcase',
-                'footnote' => number_format($this->managedAssignmentsQuery()->count()).' total assignment records',
+                'footnote' => number_format($internalAssignments).' internal · '.number_format($assignedStudents - $internalAssignments).' external',
             ],
         ];
     }
@@ -113,36 +113,23 @@ new #[Title('Coordinator Dashboard')] class extends Component
     }
 
     #[Computed]
-    public function assignmentStatus(): array
+    public function placementMix(): array
     {
         $total = max($this->managedAssignmentsQuery()->count(), 1);
 
-        return [
-            [
-                'label' => 'Pending',
-                'value' => $this->managedAssignmentsQuery()->where('status', 'pending')->count(),
-                'bar' => 'bg-amber-400',
-                'percentage' => round(($this->managedAssignmentsQuery()->where('status', 'pending')->count() / $total) * 100),
-            ],
-            [
-                'label' => 'Active',
-                'value' => $this->managedAssignmentsQuery()->where('status', 'active')->count(),
-                'bar' => 'bg-lime-400',
-                'percentage' => round(($this->managedAssignmentsQuery()->where('status', 'active')->count() / $total) * 100),
-            ],
-            [
-                'label' => 'Completed',
-                'value' => $this->managedAssignmentsQuery()->where('status', 'completed')->count(),
-                'bar' => 'bg-teal-500',
-                'percentage' => round(($this->managedAssignmentsQuery()->where('status', 'completed')->count() / $total) * 100),
-            ],
-            [
-                'label' => 'Cancelled',
-                'value' => $this->managedAssignmentsQuery()->where('status', 'cancelled')->count(),
-                'bar' => 'bg-red-400',
-                'percentage' => round(($this->managedAssignmentsQuery()->where('status', 'cancelled')->count() / $total) * 100),
-            ],
-        ];
+        return collect(['internal' => 'bg-sky-400', 'external' => 'bg-teal-500'])
+            ->map(function (string $bar, string $type) use ($total) {
+                $value = $this->managedAssignmentsQuery()->where('ojt_type', $type)->count();
+
+                return [
+                    'label' => ucfirst($type),
+                    'value' => $value,
+                    'bar' => $bar,
+                    'percentage' => round(($value / $total) * 100),
+                ];
+            })
+            ->values()
+            ->all();
     }
 
     #[Computed]
@@ -225,9 +212,9 @@ new #[Title('Coordinator Dashboard')] class extends Component
             <flux:card>
                 <div class="flex items-start justify-between gap-4">
                     <div>
-                        <flux:heading size="lg">Assignment Status</flux:heading>
+                        <flux:heading size="lg">Placement Mix</flux:heading>
                         <flux:text class="mt-2">
-                            A quick breakdown of where your current placement records stand.
+                            How your placed students split between internal and external OJT.
                         </flux:text>
                     </div>
 
@@ -235,7 +222,7 @@ new #[Title('Coordinator Dashboard')] class extends Component
                 </div>
 
                 <div class="mt-6 space-y-4">
-                    @foreach ($this->assignmentStatus as $item)
+                    @foreach ($this->placementMix as $item)
                         <div class="space-y-2">
                             <div class="flex items-center justify-between gap-4">
                                 <div class="text-sm font-medium text-zinc-900 dark:text-white">
@@ -262,7 +249,7 @@ new #[Title('Coordinator Dashboard')] class extends Component
         <div>
             <flux:heading size="lg">Recent Students</flux:heading>
             <flux:text class="mt-2">
-                The latest students under your coordination, including their placement status.
+                The latest students under your coordination and where they are placed.
             </flux:text>
         </div>
 
@@ -281,7 +268,6 @@ new #[Title('Coordinator Dashboard')] class extends Component
                         <flux:table.column>Student</flux:table.column>
                         <flux:table.column>Course</flux:table.column>
                         <flux:table.column>Assignment</flux:table.column>
-                        <flux:table.column>Status</flux:table.column>
                         <flux:table.column>Hours</flux:table.column>
                     </flux:table.columns>
 
@@ -315,25 +301,6 @@ new #[Title('Coordinator Dashboard')] class extends Component
                                     {{ $assignee ?? 'Not assigned yet' }}
                                 </flux:table.cell>
 
-                                <flux:table.cell>
-                                    @if ($assignment)
-                                        <flux:badge size="sm"
-                                            :color="match ($assignment->status) {
-                                                                                                                                                                                                                                                                    'active' => 'lime',
-                                                                                                                                                                                                                                                                    'pending' => 'amber',
-                                                                                                                                                                                                                                                                    'completed' => 'sky',
-                                                                                                                                                                                                                                                                    'cancelled' => 'red',
-                                                                                                                                                                                                                                                                    default => 'zinc',
-                                                                                                                                                                                                                                                                }"
-                                            inset="top bottom">
-                                            {{ ucfirst($assignment->status) }}
-                                        </flux:badge>
-                                    @else
-                                        <flux:badge size="sm" color="zinc" inset="top bottom">
-                                            Unassigned
-                                        </flux:badge>
-                                    @endif
-                                </flux:table.cell>
 
                                 <flux:table.cell>
                                     {{ \App\Support\HourFormatter::format($student->studentProfile?->ojt_required_hours ?? 0) }}

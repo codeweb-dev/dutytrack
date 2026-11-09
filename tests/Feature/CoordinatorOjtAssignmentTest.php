@@ -1,9 +1,7 @@
 <?php
 
 use App\Enums\Role as AppRole;
-use App\Models\AttendanceLog;
 use App\Models\OjtAssignment;
-use App\Models\StudentRequirement;
 use App\Models\User;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Role as PermissionRole;
@@ -83,11 +81,9 @@ test('coordinator can create an internal assignment for their own student', func
         ->set('form.student_id', $student->id)
         ->set('form.ojt_type', 'internal')
         ->set('form.company_supervisor_id', $supervisor->id)
-        ->set('form.status', 'active')
         ->set('form.geofence_latitude', 14.599512)
         ->set('form.geofence_longitude', 120.984222)
         ->set('form.geofence_radius', 100)
-        ->set('form.remarks', 'Assigned to faculty adviser.')
         ->call('save')
         ->assertHasNoErrors();
 
@@ -110,7 +106,6 @@ test('coordinator can create an external assignment for their own student', func
         ->set('form.student_id', $student->id)
         ->set('form.ojt_type', 'external')
         ->set('form.company_supervisor_id', $supervisor->id)
-        ->set('form.status', 'active')
         ->set('form.geofence_latitude', 14.599512)
         ->set('form.geofence_longitude', 120.984222)
         ->set('form.geofence_radius', 100)
@@ -138,7 +133,6 @@ test('coordinator can switch from internal to external before saving an assignme
         ->set('form.company_supervisor_id', $supervisor->id)
         ->set('form.ojt_type', 'external')
         ->set('form.company_supervisor_id', $supervisor->id)
-        ->set('form.status', 'active')
         ->set('form.geofence_latitude', 14.599512)
         ->set('form.geofence_longitude', 120.984222)
         ->set('form.geofence_radius', 100)
@@ -150,65 +144,6 @@ test('coordinator can switch from internal to external before saving an assignme
     expect($assignment)->not->toBeNull();
     expect($assignment->ojt_type)->toBe('external');
     expect($assignment->company_supervisor_id)->toBe($supervisor->id);
-});
-
-test('coordinator cannot complete an assignment before requirements and hours are complete', function () {
-    $coordinator = createCoordinatorForAssignments();
-    $student = createManagedStudent($coordinator);
-    $supervisor = createCompanySupervisor();
-    $assignment = OjtAssignment::create([
-        'student_id' => $student->id,
-        'ojt_type' => 'internal',
-        'company_supervisor_id' => $supervisor->id,
-        'status' => 'active',
-        'geofence_latitude' => 14.599512,
-        'geofence_longitude' => 120.984222,
-        'geofence_radius' => 100,
-    ]);
-
-    $this->actingAs($coordinator);
-
-    Livewire::test('coordinator.ojt-assignments.edit', ['assignment' => $assignment])
-        ->set('form.status', 'completed')
-        ->call('save')
-        ->assertHasErrors('form.status');
-
-    expect($assignment->fresh()->status)->toBe('active');
-});
-
-test('coordinator can complete an assignment after approved requirements and required hours', function () {
-    $coordinator = createCoordinatorForAssignments();
-    $student = createManagedStudent($coordinator);
-    $supervisor = createCompanySupervisor();
-    $assignment = OjtAssignment::create([
-        'student_id' => $student->id,
-        'ojt_type' => 'internal',
-        'company_supervisor_id' => $supervisor->id,
-        'status' => 'active',
-        'geofence_latitude' => 14.599512,
-        'geofence_longitude' => 120.984222,
-        'geofence_radius' => 100,
-    ]);
-
-    foreach (StudentRequirement::ensureForStudent($student) as $requirement) {
-        $requirement->update(['is_completed' => true]);
-    }
-    AttendanceLog::create([
-        'student_id' => $student->id,
-        'ojt_assignment_id' => $assignment->id,
-        'attendance_date' => now()->toDateString(),
-        'hours_rendered' => 600,
-        'status' => 'present',
-    ]);
-
-    $this->actingAs($coordinator);
-
-    Livewire::test('coordinator.ojt-assignments.edit', ['assignment' => $assignment])
-        ->set('form.status', 'completed')
-        ->call('save')
-        ->assertHasNoErrors();
-
-    expect($assignment->fresh()->status)->toBe('completed');
 });
 
 test('coordinator cannot assign another coordinators student', function () {
@@ -223,7 +158,6 @@ test('coordinator cannot assign another coordinators student', function () {
         ->set('form.student_id', $otherStudent->id)
         ->set('form.ojt_type', 'internal')
         ->set('form.company_supervisor_id', $supervisor->id)
-        ->set('form.status', 'active')
         ->set('form.geofence_latitude', 14.599512)
         ->set('form.geofence_longitude', 120.984222)
         ->set('form.geofence_radius', 100)
@@ -258,7 +192,6 @@ test('coordinator must pin an attendance location for an assignment', function (
         ->set('form.student_id', $student->id)
         ->set('form.ojt_type', 'internal')
         ->set('form.company_supervisor_id', $supervisor->id)
-        ->set('form.status', 'active')
         ->call('save')
         ->assertHasErrors(['form.geofence_latitude', 'form.geofence_longitude', 'form.geofence_radius']);
 

@@ -28,7 +28,6 @@ test('students can view and download their submitted practicum evaluations', fun
         'student_id' => $student->id,
         'ojt_type' => 'internal',
         'company_supervisor_id' => $mentor->id,
-        'status' => 'active',
     ]);
 
     $evaluation = Evaluation::query()->create([

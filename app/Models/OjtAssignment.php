@@ -13,8 +13,6 @@ class OjtAssignment extends Model
         'student_id',
         'ojt_type',
         'company_supervisor_id',
-        'status',
-        'remarks',
         'geofence_latitude',
         'geofence_longitude',
         'geofence_radius',
@@ -29,6 +27,17 @@ class OjtAssignment extends Model
     public function hasGeofence(): bool
     {
         return $this->geofence_latitude !== null && $this->geofence_longitude !== null && $this->geofence_radius;
+    }
+
+    public function geofenceMapUrl(): string
+    {
+        return sprintf(
+            'https://www.openstreetmap.org/?mlat=%s&mlon=%s#map=17/%s/%s',
+            $this->geofence_latitude,
+            $this->geofence_longitude,
+            $this->geofence_latitude,
+            $this->geofence_longitude,
+        );
     }
 
     // Haversine distance in meters from the pinned location.

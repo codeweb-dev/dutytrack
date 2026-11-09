@@ -6,21 +6,6 @@
             <flux:heading>Total Assigned</flux:heading>
             <flux:text class="mt-2">{{ $this->summary['total'] }}</flux:text>
         </flux:card>
-
-        <flux:card class="p-4">
-            <flux:heading>Active</flux:heading>
-            <flux:text class="mt-2">{{ $this->summary['active'] }}</flux:text>
-        </flux:card>
-
-        <flux:card class="p-4">
-            <flux:heading>Pending</flux:heading>
-            <flux:text class="mt-2">{{ $this->summary['pending'] }}</flux:text>
-        </flux:card>
-
-        <flux:card class="p-4">
-            <flux:heading>Completed</flux:heading>
-            <flux:text class="mt-2">{{ $this->summary['completed'] }}</flux:text>
-        </flux:card>
     </div>
 
     <div class="space-y-4">
@@ -34,16 +19,8 @@
                     placeholder="Search students..." clearable class="w-full sm:w-64" />
 
                 <x-filter-modal name="filter-supervisor-assigned-students" heading="Filter Assigned Students"
-                    description="Filter and sort your assigned students by assignment status."
-                    :sorts="['' => 'Default', 'student' => 'Student name', 'student_id' => 'Student ID', 'course' => 'Course', 'status' => 'Status']">
-
-                    <flux:radio.group wire:model.live="status" label="Status" variant="pills">
-                        <flux:radio value="" label="All" />
-                        <flux:radio value="pending" label="Pending" />
-                        <flux:radio value="active" label="Active" />
-                        <flux:radio value="completed" label="Completed" />
-                        <flux:radio value="cancelled" label="Cancelled" />
-                    </flux:radio.group>
+                    description="Sort your assigned students."
+                    :sorts="['' => 'Default', 'student' => 'Student name', 'student_id' => 'Student ID', 'course' => 'Course']">
                 </x-filter-modal>
             </div>
         </div>
@@ -64,7 +41,6 @@
                     <flux:table.column>Academic Details</flux:table.column>
                     <flux:table.column>Coordinator</flux:table.column>
                     <flux:table.column>Attendance</flux:table.column>
-                    <flux:table.column>Status</flux:table.column>
                 </flux:table.columns>
 
                 <flux:table.rows>
@@ -109,12 +85,6 @@
                                 @endif
                             </flux:table.cell>
 
-                            <flux:table.cell>
-                                <flux:badge size="sm" :color="$this->badgeColor($assignment->status)"
-                                    inset="top bottom">
-                                    {{ ucfirst($assignment->status) }}
-                                </flux:badge>
-                            </flux:table.cell>
                         </flux:table.row>
                     @endforeach
                 </flux:table.rows>

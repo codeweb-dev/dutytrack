@@ -33,8 +33,6 @@ new class extends Component
                 'student_number' => $assignment->student?->studentProfile?->student_id,
                 'ojt_type' => $assignment->ojt_type,
                 'company_supervisor_name' => $assignment->companySupervisor?->display_name,
-                'status' => $assignment->status,
-                'remarks' => $assignment->remarks,
             ];
 
             $label = ($assignment->student?->display_name ?? 'Student').' -> '.($assignee ?? 'Assignee');
@@ -84,7 +82,7 @@ new class extends Component
                 </div>
             </div>
 
-            <div class="grid gap-4 md:grid-cols-3">
+            <div class="grid gap-4 md:grid-cols-2">
                 <div class="rounded-2xl bg-zinc-50 p-4 dark:bg-zinc-800/50">
                     <div class="text-xs uppercase tracking-wide text-zinc-400">Type</div>
                     <div class="mt-2 text-sm font-semibold text-zinc-900 dark:text-white">
@@ -96,13 +94,6 @@ new class extends Component
                     <div class="text-xs uppercase tracking-wide text-zinc-400">Assigned To</div>
                     <div class="mt-2 text-sm font-semibold text-zinc-900 dark:text-white">
                         {{ $assignment->companySupervisor?->display_name ?? '' }}
-                    </div>
-                </div>
-
-                <div class="rounded-2xl bg-zinc-50 p-4 dark:bg-zinc-800/50">
-                    <div class="text-xs uppercase tracking-wide text-zinc-400">Status</div>
-                    <div class="mt-2 text-sm font-semibold text-zinc-900 dark:text-white">
-                        {{ ucfirst($assignment->status) }}
                     </div>
                 </div>
             </div>

@@ -6,7 +6,7 @@
 
 {{-- ponytail: public Nominatim reverse lookup per view, no caching; store the address on time-in if usage grows. --}}
 <flux:text wire:key="location-{{ $coordinates }}" title="{{ $coordinates }}"
-    x-data="{ address: @js($coordinates) }"
+    x-data="{ address: '{{ $coordinates }}' }"
     x-init="fetch('https://nominatim.openstreetmap.org/reverse?format=json&zoom=18&lat={{ $latitude }}&lon={{ $longitude }}')
         .then(response => response.ok ? response.json() : {})
         .then(result => address = result.display_name || address)

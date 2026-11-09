@@ -62,13 +62,13 @@ new #[Title('Supervisor Dashboard')] class extends Component
                 'title' => 'Assigned Trainees',
                 'value' => number_format((clone $assignments)->count()),
                 'icon' => 'academic-cap',
-                'footnote' => number_format((clone $assignments)->where('status', 'active')->count()).' currently active',
+                'footnote' => 'Students under your supervision',
             ],
             [
-                'title' => 'Pending Placements',
-                'value' => number_format((clone $assignments)->where('status', 'pending')->count()),
-                'icon' => 'briefcase',
-                'footnote' => number_format((clone $assignments)->where('status', 'completed')->count()).' already completed',
+                'title' => 'Timed In Today',
+                'value' => number_format($this->supervisorAttendanceQuery()->whereDate('attendance_date', today())->count()),
+                'icon' => 'clock',
+                'footnote' => 'Attendance logs recorded today',
             ],
         ];
     }
@@ -100,40 +100,6 @@ new #[Title('Supervisor Dashboard')] class extends Component
                 return $item;
             })
             ->all();
-    }
-
-    #[Computed]
-    public function assignmentStatus(): array
-    {
-        $baseQuery = $this->supervisorAssignmentsQuery();
-        $total = max((clone $baseQuery)->count(), 1);
-
-        return [
-            [
-                'label' => 'Pending',
-                'value' => (clone $baseQuery)->where('status', 'pending')->count(),
-                'bar' => 'bg-amber-400',
-                'percentage' => round(((clone $baseQuery)->where('status', 'pending')->count() / $total) * 100),
-            ],
-            [
-                'label' => 'Active',
-                'value' => (clone $baseQuery)->where('status', 'active')->count(),
-                'bar' => 'bg-lime-400',
-                'percentage' => round(((clone $baseQuery)->where('status', 'active')->count() / $total) * 100),
-            ],
-            [
-                'label' => 'Completed',
-                'value' => (clone $baseQuery)->where('status', 'completed')->count(),
-                'bar' => 'bg-teal-500',
-                'percentage' => round(((clone $baseQuery)->where('status', 'completed')->count() / $total) * 100),
-            ],
-            [
-                'label' => 'Cancelled',
-                'value' => (clone $baseQuery)->where('status', 'cancelled')->count(),
-                'bar' => 'bg-red-400',
-                'percentage' => round(((clone $baseQuery)->where('status', 'cancelled')->count() / $total) * 100),
-            ],
-        ];
     }
 
     #[Computed]
@@ -237,35 +203,13 @@ new #[Title('Supervisor Dashboard')] class extends Component
         <flux:card>
             <div class="flex items-start justify-between gap-4">
                 <div>
-                    <flux:heading size="lg">Placement Status</flux:heading>
+                    <flux:heading size="lg">Placement Summary</flux:heading>
                     <flux:text class="mt-2">
                         A simple breakdown of the trainees currently under your supervision.
                     </flux:text>
                 </div>
 
                 <flux:badge color="red" inset="top bottom">Overview</flux:badge>
-            </div>
-
-            <div class="mt-8 space-y-5">
-                @foreach ($this->assignmentStatus as $item)
-                    <div class="space-y-2">
-                        <div class="flex items-center justify-between gap-4">
-                            <div class="text-sm font-medium text-zinc-600 dark:text-zinc-300">
-                                {{ $item['label'] }}
-                            </div>
-
-                            <div class="text-sm text-zinc-500 dark:text-zinc-400">
-                                {{ $item['value'] }} • {{ $item['percentage'] }}%
-                            </div>
-                        </div>
-
-                        <div class="h-3 overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
-                            <div class="h-full rounded-full {{ $item['bar'] }}"
-                                style="width: {{ min(max($item['percentage'], 0), 100) }}%">
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
             </div>
 
             <div class="mt-8 grid gap-3 sm:grid-cols-2">
@@ -298,7 +242,7 @@ new #[Title('Supervisor Dashboard')] class extends Component
             <div>
                 <flux:heading size="lg">Recent Trainees</flux:heading>
                 <flux:text class="mt-2">
-                    The latest trainees assigned to you, including their program and supervisor-side placement status.
+                    The latest trainees assigned to you, including their program and OJT type.
                 </flux:text>
             </div>
 
@@ -314,7 +258,7 @@ new #[Title('Supervisor Dashboard')] class extends Component
                     <flux:table.column>Student</flux:table.column>
                     <flux:table.column>Program</flux:table.column>
                     <flux:table.column>Coordinator</flux:table.column>
-                    <flux:table.column>Status</flux:table.column>
+                    <flux:table.column>Type</flux:table.column>
                 </flux:table.columns>
 
                 <flux:table.rows>
@@ -341,23 +285,9 @@ new #[Title('Supervisor Dashboard')] class extends Component
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                <div class="flex items-center gap-2">
-                                    <flux:badge
-                                        :color="match ($assignment->status) {
-                                                                                                                                                                                                'active' => 'lime',
-                                                                                                                                                                                                'pending' => 'amber',
-                                                                                                                                                                                                'completed' => 'sky',
-                                                                                                                                                                                                'cancelled' => 'red',
-                                                                                                                                                                                                default => 'zinc',
-                                                                                                                                                                                            }"
-                                        inset="top bottom">
-                                        {{ ucfirst($assignment->status) }}
-                                    </flux:badge>
-
-                                    <flux:badge color="zinc" inset="top bottom">
+                                <flux:badge color="zinc" inset="top bottom">
                                         {{ ucfirst($assignment->ojt_type) }}
                                     </flux:badge>
-                                </div>
                             </flux:table.cell>
                         </flux:table.row>
                     @empty

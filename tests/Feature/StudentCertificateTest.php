@@ -19,7 +19,6 @@ function createCertificateStudent(int $requiredHours, array $loggedHours): User
         'student_id' => $student->id,
         'ojt_type' => 'internal',
         'company_supervisor_id' => User::factory()->companySupervisor()->create()->id,
-        'status' => 'active',
     ]);
 
     foreach ($loggedHours as $day => $hours) {

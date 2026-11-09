@@ -72,14 +72,12 @@ test('supervisors can view only their assigned students', function () {
         'student_id' => $ownedStudent->id,
         'ojt_type' => 'external',
         'company_supervisor_id' => $supervisorA->id,
-        'status' => 'active',
     ]);
 
     OjtAssignment::query()->create([
         'student_id' => $otherStudent->id,
         'ojt_type' => 'external',
         'company_supervisor_id' => $supervisorB->id,
-        'status' => 'active',
     ]);
 
     $this->actingAs($supervisorA)
@@ -101,7 +99,6 @@ test('supervisors can assign tasks to their assigned trainees', function () {
             'student_id' => $student->id,
             'ojt_type' => 'external',
             'company_supervisor_id' => $supervisor->id,
-            'status' => 'active',
         ]);
     }
 
@@ -149,7 +146,6 @@ test('supervisors cannot assign tasks to trainees not assigned to them', functio
         'student_id' => $student->id,
         'ojt_type' => 'external',
         'company_supervisor_id' => $supervisorB->id,
-        'status' => 'active',
     ]);
 
     $this->actingAs($supervisorA);
@@ -175,21 +171,18 @@ test('supervisors can drag grouped task cards between columns', function () {
         'student_id' => $studentA->id,
         'ojt_type' => 'external',
         'company_supervisor_id' => $supervisor->id,
-        'status' => 'active',
     ]);
 
     $assignmentB = OjtAssignment::query()->create([
         'student_id' => $studentB->id,
         'ojt_type' => 'external',
         'company_supervisor_id' => $supervisor->id,
-        'status' => 'active',
     ]);
 
     $assignmentC = OjtAssignment::query()->create([
         'student_id' => $studentC->id,
         'ojt_type' => 'external',
         'company_supervisor_id' => $supervisor->id,
-        'status' => 'active',
     ]);
 
     $groupId = (string) fake()->uuid();
@@ -243,7 +236,6 @@ test('supervisors can submit practicum evaluations for assigned trainees', funct
         'student_id' => $student->id,
         'ojt_type' => 'external',
         'company_supervisor_id' => $supervisor->id,
-        'status' => 'active',
     ]);
 
     $this->actingAs($supervisor);
@@ -276,7 +268,6 @@ test('supervisors can submit multiple practicum evaluations for one assigned tra
         'student_id' => $student->id,
         'ojt_type' => 'external',
         'company_supervisor_id' => $supervisor->id,
-        'status' => 'active',
     ]);
 
     $this->actingAs($supervisor);
@@ -319,7 +310,6 @@ test('supervisors can sort assigned students by student name', function () {
             'student_id' => $student->id,
             'ojt_type' => 'external',
             'company_supervisor_id' => $supervisor->id,
-            'status' => 'active',
         ]);
     }
 

@@ -16,7 +16,6 @@ function createEvaluationReviewFixture(User $coordinator): Evaluation
         'student_id' => $student->id,
         'ojt_type' => 'external',
         'company_supervisor_id' => $supervisor->id,
-        'status' => 'active',
     ]);
 
     return Evaluation::create([

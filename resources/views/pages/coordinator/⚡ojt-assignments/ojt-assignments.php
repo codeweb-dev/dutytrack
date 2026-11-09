@@ -32,8 +32,6 @@ new #[Title('OJT Assignments')] class extends Component
 
     public string $ojt_type = '';
 
-    public string $status = '';
-
     public function updatedSearch(): void
     {
         $this->resetPage();
@@ -41,12 +39,6 @@ new #[Title('OJT Assignments')] class extends Component
     }
 
     public function updatedOjtType(): void
-    {
-        $this->resetPage();
-        unset($this->assignments, $this->summary);
-    }
-
-    public function updatedStatus(): void
     {
         $this->resetPage();
         unset($this->assignments, $this->summary);
@@ -64,21 +56,9 @@ new #[Title('OJT Assignments')] class extends Component
         $this->reset('sortBy', 'sortDirection');
         $this->search = '';
         $this->ojt_type = '';
-        $this->status = '';
 
         $this->resetPage();
         unset($this->assignments, $this->summary);
-    }
-
-    public function badgeColor(string $status): string
-    {
-        return match ($status) {
-            'active' => 'lime',
-            'pending' => 'amber',
-            'completed' => 'sky',
-            'cancelled' => 'red',
-            default => 'zinc',
-        };
     }
 
     #[Computed]
@@ -113,15 +93,13 @@ new #[Title('OJT Assignments')] class extends Component
                     });
                 });
             })
-            ->when($this->ojt_type !== '', fn (Builder $query) => $query->where('ojt_type', $this->ojt_type))
-            ->when($this->status !== '', fn (Builder $query) => $query->where('status', $this->status));
+            ->when($this->ojt_type !== '', fn (Builder $query) => $query->where('ojt_type', $this->ojt_type));
 
         return $this->applySorting($query, [
             'student' => User::select('last_name')->whereColumn('users.id', 'ojt_assignments.student_id'),
             'student_id' => StudentProfile::select('student_id')->whereColumn('student_profiles.user_id', 'ojt_assignments.student_id'),
             'type' => 'ojt_type',
             'supervisor' => User::select('last_name')->whereColumn('users.id', 'ojt_assignments.company_supervisor_id'),
-            'status' => 'status',
         ])
             ->latest('created_at')
             ->paginate(10);
@@ -154,14 +132,12 @@ new #[Title('OJT Assignments')] class extends Component
                     });
                 });
             })
-            ->when($this->ojt_type !== '', fn (Builder $query) => $query->where('ojt_type', $this->ojt_type))
-            ->when($this->status !== '', fn (Builder $query) => $query->where('status', $this->status));
+            ->when($this->ojt_type !== '', fn (Builder $query) => $query->where('ojt_type', $this->ojt_type));
 
         return [
             'total' => (clone $query)->count(),
             'internal' => (clone $query)->where('ojt_type', 'internal')->count(),
             'external' => (clone $query)->where('ojt_type', 'external')->count(),
-            'active' => (clone $query)->where('status', 'active')->count(),
         ];
     }
 

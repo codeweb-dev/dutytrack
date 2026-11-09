@@ -1,7 +1,7 @@
 <div class="flex flex-col gap-6">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
         <flux:card class="p-4">
             <flux:heading class="flex items-center gap-2">Total Assignments</flux:heading>
             <flux:text class="mt-2">{{ $this->summary['total'] }}</flux:text>
@@ -17,10 +17,6 @@
             <flux:text class="mt-2">{{ $this->summary['external'] }}</flux:text>
         </flux:card>
 
-        <flux:card class="p-4">
-            <flux:heading class="flex items-center gap-2">Active</flux:heading>
-            <flux:text class="mt-2">{{ $this->summary['active'] }}</flux:text>
-        </flux:card>
     </div>
 
     <div class="space-y-4">
@@ -34,20 +30,12 @@
                     placeholder="Search student or supervisor..." clearable class="w-full sm:w-64" />
 
                 <x-filter-modal name="filter-coordinator-ojt-assignments" heading="Filter Assignments"
-                    description="Filter and sort your assigned students by OJT type and assignment status."
-                    :sorts="['' => 'Default', 'student' => 'Student last name', 'student_id' => 'Student ID', 'type' => 'OJT type', 'supervisor' => 'Supervisor last name', 'status' => 'Status']">
+                    description="Filter and sort your assigned students by OJT type."
+                    :sorts="['' => 'Default', 'student' => 'Student last name', 'student_id' => 'Student ID', 'type' => 'OJT type', 'supervisor' => 'Supervisor last name']">
                     <flux:select wire:model.live="ojt_type" label="OJT Type">
                         <option value="">All Types</option>
                         <option value="internal">Internal</option>
                         <option value="external">External</option>
-                    </flux:select>
-
-                    <flux:select wire:model.live="status" label="Status">
-                        <option value="">All Status</option>
-                        <option value="pending">Pending</option>
-                        <option value="active">Active</option>
-                        <option value="completed">Completed</option>
-                        <option value="cancelled">Cancelled</option>
                     </flux:select>
                 </x-filter-modal>
 
@@ -68,11 +56,11 @@
         @else
             <flux:table :paginate="$this->assignments" class="w-full">
                 <flux:table.columns>
-                    <flux:table.column class="w-[28%]">Student</flux:table.column>
-                    <flux:table.column class="w-[28%]">Supervisor</flux:table.column>
-                    <flux:table.column class="w-[14%]">Type</flux:table.column>
-                    <flux:table.column class="w-[18%]">Status</flux:table.column>
-                    <flux:table.column class="w-[12%]">Actions</flux:table.column>
+                    <flux:table.column class="w-[26%]">Student</flux:table.column>
+                    <flux:table.column class="w-[26%]">Supervisor</flux:table.column>
+                    <flux:table.column class="w-[28%]">Pinned Location</flux:table.column>
+                    <flux:table.column class="w-[10%]">Type</flux:table.column>
+                    <flux:table.column class="w-[10%]">Actions</flux:table.column>
                 </flux:table.columns>
 
                 <flux:table.rows>
@@ -110,17 +98,22 @@
                             </flux:table.cell>
 
                             <flux:table.cell>
+                                @if ($assignment->hasGeofence())
+                                    <a href="{{ $assignment->geofenceMapUrl() }}" target="_blank" class="block whitespace-normal hover:underline">
+                                        <x-location-address class="line-clamp-2 text-sm" :latitude="$assignment->geofence_latitude"
+                                            :longitude="$assignment->geofence_longitude" />
+                                    </a>
+                                @else
+                                    <span class="text-zinc-400">—</span>
+                                @endif
+                            </flux:table.cell>
+
+                            <flux:table.cell>
                                 <flux:badge size="sm" color="sky" inset="top bottom">
                                     {{ ucfirst($assignment->ojt_type) }}
                                 </flux:badge>
                             </flux:table.cell>
 
-                            <flux:table.cell>
-                                <flux:badge size="sm" :color="$this->badgeColor($assignment->status)"
-                                    inset="top bottom">
-                                    {{ ucfirst($assignment->status) }}
-                                </flux:badge>
-                            </flux:table.cell>
 
                             <flux:table.cell>
                                 <flux:dropdown>

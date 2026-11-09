@@ -72,14 +72,12 @@ test('mentors can view only their assigned students', function () {
         'student_id' => $ownedStudent->id,
         'ojt_type' => 'internal',
         'company_supervisor_id' => $mentorA->id,
-        'status' => 'active',
     ]);
 
     OjtAssignment::query()->create([
         'student_id' => $otherStudent->id,
         'ojt_type' => 'internal',
         'company_supervisor_id' => $mentorB->id,
-        'status' => 'active',
     ]);
 
     $this->actingAs($mentorA)
@@ -101,7 +99,6 @@ test('mentors can assign tasks to their assigned students', function () {
             'student_id' => $student->id,
             'ojt_type' => 'internal',
             'company_supervisor_id' => $mentor->id,
-            'status' => 'active',
         ]);
     }
 
@@ -144,7 +141,6 @@ test('mentors cannot assign tasks to students not assigned to them', function ()
         'student_id' => $student->id,
         'ojt_type' => 'internal',
         'company_supervisor_id' => $mentorB->id,
-        'status' => 'active',
     ]);
 
     $this->actingAs($mentorA);
@@ -168,7 +164,6 @@ test('students can see tasks assigned by their mentor', function () {
         'student_id' => $student->id,
         'ojt_type' => 'internal',
         'company_supervisor_id' => $mentor->id,
-        'status' => 'active',
     ]);
 
     StudentTask::query()->create([
@@ -198,7 +193,6 @@ test('students can drag tasks between kanban columns', function () {
         'student_id' => $student->id,
         'ojt_type' => 'internal',
         'company_supervisor_id' => $mentor->id,
-        'status' => 'active',
     ]);
 
     $pendingTask = StudentTask::query()->create([
@@ -244,21 +238,18 @@ test('mentors can drag grouped task cards between columns', function () {
         'student_id' => $studentA->id,
         'ojt_type' => 'internal',
         'company_supervisor_id' => $mentor->id,
-        'status' => 'active',
     ]);
 
     $assignmentB = OjtAssignment::query()->create([
         'student_id' => $studentB->id,
         'ojt_type' => 'internal',
         'company_supervisor_id' => $mentor->id,
-        'status' => 'active',
     ]);
 
     $assignmentC = OjtAssignment::query()->create([
         'student_id' => $studentC->id,
         'ojt_type' => 'internal',
         'company_supervisor_id' => $mentor->id,
-        'status' => 'active',
     ]);
 
     $groupId = (string) fake()->uuid();
@@ -312,7 +303,6 @@ test('mentors can submit practicum evaluations for assigned students', function 
         'student_id' => $student->id,
         'ojt_type' => 'internal',
         'company_supervisor_id' => $mentor->id,
-        'status' => 'active',
     ]);
 
     $this->actingAs($mentor);
@@ -345,7 +335,6 @@ test('mentors can submit multiple practicum evaluations for one assigned student
         'student_id' => $student->id,
         'ojt_type' => 'internal',
         'company_supervisor_id' => $mentor->id,
-        'status' => 'active',
     ]);
 
     $this->actingAs($mentor);

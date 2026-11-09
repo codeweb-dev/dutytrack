@@ -40,7 +40,6 @@ function createMessagingAssignment(User $student, ?User $mentor = null, ?User $s
         'student_id' => $student->id,
         'ojt_type' => $supervisor ? 'external' : 'internal',
         'company_supervisor_id' => $supervisor?->id ?? $mentor?->id,
-        'status' => 'active',
     ]);
 }
 

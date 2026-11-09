@@ -70,7 +70,7 @@ new #[Title('OJT Assignments')] class extends Component
             ->with([
                 'student.studentProfile',
                 'student.coordinator',
-                'companySupervisor',
+                'companySupervisor.supervisorProfile',
             ])
             ->whereHas('student', fn (Builder $query) => $query->where('coordinator_id', $coordinatorId))
             ->when($this->search !== '', function (Builder $query) {

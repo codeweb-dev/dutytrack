@@ -53,6 +53,7 @@ test('coordinators can create supervisors owned by their account', function () {
         ->set('form.password', 'Santos')
         ->set('form.password_confirmation', 'Santos')
         ->set('form.company_name', 'Acme Corp')
+        ->set('form.photo', \Illuminate\Http\UploadedFile::fake()->image('maria.jpg'))
         ->call('save')
         ->assertHasNoErrors();
 
@@ -61,4 +62,22 @@ test('coordinators can create supervisors owned by their account', function () {
     expect($supervisor)->not->toBeNull()
         ->and($supervisor->hasRole(Role::SUPERVISOR->value))->toBeTrue()
         ->and((int) $supervisor->coordinator_id)->toBe($coordinator->id);
+});
+
+test('supervisor photo is required on create', function () {
+    $this->seed(RoleSeeder::class);
+
+    $coordinator = User::factory()->create();
+    $coordinator->assignRole(Role::OJTCOORDINATOR->value);
+
+    \Livewire\Livewire::actingAs($coordinator)
+        ->test('coordinator.supervisors.create')
+        ->set('form.first_name', 'Maria')
+        ->set('form.last_name', 'Santos')
+        ->set('form.email', 'maria.santos@example.com')
+        ->set('form.password', 'Santos')
+        ->set('form.password_confirmation', 'Santos')
+        ->set('form.company_name', 'Acme Corp')
+        ->call('save')
+        ->assertHasErrors(['form.photo' => 'required']);
 });

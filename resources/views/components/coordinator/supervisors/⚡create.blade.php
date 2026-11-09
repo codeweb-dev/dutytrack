@@ -47,7 +47,7 @@ new class extends Component {
 
                 <div class="space-y-6">
                     <div class="w-full">
-                        <x-custom-file-upload model="form.photo" label="Upload supervisor photo" accept="image/*" />
+                        <x-custom-file-upload model="form.photo" label="Upload supervisor photo" accept="image/*" required />
                     </div>
 
                     <div class="grid grid-cols-2 gap-x-4 gap-y-6">

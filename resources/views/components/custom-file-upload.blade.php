@@ -5,6 +5,7 @@
     'capture' => null,
     'preview' => true,
     'existing' => null,
+    'required' => false,
 ])
 
 @php
@@ -45,7 +46,7 @@
                         {{ $file->getClientOriginalName() }}
                     </p>
                     <p class="text-xs text-zinc-500 dark:text-zinc-400">
-                        Click to replace <flux:badge size="sm">Optional</flux:badge>
+                        Click to replace @unless ($required)<flux:badge size="sm">Optional</flux:badge>@endunless
                     </p>
                 </div>
             </div>
@@ -59,7 +60,7 @@
                         Current photo
                     </p>
                     <p class="text-xs text-zinc-500 dark:text-zinc-400">
-                        Click to replace <flux:badge size="sm">Optional</flux:badge>
+                        Click to replace @unless ($required)<flux:badge size="sm">Optional</flux:badge>@endunless
                     </p>
                 </div>
             </div>
@@ -78,7 +79,9 @@
                 <div class="space-y-1">
                     <div class="flex items-center gap-2">
                         <p class="text-sm font-semibold text-zinc-900 dark:text-white">{{ $label }}</p>
-                        <flux:badge size="sm">Optional</flux:badge>
+                        @unless ($required)
+                            <flux:badge size="sm">Optional</flux:badge>
+                        @endunless
                     </div>
                     <p class="text-xs text-zinc-500 dark:text-zinc-400">
                         Drag and drop here, or click to browse

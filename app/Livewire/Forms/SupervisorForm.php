@@ -57,7 +57,7 @@ class SupervisorForm extends Form
     {
         $userId = $this->supervisor?->id;
         return [
-            'photo' => ['nullable', 'image', 'max:2048'],
+            'photo' => [$this->supervisor && $this->existing_photo_path ? 'nullable' : 'required', 'image', 'max:2048'],
             'first_name' => ['required', 'string', 'max:255'],
             'middle_name' => ['nullable', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],

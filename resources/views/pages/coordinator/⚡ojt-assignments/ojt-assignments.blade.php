@@ -116,6 +116,10 @@
                                         inset="top bottom" />
 
                                     <flux:menu>
+                                        <flux:modal.trigger :name="'view-ojt-assignment-'.$assignment->id">
+                                            <flux:menu.item icon="eye">View</flux:menu.item>
+                                        </flux:modal.trigger>
+
                                         <flux:modal.trigger :name="'edit-ojt-assignment-'.$assignment->id">
                                             <flux:menu.item icon="pencil-square">Edit</flux:menu.item>
                                         </flux:modal.trigger>
@@ -127,6 +131,11 @@
                                         </flux:modal.trigger>
                                     </flux:menu>
                                 </flux:dropdown>
+
+                                <flux:modal :name="'view-ojt-assignment-'.$assignment->id" flyout variant="floating"
+                                    class="md:w-2xl">
+                                    <livewire:coordinator.ojt-assignments.view :assignment="$assignment" :key="'view-ojt-assignment-' . $assignment->id" />
+                                </flux:modal>
 
                                 <flux:modal :name="'edit-ojt-assignment-'.$assignment->id" flyout variant="floating"
                                     class="md:w-2xl">

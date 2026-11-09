@@ -220,3 +220,21 @@ test('coordinator can view archived assignments on the archive page', function (
         ->set('type', 'assignments')
         ->assertSee($student->display_name);
 });
+
+test('coordinator can only view their own students assignments', function () {
+    $coordinator = createCoordinatorForAssignments();
+    $otherCoordinator = createCoordinatorForAssignments(['email' => 'other-coordinator@example.com']);
+    $assignment = OjtAssignment::create([
+        'student_id' => createManagedStudent($coordinator)->id,
+        'ojt_type' => 'internal',
+        'company_supervisor_id' => createCompanySupervisor()->id,
+    ]);
+
+    $this->actingAs($coordinator);
+    Livewire::test('coordinator.ojt-assignments.view', ['assignment' => $assignment])
+        ->assertSee($assignment->student->email)
+        ->assertSee('No attendance location pinned.');
+
+    $this->actingAs($otherCoordinator);
+    Livewire::test('coordinator.ojt-assignments.view', ['assignment' => $assignment])->assertForbidden();
+});

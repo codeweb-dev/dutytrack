@@ -83,6 +83,12 @@ class FortifyServiceProvider extends ServiceProvider
                 ]);
             }
 
+            if ($user->status === 'inactive') {
+                throw ValidationException::withMessages([
+                    'account' => __('Your account has been set to inactive by your OJT coordinator.'),
+                ]);
+            }
+
             return $user;
         });
 

@@ -289,3 +289,33 @@ test('editing a student requires a profile photo when none exists', function () 
 
     expect($student->fresh()->profile_photo_path)->not->toBeNull();
 });
+
+test('coordinators can set a student to inactive so they cannot log in until activated again', function () {
+    $coordinator = createCoordinator();
+    $student = createStudentForCoordinator($coordinator, ['status' => 'active']);
+    $student->studentProfile->update(['birthdate' => '2004-01-01']);
+    $login = fn () => $this->post(route('login.store'), [
+        'role' => AppRole::STUDENT->value,
+        'email' => $student->studentProfile->student_id,
+        'birthdate' => '2004-01-01',
+        'password' => 'password',
+    ]);
+
+    $this->actingAs($coordinator);
+    $component = Livewire::test('pages::coordinator.student-management')->call('setInactive', $student->id);
+
+    expect($student->fresh()->status)->toBe('inactive')
+        ->and($component->set('status', 'inactive')->instance()->students->pluck('id')->all())->toBe([$student->id])
+        ->and($component->set('status', 'active')->instance()->students)->toBeEmpty();
+
+    auth()->logout();
+    $login()->assertSessionHasErrors(['account' => 'Your account has been set to inactive by your OJT coordinator.']);
+    $this->assertGuest();
+
+    $this->actingAs($coordinator);
+    Livewire::test('pages::coordinator.student-management')->call('activate', $student->id);
+    auth()->logout();
+
+    $login()->assertSessionHasNoErrors();
+    $this->assertAuthenticatedAs($student);
+});

@@ -7,6 +7,8 @@ use Flux\Flux;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
@@ -86,7 +88,8 @@ new #[Title('Students')] class extends Component
         return [
             'total' => (clone $students)->count(),
             'pending' => (clone $students)->where('status', 'pending')->count(),
-            'active' => (clone $students)->where(fn (Builder $query) => $query->whereNull('status')->orWhere('status', '!=', 'pending'))->count(),
+            'active' => (clone $students)->where(fn (Builder $query) => $query->whereNull('status')->orWhereNotIn('status', ['pending', 'inactive']))->count(),
+            'inactive' => (clone $students)->where('status', 'inactive')->count(),
             'assigned' => (clone $students)->whereHas('ojtAssignment', fn (Builder $query) => $query->whereNotNull('company_supervisor_id'))->count(),
         ];
     }
@@ -116,6 +119,56 @@ new #[Title('Students')] class extends Component
         Flux::modal('review-student-'.$student->id)->close();
 
         Flux::toast(variant: 'success', heading: 'Student approved.', text: "{$student->display_name} can now log in.");
+
+        unset($this->students, $this->summary);
+    }
+
+    // Inactive students can't log in (see FortifyServiceProvider) until reactivated.
+    public function setInactive(int $studentId): void
+    {
+        $student = User::query()
+            ->where('coordinator_id', Auth::id())
+            ->where(fn (Builder $query) => $query->whereNull('status')->orWhereNotIn('status', ['pending', 'inactive']))
+            ->findOrFail($studentId);
+
+        $student->forceFill(['status' => 'inactive', 'remember_token' => Str::random(60)])->save();
+
+        // Sign out any open sessions too; relies on the database session driver.
+        DB::table('sessions')->where('user_id', $student->id)->delete();
+
+        AuditLogger::log(
+            module: 'Students',
+            action: 'set_inactive',
+            target: $student,
+            targetLabel: $student->display_name,
+            description: 'Set a Student account to inactive.',
+        );
+
+        Flux::modal('inactive-student-'.$student->id)->close();
+
+        Flux::toast(variant: 'success', heading: 'Student set to inactive.', text: "{$student->display_name} can no longer log in.");
+
+        unset($this->students, $this->summary);
+    }
+
+    public function activate(int $studentId): void
+    {
+        $student = User::query()
+            ->where('coordinator_id', Auth::id())
+            ->where('status', 'inactive')
+            ->findOrFail($studentId);
+
+        $student->update(['status' => 'active']);
+
+        AuditLogger::log(
+            module: 'Students',
+            action: 'activated',
+            target: $student,
+            targetLabel: $student->display_name,
+            description: 'Reactivated a Student account.',
+        );
+
+        Flux::toast(variant: 'success', heading: 'Student activated.', text: "{$student->display_name} can log in again.");
 
         unset($this->students, $this->summary);
     }
@@ -177,7 +230,9 @@ new #[Title('Students')] class extends Component
         if ($this->status === 'pending') {
             $query->where('users.status', 'pending');
         } elseif ($this->status === 'active') {
-            $query->where(fn (Builder $query) => $query->whereNull('users.status')->orWhere('users.status', '!=', 'pending'));
+            $query->where(fn (Builder $query) => $query->whereNull('users.status')->orWhereNotIn('users.status', ['pending', 'inactive']));
+        } elseif ($this->status === 'inactive') {
+            $query->where('users.status', 'inactive');
         } elseif ($this->status === 'assigned') {
             $query->whereHas('ojtAssignment', fn (Builder $query) => $query->whereNotNull('company_supervisor_id'));
         }

@@ -1,8 +1,8 @@
 <div class="flex flex-col gap-6">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
-    <div class="grid grid-cols-1 gap-4 grid-cols-2 xl:grid-cols-4">
-        @php($cards = ['' => ['Total Students', 'total', 'users'], 'pending' => ['Pending Approval', 'pending', 'clock'], 'active' => ['Active Students', 'active', 'check-circle'], 'assigned' => ['Assigned Students', 'assigned', 'briefcase']])
+    <div class="grid grid-cols-1 gap-4 grid-cols-2 xl:grid-cols-5">
+        @php($cards = ['' => ['Total Students', 'total', 'users'], 'pending' => ['Pending Approval', 'pending', 'clock'], 'active' => ['Active Students', 'active', 'check-circle'], 'assigned' => ['Assigned Students', 'assigned', 'briefcase'], 'inactive' => ['Inactive Students', 'inactive', 'no-symbol']])
         @foreach ($cards as $value => [$label, $key, $icon])
             <button type="button" wire:click="$set('status', '{{ $value }}')" class="text-left"
                 aria-pressed="{{ $status === $value ? 'true' : 'false' }}">
@@ -38,6 +38,7 @@
                         <flux:radio value="pending" label="Pending Approval" />
                         <flux:radio value="active" label="Active" />
                         <flux:radio value="assigned" label="Assigned" />
+                        <flux:radio value="inactive" label="Inactive" />
                     </flux:radio.group>
                 </x-filter-modal>
             </div>
@@ -101,6 +102,8 @@
                                 @if ($student->status === 'pending')
                                     <flux:badge size="sm" color="amber" inset="top bottom">Pending Approval
                                     </flux:badge>
+                                @elseif ($student->status === 'inactive')
+                                    <flux:badge size="sm" color="zinc" inset="top bottom">Inactive</flux:badge>
                                 @else
                                     <flux:badge size="sm" color="green" inset="top bottom">Active</flux:badge>
                                 @endif
@@ -131,6 +134,16 @@
                                         <flux:modal.trigger :name="'edit-student-'.$student->id">
                                             <flux:menu.item icon="pencil-square">Edit</flux:menu.item>
                                         </flux:modal.trigger>
+
+                                        @if ($student->status === 'inactive')
+                                            <flux:menu.item icon="check-circle" wire:click="activate({{ $student->id }})">
+                                                Activate
+                                            </flux:menu.item>
+                                        @elseif ($student->status !== 'pending')
+                                            <flux:modal.trigger :name="'inactive-student-'.$student->id">
+                                                <flux:menu.item icon="no-symbol">Set Inactive</flux:menu.item>
+                                            </flux:modal.trigger>
+                                        @endif
 
                                         <flux:menu.separator />
 
@@ -200,6 +213,32 @@
                                     <livewire:coordinator.student-management.delete :student="$student"
                                         :key="'delete-student-' . $student->id" />
                                 </flux:modal>
+
+                                @if (! in_array($student->status, ['pending', 'inactive'], true))
+                                    <flux:modal :name="'inactive-student-'.$student->id"
+                                        class="w-[calc(100vw-2rem)] max-w-md!">
+                                        <div class="space-y-6">
+                                            <div>
+                                                <flux:heading size="lg">Set student to inactive?</flux:heading>
+                                                <flux:text class="mt-2">
+                                                    {{ $student->display_name }} will be logged out and won't be able
+                                                    to log in until you activate their account again.
+                                                </flux:text>
+                                            </div>
+
+                                            <div class="flex justify-end gap-2">
+                                                <flux:modal.close>
+                                                    <flux:button variant="ghost">Cancel</flux:button>
+                                                </flux:modal.close>
+
+                                                <flux:button variant="danger" icon="no-symbol"
+                                                    wire:click="setInactive({{ $student->id }})">
+                                                    Set Inactive
+                                                </flux:button>
+                                            </div>
+                                        </div>
+                                    </flux:modal>
+                                @endif
                             </flux:table.cell>
                         </flux:table.row>
                     @endforeach

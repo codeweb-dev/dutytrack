@@ -28,11 +28,23 @@ new #[Title('Archive')] class extends Component
 
     public string $description = 'Restore archived accounts and records.';
 
-    #[Computed]
-    public function archivedUsers(): LengthAwarePaginator
+    public string $type = 'users';
+
+    public string $search = '';
+
+    public function updatedType(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedSearch(): void
+    {
+        $this->resetPage();
+    }
+
+    protected function archivedUsersQuery(): Builder
     {
         return User::onlyTrashed()
-            ->with(['roles', 'studentProfile', 'supervisorProfile'])
             ->whereHas('roles', fn (Builder $query) => $query->whereIn('name', [
                 Role::OJTCOORDINATOR->value,
                 Role::SUPERVISOR->value,
@@ -40,51 +52,95 @@ new #[Title('Archive')] class extends Component
             ]))
             ->where(fn (Builder $query) => $query
                 ->where('coordinator_id', Auth::id())
-                ->orWhereHas('roles', fn (Builder $roles) => $roles->where('name', Role::OJTCOORDINATOR->value)))
+                ->orWhereHas('roles', fn (Builder $roles) => $roles->where('name', Role::OJTCOORDINATOR->value)));
+    }
+
+    protected function archivedAssignmentsQuery(): Builder
+    {
+        return OjtAssignment::onlyTrashed()
+            ->whereHas('student', fn (Builder $query) => $query->withTrashed()->where('coordinator_id', Auth::id()));
+    }
+
+    protected function searchTerm(): string
+    {
+        return '%'.$this->search.'%';
+    }
+
+    #[Computed]
+    public function summary(): array
+    {
+        return [
+            'users' => $this->archivedUsersQuery()->count(),
+            'assignments' => $this->archivedAssignmentsQuery()->count(),
+            'announcements' => Announcement::onlyTrashed()->count(),
+            'logs' => AuditLog::onlyTrashed()->count(),
+        ];
+    }
+
+    #[Computed]
+    public function archivedUsers(): LengthAwarePaginator
+    {
+        return $this->archivedUsersQuery()
+            ->with(['roles', 'studentProfile', 'supervisorProfile'])
+            ->when($this->search !== '', fn (Builder $query) => $query->where(fn (Builder $query) => $query
+                ->where('name', 'like', $this->searchTerm())
+                ->orWhere('first_name', 'like', $this->searchTerm())
+                ->orWhere('last_name', 'like', $this->searchTerm())
+                ->orWhere('email', 'like', $this->searchTerm())))
             ->latest('deleted_at')
-            ->paginate(10, pageName: 'usersPage');
+            ->paginate(10);
     }
 
     #[Computed]
     public function archivedAnnouncements(): LengthAwarePaginator
     {
-        return Announcement::onlyTrashed()->latest('deleted_at')->paginate(10, pageName: 'announcementsPage');
+        return Announcement::onlyTrashed()
+            ->when($this->search !== '', fn (Builder $query) => $query->where(fn (Builder $query) => $query
+                ->where('title', 'like', $this->searchTerm())
+                ->orWhere('message', 'like', $this->searchTerm())))
+            ->latest('deleted_at')
+            ->paginate(10);
     }
 
     #[Computed]
     public function archivedAssignments(): LengthAwarePaginator
     {
-        return OjtAssignment::onlyTrashed()
+        $matchesName = fn (Builder $query) => $query->withTrashed()->where(fn (Builder $query) => $query
+            ->where('name', 'like', $this->searchTerm())
+            ->orWhere('first_name', 'like', $this->searchTerm())
+            ->orWhere('last_name', 'like', $this->searchTerm()));
+
+        return $this->archivedAssignmentsQuery()
             ->with([
                 'student' => fn ($query) => $query->withTrashed()->with('studentProfile'),
                 'companySupervisor' => fn ($query) => $query->withTrashed(),
             ])
-            ->whereHas('student', fn (Builder $query) => $query->withTrashed()->where('coordinator_id', Auth::id()))
+            ->when($this->search !== '', fn (Builder $query) => $query->where(fn (Builder $query) => $query
+                ->whereHas('student', $matchesName)
+                ->orWhereHas('companySupervisor', $matchesName)))
             ->latest('deleted_at')
-            ->paginate(10, pageName: 'assignmentsPage');
+            ->paginate(10);
     }
 
     #[Computed]
     public function archivedAuditLogs(): LengthAwarePaginator
     {
-        return AuditLog::onlyTrashed()->latest('deleted_at')->paginate(10, pageName: 'logsPage');
+        return AuditLog::onlyTrashed()
+            ->when($this->search !== '', fn (Builder $query) => $query->where(fn (Builder $query) => $query
+                ->where('actor_name', 'like', $this->searchTerm())
+                ->orWhere('module', 'like', $this->searchTerm())
+                ->orWhere('action', 'like', $this->searchTerm())
+                ->orWhere('target_label', 'like', $this->searchTerm())))
+            ->latest('deleted_at')
+            ->paginate(10);
     }
 
     public function restoreUser(int $userId): void
     {
-        $user = User::onlyTrashed()
-            ->whereHas('roles', fn (Builder $query) => $query->whereIn('name', [
-                Role::OJTCOORDINATOR->value,
-                Role::SUPERVISOR->value,
-                Role::STUDENT->value,
-            ]))
-            ->where(fn (Builder $query) => $query
-                ->where('coordinator_id', Auth::id())
-                ->orWhereHas('roles', fn (Builder $roles) => $roles->where('name', Role::OJTCOORDINATOR->value)))
-            ->findOrFail($userId);
+        $user = $this->archivedUsersQuery()->findOrFail($userId);
 
         $user->forceFill(['rejection_reason' => null])->restore();
-        unset($this->archivedUsers);
+        unset($this->archivedUsers, $this->summary);
 
         Flux::toast(variant: 'success', heading: 'Account restored.', text: 'The account is active again.');
     }
@@ -92,16 +148,14 @@ new #[Title('Archive')] class extends Component
     public function restoreAnnouncement(int $announcementId): void
     {
         Announcement::onlyTrashed()->findOrFail($announcementId)->restore();
-        unset($this->archivedAnnouncements);
+        unset($this->archivedAnnouncements, $this->summary);
 
         Flux::toast(variant: 'success', text: 'Announcement restored.');
     }
 
     public function restoreAssignment(int $assignmentId): void
     {
-        $assignment = OjtAssignment::onlyTrashed()
-            ->whereHas('student', fn (Builder $query) => $query->withTrashed()->where('coordinator_id', Auth::id()))
-            ->findOrFail($assignmentId);
+        $assignment = $this->archivedAssignmentsQuery()->findOrFail($assignmentId);
 
         if (OjtAssignment::query()->where('student_id', $assignment->student_id)->exists()) {
             Flux::toast(variant: 'warning', heading: 'Student already assigned.', text: 'Archive the active assignment before restoring this one.');
@@ -110,7 +164,7 @@ new #[Title('Archive')] class extends Component
         }
 
         $assignment->restore();
-        unset($this->archivedAssignments);
+        unset($this->archivedAssignments, $this->summary);
 
         Flux::toast(variant: 'success', text: 'Assignment restored.');
     }
@@ -118,7 +172,7 @@ new #[Title('Archive')] class extends Component
     public function restoreAuditLog(int $logId): void
     {
         AuditLog::onlyTrashed()->findOrFail($logId)->restore();
-        unset($this->archivedAuditLogs);
+        unset($this->archivedAuditLogs, $this->summary);
 
         Flux::toast(variant: 'success', text: 'Audit log restored.');
     }

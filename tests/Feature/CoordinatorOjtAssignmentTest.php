@@ -214,6 +214,9 @@ test('coordinator can view archived assignments on the archive page', function (
 
     $this->actingAs($coordinator)
         ->get(route('coordinator.archive'))
-        ->assertOk()
+        ->assertOk();
+
+    Livewire::test('pages::coordinator.archive')
+        ->set('type', 'assignments')
         ->assertSee($student->display_name);
 });

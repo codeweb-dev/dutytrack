@@ -1,40 +1,29 @@
 <div class="flex flex-col gap-6">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
-        <flux:card class="p-4">
-            <flux:heading>Total Records</flux:heading>
-            <flux:text class="mt-2">{{ $this->summary['total'] }}</flux:text>
-        </flux:card>
-
-        <flux:card class="p-4">
-            <flux:heading>Present</flux:heading>
-            <flux:text class="mt-2">{{ $this->summary['present'] }}</flux:text>
-        </flux:card>
-
-        <flux:card class="p-4">
-            <flux:heading>Late</flux:heading>
-            <flux:text class="mt-2">{{ $this->summary['late'] }}</flux:text>
-        </flux:card>
-
-        <flux:card class="p-4">
-            <flux:heading>Absent</flux:heading>
-            <flux:text class="mt-2">{{ $this->summary['absent'] }}</flux:text>
-        </flux:card>
-
-        <flux:card class="p-4">
-            <flux:heading>Incomplete</flux:heading>
-            <flux:text class="mt-2">{{ $this->summary['incomplete'] }}</flux:text>
-        </flux:card>
+    <div class="grid grid-cols-1 gap-4 grid-cols-2 xl:grid-cols-5">
+        @php $cards = ['' => ['Total Records', 'total', 'clipboard-document-list'], 'present' => ['Present', 'present', 'check-circle'], 'late' => ['Late', 'late', 'clock'], 'absent' => ['Absent', 'absent', 'x-circle'], 'incomplete' => ['Incomplete', 'incomplete', 'exclamation-circle']]; @endphp
+        @foreach ($cards as $value => [$label, $key, $icon])
+            <button type="button" wire:click="$set('status', '{{ $value }}')" class="text-left"
+                aria-pressed="{{ $status === $value ? 'true' : 'false' }}">
+                <flux:card size="xs" class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
+                    <flux:heading class="flex items-center gap-2">{{ $label }}
+                        <flux:icon :name="$icon" :variant="$status === $value ? 'solid' : 'outline'"
+                            class="ml-auto size-5 {{ $status === $value ? 'text-zinc-800 dark:text-white' : 'text-zinc-400' }}" />
+                    </flux:heading>
+                    <flux:heading size="2xl" class="mt-2">{{ $this->summary[$key] }}</flux:heading>
+                </flux:card>
+            </button>
+        @endforeach
     </div>
 
-    <div class="space-y-4">
-        <div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-            <h2 class="text-xl font-semibold">
-                Student Attendance
-            </h2>
+    <flux:card>
+        <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+            <div>
+                <flux:heading size="xl">{{ $cards[$status][0] ?? 'Total Records' }}</flux:heading>
+            </div>
 
-            <div class="flex w-full flex-wrap items-center gap-3 xl:w-auto">
+            <div class="flex w-full items-center gap-3 xl:w-auto">
                 <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
                     placeholder="Search student..." clearable class="w-full sm:w-64" />
 
@@ -73,17 +62,17 @@
             </div>
         </div>
 
-
         @if ($this->attendanceLogs->isEmpty())
-            <flux:card class="flex flex-col items-center gap-4 py-24">
+            <div class="mt-6 flex flex-col items-center gap-4 py-16 sm:py-24">
                 <flux:icon name="clipboard-document-list" class="size-12" />
                 <div class="text-center">
                     <flux:heading size="xl">No attendance logs found</flux:heading>
                     <flux:text class="mt-2">Try adjusting your search or filter to find student attendance.</flux:text>
                 </div>
-            </flux:card>
+            </div>
         @else
-            <flux:table :paginate="$this->attendanceLogs">
+            <flux:table :paginate="$this->attendanceLogs" bleed container:class="mt-6"
+                pagination:class="px-[var(--flux-bleed,1.5rem)] pb-3">
                 <flux:table.columns>
                     <flux:table.column>Student</flux:table.column>
                     <flux:table.column>ID</flux:table.column>
@@ -181,5 +170,5 @@
                 </flux:table.rows>
             </flux:table>
         @endif
-    </div>
+    </flux:card>
 </div>

@@ -31,6 +31,14 @@ new #[Title('Requirement Monitoring')] class extends Component
 
     public string $search = '';
 
+    public string $status = '';
+
+    public function updatedStatus(): void
+    {
+        $this->resetPage();
+        unset($this->students);
+    }
+
     public function updatedSearch(): void
     {
         $this->resetPage();
@@ -77,7 +85,7 @@ new #[Title('Requirement Monitoring')] class extends Component
 
     public function clearFilters(): void
     {
-        $this->reset('search', 'sortBy', 'sortDirection');
+        $this->reset('search', 'status', 'sortBy', 'sortDirection');
 
         $this->resetPage();
         unset($this->students);
@@ -100,6 +108,18 @@ new #[Title('Requirement Monitoring')] class extends Component
                     ->orWhere('student_profiles.course', 'like', $search);
             });
         }
+
+        $active = fn (Builder $query) => $query->whereIn('key', StudentRequirement::activeKeys());
+        $incomplete = fn (Builder $query) => $active($query)->where('is_completed', false);
+
+        match ($this->status) {
+            'complete' => $query->whereHas('studentRequirements', $active)->whereDoesntHave('studentRequirements', $incomplete),
+            'pending' => $query->where(fn (Builder $query) => $query
+                ->whereDoesntHave('studentRequirements', $active)
+                ->orWhereHas('studentRequirements', $incomplete)),
+            'for_checking' => $query->whereHas('studentRequirements', fn (Builder $query) => $incomplete($query)->whereNotNull('submitted_at')),
+            default => null,
+        };
 
         $students = $this->applySorting($query, [
             '' => 'users.last_name',
@@ -128,12 +148,13 @@ new #[Title('Requirement Monitoring')] class extends Component
                 );
         })->count();
 
-        $forChecking = $students->sum(function (User $student): int {
+        // Counts students (not files) so the card matches the rows its filter shows.
+        $forChecking = $students->filter(function (User $student): bool {
             return $student->studentRequirements
                 ->where('is_completed', false)
                 ->whereNotNull('submitted_at')
-                ->count();
-        });
+                ->isNotEmpty();
+        })->count();
 
         return [
             'students' => $totalStudents,

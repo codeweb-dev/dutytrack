@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\AuditLog;
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Livewire\Attributes\Computed;
@@ -27,6 +28,33 @@ new #[Title('Audit Logs')] class extends Component
     public string $search = '';
     public string $module = '';
     public string $action = '';
+    public string $period = '';
+
+    public function updatedPeriod(): void
+    {
+        $this->resetPage();
+        unset($this->auditLogs);
+    }
+
+    protected function periodStart(string $period): ?CarbonInterface
+    {
+        return match ($period) {
+            'today' => now()->startOfDay(),
+            'week' => now()->startOfWeek(),
+            'month' => now()->startOfMonth(),
+            default => null,
+        };
+    }
+
+    #[Computed]
+    public function summary(): array
+    {
+        return collect(['total' => '', 'today' => 'today', 'week' => 'week', 'month' => 'month'])
+            ->map(fn (string $period) => AuditLog::query()
+                ->when($this->periodStart($period), fn (Builder $query, CarbonInterface $start) => $query->where('created_at', '>=', $start))
+                ->count())
+            ->all();
+    }
 
     public function updatedSortBy(): void
     {
@@ -42,7 +70,7 @@ new #[Title('Audit Logs')] class extends Component
 
     public function clearFilters(): void
     {
-        $this->reset('search', 'module', 'action', 'sortBy', 'sortDirection');
+        $this->reset('search', 'module', 'action', 'period', 'sortBy', 'sortDirection');
 
         $this->resetPage();
         unset($this->auditLogs);
@@ -118,6 +146,10 @@ new #[Title('Audit Logs')] class extends Component
             $query->where('action', $this->action);
         }
 
+        if ($start = $this->periodStart($this->period)) {
+            $query->where('created_at', '>=', $start);
+        }
+
         $allowedSorts = [
             'created_at' => 'created_at',
             'actor_name' => 'actor_name',
@@ -138,7 +170,7 @@ new #[Title('Audit Logs')] class extends Component
     public function refreshAuditLogs(): void
     {
         $this->resetPage();
-        unset($this->auditLogs);
+        unset($this->auditLogs, $this->summary);
     }
 
     public function badgeColor(string $action): string

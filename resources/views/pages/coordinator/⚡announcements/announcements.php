@@ -63,7 +63,17 @@ new #[Title('System Announcements')] class extends Component
     public function refreshAnnouncements(): void
     {
         $this->resetPage();
-        unset($this->announcements);
+        unset($this->announcements, $this->summary);
+    }
+
+    #[Computed]
+    public function summary(): array
+    {
+        $counts = Announcement::query()->toBase()->selectRaw('type, count(*) as total')->groupBy('type')->pluck('total', 'type');
+
+        return ['total' => (int) $counts->sum()] + collect(['info', 'warning', 'urgent', 'maintenance'])
+            ->mapWithKeys(fn (string $type) => [$type => (int) ($counts[$type] ?? 0)])
+            ->all();
     }
 
     #[Computed]
@@ -96,7 +106,7 @@ new #[Title('System Announcements')] class extends Component
 
         $query->orderBy($sortColumn, $sortDirection);
 
-        return $query->paginate(9);
+        return $query->paginate(10);
     }
 
     public function badgeColor(string $type): string

@@ -55,7 +55,7 @@ new #[Title('Attendance Monitoring')] class extends Component
     public function updatedStatus(): void
     {
         $this->resetPage();
-        unset($this->attendanceLogs, $this->summary);
+        unset($this->attendanceLogs);
     }
 
     public function updatedSupervisorId(): void
@@ -110,7 +110,7 @@ new #[Title('Attendance Monitoring')] class extends Component
             });
     }
 
-    protected function applyFilters(Builder $query, bool $includeSearch = true): Builder
+    protected function applyFilters(Builder $query, bool $includeSearch = true, bool $includeStatus = true): Builder
     {
         return $query
             ->when($includeSearch && $this->search !== '', function (Builder $query) {
@@ -141,7 +141,7 @@ new #[Title('Attendance Monitoring')] class extends Component
                         ->where('company_supervisor_id', $this->supervisor_id);
                 });
             })
-            ->when($this->status !== '', function (Builder $query) {
+            ->when($includeStatus && $this->status !== '', function (Builder $query) {
                 $this->status === 'incomplete'
                     ? $query->where(fn (Builder $query) => $query
                         ->whereNull('afternoon_time_out')
@@ -174,7 +174,8 @@ new #[Title('Attendance Monitoring')] class extends Component
     #[Computed]
     public function summary(): array
     {
-        $query = $this->applyFilters($this->baseAttendanceQuery(), includeSearch: false);
+        // Status is left out so each card keeps its count while one is selected.
+        $query = $this->applyFilters($this->baseAttendanceQuery(), includeSearch: false, includeStatus: false);
 
         return [
             'total' => (clone $query)->count(),

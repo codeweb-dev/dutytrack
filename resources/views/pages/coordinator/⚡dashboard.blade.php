@@ -312,7 +312,7 @@ new #[Title('Coordinator Dashboard')] class extends Component
                     </div>
 
                     @foreach ($attendance['points'] as $point)
-                        <span class="absolute bottom-0 -translate-x-1/2 text-xs text-zinc-500 dark:text-zinc-400" style="left: {{ $point['x'] }}%">{{ $point['label'] }}</span>
+                        <span class="absolute bottom-0 -translate-x-1/2 whitespace-nowrap text-xs text-zinc-500 dark:text-zinc-400" style="left: {{ $point['x'] }}%">{{ $point['label'] }}</span>
                     @endforeach
                 </div>
             </div>

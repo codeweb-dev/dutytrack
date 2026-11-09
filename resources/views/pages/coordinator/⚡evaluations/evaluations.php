@@ -33,7 +33,15 @@ new #[Title('Evaluation Review')] class extends Component
 
     public string $search = '';
 
+    public string $status = '';
+
     public function updatedSearch(): void
+    {
+        $this->resetPage();
+        unset($this->evaluations);
+    }
+
+    public function updatedStatus(): void
     {
         $this->resetPage();
         unset($this->evaluations);
@@ -41,7 +49,7 @@ new #[Title('Evaluation Review')] class extends Component
 
     public function clearFilters(): void
     {
-        $this->reset('search', 'sortBy', 'sortDirection');
+        $this->reset('search', 'status', 'sortBy', 'sortDirection');
         $this->resetPage();
         unset($this->evaluations);
     }
@@ -75,14 +83,28 @@ new #[Title('Evaluation Review')] class extends Component
             );
         });
 
-        unset($this->evaluations);
+        unset($this->evaluations, $this->summary);
         Flux::toast(variant: 'success', text: 'Evaluation reviewed.');
+    }
+
+    #[Computed]
+    public function summary(): array
+    {
+        $counts = $this->evaluationQuery()->toBase()->selectRaw('status, count(*) as total')->groupBy('status')->pluck('total', 'status');
+
+        return [
+            'total' => (int) $counts->sum(),
+            'pending' => (int) ($counts['pending'] ?? 0),
+            'submitted' => (int) ($counts['submitted'] ?? 0),
+            'reviewed' => (int) ($counts['reviewed'] ?? 0),
+        ];
     }
 
     #[Computed]
     public function evaluations(): LengthAwarePaginator
     {
         $query = $this->evaluationQuery()
+            ->when($this->status !== '', fn (Builder $query) => $query->where('status', $this->status))
             ->when($this->search !== '', function (Builder $query): void {
                 $search = '%'.$this->search.'%';
 

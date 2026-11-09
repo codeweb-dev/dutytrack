@@ -6,6 +6,7 @@
     <meta charset="utf-8">
     <title>Certificate of Completion — {{ $name }}</title>
     <style>
+        @font-face { font-family: 'Great Vibes'; src: url('{{ public_path('certificate/GreatVibes-Regular.ttf') }}') format('truetype'); }
         @page { margin: 0; }
         body { margin: 0; font-family: Times, serif; color: #3c3c3c; font-size: 12pt; }
         p { margin: 0; text-align: center; }
@@ -20,7 +21,7 @@
         .title { margin-top: 12mm; font-size: 25pt; font-weight: bold; color: #303030; letter-spacing: 0.5pt; }
         .subtitle { margin-top: 2mm; font-size: 18pt; color: #a97839; }
         .lead { margin-top: 7mm; }
-        .name { margin: 6mm auto 0; width: 165mm; border-bottom: 1pt solid #9d6f3c; padding-bottom: 1mm; font-size: 24pt; font-weight: bold; color: #9d6f3c; }
+        .name { margin: 6mm auto 0; width: 165mm; border-bottom: 1pt solid #9d6f3c; padding-bottom: 1mm; font-family: 'Great Vibes', cursive; font-size: 36pt; line-height: 1.2; color: #9d6f3c; }
         .body { margin-top: 8mm; line-height: 1.6; }
         .fill { font-weight: bold; color: #111; border-bottom: 0.75pt solid #3c3c3c; padding: 0 4pt; }
         .signatures { margin: 22mm auto 0; width: 220mm; }
@@ -52,7 +53,7 @@
         <p class="title">CERTIFICATE OF COMPLETION</p>
         <p class="subtitle">ON-THE-JOB TRAINING (OJT)</p>
         <p class="lead">This is to formally certify that</p>
-        <p class="name">{{ $name }}</p>
+        <p class="name">{{ Str::title($name) }}</p>
 
         <div class="body">
             <p>

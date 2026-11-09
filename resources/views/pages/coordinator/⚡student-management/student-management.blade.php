@@ -66,12 +66,7 @@
                         Student ID
                     </flux:table.column>
 
-                    <flux:table.column>Contact Number</flux:table.column>
                     <flux:table.column>Assigned Supervisor</flux:table.column>
-
-                    <flux:table.column>
-                        OJT Hours
-                    </flux:table.column>
 
                     <flux:table.column>
                         Status
@@ -97,10 +92,6 @@
                                 {{ $student->studentProfile?->student_id ?? '' }}
                             </flux:table.cell>
 
-                            <flux:table.cell class="whitespace-nowrap">
-                                {{ $student->contact_number ? '+63 ' . $student->contact_number : 'No contact number' }}
-                            </flux:table.cell>
-
                             <flux:table.cell>
                                 <div class="flex items-center gap-3">
                                     <flux:avatar size="md"
@@ -116,12 +107,6 @@
                                         </span>
                                     </div>
                                 </div>
-                            </flux:table.cell>
-
-                            <flux:table.cell>
-                                <flux:badge size="sm" inset="top bottom">
-                                    {{ \App\Support\HourFormatter::format($student->studentProfile?->ojt_required_hours ?? 0) }}
-                                </flux:badge>
                             </flux:table.cell>
 
                             <flux:table.cell class="whitespace-nowrap">
@@ -150,11 +135,11 @@
                                             </flux:menu.item>
 
                                             <flux:menu.separator />
+                                        @else
+                                            <flux:modal.trigger :name="'view-profile-'.$student->id">
+                                                <flux:menu.item icon="eye">View</flux:menu.item>
+                                            </flux:modal.trigger>
                                         @endif
-
-                                        <flux:modal.trigger :name="'view-profile-'.$student->id">
-                                            <flux:menu.item icon="eye">View</flux:menu.item>
-                                        </flux:modal.trigger>
 
                                         <flux:modal.trigger :name="'edit-student-'.$student->id">
                                             <flux:menu.item icon="pencil-square">Edit</flux:menu.item>
@@ -168,12 +153,12 @@
                                     </flux:menu>
                                 </flux:dropdown>
 
-                                <flux:modal :name="'view-profile-'.$student->id" flyout variant="floating"
-                                    class="md:w-2xl">
-                                    <livewire:coordinator.student-management.view :student="$student" :key="'view-student-' . $student->id" />
-                                </flux:modal>
-
-                                @if ($student->status === 'pending')
+                                @if ($student->status !== 'pending')
+                                    <flux:modal :name="'view-profile-'.$student->id" flyout variant="floating"
+                                        class="md:w-2xl">
+                                        <livewire:coordinator.student-management.view :student="$student" :key="'view-student-' . $student->id" />
+                                    </flux:modal>
+                                @else
                                     <flux:modal :name="'review-student-'.$student->id" flyout variant="floating"
                                         class="md:w-2xl">
                                         <livewire:coordinator.student-management.view :student="$student" :key="'review-student-' . $student->id" />

@@ -23,6 +23,8 @@ new #[Title('Messages')] class extends Component
 
     public string $search = '';
 
+    public string $roleFilter = 'all';
+
     public string $body = '';
 
     public ?int $editingMessageId = null;
@@ -51,7 +53,7 @@ new #[Title('Messages')] class extends Component
         $this->body = '';
 
         $this->markConversationRead($conversationId);
-        unset($this->selectedConversation, $this->chatMessages, $this->conversations);
+        unset($this->selectedConversation, $this->chatMessages, $this->conversations, $this->allConversations);
 
         $this->dispatch('conversation-selected', conversationId: $conversationId);
     }
@@ -81,7 +83,7 @@ new #[Title('Messages')] class extends Component
         $conversation->touch();
 
         $this->body = '';
-        unset($this->selectedConversation, $this->chatMessages, $this->conversations);
+        unset($this->selectedConversation, $this->chatMessages, $this->conversations, $this->allConversations);
 
         $this->dispatch('message-sent');
     }
@@ -122,7 +124,7 @@ new #[Title('Messages')] class extends Component
         ]);
 
         $this->cancelEditingMessage();
-        unset($this->selectedConversation, $this->chatMessages, $this->conversations);
+        unset($this->selectedConversation, $this->chatMessages, $this->conversations, $this->allConversations);
     }
 
     public function deleteMessage(int $messageId): void
@@ -137,7 +139,7 @@ new #[Title('Messages')] class extends Component
             $this->cancelEditingMessage();
         }
 
-        unset($this->selectedConversation, $this->chatMessages, $this->conversations);
+        unset($this->selectedConversation, $this->chatMessages, $this->conversations, $this->allConversations);
     }
 
     public function restoreMessage(int $messageId): void
@@ -150,7 +152,7 @@ new #[Title('Messages')] class extends Component
         $message->restore();
         $conversation?->touch();
 
-        unset($this->selectedConversation, $this->chatMessages, $this->conversations);
+        unset($this->selectedConversation, $this->chatMessages, $this->conversations, $this->allConversations);
     }
 
     public function refreshMessages(): void
@@ -160,7 +162,7 @@ new #[Title('Messages')] class extends Component
             $this->markConversationRead($this->selectedConversationId);
         }
 
-        unset($this->selectedConversation, $this->chatMessages, $this->conversations);
+        unset($this->selectedConversation, $this->chatMessages, $this->conversations, $this->allConversations);
 
         $this->dispatch('message-received');
     }
@@ -205,14 +207,23 @@ new #[Title('Messages')] class extends Component
                 ->get()
                 ->each(fn (User $student) => $this->ensureCoordinatorConversation($student, $user->id));
 
+            User::query()
+                ->where('coordinator_id', $user->id)
+                ->role('supervisor')
+                ->get()
+                ->each(fn (User $supervisor) => $this->ensureCoordinatorConversation($supervisor, $user->id));
+
             return;
         }
 
         if ($user->hasRole('supervisor')) {
+            $this->ensureCoordinatorConversation($user);
+
             OjtAssignment::query()->where('company_supervisor_id', $user->id)->get()->each(fn (OjtAssignment $assignment) => $this->ensureConversation($assignment, $user->id, 'supervisor'));
         }
     }
 
+    // ponytail: coordinator ↔ supervisor chats reuse this shape with the supervisor in student_id; rename the column if a third pairing shows up.
     protected function ensureCoordinatorConversation(User $student, ?int $coordinatorId = null): void
     {
         $coordinatorId ??= $student->coordinator_id;
@@ -255,7 +266,9 @@ new #[Title('Messages')] class extends Component
     {
         $user = Auth::user();
 
-        return ChatConversation::query()->when($user->hasRole('student'), fn (Builder $query) => $query->where('student_id', $user->id))->when($user->hasRole('ojt_coordinator'), fn (Builder $query) => $query->where('participant_id', $user->id)->where('participant_role', 'coordinator'))->when($user->hasRole('supervisor'), fn (Builder $query) => $query->where('participant_id', $user->id)->where('participant_role', 'supervisor'));
+        return ChatConversation::query()->when($user->hasRole('student'), fn (Builder $query) => $query->where('student_id', $user->id))->when($user->hasRole('ojt_coordinator'), fn (Builder $query) => $query->where('participant_id', $user->id)->where('participant_role', 'coordinator'))->when($user->hasRole('supervisor'), fn (Builder $query) => $query->where(fn (Builder $query) => $query
+            ->where(fn (Builder $query) => $query->where('participant_id', $user->id)->where('participant_role', 'supervisor'))
+            ->orWhere(fn (Builder $query) => $query->where('student_id', $user->id)->where('participant_role', 'coordinator'))));
     }
 
     protected function authorizeConversation(int $conversationId): ChatConversation
@@ -264,7 +277,7 @@ new #[Title('Messages')] class extends Component
 
         abort_unless($this->conversationQuery()->whereKey($conversationId)->exists(), 403);
 
-        return $conversation->load(['student.studentProfile', 'participant', 'latestMessage.sender']);
+        return $conversation->load(['student.studentProfile', 'student.roles', 'participant', 'latestMessage.sender']);
     }
 
     protected function authorizeOwnMessage(int $messageId, bool $withTrashed = false): ChatMessage
@@ -300,7 +313,7 @@ new #[Title('Messages')] class extends Component
     public function roleLabelFor(ChatConversation $conversation): string
     {
         if ((int) $conversation->student_id !== (int) Auth::id()) {
-            return 'Student';
+            return $conversation->student?->hasRole('supervisor') ? 'Supervisor' : 'Student';
         }
 
         return match ($conversation->participant_role) {
@@ -332,20 +345,33 @@ new #[Title('Messages')] class extends Component
     }
 
     #[Computed]
-    public function conversations()
+    public function allConversations()
     {
-        $conversations = $this->conversationQuery()
-            ->with(['student.studentProfile', 'participant', 'latestMessage.sender'])
+        return $this->conversationQuery()
+            ->with(['student.studentProfile', 'student.roles', 'participant', 'latestMessage.sender'])
             ->withCount([
                 'messages as unread_count' => fn (Builder $query) => $query->where('sender_id', '!=', Auth::id())->whereNull('read_at'),
             ])
             ->get()
             ->sortBy(fn (ChatConversation $conversation) => mb_strtolower($this->peerFor($conversation)?->last_name ?? ''))
             ->values();
+    }
 
+    #[Computed]
+    public function contactRoles(): array
+    {
+        return $this->allConversations->map(fn (ChatConversation $conversation) => $this->roleLabelFor($conversation))->unique()->sort()->values()->all();
+    }
+
+    #[Computed]
+    public function conversations()
+    {
         $search = mb_strtolower(trim($this->search));
 
-        return $search === '' ? $conversations : $conversations->filter(fn (ChatConversation $conversation) => str_contains(mb_strtolower($this->peerFor($conversation)?->name ?? ''), $search))->values();
+        return $this->allConversations
+            ->when($this->roleFilter !== 'all', fn ($conversations) => $conversations->filter(fn (ChatConversation $conversation) => $this->roleLabelFor($conversation) === $this->roleFilter))
+            ->when($search !== '', fn ($conversations) => $conversations->filter(fn (ChatConversation $conversation) => str_contains(mb_strtolower($this->peerFor($conversation)?->name ?? ''), $search)))
+            ->values();
     }
 
     #[Computed]
@@ -390,6 +416,14 @@ new #[Title('Messages')] class extends Component
                 <flux:text class="mt-1 text-zinc-500">Your available contacts</flux:text>
                 <flux:input wire:model.live.debounce.300ms="search" icon="magnifying-glass"
                     aria-label="Search contacts" placeholder="Search contacts..." clearable class="mt-4" />
+                @if (count($this->contactRoles) > 1)
+                    <flux:radio.group wire:model.live="roleFilter" variant="segmented" size="sm" aria-label="Filter contacts by role" class="mt-3">
+                        <flux:radio value="all" label="All" />
+                        @foreach ($this->contactRoles as $role)
+                            <flux:radio :value="$role" :label="$role" />
+                        @endforeach
+                    </flux:radio.group>
+                @endif
             </div>
 
             <div class="min-h-0 flex-1 overflow-y-auto p-2">
@@ -427,9 +461,9 @@ new #[Title('Messages')] class extends Component
                 @empty
                     <div class="p-8 text-center">
                         <flux:icon name="chat-bubble-left-right" class="mx-auto size-10 text-zinc-400" />
-                        @if (filled($search))
+                        @if (filled($search) || $roleFilter !== 'all')
                             <flux:heading size="md" class="mt-3">No contacts found</flux:heading>
-                            <flux:text class="mt-1 text-zinc-500">Try a different name.</flux:text>
+                            <flux:text class="mt-1 text-zinc-500">Try a different name or filter.</flux:text>
                         @else
                             <flux:heading size="md" class="mt-3">No contacts yet</flux:heading>
                             <flux:text class="mt-1 text-zinc-500">Messages appear after your account is connected to a contact.
@@ -598,6 +632,14 @@ new #[Title('Messages')] class extends Component
             <flux:text class="mt-1 text-zinc-500">Select a conversation to open.</flux:text>
             <flux:input wire:model.live.debounce.300ms="search" icon="magnifying-glass"
                 aria-label="Search contacts" placeholder="Search contacts..." clearable class="mt-4" />
+            @if (count($this->contactRoles) > 1)
+                <flux:radio.group wire:model.live="roleFilter" variant="segmented" size="sm" aria-label="Filter contacts by role" class="mt-3">
+                    <flux:radio value="all" label="All" />
+                    @foreach ($this->contactRoles as $role)
+                        <flux:radio :value="$role" :label="$role" />
+                    @endforeach
+                </flux:radio.group>
+            @endif
         </div>
 
         <div class="max-h-[55dvh] space-y-1 overflow-y-auto">
@@ -626,10 +668,10 @@ new #[Title('Messages')] class extends Component
                 <div class="p-8 text-center">
                     <flux:icon name="chat-bubble-left-right" class="mx-auto size-10 text-zinc-400" />
                     <flux:heading size="md" class="mt-3">
-                        {{ filled($search) ? 'No contacts found' : 'No contacts yet' }}
+                        {{ filled($search) || $roleFilter !== 'all' ? 'No contacts found' : 'No contacts yet' }}
                     </flux:heading>
                     <flux:text class="mt-1 text-zinc-500">
-                        {{ filled($search) ? 'Try a different name.' : 'Messages appear after your account is connected to a contact.' }}
+                        {{ filled($search) || $roleFilter !== 'all' ? 'Try a different name or filter.' : 'Messages appear after your account is connected to a contact.' }}
                     </flux:text>
                 </div>
             @endforelse

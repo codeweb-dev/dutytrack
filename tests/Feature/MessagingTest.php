@@ -467,3 +467,83 @@ test('deleted latest message remains in the preview and unread count ignores it'
     expect(substr_count($chat->html(), 'This message was deleted.'))->toBe(2);
     expect($latest->refresh()->read_at)->toBeNull();
 });
+
+test('contacts can be filtered by role tab', function () {
+    $coordinator = createMessagingUser(AppRole::OJTCOORDINATOR, ['name' => 'Tab Coordinator']);
+    $supervisor = createMessagingUser(AppRole::SUPERVISOR, ['name' => 'Tab Supervisor']);
+    $student = createMessagingUser(AppRole::STUDENT, ['name' => 'Tab Student', 'coordinator_id' => $coordinator->id]);
+
+    createMessagingAssignment($student, $supervisor);
+
+    $this->actingAs($student);
+
+    $component = Livewire::test('pages::messages');
+    $peerNames = fn () => $component->instance()->conversations->map(fn ($conversation) => $component->instance()->peerFor($conversation)->name)->all();
+
+    expect($component->instance()->contactRoles)->toBe(['Coordinator', 'Supervisor']);
+
+    $component->set('roleFilter', 'Supervisor');
+    expect($peerNames())->toBe(['Tab Supervisor']);
+
+    $component->set('roleFilter', 'Coordinator');
+    expect($peerNames())->toBe(['Tab Coordinator']);
+
+    $component->set('roleFilter', 'all');
+    expect($peerNames())->toHaveCount(2);
+});
+
+test('coordinators can message supervisors they created and supervisors can reply', function () {
+    $coordinator = createMessagingUser(AppRole::OJTCOORDINATOR, ['name' => 'Supervisor Chat Coordinator']);
+    $otherCoordinator = createMessagingUser(AppRole::OJTCOORDINATOR, ['name' => 'Other Chat Coordinator']);
+    $student = createMessagingUser(AppRole::STUDENT, ['name' => 'Coordinator Chat Student', 'coordinator_id' => $coordinator->id]);
+    $supervisor = createMessagingUser(AppRole::SUPERVISOR, ['name' => 'Coordinator Chat Supervisor', 'coordinator_id' => $coordinator->id]);
+    $otherSupervisor = createMessagingUser(AppRole::SUPERVISOR, ['name' => 'Unrelated Chat Supervisor', 'coordinator_id' => $otherCoordinator->id]);
+
+    createMessagingAssignment($student, $supervisor);
+
+    $this->actingAs($coordinator);
+
+    $component = Livewire::test('pages::messages');
+    $peerNames = fn () => $component->instance()->conversations->map(fn ($conversation) => $component->instance()->peerFor($conversation)->name)->sort()->values()->all();
+
+    expect($component->instance()->contactRoles)->toBe(['Student', 'Supervisor'])
+        ->and($peerNames())->toBe(['Coordinator Chat Student', 'Coordinator Chat Supervisor']);
+
+    $component->set('roleFilter', 'Supervisor');
+    expect($peerNames())->toBe(['Coordinator Chat Supervisor']);
+
+    $conversation = ChatConversation::query()
+        ->where('student_id', $supervisor->id)
+        ->where('participant_id', $coordinator->id)
+        ->where('participant_role', 'coordinator')
+        ->firstOrFail();
+
+    $component->call('selectConversation', $conversation->id)
+        ->set('body', 'Hello, supervisor.')
+        ->call('sendMessage')
+        ->assertHasNoErrors();
+
+    $otherConversation = ChatConversation::query()->where('student_id', $otherSupervisor->id)->first();
+    expect($otherConversation)->toBeNull();
+
+    $this->actingAs($supervisor);
+
+    $component = Livewire::test('pages::messages');
+    $peerNames = fn () => $component->instance()->conversations->map(fn ($conversation) => $component->instance()->peerFor($conversation)->name)->sort()->values()->all();
+    expect($peerNames())->toBe(['Coordinator Chat Student', 'Supervisor Chat Coordinator'])
+        ->and($component->instance()->contactRoles)->toBe(['Coordinator', 'Student'])
+        ->and($component->instance()->roleLabelFor($conversation->fresh()))->toBe('Coordinator');
+
+    $component->call('selectConversation', $conversation->id)
+        ->set('body', 'Hello, coordinator.')
+        ->call('sendMessage')
+        ->assertHasNoErrors();
+
+    expect(ChatMessage::query()->where('chat_conversation_id', $conversation->id)->count())->toBe(2);
+
+    $this->actingAs($otherSupervisor);
+
+    Livewire::test('pages::messages')
+        ->call('selectConversation', $conversation->id)
+        ->assertForbidden();
+});

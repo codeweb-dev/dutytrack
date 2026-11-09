@@ -29,7 +29,7 @@ new class extends Component {
 
 <div>
     <flux:modal.trigger name="create-supervisor">
-        <flux:button icon="plus">Add Supervisor</flux:button>
+        <flux:button variant="primary" icon="plus">Add Supervisor</flux:button>
     </flux:modal.trigger>
 
     <flux:modal name="create-supervisor" flyout variant="floating" class="md:w-2xl">
@@ -65,8 +65,8 @@ new class extends Component {
                     </div>
 
                     <div class="grid grid-cols-2 gap-x-4 gap-y-6">
-                        <flux:input wire:model="form.email" type="email" label="Email"
-                            placeholder="juan@example.com" required />
+                        <flux:input wire:model="form.email" type="email" label="Email" placeholder="juan@example.com"
+                            required />
 
                         <flux:field>
                             <flux:label badge="Optional">Contact Number</flux:label>
@@ -87,15 +87,18 @@ new class extends Component {
                             placeholder="Confirm password" viewable required />
                     </div>
 
-                    <flux:radio.group wire:model.live="form.supervisor_type" label="Type" variant="segmented" required>
+                    <flux:radio.group wire:model.live="form.supervisor_type" label="Type" variant="segmented"
+                        required>
                         <flux:radio value="internal" label="Internal" />
                         <flux:radio value="external" label="External" />
                     </flux:radio.group>
 
                     @if ($form->supervisor_type === 'internal')
-                        <flux:input wire:model="form.company_name" label="Institution" placeholder="EARIST CAVITE CAMPUS" required />
+                        <flux:input wire:model="form.company_name" label="Institution"
+                            placeholder="EARIST CAVITE CAMPUS" required />
                     @else
-                        <flux:input wire:model="form.company_name" label="Company" placeholder="ABC Corporation" required />
+                        <flux:input wire:model="form.company_name" label="Company" placeholder="ABC Corporation"
+                            required />
                     @endif
 
                     <flux:input wire:model="form.position_department" label="Position and Department" badge="Optional"

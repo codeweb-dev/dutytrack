@@ -16,7 +16,7 @@ new class extends Component {
 
 <div>
     <flux:modal.trigger name="create-announcement">
-        <flux:button icon="plus">Add Announcement</flux:button>
+        <flux:button variant="primary" icon="plus">Add Announcement</flux:button>
     </flux:modal.trigger>
 
     <flux:modal name="create-announcement" flyout variant="floating" class="md:w-2xl">
@@ -28,8 +28,9 @@ new class extends Component {
                 <flux:legend>Announcement Details</flux:legend>
 
                 <div class="space-y-6">
-                    <flux:input wire:model="form.title" label="Title" placeholder="Scheduled System Maintenance" required />
-                    
+                    <flux:input wire:model="form.title" label="Title" placeholder="Scheduled System Maintenance"
+                        required />
+
                     <flux:radio.group wire:model="form.type" label="Priority" variant="pills" required>
                         <flux:radio value="info" label="Info" />
                         <flux:radio value="warning" label="Warning" />

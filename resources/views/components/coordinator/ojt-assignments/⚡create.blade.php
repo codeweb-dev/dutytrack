@@ -41,7 +41,7 @@ new class extends Component {
 
 <div>
     <flux:modal.trigger name="create-ojt-assignment">
-        <flux:button icon="plus">Assign Student</flux:button>
+        <flux:button variant="primary" icon="plus">Assign Student</flux:button>
     </flux:modal.trigger>
 
     <flux:modal name="create-ojt-assignment" flyout variant="floating" class="md:w-2xl">

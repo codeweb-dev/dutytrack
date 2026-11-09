@@ -6,7 +6,8 @@
 </head>
 
 <body class="duty-app min-h-screen bg-white dark:bg-zinc-800">
-    <flux:sidebar sticky collapsible class="duty-sidebar border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
+    <flux:sidebar sticky collapsible
+        class="duty-sidebar border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
         <flux:sidebar.header>
             <x-app-logo :sidebar="true" href="{{ route('dashboard') }}" wire:navigate />
 
@@ -28,28 +29,30 @@
 
         <flux:spacer />
 
-        @if ($user->hasRole('student'))
-            <flux:sidebar.nav>
-                <flux:sidebar.item icon="information-circle" x-data x-on:click="$dispatch('onboarding-replay')">
-                    {{ __('Help') }}
-                </flux:sidebar.item>
-            </flux:sidebar.nav>
-        @endif
+        <flux:sidebar.nav>
+            <flux:sidebar.item icon="information-circle" x-data x-on:click="$dispatch('onboarding-replay')">
+                {{ __('Help') }}
+            </flux:sidebar.item>
+        </flux:sidebar.nav>
 
         <x-desktop-user-menu class="hidden lg:block" :name="auth()->user()->display_name" />
     </flux:sidebar>
 
-    <flux:header class="duty-topbar block! bg-white lg:bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700">
+    <flux:header
+        class="duty-topbar block! bg-white lg:bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700">
         <div class="flex items-center justify-between gap-4">
-            <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" aria-label="Open navigation" data-tour="mobile-navigation-toggle" />
+            <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" aria-label="Open navigation"
+                data-tour="mobile-navigation-toggle" />
 
             <div class="ml-auto flex items-center gap-3">
-                <flux:button icon="megaphone" variant="subtle" :href="route('announcements')" aria-label="Announcements" wire:navigate data-tour="topbar-announcements" />
+                <flux:button icon="megaphone" variant="subtle" :href="route('announcements')" aria-label="Announcements"
+                    wire:navigate data-tour="topbar-announcements" />
 
                 <flux:button x-data x-on:click="$flux.dark = ! $flux.dark" icon="moon" variant="subtle"
                     aria-label="Toggle dark mode" />
 
-                <flux:button icon="cog-6-tooth" variant="subtle" :href="route('profile.edit')" aria-label="Settings" wire:navigate data-tour="account-settings" />
+                <flux:button icon="cog-6-tooth" variant="subtle" :href="route('profile.edit')" aria-label="Settings"
+                    wire:navigate data-tour="account-settings" />
 
                 <flux:navbar>
                     <flux:spacer />
@@ -69,7 +72,8 @@
                                             :initials="auth()->user()->initials()" />
 
                                         <div class="grid flex-1 text-start text-sm leading-tight">
-                                            <flux:heading class="truncate">{{ auth()->user()->display_name }}</flux:heading>
+                                            <flux:heading class="truncate">{{ auth()->user()->display_name }}
+                                            </flux:heading>
                                             <flux:text class="truncate">{{ auth()->user()->email }}</flux:text>
                                         </div>
                                     </div>

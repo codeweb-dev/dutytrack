@@ -11,6 +11,7 @@ class AttendanceSubmission extends Model
         'student_id',
         'ojt_assignment_id',
         'accomplishment',
+        'skills_learned',
         'photo_paths',
     ];
 

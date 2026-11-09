@@ -32,6 +32,8 @@ new #[Title('Accomplishment Report')] class extends Component
 
     public string $accomplishment = '';
 
+    public string $skills_learned = '';
+
     public array $new_photos = [];
 
     public string $from_date = '';
@@ -66,6 +68,7 @@ new #[Title('Accomplishment Report')] class extends Component
 
         $this->editingAttendanceId = $attendance->id;
         $this->accomplishment = $attendance->submission?->accomplishment ?? '';
+        $this->skills_learned = $attendance->submission?->skills_learned ?? '';
         $this->new_photos = [];
         $this->resetValidation();
 
@@ -77,6 +80,7 @@ new #[Title('Accomplishment Report')] class extends Component
         $this->validate([
             'editingAttendanceId' => ['required', 'integer'],
             'accomplishment' => ['nullable', 'string', 'max:5000'],
+            'skills_learned' => ['nullable', 'string', 'max:5000'],
             'new_photos' => ['array', 'max:6'],
             'new_photos.*' => ['image', 'max:4096'],
         ]);
@@ -105,10 +109,11 @@ new #[Title('Accomplishment Report')] class extends Component
             'student_id' => $attendance->student_id,
             'ojt_assignment_id' => $attendance->ojt_assignment_id,
             'accomplishment' => trim($this->accomplishment) !== '' ? trim($this->accomplishment) : null,
+            'skills_learned' => trim($this->skills_learned) !== '' ? trim($this->skills_learned) : null,
             'photo_paths' => array_values(array_merge($existingPhotos, $uploadedPhotos)),
         ])->save();
 
-        $this->reset('editingAttendanceId', 'accomplishment', 'new_photos');
+        $this->reset('editingAttendanceId', 'accomplishment', 'skills_learned', 'new_photos');
         unset($this->completedAttendances);
 
         Flux::modal('student-report-submission')->close();

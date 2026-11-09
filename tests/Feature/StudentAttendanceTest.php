@@ -5,6 +5,7 @@ use App\Models\AttendanceLog;
 use App\Models\AttendanceSubmission;
 use App\Models\OjtAssignment;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -192,6 +193,7 @@ test('students cannot replay a stale attendance action', function () {
 });
 
 test('students submit accomplishments after completed attendance and download report docs', function () {
+    Storage::fake('local');
     Carbon::setTestNow(Carbon::parse('2026-04-30 09:00:00'));
 
     $student = createStudentWithAssignment();
@@ -221,6 +223,8 @@ test('students submit accomplishments after completed attendance and download re
     Livewire::test('pages::student.reports-submissions')
         ->call('openSubmissionModal', $attendance->id)
         ->set('accomplishment', 'Prepared deployment checklist and encoded inventory updates.')
+        ->set('skills_learned', 'Inventory encoding & deployment planning')
+        ->set('new_photos', [UploadedFile::fake()->image('site.jpg', 800, 600)])
         ->call('saveSubmission')
         ->assertHasNoErrors();
 
@@ -229,16 +233,34 @@ test('students submit accomplishments after completed attendance and download re
     expect($submission)->not->toBeNull();
     expect($submission->student_id)->toBe($student->id);
     expect($submission->accomplishment)->toBe('Prepared deployment checklist and encoded inventory updates.');
+    expect($submission->skills_learned)->toBe('Inventory encoding & deployment planning');
 
-    $this->get(route('student.reports-submissions.download', [
+    $response = $this->get(route('student.reports-submissions.download', [
         'from' => '2026-04-01',
         'to' => '2026-04-30',
     ]))
         ->assertOk()
-        ->assertHeader('content-type', 'application/msword; charset=UTF-8')
-        ->assertSee('ACCOMPLISHMENT', false)
-        ->assertSee('Prepared deployment checklist and encoded inventory updates.', false)
-        ->assertSee('Photos', false);
+        ->assertHeader('content-type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+
+    $path = tempnam(sys_get_temp_dir(), 'docx');
+    file_put_contents($path, $response->getContent());
+    $zip = new ZipArchive;
+    $zip->open($path);
+    $xml = $zip->getFromName('word/document.xml');
+
+    expect((new DOMDocument)->loadXML($xml))->toBeTrue();
+    expect($xml)
+        ->toContain('WEEKLY ACCOMPLISHMENT FORM')
+        ->toContain('Prepared deployment checklist and encoded inventory updates.')
+        ->toContain('Inventory encoding &amp; deployment planning')
+        ->toContain('Thursday')
+        ->toContain('WEEKLY EVIDENCE')
+        ->toContain('r:embed="rIdPhoto1"');
+    expect($zip->getFromName('word/media/photo1.jpeg'))->not->toBeFalse();
+    expect($zip->getFromName('word/_rels/document.xml.rels'))->toContain('Target="media/photo1.jpeg"');
+
+    $zip->close();
+    unlink($path);
 });
 
 test('accomplishment report download rejects malformed date filters', function () {

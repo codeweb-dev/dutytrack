@@ -81,6 +81,9 @@
             <flux:textarea wire:model="accomplishment" label="Accomplishment" rows="5" badge="Optional"
                 placeholder="Describe the tasks or activities completed for this day." />
 
+            <flux:textarea wire:model="skills_learned" label="Skills Learned" rows="3" badge="Optional"
+                placeholder="What skills or knowledge did you gain this day?" />
+
             <flux:input wire:model="new_photos" type="file" label="Photos" badge="Optional" multiple accept="image/*" />
 
             @if ($editingAttendanceId)

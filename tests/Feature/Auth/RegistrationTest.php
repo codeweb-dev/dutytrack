@@ -69,7 +69,6 @@ test('students can sign up and are routed to the coordinator of their program', 
     expect($student->name)->toBe('Jamie Lopez Student');
     expect($student->status)->toBe('pending');
     expect($student->coordinator->email)->toBe('rowe@dutytrack.test');
-    expect($student->studentProfile->year_level)->toBe('4th Year');
     expect($student->studentProfile->ojt_required_hours)->toBe(500);
     expect($student->studentProfile->guardian_name)->toBe('Maria Student');
     expect($student->studentRequirements()->count())->toBe(count(StudentRequirement::definitions()));

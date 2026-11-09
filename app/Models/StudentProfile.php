@@ -12,7 +12,6 @@ class StudentProfile extends Model
         'extension_name',
         'birthdate',
         'course',
-        'year_level',
         'address',
         'guardian_name',
         'guardian_address',

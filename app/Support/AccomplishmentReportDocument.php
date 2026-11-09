@@ -60,7 +60,7 @@ class AccomplishmentReportDocument
         $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'.view('exports.accomplishment-report-docx', [
             'weeks' => $weeks,
             'name' => $student->name,
-            'course' => collect([$student->studentProfile?->course, $student->studentProfile?->year_level])->filter()->implode(' / '),
+            'course' => $student->studentProfile?->course,
             'agency' => $supervisor?->supervisorProfile?->company_name,
             'office' => $supervisor?->supervisorProfile?->position_department,
             'address' => $supervisor?->supervisorProfile?->company_address,

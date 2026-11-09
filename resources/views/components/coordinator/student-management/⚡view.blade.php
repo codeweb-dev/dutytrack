@@ -70,10 +70,6 @@ new class extends Component
                     <dd class="mt-1 break-words text-base leading-6 font-medium text-zinc-900 dark:text-white">{{ $student->studentProfile?->course ?: '—' }}</dd>
                 </div>
                 <div>
-                    <dt class="text-sm font-medium text-zinc-500 dark:text-zinc-400">Year Level</dt>
-                    <dd class="mt-1 break-words text-base leading-6 font-medium text-zinc-900 dark:text-white">{{ $student->studentProfile?->year_level ?: '—' }}</dd>
-                </div>
-                <div>
                     <dt class="text-sm font-medium text-zinc-500 dark:text-zinc-400">OJT Required Hours</dt>
                     <dd class="mt-1 text-base leading-6 font-medium text-zinc-900 dark:text-white">
                         {{ \App\Support\HourFormatter::format($student->studentProfile?->ojt_required_hours ?? 0) }}

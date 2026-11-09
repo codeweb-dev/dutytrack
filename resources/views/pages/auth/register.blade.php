@@ -88,7 +88,7 @@
 
                 <flux:input name="birthdate" :label="__('Birthdate')" :value="old('birthdate')" type="date" required />
 
-                <div class="grid gap-5 sm:grid-cols-2">
+                <div class="grid gap-5">
                     <flux:field>
                         <flux:label>{{ __('Course') }}</flux:label>
                         <div class="grid grid-cols-2 gap-1 rounded-lg bg-zinc-800/5 p-1 dark:bg-white/10">
@@ -105,8 +105,6 @@
                         </div>
                         <flux:error name="course" />
                     </flux:field>
-
-                    <flux:input :label="__('Year level')" value="4th Year" readonly icon="academic-cap" />
                 </div>
             </section>
 

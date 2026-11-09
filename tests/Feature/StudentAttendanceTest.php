@@ -513,3 +513,39 @@ test('students can only record attendance inside the pinned OJT location', funct
 
     expect(AttendanceLog::query()->where('student_id', $student->id)->first()->morning_time_out)->toBeNull();
 });
+
+test('students can download their monthly DTR with holidays marked', function () {
+    Carbon::setTestNow(Carbon::parse('2026-11-20 08:00:00'));
+    Cache::put('public-holidays-ph-v5-2026', ['available' => true, 'holidays' => [
+        ['date' => '2026-11-02', 'name' => "All Souls' Day"],
+        ['date' => '2026-11-30', 'name' => 'Bonifacio Day'],
+    ]]);
+
+    $student = createStudentWithAssignment();
+    AttendanceLog::create([
+        'student_id' => $student->id,
+        'ojt_assignment_id' => $student->ojtAssignment->id,
+        'attendance_date' => '2026-11-03',
+        'morning_time_in' => '2026-11-03 08:15:00',
+        'morning_time_out' => '2026-11-03 12:00:00',
+        'afternoon_time_in' => '2026-11-03 13:00:00',
+        'afternoon_time_out' => '2026-11-03 17:00:00',
+        'hours_rendered' => 7.75,
+        'status' => 'incomplete',
+    ]);
+
+    $this->actingAs($student)->get(route('student.attendance'))
+        ->assertSee(route('student.attendance.dtr', ['month' => '2026-11']), false);
+
+    $data = \App\Support\DtrDocument::data($student, Carbon::parse('2026-11-01'));
+    expect($data['rows'][2])->toMatchArray(['arrival' => '8:15 AM', 'departure' => '5:00 PM', 'late' => 15, 'hours' => 7.75])
+        ->and($data['rows'][1]['holiday'])->toBe("All Souls' Day")
+        ->and($data['rows'][29]['holiday'])->toBe('Bonifacio Day')
+        ->and($data['rows'][30]['exists'])->toBeFalse()
+        ->and($data['totalHours'])->toBe(7.75);
+
+    $this->get(route('student.attendance.dtr', ['month' => '2026-11']))
+        ->assertOk()
+        ->assertHeader('Content-Type', 'application/pdf')
+        ->assertHeader('Content-Disposition', 'attachment; filename="DTR-'.\Illuminate\Support\Str::slug($student->name).'-2026-11.pdf"');
+});

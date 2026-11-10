@@ -75,8 +75,8 @@
                 pagination:class="px-[var(--flux-bleed,1.5rem)] pb-3">
                 <flux:table.columns>
                     <flux:table.column>Student</flux:table.column>
-                    <flux:table.column>OJT Type</flux:table.column>
                     <flux:table.column>Supervisor</flux:table.column>
+                    <flux:table.column>OJT Type</flux:table.column>
                     <flux:table.column>Date</flux:table.column>
                     <flux:table.column>Morning In</flux:table.column>
                     <flux:table.column>Morning Out</flux:table.column>
@@ -111,11 +111,21 @@
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                <x-ojt-type-badge :type="$assignment?->ojt_type" inset="top bottom" />
+                                @if ($supervisor)
+                                    <div class="flex items-center gap-3">
+                                        <flux:avatar size="md" :src="$supervisor->profile_photo_url"
+                                            :name="$supervisor->display_name" />
+
+                                        <div class="flex flex-col">
+                                            <span class="font-medium">{{ $supervisor->display_name }}</span>
+                                            <span class="text-xs text-zinc-500 dark:text-zinc-300">{{ $supervisor->email }}</span>
+                                        </div>
+                                    </div>
+                                @endif
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                {{ $supervisor?->display_name ?? '' }}
+                                <x-ojt-type-badge :type="$assignment?->ojt_type" inset="top bottom" />
                             </flux:table.cell>
 
                             <flux:table.cell>
@@ -142,10 +152,13 @@
                                 {{ \App\Support\HourFormatter::format($log->hours_rendered) }}
                             </flux:table.cell>
 
-                            <flux:table.cell>
+                            <flux:table.cell class="max-w-xs">
                                 @if ($log->timeInMapUrl())
-                                    <flux:button size="sm" variant="ghost" icon="map" :href="$log->timeInMapUrl()"
-                                        target="_blank" />
+                                    <a href="{{ $log->timeInMapUrl() }}" target="_blank"
+                                        class="block min-w-56 whitespace-normal hover:underline">
+                                        <x-location-address class="line-clamp-2 text-sm" :latitude="$log->time_in_latitude"
+                                            :longitude="$log->time_in_longitude" />
+                                    </a>
                                 @else
                                     <span class="text-zinc-400">—</span>
                                 @endif

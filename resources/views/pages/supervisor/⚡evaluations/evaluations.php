@@ -32,21 +32,23 @@ new #[Title('Evaluations')] class extends Component
 
     public string $search = '';
 
+    public string $status = '';
+
     public function updatedSearch(): void
     {
         $this->resetPage();
-        $this->resetPage('assignmentsPage');
-        unset($this->evaluations, $this->assignments);
+        unset($this->assignments);
+    }
+
+    public function updatedStatus(): void
+    {
+        $this->resetPage();
+        unset($this->assignments);
     }
 
     protected function evaluatorType(): string
     {
         return 'company_supervisor';
-    }
-
-    protected function evaluationPickerModalName(): ?string
-    {
-        return 'supervisor-evaluation-students';
     }
 
     protected function assignmentQuery(): Builder
@@ -63,17 +65,20 @@ new #[Title('Evaluations')] class extends Component
 
     public function clearFilters(): void
     {
-        $this->reset('search', 'sortBy', 'sortDirection');
+        $this->reset('search', 'status', 'sortBy', 'sortDirection');
 
         $this->resetPage();
-        $this->resetPage('assignmentsPage');
-        unset($this->evaluations, $this->assignments);
+        unset($this->assignments);
     }
 
     #[Computed]
     public function assignments(): LengthAwarePaginator
     {
-        return $this->assignmentQuery()
+        $evaluated = fn (Builder $query) => $query->where('evaluator_type', $this->evaluatorType());
+
+        $query = $this->assignmentQuery()
+            ->when($this->status === 'evaluated', fn (Builder $query) => $query->whereHas('student.evaluations', $evaluated))
+            ->when($this->status === 'pending', fn (Builder $query) => $query->whereDoesntHave('student.evaluations', $evaluated))
             ->when($this->search !== '', function (Builder $query) {
                 $search = '%'.$this->search.'%';
 
@@ -87,43 +92,30 @@ new #[Title('Evaluations')] class extends Component
                                 ->orWhere('course', 'like', $search);
                         });
                 });
-            })
-            ->latest('created_at')
-            ->paginate(10, ['*'], 'assignmentsPage');
-    }
-
-    #[Computed]
-    public function evaluations(): LengthAwarePaginator
-    {
-        $query = Evaluation::query()
-            ->with(['student.studentProfile', 'assignment', 'evaluator'])
-            ->where('evaluator_id', Auth::id())
-            ->where('evaluator_type', 'company_supervisor')
-            ->when($this->search !== '', function ($query) {
-                $search = '%'.$this->search.'%';
-
-                $query->where(function ($nested) use ($search) {
-                    $nested->where('cooperating_program', 'like', $search)
-                        ->orWhere('remarks', 'like', $search)
-                        ->orWhereHas('student', function ($student) use ($search) {
-                            $student->where('name', 'like', $search)
-                                ->orWhere('first_name', 'like', $search)
-                                ->orWhere('last_name', 'like', $search)
-                                ->orWhere('email', 'like', $search);
-                        });
-                });
             });
 
         return $this->applySorting($query, [
-            'student' => User::select('name')->whereColumn('users.id', 'evaluations.student_id'),
-            'student_id' => StudentProfile::select('student_id')->whereColumn('student_profiles.user_id', 'evaluations.student_id'),
-            'course' => StudentProfile::select('course')->whereColumn('student_profiles.user_id', 'evaluations.student_id'),
-            'dates' => 'inclusive_from',
-            'rating' => 'rating',
+            'student' => User::select('name')->whereColumn('users.id', 'ojt_assignments.student_id'),
+            'student_id' => StudentProfile::select('student_id')->whereColumn('student_profiles.user_id', 'ojt_assignments.student_id'),
+            'course' => StudentProfile::select('course')->whereColumn('student_profiles.user_id', 'ojt_assignments.student_id'),
+            'rating' => Evaluation::selectRaw('max(rating)')
+                ->whereColumn('evaluations.student_id', 'ojt_assignments.student_id')
+                ->where('evaluator_type', $this->evaluatorType()),
         ])
-            ->latest('evaluation_date')
             ->latest('created_at')
             ->paginate(10);
+    }
+
+    #[Computed]
+    public function summary(): array
+    {
+        $total = OjtAssignment::query()->where('company_supervisor_id', Auth::id())->count();
+        $evaluated = OjtAssignment::query()
+            ->where('company_supervisor_id', Auth::id())
+            ->whereHas('student.evaluations', fn (Builder $query) => $query->where('evaluator_type', $this->evaluatorType()))
+            ->count();
+
+        return ['total' => $total, 'evaluated' => $evaluated, 'pending' => $total - $evaluated];
     }
 };
 ?>

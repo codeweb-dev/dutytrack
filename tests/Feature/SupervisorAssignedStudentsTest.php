@@ -257,6 +257,15 @@ test('supervisors can submit practicum evaluations for assigned trainees', funct
     expect($evaluation->cooperating_program)->toBe('Supervisor Evaluation Coordinator');
     expect((float) $evaluation->rating)->toBe(100.0);
     expect($evaluation->status)->toBe('submitted');
+
+    Livewire::test('pages::supervisor.evaluations')
+        ->assertSet('summary', ['total' => 1, 'evaluated' => 1, 'pending' => 0])
+        ->set('status', 'evaluated')
+        ->assertSee($student->email)
+        ->set('sortBy', 'rating')
+        ->assertSee('100.0')
+        ->set('status', 'pending')
+        ->assertDontSee($student->email);
 });
 
 test('supervisors can submit multiple practicum evaluations for one assigned trainee', function () {

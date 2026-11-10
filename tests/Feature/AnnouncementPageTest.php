@@ -25,6 +25,6 @@ test('authenticated users can view the announcements page', function () {
     $this->actingAs($student)
         ->get(route('announcements'))
         ->assertOk()
-        ->assertSee("What's new around here?", false)
+        ->assertSee('Announcements')
         ->assertSee('Server Maintenance Window');
 });

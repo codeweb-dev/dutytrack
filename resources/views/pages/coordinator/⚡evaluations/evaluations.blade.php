@@ -1,8 +1,8 @@
 <div class="flex min-w-0 flex-col gap-6">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
-    <div class="grid grid-cols-1 gap-4 grid-cols-2 xl:grid-cols-4">
-        @php($cards = ['' => ['Total Evaluations', 'total', 'document-check'], 'pending' => ['Pending', 'pending', 'clock'], 'submitted' => ['Submitted', 'submitted', 'inbox-arrow-down'], 'reviewed' => ['Reviewed', 'reviewed', 'check-circle']])
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        @php($cards = ['' => ['Total Evaluations', 'total', 'document-check'], 'submitted' => ['Submitted', 'submitted', 'inbox-arrow-down'], 'reviewed' => ['Reviewed', 'reviewed', 'check-circle']])
         @foreach ($cards as $value => [$label, $key, $icon])
             <button type="button" wire:click="$set('status', '{{ $value }}')" class="group text-left"
                 aria-pressed="{{ $status === $value ? 'true' : 'false' }}">
@@ -29,7 +29,7 @@
 
                 <x-filter-modal name="filter-coordinator-evaluations" heading="Filter Evaluations"
                     description="Filter by status and choose how supervisor evaluations are ordered."
-                    :sorts="['' => 'Newest first', 'student' => 'Student name', 'student_id' => 'Student ID', 'supervisor' => 'Supervisor', 'date' => 'Evaluation date', 'rating' => 'Rating', 'status' => 'Status']">
+                    :sorts="['' => 'Newest first', 'student' => 'Student name','supervisor' => 'Supervisor', 'date' => 'Evaluation date', 'rating' => 'Rating', 'status' => 'Status']">
                     <flux:radio.group wire:model.live="status" label="Status" variant="pills">
                         <flux:radio value="" label="All" />
                         <flux:radio value="pending" label="Pending" />
@@ -53,8 +53,7 @@
                 pagination:class="px-[var(--flux-bleed,1.5rem)] pb-3">
                 <flux:table.columns>
                     <flux:table.column>Student</flux:table.column>
-                    <flux:table.column>Student ID</flux:table.column>
-                    <flux:table.column>Immediate Supervisor</flux:table.column>
+                    <flux:table.column>Supervisor</flux:table.column>
                     <flux:table.column>Evaluation Date</flux:table.column>
                     <flux:table.column>Rating</flux:table.column>
                     <flux:table.column>Status</flux:table.column>
@@ -72,10 +71,6 @@
                                     <span class="font-medium">{{ $evaluation->student?->display_name }}</span>
                                     <span class="text-xs text-zinc-500 dark:text-zinc-300">{{ $evaluation->student?->email }}</span>
                                 </div>
-                            </flux:table.cell>
-
-                            <flux:table.cell class="whitespace-nowrap font-medium">
-                                {{ $evaluation->student?->studentProfile?->student_id }}
                             </flux:table.cell>
 
                             <flux:table.cell>

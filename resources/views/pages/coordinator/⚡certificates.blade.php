@@ -12,20 +12,14 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-new #[Title('OJT Certificates')] class extends Component
-{
+new #[Title('OJT Certificates')] class extends Component {
     use WithPagination;
 
-    public array $breadcrumbs = [
-        ['logo' => 'logo.png', 'href' => '/dashboard'],
-        ['label' => 'Coordinator Workspace', 'href' => '#'],
-        ['label' => 'Monitoring', 'href' => '#'],
-        ['label' => 'Certificates'],
-    ];
+    public array $breadcrumbs = [['logo' => 'logo.png', 'href' => '/dashboard'], ['label' => 'Coordinator Workspace', 'href' => '#'], ['label' => 'Monitoring', 'href' => '#'], ['label' => 'Certificates']];
 
     public string $title = 'OJT Certificates';
 
-    public string $description = 'View and download the Certificate of Completion of your students. Students can download theirs once they render their required OJT hours.';
+    public string $description = 'View the Certificate of Completion of your students. Students can download theirs once they render their required OJT hours.';
 
     public string $search = '';
 
@@ -49,10 +43,7 @@ new #[Title('OJT Certificates')] class extends Component
 
     protected function studentQuery(): Builder
     {
-        return User::query()
-            ->whereHas('roles', fn (Builder $query) => $query->where('name', EnumsRole::STUDENT->value))
-            ->where('users.coordinator_id', Auth::id())
-            ->leftJoin('student_profiles', 'users.id', '=', 'student_profiles.user_id');
+        return User::query()->whereHas('roles', fn(Builder $query) => $query->where('name', EnumsRole::STUDENT->value))->where('users.coordinator_id', Auth::id())->leftJoin('student_profiles', 'users.id', '=', 'student_profiles.user_id');
     }
 
     // Same rule as the row badge: required hours set and rendered hours reached.
@@ -76,16 +67,13 @@ new #[Title('OJT Certificates')] class extends Component
     #[Computed]
     public function students(): LengthAwarePaginator
     {
-        $search = '%'.$this->search.'%';
+        $search = '%' . $this->search . '%';
 
         return $this->studentQuery()
             ->select('users.*', 'student_profiles.student_id as student_number', 'student_profiles.ojt_required_hours')
             ->selectSub(AttendanceLog::query()->selectRaw('coalesce(sum(hours_rendered), 0)')->whereColumn('student_id', 'users.id'), 'rendered_hours')
-            ->when($this->search !== '', fn (Builder $query) => $query->where(fn (Builder $query) => $query
-                ->where('users.name', 'like', $search)
-                ->orWhere('users.email', 'like', $search)
-                ->orWhere('student_profiles.student_id', 'like', $search)))
-            ->when($this->status !== '', fn (Builder $query) => $this->whereCompleted($query, $this->status === 'completed'))
+            ->when($this->search !== '', fn(Builder $query) => $query->where(fn(Builder $query) => $query->where('users.name', 'like', $search)->orWhere('users.email', 'like', $search)->orWhere('student_profiles.student_id', 'like', $search)))
+            ->when($this->status !== '', fn(Builder $query) => $this->whereCompleted($query, $this->status === 'completed'))
             ->orderBy('users.last_name')
             ->orderBy('users.name')
             ->paginate(10);
@@ -101,7 +89,8 @@ new #[Title('OJT Certificates')] class extends Component
         @foreach ($cards as $value => [$label, $key, $icon])
             <button type="button" wire:click="$set('status', '{{ $value }}')" class="group text-left"
                 aria-pressed="{{ $status === $value ? 'true' : 'false' }}">
-                <flux:card size="xs" class="hover:bg-zinc-50 dark:hover:bg-zinc-700 group-aria-pressed:border-zinc-800 group-aria-pressed:outline-1 group-aria-pressed:outline-zinc-800 dark:group-aria-pressed:border-white dark:group-aria-pressed:outline-white">
+                <flux:card size="xs"
+                    class="hover:bg-zinc-50 dark:hover:bg-zinc-700 group-aria-pressed:border-zinc-800 group-aria-pressed:outline-1 group-aria-pressed:outline-zinc-800 dark:group-aria-pressed:border-white dark:group-aria-pressed:outline-white">
                     <flux:heading class="flex items-center gap-2">{{ $label }}
                         <flux:icon :name="$icon" :variant="$status === $value ? 'solid' : 'outline'"
                             class="ml-auto size-5 {{ $status === $value ? 'text-zinc-800 dark:text-white' : 'text-zinc-400' }}" />
@@ -138,7 +127,8 @@ new #[Title('OJT Certificates')] class extends Component
                 <flux:icon name="academic-cap" class="size-12" />
                 <div class="text-center">
                     <flux:heading size="xl">No students found</flux:heading>
-                    <flux:text class="mt-2">Try adjusting your search or filter to find a student's certificate.</flux:text>
+                    <flux:text class="mt-2">Try adjusting your search or filter to find a student's certificate.
+                    </flux:text>
                 </div>
             </div>
         @else
@@ -162,7 +152,8 @@ new #[Title('OJT Certificates')] class extends Component
 
                         <flux:table.row :key="$student->id">
                             <flux:table.cell class="flex items-center gap-3">
-                                <flux:avatar size="md" :src="$student->profile_photo_url" :name="$student->display_name" />
+                                <flux:avatar size="md" :src="$student->profile_photo_url"
+                                    :name="$student->display_name" />
 
                                 <div class="flex flex-col">
                                     <span class="font-medium">{{ $student->display_name }}</span>
@@ -170,7 +161,8 @@ new #[Title('OJT Certificates')] class extends Component
                                 </div>
                             </flux:table.cell>
 
-                            <flux:table.cell class="whitespace-nowrap font-medium">{{ $student->student_number }}</flux:table.cell>
+                            <flux:table.cell class="whitespace-nowrap font-medium">{{ $student->student_number }}
+                            </flux:table.cell>
 
                             <flux:table.cell class="whitespace-nowrap">
                                 {{ HourFormatter::format($rendered) }} / {{ HourFormatter::format($required) }}
@@ -183,15 +175,9 @@ new #[Title('OJT Certificates')] class extends Component
                             </flux:table.cell>
 
                             <flux:table.cell align="end">
-                                <flux:dropdown>
-                                    <flux:button variant="ghost" size="sm" icon="ellipsis-horizontal"
-                                        inset="top bottom" />
-
-                                    <flux:menu>
-                                        <flux:menu.item icon="eye" :href="route('coordinator.certificates.view', $student)" target="_blank">View</flux:menu.item>
-                                        <flux:menu.item icon="arrow-down-tray" :href="route('coordinator.certificates.download', $student)">Download</flux:menu.item>
-                                    </flux:menu>
-                                </flux:dropdown>
+                                <flux:button variant="filled" size="xs" icon="eye" inset="top bottom"
+                                    :href="route('coordinator.certificates.view', $student)" target="_blank">View
+                                </flux:button>
                             </flux:table.cell>
                         </flux:table.row>
                     @endforeach

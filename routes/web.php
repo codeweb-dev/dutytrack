@@ -96,11 +96,6 @@ Route::group(['middleware' => ['auth', 'verified', 'role:ojt_coordinator']], fun
 
         return CertificateDocument::inline($student, requireCompletion: false);
     })->name('coordinator.certificates.view');
-    Route::get('/coordinator/certificates/{student}/download', function (User $student) {
-        abort_unless((int) $student->coordinator_id === (int) Auth::id(), 404);
-
-        return CertificateDocument::download($student, requireCompletion: false);
-    })->name('coordinator.certificates.download');
     Route::livewire('/coordinator/attendance', 'pages::coordinator.attendance')->name('coordinator.attendance');
     Route::livewire('/coordinator/messages', 'pages::messages')->name('coordinator.messages');
 

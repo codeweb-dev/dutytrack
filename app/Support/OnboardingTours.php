@@ -49,7 +49,7 @@ class OnboardingTours
                 self::step('nav-requirements', 'Requirements', 'Review requirement completion and check submitted physical documents for students you coordinate.'),
                 self::step('nav-attendance', 'Attendance', 'Monitor attendance logs for your students and use the available filters to narrow the records.'),
                 self::step('nav-evaluations', 'Evaluations', 'Review practicum evaluations submitted by immediate supervisors.'),
-                self::step('nav-certificates', 'Certificates', 'See which students have completed their required OJT hours, then view or download their completion certificates.'),
+                self::step('nav-certificates', 'Certificates', 'See which students have completed their required OJT hours, then view their completion certificates.'),
                 self::step('nav-group-system', 'System Management', 'This group contains tools for application announcements and accountability history.'),
                 self::step('nav-announcements', 'Announcements', 'Create and manage system-wide announcements so everyone sees important updates.'),
                 self::step('nav-audit-logs', 'Audit Logs', 'Search recorded system activity when you need an accountability or security history.'),

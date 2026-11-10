@@ -33,28 +33,56 @@ new #[Title('Accomplishment Reports')] class extends Component
 
     public string $to_date = '';
 
+    public string $status = '';
+
     public function updated(string $property): void
     {
-        if (in_array($property, ['search', 'from_date', 'to_date'], true)) {
+        if (in_array($property, ['search', 'from_date', 'to_date', 'status'], true)) {
             $this->resetPage();
         }
     }
 
     public function clearFilters(): void
     {
-        $this->reset('search', 'from_date', 'to_date', 'sortBy', 'sortDirection');
+        $this->reset('search', 'from_date', 'to_date', 'status', 'sortBy', 'sortDirection');
 
         $this->resetPage();
         unset($this->submissions);
     }
 
+    // Completed days of this supervisor's students; each one is expected to have a report.
+    protected function baseQuery(): Builder
+    {
+        return AttendanceLog::query()
+            ->whereHas('assignment', fn (Builder $query) => $query->where('company_supervisor_id', Auth::id()))
+            ->whereNotNull('afternoon_time_out');
+    }
+
+    protected function applyStatus(Builder $query, string $status): Builder
+    {
+        $hasReport = fn (Builder $submission) => $submission->whereNotNull('accomplishment')->where('accomplishment', '!=', '');
+
+        return match ($status) {
+            'submitted' => $query->whereHas('submission', $hasReport),
+            'today' => $query->whereDate('attendance_date', today()),
+            'week' => $query->whereDate('attendance_date', '>=', now()->startOfWeek()),
+            default => $query,
+        };
+    }
+
+    #[Computed]
+    public function summary(): array
+    {
+        return collect(['total' => '', 'submitted' => 'submitted', 'today' => 'today', 'week' => 'week'])
+            ->map(fn (string $status) => $this->applyStatus($this->baseQuery(), $status)->count())
+            ->all();
+    }
+
     #[Computed]
     public function submissions(): LengthAwarePaginator
     {
-        $query = AttendanceLog::query()
+        $query = $this->applyStatus($this->baseQuery(), $this->status)
             ->with(['student.studentProfile', 'submission'])
-            ->whereHas('assignment', fn (Builder $query) => $query->where('company_supervisor_id', Auth::id()))
-            ->whereNotNull('afternoon_time_out')
             ->when($this->search !== '', function (Builder $query) {
                 $search = '%'.$this->search.'%';
 

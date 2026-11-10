@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use App\Enums\Role;
-use App\Models\AttendanceLog;
 use App\Models\Announcement;
+use App\Models\AttendanceLog;
 use App\Models\AttendanceSubmission;
 use App\Models\Evaluation;
 use App\Models\OjtAssignment;
@@ -356,7 +356,8 @@ class DemoSeeder extends Seeder
             'updated_at' => $afternoonOut ?? $stamp,
         ]);
 
-        if ($status !== 'absent') {
+        // ~10% of worked days have no report yet, so "Missing Report" has data.
+        if ($status !== 'absent' && random_int(1, 10) > 1) {
             AttendanceSubmission::forceCreate([
                 'attendance_log_id' => $log->id,
                 'student_id' => $assignment->student_id,

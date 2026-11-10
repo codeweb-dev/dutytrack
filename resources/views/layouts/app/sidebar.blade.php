@@ -31,9 +31,10 @@
 
         @if ($user->hasRole('student') && ! request()->routeIs('student.pomodoro'))
             <div x-data x-cloak x-show="$store.pomodoro.isActive"
-                class="rounded-xl border border-zinc-200 bg-white p-3 in-data-flux-sidebar-collapsed-desktop:hidden dark:border-zinc-700 dark:bg-zinc-800">
+                class="relative rounded-xl border border-zinc-200 bg-white p-3 hover:bg-zinc-50 dark:hover:bg-zinc-700 in-data-flux-sidebar-collapsed-desktop:hidden dark:border-zinc-700 dark:bg-zinc-800">
                 <div class="flex items-center justify-between gap-3">
-                    <a href="{{ route('student.pomodoro') }}" wire:navigate class="min-w-0">
+                    {{-- Stretched link: the after: overlay makes the whole card clickable; the button sits above it. --}}
+                    <a href="{{ route('student.pomodoro') }}" wire:navigate class="min-w-0 after:absolute after:inset-0 after:rounded-xl">
                         <div class="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
                             <span class="size-2 rounded-full" x-bind:class="$store.pomodoro.activePreset.dot"></span>
                             <span x-text="$store.pomodoro.activeLabel + ($store.pomodoro.isRunning ? '' : ' · Paused')"></span>
@@ -42,7 +43,7 @@
                             x-text="$store.pomodoro.formattedTime"></div>
                     </a>
 
-                    <flux:button x-on:click="$store.pomodoro.toggleTimer()" variant="primary" size="sm" square
+                    <flux:button x-on:click="$store.pomodoro.toggleTimer()" variant="primary" size="sm" square class="relative z-10"
                         x-bind:aria-label="$store.pomodoro.isRunning ? 'Pause timer' : 'Resume timer'">
                         <flux:icon name="play" x-show="!$store.pomodoro.isRunning" class="size-4" />
                         <flux:icon name="pause" x-show="$store.pomodoro.isRunning" class="size-4" />

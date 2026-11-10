@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1698" viewBox="0 0 900 1698" font-family="Times New Roman, Times, serif" font-size="16" text-anchor="middle">
+<defs><marker id="a" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker></defs>
+<rect width="900" height="1698" fill="#fff"/>
+<g fill="#fff" stroke="#000" stroke-width="1.5">
+<ellipse cx="450" cy="42.0" rx="50" ry="22"/>
+<rect x="290" y="92" width="320" height="54"/>
+<rect x="290" y="174" width="320" height="54"/>
+<rect x="290" y="256" width="320" height="54"/>
+<rect x="290" y="338" width="320" height="35"/>
+<rect x="290" y="401" width="320" height="54"/>
+<path d="M450 483L590 523.0L450 563L310 523.0z"/>
+<rect x="290" y="597" width="320" height="54"/>
+<rect x="290" y="679" width="320" height="54"/>
+<rect x="290" y="761" width="320" height="54"/>
+<path d="M450 843L590 883.0L450 923L310 883.0z"/>
+<rect x="290" y="957" width="320" height="35"/>
+<rect x="290" y="1020" width="320" height="54"/>
+<path d="M450 1102L590 1142.0L450 1182L310 1142.0z"/>
+<rect x="290" y="1216" width="320" height="54"/>
+<path d="M450 1298L590 1338.0L450 1378L310 1338.0z"/>
+<rect x="290" y="1412" width="320" height="54"/>
+<rect x="290" y="1494" width="320" height="54"/>
+<ellipse cx="450" cy="1598.0" rx="50" ry="22"/>
+</g>
+<g fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#a)">
+<path d="M590 523.0H730"/>
+<path d="M590 883.0H730"/>
+<path d="M590 1142.0H730"/>
+<path d="M590 1338.0H730"/>
+<path d="M450 64V92"/>
+<path d="M450 146V174"/>
+<path d="M450 228V256"/>
+<path d="M450 310V338"/>
+<path d="M450 373V401"/>
+<path d="M450 455V483"/>
+<path d="M450 563V597"/>
+<path d="M450 651V679"/>
+<path d="M450 733V761"/>
+<path d="M450 815V843"/>
+<path d="M450 923V957"/>
+<path d="M450 992V1020"/>
+<path d="M450 1074V1102"/>
+<path d="M450 1182V1216"/>
+<path d="M450 1270V1298"/>
+<path d="M450 1378V1412"/>
+<path d="M450 1466V1494"/>
+<path d="M450 1548V1576"/>
+<path d="M730 355.5H610"/>
+<path d="M730 706.0H610"/>
+<path d="M730 974.5H610"/>
+</g>
+<path d="M730 355.5V1338.0" fill="none" stroke="#000" stroke-width="1.5"/>
+<text x="450" y="47">Start</text>
+<text x="450" y="114">Administrator creates OJT instructor</text>
+<text x="450" y="134">and supervisor accounts</text>
+<text x="450" y="196">Intern registers account, student</text>
+<text x="450" y="216">info and face image</text>
+<text x="450" y="278">Intern logs in and uploads</text>
+<text x="450" y="298">profile picture</text>
+<text x="450" y="360">Intern uploads OJT requirements</text>
+<text x="450" y="424">OJT instructor reviews</text>
+<text x="450" y="442">submitted requirements</text>
+<text x="450" y="518">Requirements</text>
+<text x="450" y="538">approved?</text>
+<text x="412" y="583" text-anchor="start">Yes</text>
+<text x="640" y="515.0" text-anchor="start">No</text>
+<text x="450" y="620">OJT instructor sets required</text>
+<text x="450" y="638">training hours</text>
+<text x="450" y="702">Intern clocks in/out using</text>
+<text x="450" y="720">face recognition</text>
+<text x="450" y="784">Supervisor verifies clock-in/out</text>
+<text x="450" y="802">logs using captured image</text>
+<text x="450" y="878">Attendance</text>
+<text x="450" y="898">approved?</text>
+<text x="412" y="943" text-anchor="start">Yes</text>
+<text x="640" y="875.0" text-anchor="start">No</text>
+<text x="450" y="980">Intern submits weekly journal</text>
+<text x="450" y="1042">Supervisor reviews journal</text>
+<text x="450" y="1062">and gives remarks</text>
+<text x="450" y="1138">Journal</text>
+<text x="450" y="1156">approved?</text>
+<text x="412" y="1202" text-anchor="start">Yes</text>
+<text x="640" y="1134.0" text-anchor="start">No</text>
+<text x="450" y="1238">OJT instructor monitors hours,</text>
+<text x="450" y="1258">journals and requirements</text>
+<text x="450" y="1334">Completed required</text>
+<text x="450" y="1352">OJT hours?</text>
+<text x="412" y="1398" text-anchor="start">Yes</text>
+<text x="640" y="1330.0" text-anchor="start">No</text>
+<text x="450" y="1434">Supervisor evaluates</text>
+<text x="450" y="1454">intern performance</text>
+<text x="450" y="1516">Intern views rendered hours,</text>
+<text x="450" y="1536">feedback and progress</text>
+<text x="450" y="1603">Stop</text>
+<text x="450" y="1673" font-size="22" font-weight="bold">Figure. Existing Process Flowchart</text>
+</svg>

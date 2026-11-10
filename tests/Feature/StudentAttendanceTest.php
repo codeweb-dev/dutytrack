@@ -78,7 +78,7 @@ test('students can view their attendance page', function () {
         ->assertSee('data-attendance-location-picker-map', false)
         ->assertSee('https://tile.openstreetmap.org/{z}/{x}/{y}.png', false)
         ->assertSee('Accept the location permission request', false)
-        ->assertSee('map.flyTo(point, 17', false)
+        ->assertSee('focus(true)', false)
         ->assertSee('capturedTimeInFullscreenMap', false)
         ->assertSee('modal-show', false)
         ->assertSee('attendance-location-found', false);
@@ -169,6 +169,7 @@ test('students who miss morning in can start an afternoon-only attendance', func
     Carbon::setTestNow(Carbon::parse('2026-04-30 16:00:00'));
 
     Livewire::test('pages::student.attendance')
+        ->assertSee('Current Location')
         ->call('recordNextPunch', 'afternoon_time_out')
         ->assertHasNoErrors();
 

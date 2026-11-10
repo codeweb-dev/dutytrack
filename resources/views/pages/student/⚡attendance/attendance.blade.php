@@ -121,31 +121,37 @@
             </div>
 
             <div class="mt-6">
-                @if ($this->todayAttendance)
+                @php
+                    $savedLocation = $this->todayAttendance?->hasTimeInLocation();
+                    $geofence = $this->assignment?->hasGeofence() ? [
+                        'latitude' => $this->assignment->geofence_latitude,
+                        'longitude' => $this->assignment->geofence_longitude,
+                        'radius' => $this->assignment->geofence_radius,
+                    ] : null;
+                @endphp
+
+                @if ($savedLocation)
                     <div>
                         <div class="flex items-center justify-between gap-3">
                             <flux:heading>Time-in Location</flux:heading>
-                            @if ($this->todayAttendance->timeInMapUrl())
-                                <flux:button size="sm" variant="ghost" icon="map"
-                                    :href="$this->todayAttendance->timeInMapUrl()" target="_blank">
-                                    Open Map
-                                </flux:button>
-                            @endif
+                            <flux:button size="sm" variant="ghost" icon="map"
+                                :href="$this->todayAttendance->timeInMapUrl()" target="_blank">
+                                Open Map
+                            </flux:button>
                         </div>
 
-                        @if ($this->todayAttendance->hasTimeInLocation())
-                            <div class="mt-3">
-                                <x-attendance-map id="todayAttendanceMap{{ $this->todayAttendance->id }}"
-                                    :latitude="$this->todayAttendance->time_in_latitude" :longitude="$this->todayAttendance->time_in_longitude" />
-                            </div>
-                            <x-location-address class="mt-2 text-xs" :latitude="$this->todayAttendance->time_in_latitude"
-                                :longitude="$this->todayAttendance->time_in_longitude" />
-                        @else
-                            <flux:text class="mt-3">No location captured.</flux:text>
-                        @endif
+                        <div class="mt-3">
+                            <x-attendance-map id="todayAttendanceMap{{ $this->todayAttendance->id }}"
+                                :latitude="$this->todayAttendance->time_in_latitude" :longitude="$this->todayAttendance->time_in_longitude" />
+                        </div>
+                        <x-location-address class="mt-2 text-xs" :latitude="$this->todayAttendance->time_in_latitude"
+                            :longitude="$this->todayAttendance->time_in_longitude" />
                     </div>
-                @elseif (! $this->isRestDay() && $this->nextPunch() === 'morning_time_in')
-                    <div x-data="{
+                @endif
+
+                {{-- Live map always shows unless a saved time-in map already covers a finished day. --}}
+                @if (! $savedLocation || $this->nextPunch())
+                    <div @class(['mt-6' => $savedLocation]) x-data="{
                         locating: false,
                         message: 'Allow location access to attach your time-in map.',
                         captureLocation() {
@@ -187,7 +193,7 @@
                     }" x-init="captureLocation()">
                         <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                             <div>
-                                <flux:heading>Time-in Location</flux:heading>
+                                <flux:heading>{{ $this->todayAttendance ? 'Current Location' : 'Time-in Location' }}</flux:heading>
                                 <flux:text class="mt-1" x-text="message"></flux:text>
                             </div>
 
@@ -207,7 +213,7 @@
 
                         <div class="mt-4">
                             <x-attendance-location-picker-map id="capturedTimeInMap" :latitude="$time_in_latitude"
-                                :longitude="$time_in_longitude" />
+                                :longitude="$time_in_longitude" :geofence="$geofence" />
                         </div>
 
                         @if ($time_in_latitude && $time_in_longitude)
@@ -246,7 +252,7 @@
                                 </div>
 
                                 <x-attendance-location-picker-map id="capturedTimeInFullscreenMap" :latitude="$time_in_latitude"
-                                    :longitude="$time_in_longitude" height="height: min(72vh, 42rem)" :zoomLevel="$time_in_latitude && $time_in_longitude ? 17 : 13" />
+                                    :longitude="$time_in_longitude" :geofence="$geofence" height="height: min(72vh, 42rem)" :zoomLevel="$time_in_latitude && $time_in_longitude ? 17 : 13" />
 
                                 @if ($time_in_latitude && $time_in_longitude)
                                     <div

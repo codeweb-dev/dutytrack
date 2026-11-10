@@ -4,8 +4,9 @@
     'longitude' => null,
     'centerLatitude' => 14.599512,
     'centerLongitude' => 120.984222,
-    'height' => 'height: 14rem',
+    'height' => 'height: 24rem',
     'zoomLevel' => 13,
+    'geofence' => null, // ['latitude' => float, 'longitude' => float, 'radius' => int meters]
 ])
 
 @php
@@ -13,9 +14,10 @@
         'id' => $id,
         'latitude' => $latitude === null ? null : (float) $latitude,
         'longitude' => $longitude === null ? null : (float) $longitude,
-        'centerLatitude' => (float) $centerLatitude,
-        'centerLongitude' => (float) $centerLongitude,
+        'centerLatitude' => (float) ($geofence['latitude'] ?? $centerLatitude),
+        'centerLongitude' => (float) ($geofence['longitude'] ?? $centerLongitude),
         'zoomLevel' => (int) $zoomLevel,
+        'geofence' => $geofence,
     ];
 @endphp
 
@@ -95,6 +97,37 @@
             let accuracyCircle = null;
             let currentPoint = hasInitialMarker ? center : null;
 
+            const geofenceCircle = config.geofence ? L.circle([config.geofence.latitude, config.geofence.longitude], {
+                radius: config.geofence.radius,
+                color: '#3b82f6',
+                fillColor: '#3b82f6',
+                fillOpacity: 0.1,
+                weight: 2,
+            }).addTo(map) : null;
+
+            if (geofenceCircle) {
+                L.marker(geofenceCircle.getLatLng()).bindPopup('Assigned OJT location').addTo(map);
+            }
+
+            // Keeps both the OJT radius and the current location in view.
+            const focus = (animate = false) => {
+                if (geofenceCircle) {
+                    const bounds = geofenceCircle.getBounds();
+
+                    if (currentPoint) {
+                        bounds.extend(currentPoint);
+                    }
+
+                    animate
+                        ? map.flyToBounds(bounds, { padding: [24, 24], maxZoom: 17, duration: 0.8 })
+                        : map.fitBounds(bounds, { padding: [24, 24], maxZoom: 17 });
+                } else if (currentPoint) {
+                    animate ? map.flyTo(currentPoint, 17, { duration: 0.8 }) : map.setView(currentPoint, 17);
+                }
+            };
+
+            focus();
+
             const setMarker = (latitude, longitude, accuracy = null) => {
                 const point = [latitude, longitude];
                 currentPoint = point;
@@ -105,9 +138,9 @@
                     marker = L.marker(point, { icon: markerIcon }).addTo(map);
                 }
 
-                marker.bindPopup('Time-in location');
+                marker.bindPopup('Your current location');
                 map.invalidateSize();
-                map.flyTo(point, 17, { duration: 0.8 });
+                focus(true);
                 marker.openPopup();
 
                 if (accuracy) {
@@ -148,14 +181,14 @@
             document.addEventListener('modal-show', () => {
                 setTimeout(() => {
                     map.invalidateSize();
-
-                    if (currentPoint) {
-                        map.setView(currentPoint, 17);
-                    }
+                    focus();
                 }, 150);
             });
 
-            setTimeout(() => map.invalidateSize(), 150);
+            setTimeout(() => {
+                map.invalidateSize();
+                focus();
+            }, 150);
         };
 
         if (document.readyState === 'loading') {

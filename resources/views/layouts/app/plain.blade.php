@@ -10,8 +10,6 @@
         <div class="flex items-center justify-between mt-1">
             <flux:spacer />
 
-            <flux:sidebar.toggle class="md:hidden" icon="bars-2" inset="left" />
-
             <div class="flex items-center gap-3">
                 <flux:button icon="megaphone" variant="subtle" :href="route('announcements')" wire:navigate />
 

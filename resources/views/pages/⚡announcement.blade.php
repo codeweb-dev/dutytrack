@@ -4,11 +4,10 @@ use App\Models\Announcement;
 use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
-use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-new #[Title('Announcements')] #[Layout('layouts::announcement')] class extends Component {
+new #[Title('Announcements')] class extends Component {
     public string $search = '';
 
     public string $type = '';
@@ -79,21 +78,18 @@ new #[Title('Announcements')] #[Layout('layouts::announcement')] class extends C
 ?>
 
 <div class="mx-auto flex w-full max-w-2xl flex-col gap-6 pb-16">
-    <div class="flex items-center justify-between gap-3">
-        <flux:button :href="route('dashboard')" wire:navigate variant="ghost" size="sm" icon="arrow-left">
-            Dashboard
-        </flux:button>
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+            <flux:heading size="2xl">Announcements</flux:heading>
+            <flux:text class="mt-2 text-base">Latest news, reminders, and notices for everyone on DutyTrack.</flux:text>
+        </div>
 
         @if ($this->canManageAnnouncements())
-            <flux:button :href="route('coordinator.announcements')" wire:navigate size="sm" icon="cog-6-tooth">
+            <flux:button :href="route('coordinator.announcements')" wire:navigate size="sm" icon="cog-6-tooth"
+                class="shrink-0 self-start">
                 Manage Announcements
             </flux:button>
         @endif
-    </div>
-
-    <div>
-        <flux:heading size="2xl">Announcements</flux:heading>
-        <flux:text class="mt-2 text-base">Latest news, reminders, and notices for everyone on DutyTrack.</flux:text>
     </div>
 
     <div class="flex flex-col gap-3">

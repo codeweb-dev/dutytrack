@@ -79,8 +79,8 @@ new #[Title('Accomplishment Report')] class extends Component
     {
         $this->validate([
             'editingAttendanceId' => ['required', 'integer'],
-            'accomplishment' => ['nullable', 'string', 'max:5000'],
-            'skills_learned' => ['nullable', 'string', 'max:5000'],
+            'accomplishment' => ['required', 'string', 'max:5000'],
+            'skills_learned' => ['required', 'string', 'max:5000'],
             'new_photos' => ['array', 'max:6'],
             'new_photos.*' => ['image', 'max:4096'],
         ]);
@@ -96,6 +96,12 @@ new #[Title('Accomplishment Report')] class extends Component
         $existingPhotos = $submission->photo_paths ?? [];
         if (count($existingPhotos) + count($this->new_photos) > 6) {
             $this->addError('new_photos', 'A report can include up to six photos.');
+
+            return;
+        }
+
+        if (count($existingPhotos) + count($this->new_photos) === 0) {
+            $this->addError('new_photos', 'Please add at least one photo.');
 
             return;
         }

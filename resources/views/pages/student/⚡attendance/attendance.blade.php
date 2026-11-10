@@ -392,6 +392,11 @@
         </section>
     </section>
 
+    @assets
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    @endassets
+
     <flux:modal name="attendance-day-details" class="md:w-2xl">
         <div class="space-y-6">
             <div>
@@ -437,10 +442,20 @@
                         @if ($this->selectedAttendance->hasTimeInLocation())
                             <x-location-address class="mt-1" :latitude="$this->selectedAttendance->time_in_latitude"
                                 :longitude="$this->selectedAttendance->time_in_longitude" />
-                            <flux:button class="mt-2" size="sm" variant="ghost" icon="map"
-                                :href="$this->selectedAttendance->timeInMapUrl()" target="_blank">
-                                Open Map
-                            </flux:button>
+
+                            {{-- Alpine init instead of x-attendance-map: its inline script doesn't run when Livewire swaps modal content. --}}
+                            <div wire:ignore wire:key="day-map-{{ $this->selectedAttendance->id }}"
+                                class="mt-3 h-56 w-full overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-700"
+                                x-data="{ point: [{{ (float) $this->selectedAttendance->time_in_latitude }}, {{ (float) $this->selectedAttendance->time_in_longitude }}] }"
+                                x-init="
+                                    const map = L.map($el).setView(point, 17);
+                                    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                        maxZoom: 19,
+                                        attribution: '&copy; OpenStreetMap contributors',
+                                    }).addTo(map);
+                                    L.marker(point).bindPopup('Time-in location').addTo(map);
+                                    setTimeout(() => map.invalidateSize(), 200);
+                                "></div>
                         @else
                             <flux:text class="mt-1">No location captured.</flux:text>
                         @endif

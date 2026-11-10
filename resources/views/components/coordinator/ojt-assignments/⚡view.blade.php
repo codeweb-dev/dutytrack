@@ -93,6 +93,48 @@ new class extends Component {
         <section class="rounded-xl border border-zinc-200 bg-zinc-50/70 p-4 dark:border-zinc-800 dark:bg-zinc-900/50 sm:col-span-2">
             <h4 class="text-base font-semibold text-zinc-900 dark:text-white">Attendance Location</h4>
             @if ($assignment->hasGeofence())
+                @once
+                    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+                    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+                @endonce
+
+                {{-- Read-only; boots when the modal opens since Leaflet can't size a hidden container. --}}
+                <div
+                    wire:ignore
+                    x-data="{
+                        map: null,
+                        init() {
+                            const boot = () => setTimeout(() => this.$el.offsetParent && this.boot(), 150);
+                            boot();
+                            document.addEventListener('modal-show', boot);
+                        },
+                        boot() {
+                            if (this.map) {
+                                this.map.invalidateSize();
+                                return;
+                            }
+
+                            if (typeof L === 'undefined') {
+                                return;
+                            }
+
+                            const point = [{{ (float) $assignment->geofence_latitude }}, {{ (float) $assignment->geofence_longitude }}];
+                            this.map = L.map(this.$el).setView(point, 17);
+
+                            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                maxZoom: 19,
+                                attribution: '&copy; <a href=\'https://www.openstreetmap.org/copyright\'>OpenStreetMap</a> contributors',
+                            }).addTo(this.map);
+
+                            L.marker(point).addTo(this.map);
+                            const circle = L.circle(point, { radius: {{ (int) $assignment->geofence_radius }}, color: '#ef4444', fillOpacity: 0.12, weight: 1 }).addTo(this.map);
+                            this.map.fitBounds(circle.getBounds(), { maxZoom: 17 });
+                        },
+                    }"
+                    class="mt-4 w-full overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-700"
+                    style="height: 16rem"
+                ></div>
+
                 <dl class="mt-4 grid gap-4 sm:grid-cols-[1fr_auto]">
                     <div>
                         <dt class="text-sm font-medium text-zinc-500 dark:text-zinc-400">Pinned Location</dt>

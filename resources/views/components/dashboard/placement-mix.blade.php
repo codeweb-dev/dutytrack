@@ -1,9 +1,9 @@
-@props(['mix', 'description', 'centerLabel' => 'Placed students'])
+@props(['mix', 'description', 'title' => 'Placement Mix', 'centerLabel' => 'Placed students', 'emptyLabel' => 'No placements yet'])
 
 <flux:card class="flex flex-col">
     <div class="flex items-start justify-between gap-4">
         <div>
-            <flux:heading size="lg">Placement Mix</flux:heading>
+            <flux:heading size="lg">{{ $title }}</flux:heading>
             <flux:text class="mt-2">{{ $description }}</flux:text>
         </div>
 
@@ -13,7 +13,7 @@
     <div class="relative mx-auto mt-6 size-56" x-data="{ active: null, tip: { x: 0, y: 0 }, segments: @js($mix['segments']) }"
         @mousemove="const r = $el.getBoundingClientRect(); tip = { x: $event.clientX - r.left, y: $event.clientY - r.top }">
         <svg viewBox="0 0 42 42" class="size-full -rotate-90" role="img"
-            aria-label="Placement mix: {{ collect($mix['segments'])->map(fn ($s) => $s['label'].' '.$s['value'])->join(', ') }}">
+            aria-label="{{ $title }}: {{ collect($mix['segments'])->map(fn ($s) => $s['label'].' '.$s['value'])->join(', ') }}">
             <circle cx="21" cy="21" r="15.915" fill="none" stroke-width="7" class="stroke-zinc-100 dark:stroke-zinc-800" />
             @if ($mix['total'] > 0)
                 @foreach ($mix['segments'] as $segment)
@@ -27,7 +27,7 @@
 
         <div class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
             <div class="text-3xl font-semibold tracking-tight text-zinc-900 tabular-nums dark:text-white">{{ number_format($mix['total']) }}</div>
-            <flux:text>{{ $mix['total'] > 0 ? $centerLabel : 'No placements yet' }}</flux:text>
+            <flux:text>{{ $mix['total'] > 0 ? $centerLabel : $emptyLabel }}</flux:text>
         </div>
 
         <template x-if="active !== null">

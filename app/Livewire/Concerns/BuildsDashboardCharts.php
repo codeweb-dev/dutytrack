@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Concerns;
 
+use App\Models\AttendanceLog;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -59,19 +60,50 @@ trait BuildsDashboardCharts
             ->groupBy('ojt_type')
             ->pluck('total', 'ojt_type');
 
-        $total = (int) $counts->sum();
-        $types = ['internal' => ['stroke-red-500', 'bg-red-500'], 'external' => ['stroke-blue-500', 'bg-blue-500']];
-        $gap = collect($types)->keys()->filter(fn ($type) => ($counts[$type] ?? 0) > 0)->count() > 1 ? 0.8 : 0;
+        return $this->donutChart([
+            'Internal' => [(int) ($counts['internal'] ?? 0), 'stroke-red-500', 'bg-red-500'],
+            'External' => [(int) ($counts['external'] ?? 0), 'stroke-blue-500', 'bg-blue-500'],
+        ]);
+    }
+
+    // Students by rendered vs required OJT hours, across all of their attendance logs.
+    protected function ojtProgressChart(Builder $assignments): array
+    {
+        $students = $assignments
+            ->join('student_profiles', 'student_profiles.user_id', '=', 'ojt_assignments.student_id')
+            ->select('student_profiles.ojt_required_hours')
+            ->selectSub(
+                AttendanceLog::query()->selectRaw('COALESCE(SUM(hours_rendered), 0)')->whereColumn('student_id', 'ojt_assignments.student_id'),
+                'rendered_hours',
+            )
+            ->get();
+
+        $completed = $students->filter(fn ($s) => $s->ojt_required_hours > 0 && $s->rendered_hours >= $s->ojt_required_hours)->count();
+        $notStarted = $students->filter(fn ($s) => (float) $s->rendered_hours <= 0)->count();
+
+        return $this->donutChart([
+            'Completed' => [$completed, 'stroke-green-500', 'bg-green-500'],
+            'In progress' => [$students->count() - $completed - $notStarted, 'stroke-amber-500', 'bg-amber-500'],
+            'Not started' => [$notStarted, 'stroke-zinc-400', 'bg-zinc-400'],
+        ]);
+    }
+
+    /**
+     * @param  array<string, array{int, string, string}>  $slices  label => [value, stroke class, dot class]
+     */
+    protected function donutChart(array $slices): array
+    {
+        $total = array_sum(array_column($slices, 0));
+        $gap = count(array_filter(array_column($slices, 0))) > 1 ? 0.8 : 0;
         $offset = 0;
         $segments = [];
 
         // The donut circle has a circumference of 100, so each slice length is its percentage.
-        foreach ($types as $type => [$stroke, $dot]) {
-            $value = (int) ($counts[$type] ?? 0);
+        foreach ($slices as $label => [$value, $stroke, $dot]) {
             $percentage = $total > 0 ? $value / $total * 100 : 0;
 
             $segments[] = [
-                'label' => ucfirst($type),
+                'label' => $label,
                 'value' => $value,
                 'percentage' => round($percentage),
                 'stroke' => $stroke,

@@ -96,9 +96,9 @@ new #[Title('Supervisor Dashboard')] class extends Component {
     }
 
     #[Computed]
-    public function placementMix(): array
+    public function ojtProgress(): array
     {
-        return $this->placementMixChart($this->supervisorAssignmentsQuery());
+        return $this->ojtProgressChart($this->supervisorAssignmentsQuery());
     }
 
     #[Computed]
@@ -152,8 +152,8 @@ new #[Title('Supervisor Dashboard')] class extends Component {
     <section class="grid gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(320px,1fr)]" data-tour="dashboard-workflow">
         <x-dashboard.attendance-chart :attendance="$this->weeklyAttendance"
             description="Attendance logs from your trainees over the last 7 days." />
-        <x-dashboard.placement-mix :mix="$this->placementMix" center-label="Trainees"
-            description="How your trainees split between internal and external OJT." />
+        <x-dashboard.placement-mix :mix="$this->ojtProgress" title="OJT Progress" center-label="Students" empty-label="No students yet"
+            description="Your students by rendered hours against their required OJT hours." />
     </section>
 
     <flux:card>

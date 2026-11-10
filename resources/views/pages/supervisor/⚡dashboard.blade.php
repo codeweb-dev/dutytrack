@@ -13,8 +13,7 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-new #[Title('Supervisor Dashboard')] class extends Component
-{
+new #[Title('Supervisor Dashboard')] class extends Component {
     use BuildsDashboardCharts, WithPagination;
 
     public array $breadcrumbs = [['logo' => 'logo.png', 'href' => '/dashboard'], ['label' => 'Supervisor Dashboard']];
@@ -22,7 +21,7 @@ new #[Title('Supervisor Dashboard')] class extends Component
     #[Computed]
     public function title(): string
     {
-        return 'Welcome back, '.(Auth::user()?->name ?? 'Supervisor').' 👋';
+        return 'Welcome back, ' . (Auth::user()?->name ?? 'Supervisor') . ' 👋';
     }
 
     public string $description = 'A focused view of your trainees, placement progress, attendance activity, and pending review work.';
@@ -52,7 +51,6 @@ new #[Title('Supervisor Dashboard')] class extends Component
         });
     }
 
-
     #[Computed]
     public function topCards(): array
     {
@@ -60,27 +58,23 @@ new #[Title('Supervisor Dashboard')] class extends Component
 
         return [
             [
-                'title' => 'Assigned Trainees',
+                'title' => 'Assigned Students',
                 'value' => $trainees,
                 'icon' => 'academic-cap',
                 'href' => route('supervisor.assigned-students'),
-                'link' => 'View trainees',
+                'link' => 'View students',
             ],
             [
                 'title' => 'Present Today',
                 'value' => $this->supervisorAttendanceQuery()->whereDate('attendance_date', today())->distinct()->count('student_id'),
-                'suffix' => '/ '.number_format($trainees),
+                'suffix' => '/ ' . number_format($trainees),
                 'icon' => 'clock',
                 'href' => route('supervisor.attendance'),
                 'link' => 'View attendance',
             ],
             [
                 'title' => 'Tasks to Review',
-                'value' => StudentTask::query()
-                    ->where('assigned_by', $this->supervisorId())
-                    ->where('status', 'in_review')
-                    ->whereHas('assignment', fn (Builder $query) => $query->where('company_supervisor_id', $this->supervisorId()))
-                    ->count(),
+                'value' => StudentTask::query()->where('assigned_by', $this->supervisorId())->where('status', 'in_review')->whereHas('assignment', fn(Builder $query) => $query->where('company_supervisor_id', $this->supervisorId()))->count(),
                 'icon' => 'rectangle-stack',
                 'href' => route('supervisor.tasks'),
                 'link' => 'Review tasks',
@@ -113,7 +107,7 @@ new #[Title('Supervisor Dashboard')] class extends Component
         return $this->supervisorAssignmentsQuery()
             ->with(['student.studentProfile', 'student.coordinator', 'companySupervisor'])
             ->when($this->studentSearch !== '', function (Builder $query) {
-                $search = '%'.$this->studentSearch.'%';
+                $search = '%' . $this->studentSearch . '%';
 
                 $query->whereHas('student', function (Builder $studentQuery) use ($search) {
                     $studentQuery
@@ -145,7 +139,8 @@ new #[Title('Supervisor Dashboard')] class extends Component
                             <span class="text-base font-normal text-zinc-400">{{ $card['suffix'] }}</span>
                         @endisset
                     </flux:heading>
-                    <div class="mt-3 flex items-center gap-1.5 border-t border-zinc-100 pt-3 text-sm text-zinc-500 transition group-hover:text-zinc-900 dark:border-zinc-700 dark:text-zinc-400 dark:group-hover:text-white">
+                    <div
+                        class="mt-3 flex items-center gap-1.5 border-t border-zinc-100 pt-3 text-sm text-zinc-500 transition group-hover:text-zinc-900 dark:border-zinc-700 dark:text-zinc-400 dark:group-hover:text-white">
                         {{ $card['link'] }}
                         <flux:icon name="arrow-right" variant="micro" class="transition group-hover:translate-x-0.5" />
                     </div>
@@ -155,8 +150,10 @@ new #[Title('Supervisor Dashboard')] class extends Component
     </section>
 
     <section class="grid gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(320px,1fr)]" data-tour="dashboard-workflow">
-        <x-dashboard.attendance-chart :attendance="$this->weeklyAttendance" description="Attendance logs from your trainees over the last 7 days." />
-        <x-dashboard.placement-mix :mix="$this->placementMix" center-label="Trainees" description="How your trainees split between internal and external OJT." />
+        <x-dashboard.attendance-chart :attendance="$this->weeklyAttendance"
+            description="Attendance logs from your trainees over the last 7 days." />
+        <x-dashboard.placement-mix :mix="$this->placementMix" center-label="Trainees"
+            description="How your trainees split between internal and external OJT." />
     </section>
 
     <flux:card>

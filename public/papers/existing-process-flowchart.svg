@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="2213" viewBox="0 0 1120 2213" font-family="Times New Roman, Times, serif" font-size="16" text-anchor="middle">
+<defs><marker id="a" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker></defs>
+<rect width="1120" height="2213" fill="#fff"/>
+<g fill="none" stroke="#000" stroke-width="1.5"><rect x="20" y="20" width="1080" height="2123"/><path d="M20 60H1100M380 20V2143M740 20V2143"/></g>
+<g font-size="18" font-weight="bold"><text x="200" y="46">Student</text><text x="560" y="46">OJT Coordinator</text><text x="920" y="46">Supervisor</text></g>
+<g fill="#fff" stroke="#000" stroke-width="1.5">
+<ellipse cx="200" cy="122.0" rx="50" ry="22"/>
+<rect x="70" y="178" width="260" height="39"/>
+<rect x="430" y="251" width="260" height="39"/>
+<path d="M560 324L680 366.0L560 408L440 366.0z"/>
+<rect x="70" y="442" width="260" height="58"/>
+<rect x="70" y="534" width="260" height="58"/>
+<rect x="430" y="626" width="260" height="39"/>
+<path d="M560 699L680 741.0L560 783L440 741.0z"/>
+<rect x="430" y="817" width="260" height="77"/>
+<rect x="790" y="928" width="260" height="58"/>
+<rect x="790" y="1020" width="260" height="58"/>
+<rect x="70" y="1112" width="260" height="58"/>
+<path d="M200 1204L320 1246.0L200 1288L80 1246.0z"/>
+<rect x="70" y="1322" width="260" height="58"/>
+<rect x="790" y="1414" width="260" height="58"/>
+<rect x="430" y="1506" width="260" height="58"/>
+<path d="M560 1598L680 1640.0L560 1682L440 1640.0z"/>
+<rect x="790" y="1716" width="260" height="39"/>
+<rect x="430" y="1789" width="260" height="58"/>
+<rect x="430" y="1881" width="260" height="58"/>
+<rect x="70" y="1973" width="260" height="58"/>
+<ellipse cx="200" cy="2087.0" rx="50" ry="22"/>
+</g>
+<g fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#a)">
+<path d="M200 144V178"/>
+<path d="M200 217V234.0H560V251"/>
+<path d="M560 290V324"/>
+<path d="M560 408V425.0H200V442"/>
+<path d="M200 500V534"/>
+<path d="M200 592V609.0H560V626"/>
+<path d="M560 665V699"/>
+<path d="M560 783V817"/>
+<path d="M560 894V911.0H920V928"/>
+<path d="M920 986V1020"/>
+<path d="M920 1078V1095.0H200V1112"/>
+<path d="M200 1170V1204"/>
+<path d="M200 1288V1322"/>
+<path d="M200 1380V1397.0H920V1414"/>
+<path d="M920 1472V1489.0H560V1506"/>
+<path d="M560 1564V1598"/>
+<path d="M560 1682V1699.0H920V1716"/>
+<path d="M920 1755V1772.0H560V1789"/>
+<path d="M560 1847V1881"/>
+<path d="M560 1939V1956.0H200V1973"/>
+<path d="M200 2031V2065"/>
+<path d="M440 366.0H410V197.5H330"/>
+<path d="M440 741.0H410V563.0H330"/>
+<path d="M80 1246.0H50V1141.0H70"/>
+<path d="M440 1640.0H32V1141.0H50" marker-end="none"/>
+</g>
+<text x="200" y="127">Start</text>
+<text x="200" y="202">Sign up using student ID</text>
+<text x="560" y="276">Review student sign-up</text>
+<text x="560" y="362">Approve</text>
+<text x="560" y="380">sign-up?</text>
+<text x="200" y="466">Log in and view dashboard</text>
+<text x="200" y="486">and announcements</text>
+<text x="200" y="558">Download templates and</text>
+<text x="200" y="578">upload OJT requirements</text>
+<text x="560" y="650">Review uploaded requirements</text>
+<text x="560" y="736">All requirements</text>
+<text x="560" y="756">approved?</text>
+<text x="560" y="842">Create supervisor account and</text>
+<text x="560" y="860">assign student to company,</text>
+<text x="560" y="880">supervisor and OJT location</text>
+<text x="920" y="952">Log in and view</text>
+<text x="920" y="972">assigned students</text>
+<text x="920" y="1044">Create and assign tasks</text>
+<text x="920" y="1064">to student</text>
+<text x="200" y="1136">Time in/out (AM and PM)</text>
+<text x="200" y="1156">with GPS location</text>
+<text x="200" y="1242">Within OJT</text>
+<text x="200" y="1260">location?</text>
+<text x="200" y="1346">Update task status and submit</text>
+<text x="200" y="1366">daily accomplishment report</text>
+<text x="920" y="1438">Monitor attendance, reports</text>
+<text x="920" y="1458">and task progress</text>
+<text x="560" y="1530">Monitor attendance and</text>
+<text x="560" y="1550">rendered hours</text>
+<text x="560" y="1636">Completed required</text>
+<text x="560" y="1654">OJT hours?</text>
+<text x="920" y="1740">Submit practicum evaluation</text>
+<text x="560" y="1814">Review evaluation and</text>
+<text x="560" y="1832">mark as reviewed</text>
+<text x="560" y="1906">Verify certificate of</text>
+<text x="560" y="1924">completion</text>
+<text x="200" y="1998">Download certificate, DTR</text>
+<text x="200" y="2016">and accomplishment report</text>
+<text x="200" y="2092">Stop</text>
+<text x="568" y="422" text-anchor="start">Yes</text>
+<text x="552" y="803" text-anchor="end">Yes</text>
+<text x="192" y="1308" text-anchor="end">Yes</text>
+<text x="552" y="1696" text-anchor="end">Yes</text>
+<text x="425" y="358.0">No</text>
+<text x="425" y="733.0">No</text>
+<text x="62" y="1238.0">No</text>
+<text x="420" y="1632.0">No</text>
+<text x="560.0" y="2188" font-size="22" font-weight="bold">Figure. Existing Process Flowchart</text>
+</svg>

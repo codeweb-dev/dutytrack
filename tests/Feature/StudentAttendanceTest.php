@@ -156,11 +156,14 @@ test('students who miss morning in can start an afternoon-only attendance', func
 
     Livewire::test('pages::student.attendance')
         ->assertSee('Afternoon Time In')
+        ->set('time_in_latitude', 14.599512)
+        ->set('time_in_longitude', 120.984222)
         ->call('recordNextPunch', 'afternoon_time_in')
         ->assertHasNoErrors();
 
     $attendance = AttendanceLog::query()->where('student_id', $student->id)->firstOrFail();
     expect($attendance->morning_time_in)->toBeNull();
+    expect($attendance->hasTimeInLocation())->toBeTrue();
     expect($attendance->afternoon_time_in->format('H:i'))->toBe('13:00');
 
     Carbon::setTestNow(Carbon::parse('2026-04-30 16:00:00'));

@@ -434,6 +434,9 @@ new #[Title('My Attendance')] class extends Component
             ], [
                 'ojt_assignment_id' => $assignment->id,
                 'afternoon_time_in' => $timeIn,
+                'time_in_latitude' => $this->time_in_latitude,
+                'time_in_longitude' => $this->time_in_longitude,
+                'time_in_location_accuracy' => $this->time_in_location_accuracy,
                 'hours_rendered' => 0,
                 'status' => 'incomplete',
             ]);

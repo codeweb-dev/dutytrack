@@ -75,7 +75,6 @@
                 pagination:class="px-[var(--flux-bleed,1.5rem)] pb-3">
                 <flux:table.columns>
                     <flux:table.column>Student</flux:table.column>
-                    <flux:table.column>ID</flux:table.column>
                     <flux:table.column>OJT Type</flux:table.column>
                     <flux:table.column>Supervisor</flux:table.column>
                     <flux:table.column>Date</flux:table.column>
@@ -109,10 +108,6 @@
                                         {{ $log->student?->email }}
                                     </span>
                                 </div>
-                            </flux:table.cell>
-
-                            <flux:table.cell class="whitespace-nowrap font-medium">
-                                {{ $log->student?->studentProfile?->student_id ?? '' }}
                             </flux:table.cell>
 
                             <flux:table.cell>

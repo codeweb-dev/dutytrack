@@ -77,7 +77,7 @@
                             <flux:table.cell>
                                 <div class="flex flex-col">
                                     <span class="font-medium">{{ $supervisor->supervisorProfile?->company_name ?? '' }}</span>
-                                    <x-ojt-type-badge :type="$supervisor->supervisorProfile?->supervisor_type" class="mt-1 w-fit" />
+                                    <span class="text-xs text-zinc-500 dark:text-zinc-300">{{ $supervisor->supervisorProfile?->company_address ?? '' }}</span>
                                 </div>
                             </flux:table.cell>
 

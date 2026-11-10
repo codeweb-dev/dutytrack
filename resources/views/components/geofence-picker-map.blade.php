@@ -21,6 +21,7 @@
             results: [],
             searching: false,
             searched: false,
+            lookup: 0,
             init() {
                 const boot = () => setTimeout(() => this.$refs.map.offsetParent && this.boot(), 150);
                 boot();
@@ -52,7 +53,10 @@
                     attribution: '&copy; <a href=\'https://www.openstreetmap.org/copyright\'>OpenStreetMap</a> contributors',
                 }).addTo(this.map);
 
-                this.map.on('click', (event) => this.pin(event.latlng.lat, event.latlng.lng));
+                this.map.on('click', (event) => {
+                    this.pin(event.latlng.lat, event.latlng.lng);
+                    this.describe(event.latlng.lat, event.latlng.lng);
+                });
 
                 this.draw();
             },
@@ -65,6 +69,24 @@
                 }
 
                 this.draw();
+            },
+            async describe(lat, lng) {
+                const loading = 'Loading address…';
+                const lookup = ++this.lookup;
+                this.query = loading;
+                this.results = [];
+                this.searched = false;
+
+                let address = null;
+                try {
+                    const response = await fetch('https://nominatim.openstreetmap.org/reverse?format=json&zoom=18&lat=' + lat + '&lon=' + lng);
+                    address = response.ok ? (await response.json()).display_name : null;
+                } catch {}
+
+                // Skip stale lookups when the map was clicked again (or the field edited) meanwhile.
+                if (lookup === this.lookup && this.query === loading) {
+                    this.query = address || lat.toFixed(6) + ', ' + lng.toFixed(6);
+                }
             },
             async search() {
                 const q = this.query.trim();
@@ -115,6 +137,7 @@
                 this.$wire.set('form.geofence_latitude', null, false);
                 this.$wire.set('form.geofence_longitude', null, false);
                 this.$wire.set('form.geofence_radius', null, false);
+                this.query = '';
                 this.draw();
             },
         }"

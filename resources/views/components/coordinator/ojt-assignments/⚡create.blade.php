@@ -61,10 +61,10 @@ new class extends Component {
                     @endforeach
                 </flux:select>
 
-                <flux:radio.group wire:model.live="form.ojt_type" label="OJT Type" variant="cards"
-                    :indicator="false" class="max-sm:flex-col" required>
-                    <flux:radio value="internal" icon="academic-cap" label="Internal" description="Internal OJT" />
-                    <flux:radio value="external" icon="briefcase" label="External" description="External OJT" />
+                <flux:radio.group wire:model.live="form.ojt_type" label="OJT Type" variant="segmented"
+                    required>
+                    <flux:radio value="internal" label="Internal" />
+                    <flux:radio value="external" label="External" />
                 </flux:radio.group>
 
                 <flux:select wire:key="create-external-supervisor-select" wire:model.live="form.company_supervisor_id"

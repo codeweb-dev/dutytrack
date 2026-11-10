@@ -27,6 +27,8 @@ new #[Title('Attendance')] class extends Component
 
     public string $description = 'Review attendance recorded by the students assigned to your supervision.';
 
+    public string $status = '';
+
     #[Locked]
     public string $calendarMonth;
 
@@ -80,6 +82,21 @@ new #[Title('Attendance')] class extends Component
             ->whereHas('assignment', fn (Builder $query) => $query->where('company_supervisor_id', Auth::id()));
     }
 
+    // Same status rules as the coordinator attendance page.
+    protected function applyStatus(Builder $query): Builder
+    {
+        return match ($this->status) {
+            'incomplete' => $query->where(fn (Builder $query) => $query
+                ->whereNull('afternoon_time_out')
+                ->orWhere('status', 'incomplete')),
+            'late' => $query->where(fn (Builder $query) => $query
+                ->where('status', 'late')
+                ->orWhereTime('morning_time_in', '>', '08:00:00')),
+            'present', 'absent' => $query->where('status', $this->status),
+            default => $query,
+        };
+    }
+
     public function badgeColor(?string $status): string
     {
         return match ($status) {
@@ -97,7 +114,7 @@ new #[Title('Attendance')] class extends Component
         $month = Carbon::createFromFormat('!Y-m', $this->calendarMonth);
         $start = $month->copy()->startOfWeek(Carbon::MONDAY);
         $end = $month->copy()->endOfMonth()->endOfWeek(Carbon::SUNDAY);
-        $counts = $this->attendanceQuery()
+        $counts = $this->applyStatus($this->attendanceQuery())
             ->whereBetween('attendance_date', [$start->toDateString(), $end->toDateString()])
             ->selectRaw('DATE(attendance_date) as day_key, COUNT(*) as total')
             ->groupByRaw('DATE(attendance_date)')
@@ -126,7 +143,12 @@ new #[Title('Attendance')] class extends Component
         return [
             'total' => (clone $query)->count(),
             'present' => (clone $query)->where('status', 'present')->count(),
-            'incomplete' => (clone $query)->where(fn ($query) => $query
+            'late' => (clone $query)->where(fn (Builder $query) => $query
+                ->where('status', 'late')
+                ->orWhereTime('morning_time_in', '>', '08:00:00'))
+                ->count(),
+            'absent' => (clone $query)->where('status', 'absent')->count(),
+            'incomplete' => (clone $query)->where(fn (Builder $query) => $query
                 ->whereNull('afternoon_time_out')
                 ->orWhere('status', 'incomplete'))
                 ->count(),
@@ -141,7 +163,7 @@ new #[Title('Attendance')] class extends Component
             return new LengthAwarePaginator([], 0, 10);
         }
 
-        return $this->attendanceQuery()
+        return $this->applyStatus($this->attendanceQuery())
             ->with('student.studentProfile')
             ->whereDate('attendance_date', $this->selectedCalendarDate)
             ->orderBy(User::select('name')->whereColumn('users.id', 'attendance_logs.student_id'))

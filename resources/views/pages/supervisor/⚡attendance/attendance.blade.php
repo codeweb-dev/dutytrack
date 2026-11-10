@@ -1,12 +1,33 @@
 <div class="flex flex-col gap-6">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
-    <section class="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(24rem,1fr)]">
+    <div class="grid grid-cols-2 gap-4 xl:grid-cols-5">
+        @php
+            $cards = ['' => ['Total Records', 'total', 'clipboard-document-list'], 'present' => ['Present', 'present', 'check-circle'], 'late' => ['Late', 'late', 'clock'], 'absent' => ['Absent', 'absent', 'x-circle'], 'incomplete' => ['Incomplete', 'incomplete', 'exclamation-circle']];
+        @endphp
+        @foreach ($cards as $value => [$label, $key, $icon])
+            <button type="button" wire:click="$set('status', '{{ $value }}')" class="group text-left"
+                aria-pressed="{{ $status === $value ? 'true' : 'false' }}">
+                <flux:card size="xs" class="hover:bg-zinc-50 dark:hover:bg-zinc-700 group-aria-pressed:border-zinc-800 group-aria-pressed:outline-1 group-aria-pressed:outline-zinc-800 dark:group-aria-pressed:border-white dark:group-aria-pressed:outline-white">
+                    <flux:heading class="flex items-center gap-2">{{ $label }}
+                        <flux:icon :name="$icon" :variant="$status === $value ? 'solid' : 'outline'"
+                            class="ml-auto size-5 {{ $status === $value ? 'text-zinc-800 dark:text-white' : 'text-zinc-400' }}" />
+                    </flux:heading>
+                    <flux:heading size="2xl" class="mt-2">{{ $this->summary[$key] }}</flux:heading>
+                </flux:card>
+            </button>
+        @endforeach
+    </div>
+
+    <section>
         <flux:card class="p-5">
             <div class="flex items-center justify-between gap-4">
                 <div>
                     <flux:heading size="lg">Attendance Calendar</flux:heading>
-                    <flux:text class="mt-1">{{ $this->calendar['month']->format('F Y') }}</flux:text>
+                    <flux:text class="mt-1">
+                        {{ $this->calendar['month']->format('F Y') }} ·
+                        {{ \App\Support\HourFormatter::format($this->summary['hours']) }} rendered in total
+                    </flux:text>
                 </div>
                 <div class="flex items-center gap-1">
                     <flux:button type="button" variant="ghost" icon="chevron-left" aria-label="Previous month"
@@ -46,34 +67,11 @@
 
             <div class="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-xs text-zinc-600 dark:text-zinc-400">
                 <span class="inline-flex items-center gap-2">
-                    <span class="h-2 w-2 rounded-full bg-emerald-600"></span>Attendance records
+                    <span class="h-2 w-2 rounded-full bg-emerald-600"></span>{{ $status === '' ? 'Attendance records' : $cards[$status][0].' records' }}
                 </span>
             </div>
         </flux:card>
 
-        <section class="duty-metrics duty-attendance-metrics grid gap-4 sm:grid-cols-2">
-            <flux:card class="p-4">
-                <flux:heading>Total Records</flux:heading>
-                <div class="mt-2 text-3xl font-semibold text-zinc-950 dark:text-white">{{ $this->summary['total'] }}</div>
-            </flux:card>
-
-            <flux:card class="p-4">
-                <flux:heading>Present</flux:heading>
-                <div class="mt-2 text-3xl font-semibold text-zinc-950 dark:text-white">{{ $this->summary['present'] }}</div>
-            </flux:card>
-
-            <flux:card class="p-4">
-                <flux:heading>Incomplete</flux:heading>
-                <div class="mt-2 text-3xl font-semibold text-zinc-950 dark:text-white">{{ $this->summary['incomplete'] }}</div>
-            </flux:card>
-
-            <flux:card class="p-4">
-                <flux:heading>Rendered Hours</flux:heading>
-                <div class="mt-2 text-3xl font-semibold text-zinc-950 dark:text-white">
-                    {{ \App\Support\HourFormatter::format($this->summary['hours']) }}
-                </div>
-            </flux:card>
-        </section>
     </section>
 
     <flux:modal name="attendance-day-details" class="w-[90vw] max-w-[90vw]!">
@@ -82,7 +80,7 @@
                 <flux:heading size="lg">
                     {{ $selectedCalendarDate ? \Illuminate\Support\Carbon::parse($selectedCalendarDate)->format('F j, Y') : 'Attendance Details' }}
                 </flux:heading>
-                <flux:text class="mt-2">{{ $this->selectedAttendance->total() }} attendance records from your assigned students.</flux:text>
+                <flux:text class="mt-2">{{ $this->selectedAttendance->total() }} {{ $status === '' ? 'attendance' : strtolower($cards[$status][0]) }} records from your assigned students.</flux:text>
             </div>
 
             @if ($this->selectedAttendance->isEmpty())

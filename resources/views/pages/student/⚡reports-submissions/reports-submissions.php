@@ -1,5 +1,6 @@
 <?php
 
+use App\Notifications\SystemNotification;
 use App\Livewire\Concerns\WithSorting;
 use App\Models\AttendanceLog;
 use App\Models\AttendanceSubmission;
@@ -119,6 +120,11 @@ new #[Title('Accomplishment Report')] class extends Component
             'skills_learned' => trim($this->skills_learned) !== '' ? trim($this->skills_learned) : null,
             'photo_paths' => array_values(array_merge($existingPhotos, $uploadedPhotos)),
         ])->save();
+
+        $submission->assignment?->companySupervisor?->notify(new SystemNotification(
+            $submission->wasRecentlyCreated ? 'Accomplishment report submitted' : 'Accomplishment report updated',
+            Auth::user()->display_name.' · '.$attendance->attendance_date?->format('M j, Y'), route('supervisor.reports-submissions'), 'document-text',
+        ));
 
         $this->reset('editingAttendanceId', 'accomplishment', 'skills_learned', 'new_photos');
         unset($this->completedAttendances);

@@ -4,6 +4,7 @@ use App\Models\ChatConversation;
 use App\Models\ChatMessage;
 use App\Models\OjtAssignment;
 use App\Models\User;
+use App\Notifications\SystemNotification;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
@@ -81,6 +82,18 @@ new #[Title('Messages')] class extends Component
         ]);
 
         $conversation->touch();
+
+        $recipient = (int) $conversation->student_id === (int) Auth::id() ? $conversation->participant : $conversation->student;
+        $recipient?->notify(new SystemNotification(
+            'New message from '.Auth::user()->display_name,
+            str($this->body)->trim()->limit(80)->toString(),
+            route(match (true) {
+                $recipient->hasRole('ojt_coordinator') => 'coordinator.messages',
+                $recipient->hasRole('supervisor') => 'supervisor.messages',
+                default => 'student.messages',
+            }),
+            'chat-bubble-left-right',
+        ));
 
         $this->body = '';
         unset($this->selectedConversation, $this->chatMessages, $this->conversations, $this->allConversations);

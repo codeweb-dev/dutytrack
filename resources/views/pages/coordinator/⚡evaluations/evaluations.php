@@ -1,5 +1,6 @@
 <?php
 
+use App\Notifications\SystemNotification;
 use App\Livewire\Concerns\WithSorting;
 use App\Models\Evaluation;
 use App\Models\StudentProfile;
@@ -80,6 +81,13 @@ new #[Title('Evaluation Review')] class extends Component
                 oldValues: $oldValues,
                 newValues: ['status' => $evaluation->status],
             );
+
+            $evaluation->student?->notify(new SystemNotification(
+                'Evaluation released', 'Your supervisor evaluation is now available to view.', route('student.evaluations'), 'check-badge',
+            ));
+            $evaluation->evaluator?->notify(new SystemNotification(
+                'Evaluation approved', 'The coordinator approved your evaluation of '.$evaluation->student?->display_name.'.', route('supervisor.evaluations'), 'check-badge',
+            ));
         });
 
         unset($this->evaluations, $this->summary);

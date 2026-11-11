@@ -2,6 +2,7 @@
 
 use App\Models\StudentRequirement;
 use App\Models\User;
+use App\Notifications\SystemNotification;
 use Flux\Flux;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -49,6 +50,10 @@ new class extends Component
             'completed_at' => now(),
             'completed_by' => Auth::id(),
         ]);
+
+        $this->student->notify(new SystemNotification(
+            'Requirement approved', $requirement->label, route('student.requirements'), 'clipboard-document-check',
+        ));
 
         $this->student = $this->student->fresh('studentProfile', 'studentRequirements');
         unset($this->requirementSteps, $this->requirementSummary);

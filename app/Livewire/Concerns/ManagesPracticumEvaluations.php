@@ -4,6 +4,7 @@ namespace App\Livewire\Concerns;
 
 use App\Models\Evaluation;
 use App\Models\OjtAssignment;
+use App\Notifications\SystemNotification;
 use App\Support\PracticumEvaluationForm;
 use Flux\Flux;
 use Illuminate\Database\Eloquent\Builder;
@@ -95,6 +96,10 @@ trait ManagesPracticumEvaluations
                 'remarks' => trim($this->evaluation_remarks) !== '' ? trim($this->evaluation_remarks) : null,
                 'status' => 'submitted',
             ]);
+
+            $assignment->student->coordinator?->notify(new SystemNotification(
+                'Evaluation awaiting approval', Auth::user()->display_name.' evaluated '.$assignment->student->display_name.'.', route('coordinator.evaluations'), 'check-badge',
+            ));
 
             return false;
         });

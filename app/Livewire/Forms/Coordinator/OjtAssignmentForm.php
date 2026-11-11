@@ -4,6 +4,7 @@ namespace App\Livewire\Forms\Coordinator;
 
 use App\Models\OjtAssignment;
 use App\Models\User;
+use App\Notifications\SystemNotification;
 use App\Support\AuditLogger;
 use Flux\Flux;
 use Illuminate\Support\Facades\Auth;
@@ -203,6 +204,13 @@ class OjtAssignmentForm extends Form
                 description: 'Created an OJT assignment.',
                 newValues: $this->assignmentAuditData($assignment),
             );
+
+            $assignment->student?->notify(new SystemNotification(
+                'OJT assignment created', 'Supervisor: '.($assignment->companySupervisor?->display_name ?? 'Not set'), route('student.dashboard'), 'briefcase',
+            ));
+            $assignment->companySupervisor?->notify(new SystemNotification(
+                'New trainee assigned to you', $assignment->student?->display_name, route('supervisor.assigned-students'), 'user-group',
+            ));
         });
 
         $this->resetForm();
@@ -263,6 +271,13 @@ class OjtAssignmentForm extends Form
                 oldValues: $oldValues,
                 newValues: $this->assignmentAuditData($assignment),
             );
+
+            $assignment->student?->notify(new SystemNotification(
+                'OJT assignment updated', 'Supervisor: '.($assignment->companySupervisor?->display_name ?? 'Not set'), route('student.dashboard'), 'briefcase',
+            ));
+            $assignment->companySupervisor?->notify(new SystemNotification(
+                'Trainee assignment updated', $assignment->student?->display_name, route('supervisor.assigned-students'), 'user-group',
+            ));
         });
 
         Flux::toast(

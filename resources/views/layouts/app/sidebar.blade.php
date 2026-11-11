@@ -106,6 +106,8 @@
             @endif
 
             <div class="ml-auto flex items-center gap-3">
+                <livewire:notifications />
+
                 <flux:button icon="megaphone" variant="subtle" :href="route('announcements')" aria-label="Announcements"
                     wire:navigate data-tour="topbar-announcements" />
 

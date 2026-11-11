@@ -2,6 +2,7 @@
 
 use App\Models\OjtAssignment;
 use App\Models\StudentTask;
+use App\Notifications\SystemNotification;
 use Flux\Flux;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -129,6 +130,10 @@ new #[Title('Tasks')] class extends Component
                 'status' => 'pending',
                 'sort_order' => $sortOrder,
             ]);
+
+            $assignment->student?->notify(new SystemNotification(
+                'New task assigned', $this->task_title, route('student.tasks'), 'rectangle-stack',
+            ));
         });
 
         $this->resetTaskForm();
@@ -156,6 +161,9 @@ new #[Title('Tasks')] class extends Component
             'priority' => $this->priority,
             'due_date' => $this->due_date ?: null,
         ]);
+        $tasks->each(fn (StudentTask $task) => $task->student?->notify(new SystemNotification(
+            'Task updated', $task->title, route('student.tasks'), 'pencil-square',
+        )));
 
         $this->resetTaskForm();
         unset($this->tasks, $this->columns);
@@ -166,7 +174,13 @@ new #[Title('Tasks')] class extends Component
 
     public function archiveTask(string $taskCardKey): void
     {
+        $tasks = $this->taskCardQuery($taskCardKey)->get();
+
         abort_if($this->taskCardQuery($taskCardKey)->update(['archived_at' => now()]) === 0, 404);
+
+        $tasks->each(fn (StudentTask $task) => $task->student?->notify(new SystemNotification(
+            'Task removed', $task->title, route('student.tasks'), 'archive-box',
+        )));
 
         unset($this->tasks, $this->summary, $this->columns, $this->archivedTasks);
 
@@ -183,6 +197,9 @@ new #[Title('Tasks')] class extends Component
             'archived_at' => null,
             'sort_order' => $this->nextSupervisorTaskSortOrder($task->status),
         ]));
+        $tasks->each(fn (StudentTask $task) => $task->student?->notify(new SystemNotification(
+            'Task restored', $task->title, route('student.tasks'), 'rectangle-stack',
+        )));
 
         unset($this->tasks, $this->summary, $this->columns, $this->archivedTasks);
 
@@ -261,6 +278,8 @@ new #[Title('Tasks')] class extends Component
 
         abort_if($tasks->isEmpty(), 404);
 
+        $moved = $tasks->filter(fn (StudentTask $task): bool => $task->status !== $status)->values();
+
         $previousStatuses = $tasks
             ->pluck('status')
             ->unique()
@@ -284,6 +303,14 @@ new #[Title('Tasks')] class extends Component
         });
 
         unset($this->tasks, $this->summary, $this->columns);
+
+        // requestRevision() sends its own notification with the comment.
+        if (! ($status === 'revision' && $this->revision_task_key === $taskCardKey)) {
+            $moved->each(fn (StudentTask $task) => $task->student?->notify(new SystemNotification(
+                $status === 'done' ? 'Task approved' : 'Task moved to '.StudentTask::statusLabels()[$status],
+                $task->title, route('student.tasks'), 'rectangle-stack',
+            )));
+        }
 
         // Dragging into Revision asks for the comment; skipped when requestRevision() is the caller.
         if ($status === 'revision' && $previousStatuses->isNotEmpty() && $this->revision_task_key !== $taskCardKey) {
@@ -316,6 +343,9 @@ new #[Title('Tasks')] class extends Component
         abort_if($tasks->isEmpty(), 404);
 
         $tasks->each->update(['revision_note' => $this->revision_note]);
+        $tasks->each(fn (StudentTask $task) => $task->student?->notify(new SystemNotification(
+            'Revision requested', $task->title.': '.$this->revision_note, route('student.tasks'), 'arrow-uturn-left',
+        )));
 
         if ($tasks->contains(fn (StudentTask $task): bool => $task->status !== 'revision')) {
             $this->sortTaskCard($this->revision_task_key, 0, 'revision');

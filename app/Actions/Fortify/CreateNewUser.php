@@ -8,6 +8,7 @@ use App\Enums\Role;
 use App\Models\CoordinatorProfile;
 use App\Models\StudentRequirement;
 use App\Models\User;
+use App\Notifications\SystemNotification;
 use App\Support\AuditLogger;
 use Illuminate\Http\File;
 use Illuminate\Support\Facades\DB;
@@ -118,6 +119,10 @@ class CreateNewUser implements CreatesNewUsers
                 targetLabel: $user->name,
                 description: 'Student signed up.',
             );
+
+            User::find($coordinatorId)?->notify(new SystemNotification(
+                'New student sign-up', $user->name.' is waiting for your approval.', route('coordinator.student-management'), 'user-plus',
+            ));
 
             return $user;
         });

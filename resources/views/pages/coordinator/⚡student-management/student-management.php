@@ -1,5 +1,6 @@
 <?php
 
+use App\Notifications\SystemNotification;
 use App\Enums\Role as EnumsRole;
 use App\Models\User;
 use App\Support\AuditLogger;
@@ -116,6 +117,10 @@ new #[Title('Students')] class extends Component
             description: 'Approved a Student account.',
         );
 
+        $student->notify(new SystemNotification(
+            'Account approved', 'Welcome! Your coordinator approved your account.', route('dashboard'), 'check-circle',
+        ));
+
         Flux::modal('review-student-'.$student->id)->close();
 
         Flux::toast(variant: 'success', heading: 'Student approved.', text: "{$student->display_name} can now log in.");
@@ -167,6 +172,10 @@ new #[Title('Students')] class extends Component
             targetLabel: $student->display_name,
             description: 'Reactivated a Student account.',
         );
+
+        $student->notify(new SystemNotification(
+            'Account reactivated', 'Your coordinator reactivated your account.', route('dashboard'), 'check-circle',
+        ));
 
         Flux::toast(variant: 'success', heading: 'Student activated.', text: "{$student->display_name} can log in again.");
 

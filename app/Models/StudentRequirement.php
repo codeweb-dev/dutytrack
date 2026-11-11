@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Notifications\SystemNotification;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
@@ -163,6 +164,10 @@ class StudentRequirement extends Model
         if ($oldPath && $oldPath !== $path) {
             Storage::disk('local')->delete($oldPath);
         }
+
+        $this->student?->coordinator?->notify(new SystemNotification(
+            'Requirement submitted', $this->student->display_name.': '.$this->label, route('coordinator.requirements'), 'clipboard-document-check',
+        ));
     }
 
     public function student()

@@ -1,5 +1,6 @@
 <?php
 
+use App\Notifications\SystemNotification;
 use App\Enums\Role as EnumsRole;
 use App\Models\User;
 use App\Support\AuditLogger;
@@ -122,6 +123,10 @@ new #[Title('Supervisor Management')] class extends Component
             targetLabel: $supervisor->display_name,
             description: 'Reactivated a Supervisor account.',
         );
+
+        $supervisor->notify(new SystemNotification(
+            'Account reactivated', 'The coordinator reactivated your account.', route('dashboard'), 'check-circle',
+        ));
 
         Flux::toast(variant: 'success', heading: 'Supervisor activated.', text: "{$supervisor->display_name} can log in again.");
 

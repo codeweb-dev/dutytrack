@@ -1,5 +1,6 @@
 <?php
 
+use App\Notifications\SystemNotification;
 use App\Models\AttendanceLog;
 use App\Models\OjtAssignment;
 use App\Models\StudentProfile;
@@ -396,6 +397,7 @@ new #[Title('My Attendance')] class extends Component
 
         $this->clearFormState();
 
+        $this->notifySupervisor('morning time in');
         Flux::toast(variant: 'success', heading: 'Morning time in recorded.', text: 'Your morning time in has been saved.');
     }
 
@@ -428,6 +430,7 @@ new #[Title('My Attendance')] class extends Component
 
         $this->clearFormState();
 
+        $this->notifySupervisor('morning time out');
         Flux::toast(variant: 'success', heading: 'Morning time out recorded.', text: 'Your morning session has been saved.');
     }
 
@@ -482,6 +485,7 @@ new #[Title('My Attendance')] class extends Component
 
         $this->clearFormState();
 
+        $this->notifySupervisor('afternoon time in');
         Flux::toast(variant: 'success', heading: 'Afternoon time in recorded.', text: 'Your afternoon time in has been saved.');
     }
 
@@ -521,7 +525,15 @@ new #[Title('My Attendance')] class extends Component
 
         $this->clearFormState();
 
+        $this->notifySupervisor('afternoon time out');
         Flux::toast(variant: 'success', heading: 'Afternoon time out recorded.', text: 'Your rendered hours have been calculated.');
+    }
+
+    protected function notifySupervisor(string $punch): void
+    {
+        $this->assignment?->companySupervisor?->notify(new SystemNotification(
+            Auth::user()->display_name.' recorded '.$punch, now()->format('M j, g:i A'), route('supervisor.attendance'), 'calendar-days',
+        ));
     }
 
     protected function attendanceAlreadyComplete(): void

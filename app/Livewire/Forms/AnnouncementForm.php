@@ -3,8 +3,12 @@
 namespace App\Livewire\Forms;
 
 use App\Models\Announcement;
+use App\Models\User;
+use App\Notifications\SystemNotification;
 use App\Support\AuditLogger;
 use Flux\Flux;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
 use Livewire\Form;
 
 class AnnouncementForm extends Form
@@ -73,6 +77,12 @@ class AnnouncementForm extends Form
             targetLabel: $announcement->title,
             description: 'Created a new announcement.',
             newValues: $this->announcementAuditData($announcement),
+        );
+
+        // ponytail: sync fan-out to every user; queue it if the user count grows into the thousands.
+        Notification::send(
+            User::query()->whereKeyNot(Auth::id())->get(),
+            new SystemNotification('New announcement', $announcement->title, route('announcements'), 'megaphone'),
         );
 
         $this->resetForm();

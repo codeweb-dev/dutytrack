@@ -1,5 +1,6 @@
 <?php
 
+use App\Notifications\SystemNotification;
 use App\Models\OjtAssignment;
 use App\Support\AuditLogger;
 use Flux\Flux;
@@ -45,6 +46,13 @@ new class extends Component
                 description: 'Archived an OJT assignment.',
                 oldValues: $oldValues,
             );
+
+            $assignment->student?->notify(new SystemNotification(
+                'OJT assignment removed', 'Supervisor: '.($assignment->companySupervisor?->display_name ?? 'Not set'), route('student.dashboard'), 'briefcase',
+            ));
+            $assignment->companySupervisor?->notify(new SystemNotification(
+                'Trainee assignment removed', $assignment->student?->display_name, route('supervisor.assigned-students'), 'user-group',
+            ));
 
             $assignment->delete();
         });

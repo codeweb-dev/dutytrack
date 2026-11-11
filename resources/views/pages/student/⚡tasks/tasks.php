@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\StudentTask;
+use App\Notifications\SystemNotification;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -67,6 +68,13 @@ new class extends Component
                 $this->reorderStudentStatus($previousStatus);
             }
         });
+
+        if ($previousStatus !== $status) {
+            $task->assignedBy?->notify(new SystemNotification(
+                $status === 'in_review' ? 'Task submitted for review' : 'Task moved to '.StudentTask::statusLabels()[$status],
+                Auth::user()->display_name.': '.$task->title, route('supervisor.tasks'), 'rectangle-stack',
+            ));
+        }
 
         unset($this->columns);
     }

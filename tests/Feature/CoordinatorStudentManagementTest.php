@@ -131,6 +131,61 @@ test('students submit a requirement with an attached file', function () {
     Storage::disk('local')->assertExists($requirement->file_path);
 });
 
+test('students fill out a requirement form that is prefilled and submitted as a pdf', function () {
+    Storage::fake('local');
+
+    $coordinator = createCoordinator(['name' => 'Catherine Dumpit']);
+    $student = createStudentForCoordinator($coordinator);
+
+    StudentRequirement::ensureForStudent($student);
+
+    $this->actingAs($student);
+
+    $this->get(route('student.requirements.form', 'parents_waiver'))->assertOk()->assertSee('Parents Waiver');
+    $this->get('/student/requirements/narrative_report')->assertNotFound();
+
+    Livewire::test('pages::student.requirement-form', ['key' => 'parents_waiver'])
+        ->assertSet('form.name', $student->name)
+        ->assertSet('form.program', 'Bachelor of Science in Information Technology')
+        ->set('form.date', 'not a date')
+        ->call('previewPdf')
+        ->assertReturned(fn (string $pdf) => str_starts_with(base64_decode($pdf), '%PDF'))
+        ->set('form.date', now()->toDateString())
+        ->set('form.guardian_name', '')
+        ->call('submit')
+        ->assertHasErrors('form.guardian_name')
+        ->set('form.guardian_name', 'Maria Owner')
+        ->set('form.guardian_address', 'GMA, Cavite')
+        ->set('form.guardian_contact_number', '09170000000')
+        ->set('form.address', 'GMA, Cavite')
+        ->set('form.contact_number', '09171111111')
+        ->set('form.company_name', 'Acme Corp')
+        ->call('submit')
+        ->assertHasNoErrors()
+        ->assertRedirect(route('student.requirements'));
+
+    // The requirements page confirms the submission after the redirect.
+    Livewire::test('pages::student.requirements')->assertDispatched('toast-show');
+
+    $requirement = StudentRequirement::query()->where('student_id', $student->id)->where('key', 'parents_waiver')->first();
+
+    expect($requirement->submitted_at)->not->toBeNull();
+    expect($requirement->form_data['guardian_name'])->toBe('Maria Owner');
+    expect(Storage::disk('local')->get($requirement->file_path))->toStartWith('%PDF');
+
+    // Reopening shows the saved answers; approved requirements are locked.
+    Livewire::test('pages::student.requirement-form', ['key' => 'parents_waiver'])->assertSet('form.guardian_name', 'Maria Owner');
+    $requirement->update(['is_completed' => true]);
+    $this->get(route('student.requirements.form', 'parents_waiver'))->assertForbidden();
+
+    // Every fillable template renders.
+    foreach (array_keys(\App\Support\RequirementForm::FORMS) as $key) {
+        $requirement = StudentRequirement::query()->where('student_id', $student->id)->where('key', $key)->first();
+
+        expect(\App\Support\RequirementForm::render($requirement, \App\Support\RequirementForm::values($key, $student)))->toStartWith('%PDF');
+    }
+});
+
 test('students can only view their own private requirement files', function () {
     Storage::fake('local');
     $coordinator = createCoordinator();

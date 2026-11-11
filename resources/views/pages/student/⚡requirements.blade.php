@@ -3,7 +3,6 @@
 use App\Models\StudentRequirement;
 use Flux\Flux;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -19,7 +18,15 @@ new #[Title('OJT Requirements')] class extends Component
 
     public string $title = 'OJT Student Requirements';
 
-    public string $description = 'Download the templates, fill them out, and upload each file for coordinator approval.';
+    public string $description = 'Fill out each form online and it goes straight to your coordinator for approval.';
+
+    public function mount(): void
+    {
+        // Set by the fill-out page after it submits a form.
+        if ($submitted = session('requirement-submitted')) {
+            Flux::toast(variant: 'success', heading: $submitted.' submitted.', text: 'Your coordinator can now review the generated document.');
+        }
+    }
 
     #[Computed]
     public function requirements()
@@ -88,16 +95,7 @@ new #[Title('OJT Requirements')] class extends Component
         // Approved requirements are locked.
         abort_if($requirement->is_completed, 403);
 
-        $oldPath = $requirement->file_path;
-
-        $requirement->update([
-            'file_path' => $this->requirementFiles[$key]->store('student-requirements/'.Auth::id(), 'local'),
-            'submitted_at' => now(),
-        ]);
-
-        if ($oldPath) {
-            Storage::disk('local')->delete($oldPath);
-        }
+        $requirement->submitFile($this->requirementFiles[$key]->store('student-requirements/'.Auth::id(), 'local'));
 
         unset($this->requirementFiles[$key], $this->requirements, $this->requirementSummary, $this->requirementSteps);
 
@@ -132,7 +130,7 @@ new #[Title('OJT Requirements')] class extends Component
     <section class="grid items-start gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(20rem,1fr)]">
         <flux:card>
             <flux:heading size="lg">Requirement Checklist</flux:heading>
-            <flux:text class="mt-2">Upload a file for each requirement. You can replace a file until your coordinator approves it.</flux:text>
+            <flux:text class="mt-2">Fill out each form, or upload a file. You can resubmit until your coordinator approves it.</flux:text>
 
             <div class="mt-6 space-y-6">
                 @foreach ($this->requirementSteps as $step)
@@ -146,7 +144,10 @@ new #[Title('OJT Requirements')] class extends Component
 
                         <div class="divide-y divide-zinc-100 rounded-lg border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
                             @foreach ($step['items'] as $requirement)
-                                @php $field = 'requirementFiles.'.$requirement->key; @endphp
+                                @php
+                                    $field = 'requirementFiles.'.$requirement->key;
+                                    $fillable = \App\Support\RequirementForm::has($requirement->key);
+                                @endphp
 
                                 <div class="p-4" wire:key="requirement-{{ $requirement->id }}">
                                     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -183,7 +184,7 @@ new #[Title('OJT Requirements')] class extends Component
                                                 <flux:badge color="amber" size="sm" inset="top bottom">Missing</flux:badge>
                                             @endif
 
-                                            @if ($requirement->template_path)
+                                            @if ($requirement->template_path && ! $fillable)
                                                 <flux:button href="{{ asset($requirement->template_path) }}" target="_blank" download
                                                     icon="document-arrow-down" size="xs" variant="ghost">
                                                     Template
@@ -202,12 +203,25 @@ new #[Title('OJT Requirements')] class extends Component
                                                     accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" tabindex="-1"
                                                     aria-label="Upload {{ $requirement->label }}" />
 
-                                                <flux:button type="button" x-on:click="$refs.file.click()" size="xs"
-                                                    icon="arrow-up-tray" :variant="$requirement->submitted_at ? 'filled' : 'primary'"
-                                                    wire:loading.attr="disabled" wire:target="{{ $field }}">
-                                                    <span wire:loading.remove wire:target="{{ $field }}">{{ $requirement->submitted_at ? 'Replace' : 'Upload' }}</span>
-                                                    <span wire:loading wire:target="{{ $field }}">Uploading…</span>
-                                                </flux:button>
+                                                @if ($fillable)
+                                                    {{-- Forms signed on paper can still be uploaded as a scan. --}}
+                                                    <flux:button type="button" x-on:click="$refs.file.click()" size="xs" variant="ghost"
+                                                        icon="arrow-up-tray" tooltip="Upload a signed copy instead"
+                                                        aria-label="Upload a signed copy of {{ $requirement->label }}"
+                                                        wire:loading.attr="disabled" wire:target="{{ $field }}" />
+
+                                                    <flux:button :href="route('student.requirements.form', $requirement->key)" wire:navigate size="xs"
+                                                        icon="pencil-square" :variant="$requirement->submitted_at ? 'filled' : 'primary'">
+                                                        {{ $requirement->form_data ? 'Edit' : 'Fill out' }}
+                                                    </flux:button>
+                                                @else
+                                                    <flux:button type="button" x-on:click="$refs.file.click()" size="xs"
+                                                        icon="arrow-up-tray" :variant="$requirement->submitted_at ? 'filled' : 'primary'"
+                                                        wire:loading.attr="disabled" wire:target="{{ $field }}">
+                                                        <span wire:loading.remove wire:target="{{ $field }}">{{ $requirement->submitted_at ? 'Replace' : 'Upload' }}</span>
+                                                        <span wire:loading wire:target="{{ $field }}">Uploading…</span>
+                                                    </flux:button>
+                                                @endif
                                             @endunless
                                         </div>
                                     </div>
@@ -268,8 +282,9 @@ new #[Title('OJT Requirements')] class extends Component
             <flux:callout icon="information-circle" variant="secondary">
                 <flux:callout.heading>How it works</flux:callout.heading>
                 <flux:callout.text>
-                    Download the template, fill it out, then upload it as PDF, Word, JPG, or PNG (max 10 MB).
-                    Your coordinator reviews each file, and approved files are locked.
+                    Click <strong>Fill out</strong> and check the details we prefilled from your profile. Submitting creates the
+                    document and sends it to your coordinator. Have a signed paper copy? Upload it instead (PDF, Word, JPG, or PNG, max 10 MB).
+                    Approved requirements are locked.
                 </flux:callout.text>
             </flux:callout>
         </div>

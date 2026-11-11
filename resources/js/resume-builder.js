@@ -77,7 +77,8 @@ document.addEventListener('alpine:init', () => {
         },
     }));
 
-    // Renders the exact PDF that downloads, using PDF.js.
+    // Renders the exact PDF that downloads, using PDF.js. `url` may also be an async
+    // function returning the PDF bytes (used by the requirement forms for unsaved input).
     Alpine.data('resumePreview', (url) => {
         // Kept outside Alpine's reactive proxy: PDF.js objects use private class fields.
         let doc = null;
@@ -112,13 +113,15 @@ document.addEventListener('alpine:init', () => {
                 this.loading = true;
 
                 try {
-                    const [lib, response] = await Promise.all([
+                    const [lib, data] = await Promise.all([
                         loadPdfjs(),
-                        fetch(`${this.url}?t=${Date.now()}`, { credentials: 'same-origin' }),
+                        typeof this.url === 'function' ? this.url() : fetch(`${this.url}?t=${Date.now()}`, { credentials: 'same-origin' }).then((response) => {
+                            if (!response.ok) throw new Error(`Preview failed (${response.status})`);
+                            return response.arrayBuffer();
+                        }),
                     ]);
-                    if (!response.ok) throw new Error(`Preview failed (${response.status})`);
 
-                    const next = lib.getDocument({ data: await response.arrayBuffer() });
+                    const next = lib.getDocument({ data });
                     const loaded = await next.promise;
                     if (seq !== this.loadSeq) return next.destroy();
 

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class StudentRequirement extends Model
 {
@@ -15,6 +16,7 @@ class StudentRequirement extends Model
         'sort_order',
         'template_path',
         'file_path',
+        'form_data',
         'is_completed',
         'submitted_at',
         'completed_at',
@@ -24,6 +26,7 @@ class StudentRequirement extends Model
     protected function casts(): array
     {
         return [
+            'form_data' => 'array',
             'is_completed' => 'boolean',
             'submitted_at' => 'datetime',
             'completed_at' => 'datetime',
@@ -144,6 +147,22 @@ class StudentRequirement extends Model
             ->whereIn('key', self::activeKeys())
             ->orderBy('sort_order')
             ->get();
+    }
+
+    /** Stores a new submission for coordinator checking and removes the file it replaces. */
+    public function submitFile(string $path, ?array $formData = null): void
+    {
+        $oldPath = $this->file_path;
+
+        $this->update(array_filter([
+            'file_path' => $path,
+            'submitted_at' => now(),
+            'form_data' => $formData,
+        ], fn ($value) => $value !== null));
+
+        if ($oldPath && $oldPath !== $path) {
+            Storage::disk('local')->delete($oldPath);
+        }
     }
 
     public function student()

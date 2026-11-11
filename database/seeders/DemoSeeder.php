@@ -215,10 +215,10 @@ class DemoSeeder extends Seeder
         return $supervisors;
     }
 
-    // e.g. "De Ramos" + '##' -> deramos42@dutytrack.test; unique() avoids clashes on shared last names.
+    // e.g. "De Ramos" + '##' -> deramos42@gmail.com; unique() avoids clashes on shared last names.
     private function demoEmail(string $lastName, string $digits): string
     {
-        return fake()->unique()->numerify(Str::slug($lastName, '').$digits).'@dutytrack.test';
+        return fake()->unique()->numerify(Str::slug($lastName, '').$digits).'@gmail.com';
     }
 
     private function seedStudent(User $coordinator, int $hours, string $studentId, array $row, string $password, string $status): User

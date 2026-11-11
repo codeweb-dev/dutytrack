@@ -10,7 +10,8 @@
                 </div>
                 <div class="flex items-center gap-1">
                     <flux:modal.trigger name="attendance-holidays">
-                        <flux:button type="button" size="sm" variant="ghost" icon="calendar-days">View all holidays</flux:button>
+                        <flux:button type="button" size="sm" variant="ghost" icon="calendar-days">View all holidays
+                        </flux:button>
                     </flux:modal.trigger>
                     <flux:button size="sm" variant="ghost" icon="eye" target="_blank"
                         :href="route('student.attendance.dtr.view', ['month' => $calendarMonth])">View DTR</flux:button>
@@ -32,18 +33,25 @@
             <div class="grid grid-cols-7 gap-1">
                 @foreach ($this->calendar['days'] as $day)
                     <button type="button" wire:key="calendar-day-{{ $day['date']->format('Y-m-d') }}"
-                        wire:click="showAttendanceDay('{{ $day['date']->format('Y-m-d') }}')" @disabled($day['is_weekend']) @class([
-                        'flex min-h-14 w-full flex-col items-center rounded-xl border py-2 text-sm',
-                        'cursor-pointer transition-colors hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest dark:hover:bg-zinc-800/50' => ! $day['is_weekend'],
-                        'cursor-not-allowed bg-zinc-100 text-zinc-400 dark:bg-zinc-800/40 dark:text-zinc-600' => $day['is_weekend'],
-                        'text-zinc-900 dark:text-white' => $day['is_current_month'] && ! $day['is_weekend'],
-                        'text-zinc-400 dark:text-zinc-600' => ! $day['is_current_month'],
-                        'border-transparent' => ! $day['is_today'] && ! $day['holiday'],
-                        'border-amber-300 bg-amber-50 dark:bg-amber-950/30' => $day['holiday'] && ! $day['is_today'],
-                        'border-red-500 bg-red-50 font-semibold dark:bg-red-950/30' => $day['is_today'],
-                    ])
-                        aria-label="View attendance for {{ $day['date']->format('F j, Y') }}{{ $day['holiday'] ? ': Holiday, '.$day['holiday'] : '' }}{{ $day['status'] ? ': '.ucfirst($day['status']) : '' }}{{ $day['late'] ? ', Late' : '' }}"
-                        title="{{ $day['date']->format('F j, Y') }}{{ $day['holiday'] ? ' · '.$day['holiday'] : '' }}{{ $day['status'] ? ' · '.ucfirst($day['status']) : '' }}{{ $day['late'] ? ' · Late' : '' }}">
+                        wire:click="showAttendanceDay('{{ $day['date']->format('Y-m-d') }}')"
+                        @disabled($day['is_weekend']) @class([
+                            'flex min-h-14 w-full flex-col items-center rounded-xl border py-2 text-sm',
+                            'cursor-pointer transition-colors hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest dark:hover:bg-zinc-800/50' => !$day[
+                                'is_weekend'
+                            ],
+                            'cursor-not-allowed bg-zinc-100 text-zinc-400 dark:bg-zinc-800/40 dark:text-zinc-600' =>
+                                $day['is_weekend'],
+                            'text-zinc-900 dark:text-white' =>
+                                $day['is_current_month'] && !$day['is_weekend'],
+                            'text-zinc-400 dark:text-zinc-600' => !$day['is_current_month'],
+                            'border-transparent' => !$day['is_today'] && !$day['holiday'],
+                            'border-amber-300 bg-amber-50 dark:bg-amber-950/30' =>
+                                $day['holiday'] && !$day['is_today'],
+                            'border-red-500 bg-red-50 font-semibold dark:bg-red-950/30' =>
+                                $day['is_today'],
+                        ])
+                        aria-label="View attendance for {{ $day['date']->format('F j, Y') }}{{ $day['holiday'] ? ': Holiday, ' . $day['holiday'] : '' }}{{ $day['status'] ? ': ' . ucfirst($day['status']) : '' }}{{ $day['late'] ? ', Late' : '' }}"
+                        title="{{ $day['date']->format('F j, Y') }}{{ $day['holiday'] ? ' · ' . $day['holiday'] : '' }}{{ $day['status'] ? ' · ' . ucfirst($day['status']) : '' }}{{ $day['late'] ? ' · Late' : '' }}">
                         <time datetime="{{ $day['date']->toDateString() }}">{{ $day['date']->format('j') }}</time>
                         @if ($day['holiday'])
                             <span class="sr-only">Holiday: {{ $day['holiday'] }}</span>
@@ -57,7 +65,10 @@
                                 'bg-amber-500' => $day['status'] === 'late',
                                 'bg-orange-500' => $day['status'] === 'incomplete',
                                 'bg-red-500' => $day['status'] === 'absent',
-                                'bg-zinc-500' => ! in_array($day['status'], ['present', 'late', 'incomplete', 'absent'], true),
+                                'bg-zinc-500' => !in_array(
+                                    $day['status'],
+                                    ['present', 'late', 'incomplete', 'absent'],
+                                    true),
                             ])></span>
                         @endif
                         @if ($day['late'] && $day['status'] !== 'late')
@@ -77,20 +88,23 @@
             </div>
         </flux:card>
 
-        <section class="duty-metrics duty-attendance-metrics grid gap-4 sm:grid-cols-2">
+        <section class="duty-metrics duty-attendance-metrics grid gap-4 grid-cols-2">
             <flux:card class="p-4">
                 <flux:heading>Total Records</flux:heading>
-                <div class="mt-2 text-3xl font-semibold text-zinc-950 dark:text-white">{{ $this->summary['total'] }}</div>
+                <div class="mt-2 text-3xl font-semibold text-zinc-950 dark:text-white">{{ $this->summary['total'] }}
+                </div>
             </flux:card>
 
             <flux:card class="p-4">
                 <flux:heading>Present</flux:heading>
-                <div class="mt-2 text-3xl font-semibold text-zinc-950 dark:text-white">{{ $this->summary['present'] }}</div>
+                <div class="mt-2 text-3xl font-semibold text-zinc-950 dark:text-white">{{ $this->summary['present'] }}
+                </div>
             </flux:card>
 
             <flux:card class="p-4">
                 <flux:heading>Incomplete</flux:heading>
-                <div class="mt-2 text-3xl font-semibold text-zinc-950 dark:text-white">{{ $this->summary['incomplete'] }}</div>
+                <div class="mt-2 text-3xl font-semibold text-zinc-950 dark:text-white">
+                    {{ $this->summary['incomplete'] }}</div>
             </flux:card>
 
             <flux:card class="p-4">
@@ -125,11 +139,13 @@
             <div class="mt-6">
                 @php
                     $savedLocation = $this->todayAttendance?->hasTimeInLocation();
-                    $geofence = $this->assignment?->hasGeofence() ? [
-                        'latitude' => $this->assignment->geofence_latitude,
-                        'longitude' => $this->assignment->geofence_longitude,
-                        'radius' => $this->assignment->geofence_radius,
-                    ] : null;
+                    $geofence = $this->assignment?->hasGeofence()
+                        ? [
+                            'latitude' => $this->assignment->geofence_latitude,
+                            'longitude' => $this->assignment->geofence_longitude,
+                            'radius' => $this->assignment->geofence_radius,
+                        ]
+                        : null;
                 @endphp
 
                 @if ($savedLocation)
@@ -143,16 +159,15 @@
                         </div>
 
                         <div class="mt-3">
-                            <x-attendance-map id="todayAttendanceMap{{ $this->todayAttendance->id }}"
-                                :latitude="$this->todayAttendance->time_in_latitude" :longitude="$this->todayAttendance->time_in_longitude" />
+                            <x-attendance-map id="todayAttendanceMap{{ $this->todayAttendance->id }}" :latitude="$this->todayAttendance->time_in_latitude"
+                                :longitude="$this->todayAttendance->time_in_longitude" />
                         </div>
-                        <x-location-address class="mt-2 text-xs" :latitude="$this->todayAttendance->time_in_latitude"
-                            :longitude="$this->todayAttendance->time_in_longitude" />
+                        <x-location-address class="mt-2 text-xs" :latitude="$this->todayAttendance->time_in_latitude" :longitude="$this->todayAttendance->time_in_longitude" />
                     </div>
                 @endif
 
                 {{-- Live map always shows unless a saved time-in map already covers a finished day. --}}
-                @if (! $savedLocation || $this->nextPunch())
+                @if (!$savedLocation || $this->nextPunch())
                     <div @class(['mt-6' => $savedLocation]) x-data="{
                         locating: false,
                         message: 'Allow location access to attach your time-in map.',
@@ -195,7 +210,8 @@
                     }" x-init="captureLocation()">
                         <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                             <div>
-                                <flux:heading>{{ $this->todayAttendance ? 'Current Location' : 'Time-in Location' }}</flux:heading>
+                                <flux:heading>{{ $this->todayAttendance ? 'Current Location' : 'Time-in Location' }}
+                                </flux:heading>
                                 <flux:text class="mt-1" x-text="message"></flux:text>
                             </div>
 
@@ -214,8 +230,8 @@
                         </div>
 
                         <div class="mt-4">
-                            <x-attendance-location-picker-map id="capturedTimeInMap" :latitude="$time_in_latitude"
-                                :longitude="$time_in_longitude" :geofence="$geofence" />
+                            <x-attendance-location-picker-map id="capturedTimeInMap" :latitude="$time_in_latitude" :longitude="$time_in_longitude"
+                                :geofence="$geofence" />
                         </div>
 
                         @if ($time_in_latitude && $time_in_longitude)
@@ -254,7 +270,8 @@
                                 </div>
 
                                 <x-attendance-location-picker-map id="capturedTimeInFullscreenMap" :latitude="$time_in_latitude"
-                                    :longitude="$time_in_longitude" :geofence="$geofence" height="height: min(72vh, 42rem)" :zoomLevel="$time_in_latitude && $time_in_longitude ? 17 : 13" />
+                                    :longitude="$time_in_longitude" :geofence="$geofence" height="height: min(72vh, 42rem)"
+                                    :zoomLevel="$time_in_latitude && $time_in_longitude ? 17 : 13" />
 
                                 @if ($time_in_latitude && $time_in_longitude)
                                     <div
@@ -284,15 +301,17 @@
                 @endif
             </div>
 
-            @if (! $this->todayHolidayCheck['available'])
+            @if (!$this->todayHolidayCheck['available'])
                 <flux:callout icon="exclamation-triangle" color="amber" class="mt-6">
                     <flux:callout.heading>Holiday check unavailable</flux:callout.heading>
-                    <flux:callout.text>Attendance time in is disabled until public holidays can be verified.</flux:callout.text>
+                    <flux:callout.text>Attendance time in is disabled until public holidays can be verified.
+                    </flux:callout.text>
                 </flux:callout>
             @elseif ($todayHoliday = $this->todayHolidayCheck['holiday'])
                 <flux:callout icon="calendar-days" variant="secondary" class="mt-6">
                     <flux:callout.heading>Public holiday</flux:callout.heading>
-                    <flux:callout.text>{{ $todayHoliday['name'] }}. Attendance time in is unavailable today.</flux:callout.text>
+                    <flux:callout.text>{{ $todayHoliday['name'] }}. Attendance time in is unavailable today.
+                    </flux:callout.text>
                 </flux:callout>
             @elseif ($this->isRestDay())
                 <flux:callout icon="calendar" variant="secondary" class="mt-6">
@@ -300,70 +319,73 @@
                     <flux:callout.text>OJT attendance is not recorded on Saturdays and Sundays.</flux:callout.text>
                 </flux:callout>
             @else
-            <form x-data="{
-                geofenced: @js((bool) $this->assignment?->hasGeofence()),
-                submit(punch) {
-                    if (!this.geofenced || !navigator.geolocation) {
-                        $wire.recordNextPunch(punch);
-                        return;
-                    }
-
-                    navigator.geolocation.getCurrentPosition(
-                        (position) => {
-                            $wire.time_in_latitude = position.coords.latitude;
-                            $wire.time_in_longitude = position.coords.longitude;
-                            $wire.time_in_location_accuracy = Math.round(position.coords.accuracy || 0);
+                <form x-data="{
+                    geofenced: @js((bool) $this->assignment?->hasGeofence()),
+                    submit(punch) {
+                        if (!this.geofenced || !navigator.geolocation) {
                             $wire.recordNextPunch(punch);
-                        },
-                        () => $wire.recordNextPunch(punch),
-                        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
-                    );
-                },
-            }" x-on:submit.prevent="submit('{{ $this->nextPunch() }}')" class="mt-6 space-y-4">
-                @if (!$this->assignment)
-                    <flux:callout icon="exclamation-triangle" color="amber">
-                        <flux:callout.heading>No OJT assignment found</flux:callout.heading>
-                        <flux:callout.text>
-                            Ask your coordinator to assign your OJT placement before recording attendance.
-                        </flux:callout.text>
-                    </flux:callout>
-                @endif
-
-                @if ($this->assignment?->hasGeofence())
-                    <flux:callout icon="map-pin" variant="secondary">
-                        <flux:callout.heading>Location-restricted attendance</flux:callout.heading>
-                        <flux:callout.text>
-                            You can only record attendance within {{ $this->assignment->geofence_radius }} m of your assigned OJT location.
-                            <flux:callout.link :href="$this->mapUrl($this->assignment->geofence_latitude, $this->assignment->geofence_longitude)" target="_blank">Open map</flux:callout.link>
-                        </flux:callout.text>
-                    </flux:callout>
-                @endif
-
-                <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-                    @if ($this->nextPunch())
-                        <flux:button type="submit" variant="primary" :icon="$this->nextPunchIcon()"
-                            :disabled="! $this->assignment">
-                            {{ $this->nextPunchLabel() }}
-                        </flux:button>
-                    @else
-                        <flux:button type="button" variant="ghost" icon="check-circle" disabled>
-                            {{ $this->nextPunchLabel() }}
-                        </flux:button>
+                            return;
+                        }
+                
+                        navigator.geolocation.getCurrentPosition(
+                            (position) => {
+                                $wire.time_in_latitude = position.coords.latitude;
+                                $wire.time_in_longitude = position.coords.longitude;
+                                $wire.time_in_location_accuracy = Math.round(position.coords.accuracy || 0);
+                                $wire.recordNextPunch(punch);
+                            },
+                            () => $wire.recordNextPunch(punch), { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
+                        );
+                    },
+                }" x-on:submit.prevent="submit('{{ $this->nextPunch() }}')"
+                    class="mt-6 space-y-4">
+                    @if (!$this->assignment)
+                        <flux:callout icon="exclamation-triangle" color="amber">
+                            <flux:callout.heading>No OJT assignment found</flux:callout.heading>
+                            <flux:callout.text>
+                                Ask your coordinator to assign your OJT placement before recording attendance.
+                            </flux:callout.text>
+                        </flux:callout>
                     @endif
 
-                    <flux:text>
-                        @if ($this->assignment)
-                            {{ ucfirst($this->assignment->ojt_type) }} OJT · Morning and afternoon attendance
+                    @if ($this->assignment?->hasGeofence())
+                        <flux:callout icon="map-pin" variant="secondary">
+                            <flux:callout.heading>Location-restricted attendance</flux:callout.heading>
+                            <flux:callout.text>
+                                You can only record attendance within {{ $this->assignment->geofence_radius }} m of
+                                your assigned OJT location.
+                                <flux:callout.link
+                                    :href="$this->mapUrl($this->assignment->geofence_latitude, $this->assignment->geofence_longitude)"
+                                    target="_blank">Open map</flux:callout.link>
+                            </flux:callout.text>
+                        </flux:callout>
+                    @endif
+
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                        @if ($this->nextPunch())
+                            <flux:button type="submit" variant="primary" :icon="$this->nextPunchIcon()"
+                                :disabled="! $this->assignment">
+                                {{ $this->nextPunchLabel() }}
+                            </flux:button>
                         @else
-                            Waiting for assignment
+                            <flux:button type="button" variant="ghost" icon="check-circle" disabled>
+                                {{ $this->nextPunchLabel() }}
+                            </flux:button>
                         @endif
-                    </flux:text>
-                </div>
-            </form>
+
+                        <flux:text>
+                            @if ($this->assignment)
+                                {{ ucfirst($this->assignment->ojt_type) }} OJT · Morning and afternoon attendance
+                            @else
+                                Waiting for assignment
+                            @endif
+                        </flux:text>
+                    </div>
+                </form>
             @endif
         </flux:card>
 
-        <section class="grid gap-4 sm:grid-cols-2">
+        <section class="grid gap-4 grid-cols-2">
             <flux:card class="p-4">
                 <flux:heading>Morning In</flux:heading>
                 <div class="mt-2 text-3xl font-semibold text-zinc-950 dark:text-white">
@@ -419,12 +441,7 @@
                 </div>
 
                 <div class="grid gap-3 sm:grid-cols-2">
-                    @foreach ([
-                        ['Morning In', $this->selectedAttendance->displayMorningTimeIn()],
-                        ['Morning Out', $this->selectedAttendance->displayMorningTimeOut()],
-                        ['Afternoon In', $this->selectedAttendance->displayAfternoonTimeIn()],
-                        ['Afternoon Out', $this->selectedAttendance->displayAfternoonTimeOut()],
-                    ] as [$label, $time])
+                    @foreach ([['Morning In', $this->selectedAttendance->displayMorningTimeIn()], ['Morning Out', $this->selectedAttendance->displayMorningTimeOut()], ['Afternoon In', $this->selectedAttendance->displayAfternoonTimeIn()], ['Afternoon Out', $this->selectedAttendance->displayAfternoonTimeOut()]] as [$label, $time])
                         <flux:card class="p-4">
                             <flux:heading>{{ $label }}</flux:heading>
                             <div class="mt-2 text-lg font-semibold text-zinc-950 dark:text-white">
@@ -437,27 +454,25 @@
                 <div class="space-y-4">
                     <div>
                         <flux:heading>Rendered Hours</flux:heading>
-                        <flux:text class="mt-1">{{ \App\Support\HourFormatter::format($this->selectedAttendance->hours_rendered) }}</flux:text>
+                        <flux:text class="mt-1">
+                            {{ \App\Support\HourFormatter::format($this->selectedAttendance->hours_rendered) }}
+                        </flux:text>
                     </div>
                     <div>
                         <flux:heading>Time-in Location</flux:heading>
                         @if ($this->selectedAttendance->hasTimeInLocation())
-                            <x-location-address class="mt-1" :latitude="$this->selectedAttendance->time_in_latitude"
-                                :longitude="$this->selectedAttendance->time_in_longitude" />
+                            <x-location-address class="mt-1" :latitude="$this->selectedAttendance->time_in_latitude" :longitude="$this->selectedAttendance->time_in_longitude" />
 
                             {{-- Alpine init instead of x-attendance-map: its inline script doesn't run when Livewire swaps modal content. --}}
                             <div wire:ignore wire:key="day-map-{{ $this->selectedAttendance->id }}"
                                 class="mt-3 h-56 w-full overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-700"
-                                x-data="{ point: [{{ (float) $this->selectedAttendance->time_in_latitude }}, {{ (float) $this->selectedAttendance->time_in_longitude }}] }"
-                                x-init="
-                                    const map = L.map($el).setView(point, 17);
-                                    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                                        maxZoom: 19,
-                                        attribution: '&copy; OpenStreetMap contributors',
-                                    }).addTo(map);
-                                    L.marker(point).bindPopup('Time-in location').addTo(map);
-                                    setTimeout(() => map.invalidateSize(), 200);
-                                "></div>
+                                x-data="{ point: [{{ (float) $this->selectedAttendance->time_in_latitude }}, {{ (float) $this->selectedAttendance->time_in_longitude }}] }" x-init="const map = L.map($el).setView(point, 17);
+                                L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                    maxZoom: 19,
+                                    attribution: '&copy; OpenStreetMap contributors',
+                                }).addTo(map);
+                                L.marker(point).bindPopup('Time-in location').addTo(map);
+                                setTimeout(() => map.invalidateSize(), 200);"></div>
                         @else
                             <flux:text class="mt-1">No location captured.</flux:text>
                         @endif
@@ -480,7 +495,8 @@
     <flux:modal name="attendance-holidays" class="md:w-2xl">
         <div class="space-y-6">
             <div>
-                <flux:heading size="lg">Public holidays {{ $this->calendar['month']->format('Y') }}</flux:heading>
+                <flux:heading size="lg">Public holidays {{ $this->calendar['month']->format('Y') }}
+                </flux:heading>
                 <flux:text class="mt-2">Philippines public holidays for the selected calendar year.</flux:text>
             </div>
 
@@ -489,13 +505,15 @@
                     @foreach ($this->holidays as $holiday)
                         <li wire:key="holiday-{{ $holiday['date'] }}" class="flex justify-between gap-4 py-3">
                             <span>{{ $holiday['name'] }}</span>
-                            <time datetime="{{ $holiday['date'] }}" class="shrink-0 text-zinc-500">{{ \Illuminate\Support\Carbon::parse($holiday['date'])->format('M j, Y') }}</time>
+                            <time datetime="{{ $holiday['date'] }}"
+                                class="shrink-0 text-zinc-500">{{ \Illuminate\Support\Carbon::parse($holiday['date'])->format('M j, Y') }}</time>
                         </li>
                     @endforeach
                 </ul>
-            @elseif (! $this->holidaysAvailable)
+            @elseif (!$this->holidaysAvailable)
                 <flux:callout icon="exclamation-triangle" color="amber">
-                    <flux:callout.text>Public holidays could not be loaded. Time in is disabled until the holiday list can be verified.</flux:callout.text>
+                    <flux:callout.text>Public holidays could not be loaded. Time in is disabled until the holiday list
+                        can be verified.</flux:callout.text>
                 </flux:callout>
             @else
                 <flux:callout icon="information-circle">

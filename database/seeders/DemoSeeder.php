@@ -287,7 +287,7 @@ class DemoSeeder extends Seeder
         $date = Carbon::yesterday();
         $first = $last = null;
 
-        for ($count = 0; $count < $days && (! $targetHours || $total < $targetHours); $count++) {
+        for ($count = 0; $count < $days && (! $targetHours || round($total, 2) < $targetHours); $count++) {
             while ($date->isWeekend()) {
                 $date->subDay();
             }

@@ -35,4 +35,9 @@ class AttendanceSubmission extends Model
     {
         return $this->belongsTo(OjtAssignment::class, 'ojt_assignment_id');
     }
+
+    public function attendanceLog()
+    {
+        return $this->belongsTo(AttendanceLog::class);
+    }
 }

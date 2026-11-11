@@ -126,6 +126,7 @@ Route::group(['middleware' => ['auth', 'verified', 'role:supervisor']], function
 Route::group(['middleware' => ['auth', 'verified', 'role:student']], function () {
     Route::livewire('/student/dashboard', 'pages::student.dashboard')->name('student.dashboard');
     Route::livewire('/student/requirements', 'pages::student.requirements')->name('student.requirements');
+    Route::livewire('/student/requirements/narrative_report', 'pages::student.narrative-report')->name('student.requirements.narrative');
     Route::livewire('/student/requirements/{key}', 'pages::student.requirement-form')
         ->whereIn('key', array_keys(\App\Support\RequirementForm::FORMS))
         ->name('student.requirements.form');

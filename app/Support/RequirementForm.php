@@ -200,6 +200,12 @@ class RequirementForm
 
     public static function render(StudentRequirement $requirement, array $data): string
     {
+        return Pdf::loadHTML(self::html($requirement, $data))->setPaper('a4')->output();
+    }
+
+    /** The document as HTML; the narrative report reuses it for its appendices. */
+    public static function html(StudentRequirement $requirement, array $data): string
+    {
         // Previews render unvalidated input, so coerce every value to what the views expect.
         foreach (self::fields($requirement->key) as $name => $field) {
             $value = $data[$name] ?? null;
@@ -212,16 +218,16 @@ class RequirementForm
             };
         }
 
-        return Pdf::loadView('exports.requirements.'.$requirement->key, [
+        return view('exports.requirements.'.$requirement->key, [
             'title' => $requirement->label,
             'd' => $data,
             // Escaped value, or a blank line to write on when empty.
             'v' => fn (string $name, int $blank = 24) => filled($data[$name] ?? null) ? e($data[$name]) : str_repeat('_', $blank),
             'logo' => 'data:image/png;base64,'.base64_encode(file_get_contents(public_path('certificate/earist-logo.png'))),
-        ])->setPaper('a4')->output();
+        ])->render();
     }
 
-    protected static function prefill(User $student): array
+    public static function prefill(User $student): array
     {
         $student->loadMissing(['studentProfile', 'coordinator', 'ojtAssignment.companySupervisor.supervisorProfile']);
 

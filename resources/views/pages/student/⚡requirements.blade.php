@@ -146,7 +146,11 @@ new #[Title('OJT Requirements')] class extends Component
                             @foreach ($step['items'] as $requirement)
                                 @php
                                     $field = 'requirementFiles.'.$requirement->key;
-                                    $fillable = \App\Support\RequirementForm::has($requirement->key);
+                                    $fillUrl = match (true) {
+                                        $requirement->key === \App\Support\NarrativeReport::KEY => route('student.requirements.narrative'),
+                                        \App\Support\RequirementForm::has($requirement->key) => route('student.requirements.form', $requirement->key),
+                                        default => null,
+                                    };
                                 @endphp
 
                                 <div class="p-4" wire:key="requirement-{{ $requirement->id }}">
@@ -184,7 +188,7 @@ new #[Title('OJT Requirements')] class extends Component
                                                 <flux:badge color="amber" size="sm" inset="top bottom">Missing</flux:badge>
                                             @endif
 
-                                            @if ($requirement->template_path && ! $fillable)
+                                            @if ($requirement->template_path && ! $fillUrl)
                                                 <flux:button href="{{ asset($requirement->template_path) }}" target="_blank" download
                                                     icon="document-arrow-down" size="xs" variant="ghost">
                                                     Template
@@ -203,16 +207,16 @@ new #[Title('OJT Requirements')] class extends Component
                                                     accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" tabindex="-1"
                                                     aria-label="Upload {{ $requirement->label }}" />
 
-                                                @if ($fillable)
+                                                @if ($fillUrl)
                                                     {{-- Forms signed on paper can still be uploaded as a scan. --}}
                                                     <flux:button type="button" x-on:click="$refs.file.click()" size="xs" variant="ghost"
                                                         icon="arrow-up-tray" tooltip="Upload a signed copy instead"
                                                         aria-label="Upload a signed copy of {{ $requirement->label }}"
                                                         wire:loading.attr="disabled" wire:target="{{ $field }}" />
 
-                                                    <flux:button :href="route('student.requirements.form', $requirement->key)" wire:navigate size="xs"
+                                                    <flux:button :href="$fillUrl" wire:navigate size="xs"
                                                         icon="pencil-square" :variant="$requirement->submitted_at ? 'filled' : 'primary'">
-                                                        {{ $requirement->form_data ? 'Edit' : 'Fill out' }}
+                                                        {{ $requirement->submitted_at ? 'Edit' : ($requirement->form_data ? 'Continue' : 'Fill out') }}
                                                     </flux:button>
                                                 @else
                                                     <flux:button type="button" x-on:click="$refs.file.click()" size="xs"

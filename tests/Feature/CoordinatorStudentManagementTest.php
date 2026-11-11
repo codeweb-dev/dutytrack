@@ -2,6 +2,7 @@
 
 use App\Enums\Role as AppRole;
 use App\Models\AttendanceLog;
+use App\Models\AttendanceSubmission;
 use App\Models\OjtAssignment;
 use App\Models\StudentRequirement;
 use App\Models\User;
@@ -142,7 +143,7 @@ test('students fill out a requirement form that is prefilled and submitted as a 
     $this->actingAs($student);
 
     $this->get(route('student.requirements.form', 'parents_waiver'))->assertOk()->assertSee('Parents Waiver');
-    $this->get('/student/requirements/narrative_report')->assertNotFound();
+    $this->get('/student/requirements/orientation')->assertNotFound();
 
     Livewire::test('pages::student.requirement-form', ['key' => 'parents_waiver'])
         ->assertSet('form.name', $student->name)
@@ -184,6 +185,62 @@ test('students fill out a requirement form that is prefilled and submitted as a 
 
         expect(\App\Support\RequirementForm::render($requirement, \App\Support\RequirementForm::values($key, $student)))->toStartWith('%PDF');
     }
+});
+
+test('students build the narrative report from their accomplishment reports and submit it', function () {
+    Storage::fake('local');
+
+    $coordinator = createCoordinator();
+    $student = createStudentForCoordinator($coordinator);
+    StudentRequirement::ensureForStudent($student);
+
+    $assignment = OjtAssignment::query()->create(['student_id' => $student->id, 'ojt_type' => 'internal', 'company_supervisor_id' => User::factory()->create()->id]);
+    $log = AttendanceLog::query()->create(['student_id' => $student->id, 'ojt_assignment_id' => $assignment->id, 'attendance_date' => '2026-09-01', 'hours_rendered' => 8, 'status' => 'present']);
+    Storage::disk('local')->put('reports/photo.jpg', UploadedFile::fake()->image('photo.jpg', 1200, 900)->getContent());
+    $submission = AttendanceSubmission::query()->create([
+        'attendance_log_id' => $log->id, 'student_id' => $student->id, 'ojt_assignment_id' => $assignment->id,
+        'accomplishment' => 'Configured the office network switches.', 'skills_learned' => 'Network cabling, Teamwork', 'photo_paths' => ['reports/photo.jpg'],
+    ]);
+
+    $this->actingAs($student);
+    $this->get(route('student.requirements.narrative'))->assertOk()->assertSee('Narrative Report');
+
+    $component = Livewire::test('pages::student.narrative-report')
+        ->assertSet('data.name', $student->name)
+        ->assertSet('data.experiences', "Tuesday, September 1, 2026\nConfigured the office network switches.")
+        ->assertSet('data.insights', "• Network cabling\n• Teamwork")
+        // Image paths outside the student's folder are rejected.
+        ->set('data.org_chart', 'student-requirements/999/narrative/other.png')
+        ->call('save')
+        ->assertHasErrors('data.org_chart')
+        ->set('data.org_chart', null)
+        ->set('data.photos', [$submission->id.':0'])
+        ->call('save')
+        ->assertHasNoErrors()
+        ->assertDispatched('resume-saved')
+        ->call('previewPdf')
+        ->assertReturned(fn (string $pdf) => str_starts_with(base64_decode($pdf), '%PDF'))
+        ->call('submit')
+        ->assertHasErrors(['data.introduction', 'data.job_description', 'data.evaluation']);
+
+    $requirement = StudentRequirement::query()->where('student_id', $student->id)->where('key', 'narrative_report')->first();
+    expect($requirement->form_data['photos'])->toBe([$submission->id.':0']);
+    expect($requirement->submitted_at)->toBeNull();
+
+    $component
+        ->set('data.introduction', 'My OJT at the campus IT office.')
+        ->set('data.job_description', 'Network maintenance.')
+        ->set('data.evaluation', 'Valuable.')
+        ->set('data.company_name', 'Campus IT Office')
+        ->set('data.company_location', 'GMA, Cavite')
+        ->set('data.coordinator_name', 'Coordinator')
+        ->set('data.supervisor_name', 'Supervisor')
+        ->call('submit')
+        ->assertHasNoErrors()
+        ->assertRedirect(route('student.requirements'));
+
+    expect(Storage::disk('local')->get($requirement->refresh()->file_path))->toStartWith('%PDF');
+    expect($requirement->submitted_at)->not->toBeNull();
 });
 
 test('students can only view their own private requirement files', function () {

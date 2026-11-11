@@ -26,7 +26,7 @@ class OnboardingTours
         };
 
         return [
-            ['target' => 'main-navigation', 'title' => 'Your ' . $tour['role'] . ' workspace', 'text' => $tour['intro']],
+            ['target' => 'main-navigation', 'title' => 'Your '.$tour['role'].' workspace', 'text' => $tour['intro']],
             ...$tour['steps'],
             ['target' => 'dashboard-overview', 'title' => 'You’re ready to get started', 'text' => 'Begin with your dashboard, then open the section that matches what you need to do. Your role controls which tools are available.'],
         ];
@@ -89,10 +89,11 @@ class OnboardingTours
             'role' => 'student',
             'intro' => 'Track your OJT activity, complete requirements, share daily accomplishments, and keep up with your work.',
             'steps' => [
-                self::step('nav-dashboard', 'Dashboard', 'Your dashboard shows your placement status, required documents, recent attendance, and evaluation. Use it to check your progress.'),
+                self::step('nav-dashboard', 'Dashboard', 'Your dashboard shows your placement status, recent attendance, and evaluation. Use it to check your progress.'),
                 self::step('dashboard-metrics', 'Your OJT at a glance', 'These cards show your rendered hours, approved requirements, open tasks, and placement status.'),
-                self::step('dashboard-workflow', 'Requirements and recent attendance', 'Follow the requirement checklist, download templates, and mark physical copies submitted. The attendance table shows your latest records.'),
+                self::step('dashboard-workflow', 'Recent attendance', 'The attendance table shows your latest records, including rendered hours and flagged entries.'),
                 self::step('dashboard-evaluation', 'Evaluation', 'Review your submitted practicum evaluation and download the official form.'),
+                self::step('nav-requirements', 'Requirements', 'Follow the requirement checklist, download templates, and submit each file for coordinator approval.'),
                 self::step('nav-messages', 'Messages', 'Use conversations to contact the coordinator or supervisor connected to your OJT.'),
                 self::step('nav-group-daily-logs', 'Daily Logs', 'Open this group to record your attendance and daily accomplishments.'),
                 self::step('nav-attendance', 'Attendance', 'Record your daily OJT attendance and review your attendance history.'),

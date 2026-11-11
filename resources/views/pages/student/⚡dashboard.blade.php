@@ -7,23 +7,17 @@ use App\Models\OjtAssignment;
 use App\Models\StudentRequirement;
 use App\Models\StudentTask;
 use App\Models\User;
-use Flux\Flux;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
-use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 
 new #[Title('Student Dashboard')] class extends Component
 {
     use BuildsDashboardCharts;
-    use WithFileUploads;
     use WithPagination;
-
-    public array $requirementFiles = [];
 
     public array $breadcrumbs = [['logo' => 'logo.png', 'href' => '/dashboard'], ['label' => 'Student Dashboard']];
 
@@ -33,7 +27,7 @@ new #[Title('Student Dashboard')] class extends Component
         return 'Welcome back, '.(Auth::user()?->name ?? 'Student').' 👋';
     }
 
-    public string $description = 'A simple overview of your placement, requirements, attendance, and evaluation.';
+    public string $description = 'A simple overview of your placement, attendance, and evaluation.';
 
     protected function studentId(): int
     {
@@ -79,7 +73,7 @@ new #[Title('Student Dashboard')] class extends Component
                 'value' => number_format($this->requirementSummary['completed']),
                 'suffix' => '/ '.number_format($this->requirementSummary['total']),
                 'icon' => 'clipboard-document-check',
-                'href' => '#requirements',
+                'href' => route('student.requirements'),
                 'link' => 'View requirements',
             ],
             [
@@ -146,70 +140,8 @@ new #[Title('Student Dashboard')] class extends Component
     public function requirementSummary(): array
     {
         $requirements = $this->requirements;
-        $completed = $requirements->where('is_completed', true)->count();
 
-        return [
-            'total' => $requirements->count(),
-            'completed' => $completed,
-            'pending' => $requirements->count() - $completed,
-            'progress' => $requirements->isNotEmpty() ? round(($completed / $requirements->count()) * 100) : 0,
-        ];
-    }
-
-    #[Computed]
-    public function requirementSteps(): array
-    {
-        $requirements = $this->requirements->groupBy('step');
-        $icons = [
-            'orientation' => 'academic-cap',
-            'medical' => 'heart',
-            'forms' => 'clipboard-document-list',
-        ];
-
-        return collect(StudentRequirement::stepLabels())
-            ->map(function (string $label, string $step) use ($requirements, $icons): array {
-                $items = $requirements->get($step, collect());
-                $completed = $items->where('is_completed', true)->count();
-
-                return [
-                    'key' => $step,
-                    'label' => $label,
-                    'icon' => $icons[$step] ?? 'clipboard-document-check',
-                    'items' => $items,
-                    'total' => $items->count(),
-                    'completed' => $completed,
-                    'is_completed' => $items->isNotEmpty() && $completed === $items->count(),
-                ];
-            })
-            ->values()
-            ->all();
-    }
-
-    public function submitRequirement(string $key): void
-    {
-        $this->validate([
-            "requirementFiles.$key" => ['required', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png', 'max:10240'],
-        ], attributes: ["requirementFiles.$key" => 'file']);
-
-        $requirement = StudentRequirement::query()->where('student_id', $this->studentId())->where('key', $key)->firstOrFail();
-
-        // Approved requirements are locked.
-        abort_if($requirement->is_completed, 403);
-
-        $oldPath = $requirement->file_path;
-
-        $requirement->update([
-            'file_path' => $this->requirementFiles[$key]->store('student-requirements/'.$this->studentId(), 'local'),
-            'submitted_at' => now(),
-        ]);
-
-        if ($oldPath) {
-            Storage::disk('local')->delete($oldPath);
-        }
-
-        unset($this->requirementFiles[$key], $this->requirements, $this->requirementSummary, $this->requirementSteps);
-
-        Flux::toast(variant: 'success', heading: 'Requirement submitted.', text: 'Your coordinator can now review the attached file.');
+        return ['total' => $requirements->count(), 'completed' => $requirements->where('is_completed', true)->count()];
     }
 };
 ?>
@@ -246,9 +178,9 @@ new #[Title('Student Dashboard')] class extends Component
             description="Your rendered hours against your required OJT hours." />
     </section>
 
-    <div class="grid items-start gap-6 lg:grid-cols-5">
-        <div class="flex min-w-0 flex-col gap-6 lg:col-span-3">
-            <flux:card>
+    <div class="grid items-start gap-6">
+        <div class="flex min-w-0 flex-col gap-6">
+            <flux:card data-tour="dashboard-workflow">
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div>
                         <flux:heading size="lg">Recent Attendance</flux:heading>
@@ -382,145 +314,6 @@ new #[Title('Student Dashboard')] class extends Component
                 </flux:card>
             </section>
         </div>
-
-        <section id="requirements" class="grid scroll-mt-6 gap-4 lg:col-span-2" data-tour="dashboard-workflow">
-            <flux:card>
-                <div class="flex items-start justify-between gap-4">
-                    <div>
-                        <flux:heading size="lg">OJT Student Requirements</flux:heading>
-                        <flux:text class="mt-2">
-                            Download the templates, then attach and submit each file for coordinator approval.
-                        </flux:text>
-                    </div>
-
-                    <flux:badge :color="$this->requirementSummary['pending'] === 0 ? 'green' : 'red'" inset="top bottom">
-                        {{ $this->requirementSummary['completed'] }}/{{ $this->requirementSummary['total'] }}
-                    </flux:badge>
-                </div>
-
-                <div class="mt-7">
-                    <div class="flex items-start">
-                        @foreach ($this->requirementSteps as $step)
-                            <div class="flex min-w-0 flex-1 flex-col items-center text-center">
-                                <div
-                                    class="{{ $step['is_completed'] ? 'bg-red-600 text-white ring-red-600' : 'bg-white text-zinc-500 ring-zinc-300 dark:bg-zinc-900 dark:text-zinc-300 dark:ring-zinc-700' }} flex size-14 items-center justify-center rounded-full ring-2">
-                                    <flux:icon :name="$step['icon']" class="size-6" />
-                                </div>
-
-                                <div class="mt-3 text-sm font-semibold text-zinc-900 dark:text-white">
-                                    {{ $step['label'] }}
-                                </div>
-
-                                <flux:text class="mt-1">
-                                    {{ $step['completed'] }}/{{ $step['total'] }} done
-                                </flux:text>
-                            </div>
-
-                            @if (!$loop->last)
-                                <div class="mt-7 h-px w-6 shrink-0 bg-zinc-300 dark:bg-zinc-700"></div>
-                            @endif
-                        @endforeach
-                    </div>
-                </div>
-
-                <flux:field class="mt-6">
-                    <flux:label>Progress</flux:label>
-
-                    <div class="flex items-center gap-4 -mt-2">
-                        <flux:progress :value="$this->requirementSummary['progress']" />
-                        <span class="text-sm tabular-nums whitespace-nowrap">{{ $this->requirementSummary['progress'] }}%</span>
-                    </div>
-                </flux:field>
-
-                <div class="mt-6 space-y-6">
-                    @foreach ($this->requirementSteps as $step)
-                        <div>
-                            <div class="mb-3 flex items-center justify-between gap-3">
-                                <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">{{ $step['label'] }}</h3>
-                                <flux:badge size="sm" :color="$step['is_completed'] ? 'green' : null"
-                                    inset="top bottom">
-                                    {{ $step['is_completed'] ? 'Complete' : 'In progress' }}
-                                </flux:badge>
-                            </div>
-
-                            <div class="space-y-3">
-                                @foreach ($step['items'] as $requirement)
-                                    <flux:card class="px-5 py-3">
-                                        <div class="flex min-w-0 items-start gap-3">
-                                            <span
-                                                class="{{ $requirement->is_completed ? 'bg-green-600 text-white' : 'bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500' }} mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full">
-                                                <flux:icon :name="$requirement->is_completed ? 'check-circle' : 'clock'"
-                                                    class="size-4" />
-                                            </span>
-
-                                            <div class="min-w-0">
-                                                <flux:heading>
-                                                    {{ $requirement->label }}
-                                                </flux:heading>
-                                                <flux:text class="mt-1">
-                                                    @if ($requirement->is_completed)
-                                                        Approved by coordinator.
-                                                    @elseif ($requirement->submitted_at)
-                                                        Submitted for coordinator checking.
-                                                    @else
-                                                        Attach the file and submit.
-                                                    @endif
-                                                </flux:text>
-                                            </div>
-                                        </div>
-
-                                        <div class="flex flex-wrap items-center gap-2 sm:justify-end">
-                                            @if ($requirement->is_completed)
-                                                <flux:badge color="green" size="sm" inset="top bottom">Done
-                                                </flux:badge>
-                                            @elseif ($requirement->submitted_at)
-                                                <flux:badge color="sky" size="sm" inset="top bottom">Submitted
-                                                </flux:badge>
-                                            @else
-                                                <flux:badge color="amber" size="sm" inset="top bottom">Missing
-                                                </flux:badge>
-                                            @endif
-
-                                            @if ($requirement->template_path)
-                                                <flux:button href="{{ asset($requirement->template_path) }}"
-                                                    target="_blank" download icon="document-arrow-down" size="xs">
-                                                    Template
-                                                </flux:button>
-                                            @endif
-
-                                            @if ($requirement->file_path)
-                                                <flux:button href="{{ route('student.requirements.file', $requirement) }}"
-                                                    target="_blank" icon="paper-clip" size="xs">
-                                                    View file
-                                                </flux:button>
-                                            @endif
-                                        </div>
-
-                                        @if (!$requirement->is_completed)
-                                            <div class="mt-3 flex flex-col gap-2 sm:flex-row sm:items-start"
-                                                wire:key="submit-{{ $requirement->id }}">
-                                                <flux:input type="file" size="sm" class="flex-1"
-                                                    wire:model="requirementFiles.{{ $requirement->key }}"
-                                                    label="Required document" required
-                                                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
-
-                                                <flux:button wire:click="submitRequirement('{{ $requirement->key }}')"
-                                                    icon="arrow-up-tray" size="sm" variant="primary"
-                                                    wire:loading.attr="disabled"
-                                                    wire:target="requirementFiles.{{ $requirement->key }}, submitRequirement('{{ $requirement->key }}')">
-                                                    {{ $requirement->submitted_at ? 'Resubmit' : 'Submit' }}
-                                                </flux:button>
-                                            </div>
-                                            <flux:error name="requirementFiles.{{ $requirement->key }}" />
-                                        @endif
-                                    </flux:card>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            </flux:card>
-        </section>
 
     </div>
 </div>

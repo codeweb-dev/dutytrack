@@ -125,6 +125,7 @@ Route::group(['middleware' => ['auth', 'verified', 'role:supervisor']], function
 
 Route::group(['middleware' => ['auth', 'verified', 'role:student']], function () {
     Route::livewire('/student/dashboard', 'pages::student.dashboard')->name('student.dashboard');
+    Route::livewire('/student/requirements', 'pages::student.requirements')->name('student.requirements');
     Route::livewire('/student/attendance', 'pages::student.attendance')->name('student.attendance');
     Route::get('/student/attendance/dtr', fn () => DtrDocument::download(Auth::user(), Request::query('month')))->name('student.attendance.dtr');
     Route::redirect('/student/evaluations', '/student/dashboard#evaluations')->name('student.evaluations');

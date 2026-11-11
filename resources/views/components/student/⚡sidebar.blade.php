@@ -11,6 +11,11 @@ new class extends Component {};
         Dashboard
     </flux:sidebar.item>
 
+    <flux:sidebar.item icon="clipboard-document-check" data-tour="nav-requirements" :href="route('student.requirements')" :current="request()->routeIs('student.requirements')"
+        wire:navigate>
+        Requirements
+    </flux:sidebar.item>
+
     <flux:sidebar.item icon="chat-bubble-left-right" data-tour="nav-messages" :href="route('student.messages')" :current="request()->routeIs('student.messages')"
         wire:navigate>
         Messages

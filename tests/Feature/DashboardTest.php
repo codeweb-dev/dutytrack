@@ -53,7 +53,6 @@ test('students can view the student dashboard', function () {
     $this->actingAs($student)
         ->get(route('student.dashboard'))
         ->assertOk()
-        ->assertSee('OJT Student Requirements')
         ->assertSee('Recent Attendance')
         ->assertDontSee('Weekly Logged Hours')
         ->assertDontSee('Approved Hours');
@@ -66,4 +65,16 @@ test('duty hour storage and routes have been removed', function () {
         expect(\Illuminate\Support\Facades\Route::has($role.'.duty-hours'))->toBeFalse();
         $this->get('/'.$role.'/duty-hours')->assertNotFound();
     }
+});
+
+test('students can view the requirements page', function () {
+    PermissionRole::findOrCreate(Role::STUDENT->value, 'web');
+
+    $student = User::factory()->create();
+    $student->assignRole(Role::STUDENT->value);
+
+    $this->actingAs($student)
+        ->get(route('student.requirements'))
+        ->assertOk()
+        ->assertSee('OJT Student Requirements');
 });

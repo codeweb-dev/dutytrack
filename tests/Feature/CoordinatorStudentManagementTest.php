@@ -114,11 +114,11 @@ test('students submit a requirement with an attached file', function () {
 
     $this->actingAs($student);
 
-    Livewire::test('pages::student.dashboard')
+    Livewire::test('pages::student.requirements')
         ->call('submitRequirement', 'parents_waiver')
         ->assertHasErrors('requirementFiles.parents_waiver')
+        // Picking a file submits it right away.
         ->set('requirementFiles.parents_waiver', UploadedFile::fake()->create('waiver.pdf', 100, 'application/pdf'))
-        ->call('submitRequirement', 'parents_waiver')
         ->assertHasNoErrors();
 
     $requirement = StudentRequirement::query()

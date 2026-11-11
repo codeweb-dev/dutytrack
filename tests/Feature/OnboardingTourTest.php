@@ -92,7 +92,7 @@ test('each supported role gets only its own navigation walkthrough', function ()
     $expected = [
         Role::OJTCOORDINATOR->value => ['nav-student-management', 'nav-requirements', 'nav-attendance', 'nav-announcements', 'nav-audit-logs'],
         Role::SUPERVISOR->value => ['nav-assigned-students', 'nav-tasks', 'nav-reports', 'nav-evaluations'],
-        Role::STUDENT->value => ['nav-attendance', 'dashboard-evaluation', 'nav-reports', 'nav-tasks', 'nav-notes', 'nav-pomodoro'],
+        Role::STUDENT->value => ['nav-requirements', 'nav-attendance', 'dashboard-evaluation', 'nav-reports', 'nav-tasks', 'nav-notes', 'nav-pomodoro'],
     ];
 
     foreach (array_keys($expected) as $role) {

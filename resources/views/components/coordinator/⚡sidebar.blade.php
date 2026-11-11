@@ -44,7 +44,7 @@ new class extends Component {};
             Attendance
         </flux:sidebar.item>
 
-        <flux:sidebar.item icon="document-check" data-tour="nav-evaluations" href="{{ route('coordinator.evaluations') }}"
+        <flux:sidebar.item icon="check-badge" data-tour="nav-evaluations" href="{{ route('coordinator.evaluations') }}"
             :current="request()->routeIs('coordinator.evaluations*')" wire:navigate>
             Evaluations
         </flux:sidebar.item>
@@ -61,7 +61,7 @@ new class extends Component {};
             Announcements
         </flux:sidebar.item>
 
-        <flux:sidebar.item icon="document-text" data-tour="nav-audit-logs" href="{{ route('coordinator.audit-logs') }}"
+        <flux:sidebar.item icon="queue-list" data-tour="nav-audit-logs" href="{{ route('coordinator.audit-logs') }}"
             :current="request()->routeIs('coordinator.audit-logs')" wire:navigate>
             Audit Logs
         </flux:sidebar.item>

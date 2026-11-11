@@ -1,89 +1,54 @@
 <div class="flex flex-col gap-6">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
-    <div class="mt-8 space-y-4">
-        <div class="relative flex w-full gap-3 overflow-x-auto pb-2">
+    @if (collect($this->columns)->every(fn($column) => $column['tasks']->isEmpty()))
+        <flux:card class="flex flex-col items-center gap-4 py-16 sm:py-24">
+            <flux:icon name="clipboard-document-list" class="size-12" />
+            <div class="text-center">
+                <flux:heading size="xl">No tasks yet</flux:heading>
+                <flux:text class="mt-2">Tasks your supervisor assigns will show up here.</flux:text>
+            </div>
+        </flux:card>
+    @else
+        <flux:text class="flex items-center gap-2">
+            <flux:icon name="hand-raised" variant="micro" />
+            Drag a card by its handle to update your progress. Your supervisor reviews tasks in In Review.
+        </flux:text>
+
+        <div class="flex snap-x gap-4 overflow-x-auto pb-4">
             @foreach ($this->displayColumns() as $column)
-                <article wire:key="student-kanban-column-{{ str($column['title'])->slug() }}"
-                    class="w-80 shrink-0 rounded-lg bg-zinc-200 p-3 dark:bg-zinc-900">
-                    <header class="flex items-start justify-between gap-3 px-1 pb-4 pt-2">
-                        <div class="space-y-2">
-                            <flux:heading size="lg">
-                                {{ $column['title'] }}
-                            </flux:heading>
-
-                            <flux:subheading size="sm">
-                                {{ count($column['tasks']) }} {{ count($column['tasks']) === 1 ? 'task' : 'tasks' }}
-                            </flux:subheading>
-                        </div>
-
-                        <flux:dropdown position="bottom" align="end">
-                            <flux:button variant="subtle" size="sm" icon="ellipsis-horizontal" />
-
-                            <flux:menu class="min-w-40">
-                                <flux:menu.item icon="eye">View column</flux:menu.item>
-                                <flux:menu.item icon="archive-box">Archive completed</flux:menu.item>
-                            </flux:menu>
-                        </flux:dropdown>
+                <section wire:key="student-kanban-column-{{ $column['status'] }}"
+                    class="flex w-72 shrink-0 snap-start flex-col rounded-xl bg-zinc-100 p-2 sm:w-80 dark:bg-zinc-900">
+                    <header class="flex items-center gap-2 px-2 pb-3 pt-2">
+                        <flux:heading>{{ $column['title'] }}</flux:heading>
+                        <flux:badge size="sm" :color="$this->statusColor($column['status'])">
+                            {{ count($column['tasks']) }}
+                        </flux:badge>
                     </header>
 
-                    <div class="flex min-h-24 flex-1 flex-col gap-3" wire:sort="sortTask"
-                        wire:sort:group="student-tasks" wire:sort:group-id="{{ $column['status'] }}">
+                    <div class="flex min-h-32 flex-1 flex-col gap-2" wire:sort="sortTask"
+                        wire:sort:group="student-tasks" wire:sort:group-id="{{ $column['status'] }}"
+                        @if ($column['status'] === 'revision') {{-- ponytail: must sit after wire:sort:group, Livewire stops scanning wire:sort* attrs there --}}
+                            wire:sort:config="{ group: { name: 'student-tasks', put: false } }" @endif>
                         @foreach ($column['tasks'] as $task)
-                            <div class="flex h-full w-full flex-col rounded-lg border border-neutral-300 bg-white dark:border-neutral-700 dark:bg-zinc-800"
-                                wire:key="student-task-{{ $task->id }}" wire:sort:item="{{ $task->id }}">
-                                <div class="p-4">
-                                    <div class="mb-3 flex items-start justify-between gap-3">
-                                        <div class="flex flex-wrap gap-2">
-                                            <flux:badge :color="$this->priorityColor($task->priority)" size="sm">
-                                                {{ ucfirst($task->priority) }}
-                                            </flux:badge>
-
-                                            <flux:badge :color="$this->statusColor($task->status)" size="sm">
-                                                {{ \App\Models\StudentTask::statusLabels()[$task->status] ?? ucfirst($task->status) }}
-                                            </flux:badge>
-                                        </div>
-
-                                        <button type="button" wire:sort:handle
-                                            class="shrink-0 cursor-grab rounded-md p-1 text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-600 active:cursor-grabbing dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
-                                            aria-label="Drag task">
-                                            <flux:icon name="grip-vertical" variant="micro" />
-                                        </button>
-                                    </div>
-
-                                    <flux:heading>
-                                        {{ $task->title }}
-                                    </flux:heading>
-
-                                    <flux:subheading>
-                                        {{ $task->description ?: 'No description provided.' }}
-                                    </flux:subheading>
-                                </div>
-
-                                <flux:separator />
-
-                                <div class="flex items-center justify-between gap-2 px-4 pb-2 pt-3">
-                                    <div class="flex min-w-0 items-center gap-2">
-                                        <flux:avatar.group>
-                                            <flux:avatar size="xs" name="{{ $task->assignedBy?->display_name ?? 'Supervisor' }}" />
-                                        </flux:avatar.group>
-
-                                        <div class="min-w-0 text-sm text-neutral-500">
-                                            <span class="block truncate">{{ $task->assignedBy?->display_name ?? 'Supervisor' }}</span>
-                                        </div>
-                                    </div>
-
-                                    <div class="flex shrink-0 items-center gap-2">
-                                        <flux:badge icon="calendar" rounded size="sm">
-                                            {{ $task->due_date?->format('M d') ?? 'No due' }}
-                                        </flux:badge>
-                                    </div>
-                                </div>
-                            </div>
+                            <x-task-card :task="$task" wire:key="student-task-{{ $task->id }}"
+                                wire:sort:item="{{ $task->id }}">
+                                <flux:avatar size="xs"
+                                    name="{{ $task->assignedBy?->display_name ?? 'Supervisor' }}" />
+                                <flux:text size="sm" class="truncate">
+                                    Assigned by {{ $task->assignedBy?->display_name ?? 'Supervisor' }}
+                                </flux:text>
+                            </x-task-card>
                         @endforeach
+
+                        {{-- ponytail: last child + only:flex, so it hides itself the moment a card is dropped in --}}
+                        <div wire:sort:ignore
+                            class="hidden flex-1 items-center justify-center rounded-lg border border-dashed border-zinc-300 p-6 text-sm text-zinc-500 only:flex dark:border-zinc-700 dark:text-zinc-400">
+                            No tasks here
+                        </div>
                     </div>
-                </article>
+                </section>
             @endforeach
         </div>
-    </div>
+    @endif
 </div>

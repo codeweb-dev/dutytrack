@@ -70,7 +70,7 @@
         </form>
     </flux:modal>
 
-    @if ($this->summary['total'] === 0)
+    @if ($this->summary['total'] === 0 && $this->summary['archived'] === 0)
         <flux:card class="flex flex-col items-center gap-4 py-16 sm:py-24">
             <flux:icon name="clipboard-document-list" class="size-12" />
             <div class="text-center">
@@ -86,11 +86,47 @@
             <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass"
                 placeholder="Search tasks or trainees..." clearable class="w-full sm:w-72" />
 
-            <flux:modal.trigger name="create-supervisor-task">
-                <flux:button icon="plus" variant="primary" class="w-full sm:w-auto">Assign Task</flux:button>
-            </flux:modal.trigger>
+            <div class="flex gap-2">
+                <flux:button wire:click="$toggle('show_archived')" :icon="$show_archived ? 'view-columns' : 'archive-box'"
+                    class="flex-1 sm:flex-none">
+                    {{ $show_archived ? 'Back to Board' : 'Archived ('.$this->summary['archived'].')' }}
+                </flux:button>
+
+                <flux:modal.trigger name="create-supervisor-task">
+                    <flux:button icon="plus" variant="primary" class="flex-1 sm:flex-none">Assign Task</flux:button>
+                </flux:modal.trigger>
+            </div>
         </div>
 
+        @if ($show_archived)
+            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                @forelse ($this->archivedTasks as $taskCard)
+                    <flux:card wire:key="archived-task-{{ $taskCard['key'] }}" class="flex flex-col gap-3 p-4">
+                        <div class="flex items-start justify-between gap-2">
+                            <flux:heading class="min-w-0 break-words">{{ $taskCard['task']->title }}</flux:heading>
+                            <flux:badge size="sm" :color="$this->statusColor($taskCard['task']->status)">
+                                {{ \App\Models\StudentTask::statusLabels()[$taskCard['task']->status] ?? $taskCard['task']->status }}
+                            </flux:badge>
+                        </div>
+
+                        <flux:text size="sm" class="truncate">
+                            {{ $taskCard['students']->pluck('display_name')->join(', ') ?: 'Trainee' }}
+                        </flux:text>
+
+                        <div class="mt-auto flex items-center justify-between gap-2">
+                            <flux:text size="sm">Archived {{ $taskCard['task']->archived_at->diffForHumans() }}</flux:text>
+                            <flux:button size="sm" icon="arrow-uturn-left" wire:click="restoreTask('{{ $taskCard['key'] }}')">
+                                Restore
+                            </flux:button>
+                        </div>
+                    </flux:card>
+                @empty
+                    <flux:text class="col-span-full py-12 text-center">
+                        {{ $search !== '' ? 'No matching archived tasks' : 'No archived tasks' }}
+                    </flux:text>
+                @endforelse
+            </div>
+        @else
         <div class="flex snap-x gap-4 overflow-x-auto pb-4">
             @foreach ($this->displayColumns() as $column)
                 <section wire:key="supervisor-task-column-{{ $column['status'] }}"
@@ -123,6 +159,11 @@
                                                 <flux:menu.item icon="arrow-path"
                                                     wire:click="openRevision('{{ $taskCard['key'] }}')">
                                                     Request revision
+                                                </flux:menu.item>
+                                                <flux:menu.separator />
+                                                <flux:menu.item icon="archive-box"
+                                                    wire:click="archiveTask('{{ $taskCard['key'] }}')">
+                                                    Archive task
                                                 </flux:menu.item>
                                             </flux:menu>
                                         </flux:dropdown>
@@ -170,5 +211,6 @@
                 </section>
             @endforeach
         </div>
+        @endif
     @endif
 </div>

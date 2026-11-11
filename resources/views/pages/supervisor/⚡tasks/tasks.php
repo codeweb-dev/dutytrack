@@ -45,9 +45,11 @@ new #[Title('Tasks')] class extends Component
 
     public string $revision_note = '';
 
+    public bool $show_archived = false;
+
     public function updatedSearch(): void
     {
-        unset($this->tasks);
+        unset($this->tasks, $this->archivedTasks);
     }
 
     public function updatedStatus(): void
@@ -162,6 +164,31 @@ new #[Title('Tasks')] class extends Component
         Flux::toast(variant: 'success', heading: 'Task updated.', text: 'Your trainees will see the changes right away.');
     }
 
+    public function archiveTask(string $taskCardKey): void
+    {
+        abort_if($this->taskCardQuery($taskCardKey)->update(['archived_at' => now()]) === 0, 404);
+
+        unset($this->tasks, $this->summary, $this->columns, $this->archivedTasks);
+
+        Flux::toast(variant: 'success', heading: 'Task archived.', text: 'It is hidden from your board and your trainees\' boards.');
+    }
+
+    public function restoreTask(string $taskCardKey): void
+    {
+        $tasks = $this->taskCardQuery($taskCardKey, archived: true)->get();
+
+        abort_if($tasks->isEmpty(), 404);
+
+        $tasks->each(fn (StudentTask $task) => $task->update([
+            'archived_at' => null,
+            'sort_order' => $this->nextSupervisorTaskSortOrder($task->status),
+        ]));
+
+        unset($this->tasks, $this->summary, $this->columns, $this->archivedTasks);
+
+        Flux::toast(variant: 'success', heading: 'Task restored.', text: 'It is back on the board.');
+    }
+
     public function resetTaskForm(): void
     {
         $this->editing_task_key = null;
@@ -192,9 +219,13 @@ new #[Title('Tasks')] class extends Component
         return $assignments;
     }
 
-    protected function taskQuery(): Builder
+    protected function taskQuery(bool $archived = false): Builder
     {
-        return StudentTask::query()
+        $query = $archived
+            ? StudentTask::withoutGlobalScope('unarchived')->whereNotNull('archived_at')
+            : StudentTask::query();
+
+        return $query
             ->with(['student.studentProfile', 'assignment', 'assignedBy'])
             ->where('assigned_by', Auth::id())
             ->whereHas('assignment', fn (Builder $query) => $query->where('company_supervisor_id', Auth::id()));
@@ -298,17 +329,17 @@ new #[Title('Tasks')] class extends Component
         Flux::toast(variant: 'success', heading: 'Revision requested.', text: 'The trainee can now redo the task.');
     }
 
-    protected function taskCardQuery(string $taskCardKey): Builder
+    protected function taskCardQuery(string $taskCardKey, bool $archived = false): Builder
     {
         if (Str::startsWith($taskCardKey, 'task-')) {
             $taskId = Str::after($taskCardKey, 'task-');
 
             abort_unless(ctype_digit($taskId), 404);
 
-            return $this->taskQuery()->whereKey((int) $taskId);
+            return $this->taskQuery($archived)->whereKey((int) $taskId);
         }
 
-        return $this->taskQuery()->where('task_group_id', $taskCardKey);
+        return $this->taskQuery($archived)->where('task_group_id', $taskCardKey);
     }
 
     protected function reorderSupervisorStatus(string $status, ?string $movedTaskCardKey = null, ?int $position = null): void
@@ -460,6 +491,21 @@ new #[Title('Tasks')] class extends Component
     }
 
     #[Computed]
+    public function archivedTasks()
+    {
+        return $this->applyFilters($this->taskQuery(archived: true))
+            ->latest('archived_at')
+            ->get()
+            ->groupBy(fn (StudentTask $task): string => $this->taskCardKey($task))
+            ->map(fn (Collection $tasks, string $key): array => [
+                'key' => $key,
+                'task' => $tasks->first(),
+                'students' => $tasks->pluck('student')->filter()->values(),
+            ])
+            ->values();
+    }
+
+    #[Computed]
     public function summary(): array
     {
         $query = $this->taskQuery();
@@ -469,6 +515,7 @@ new #[Title('Tasks')] class extends Component
             'pending' => (clone $query)->where('status', 'pending')->count(),
             'in_progress' => (clone $query)->where('status', 'in_progress')->count(),
             'done' => (clone $query)->where('status', 'done')->count(),
+            'archived' => $this->taskQuery(archived: true)->count(),
         ];
     }
 };

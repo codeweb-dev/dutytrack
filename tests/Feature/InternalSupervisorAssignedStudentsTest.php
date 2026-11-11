@@ -294,6 +294,48 @@ test('mentors can drag grouped task cards between columns', function () {
     expect($existingReviewTask->refresh()->sort_order)->toBe(1);
 });
 
+test('mentors can archive and restore tasks', function () {
+    $coordinator = createMentorAssignedStudentCoordinator();
+    $mentor = createMentorAssignedStudentUser(['name' => 'Mentor Archive']);
+    $student = createMentorAssignedStudent($coordinator, ['name' => 'Archive Task Student']);
+
+    $assignment = OjtAssignment::query()->create([
+        'student_id' => $student->id,
+        'ojt_type' => 'internal',
+        'company_supervisor_id' => $mentor->id,
+    ]);
+
+    $task = StudentTask::query()->create([
+        'student_id' => $student->id,
+        'assigned_by' => $mentor->id,
+        'ojt_assignment_id' => $assignment->id,
+        'title' => 'Archivable task',
+        'priority' => 'normal',
+        'status' => 'done',
+        'sort_order' => 0,
+    ]);
+
+    $this->actingAs($mentor);
+
+    $component = Livewire::test('pages::supervisor.tasks')
+        ->call('archiveTask', 'task-'.$task->id)
+        ->assertHasNoErrors();
+
+    expect(StudentTask::withoutGlobalScope('unarchived')->find($task->id)->archived_at)->not->toBeNull();
+    expect(collect($component->instance()->displayColumns())->firstWhere('status', 'done')['tasks'])->toHaveCount(0);
+    expect($component->instance()->archivedTasks)->toHaveCount(1);
+
+    $this->actingAs($student);
+    expect(collect(Livewire::test('pages::student.tasks')->instance()->displayColumns())->sum(fn ($column) => $column['tasks']->count()))->toBe(0);
+
+    $this->actingAs($mentor);
+    Livewire::test('pages::supervisor.tasks')
+        ->call('restoreTask', 'task-'.$task->id)
+        ->assertHasNoErrors();
+
+    expect($task->refresh()->archived_at)->toBeNull();
+});
+
 test('mentors can submit practicum evaluations for assigned students', function () {
     $coordinator = createMentorAssignedStudentCoordinator(['name' => 'Mentor Evaluation Coordinator']);
     $mentor = createMentorAssignedStudentUser(['name' => 'Mentor Evaluator']);

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class StudentTask extends Model
@@ -19,6 +20,7 @@ class StudentTask extends Model
         'priority',
         'due_date',
         'completed_at',
+        'archived_at',
     ];
 
     protected function casts(): array
@@ -26,7 +28,14 @@ class StudentTask extends Model
         return [
             'due_date' => 'date',
             'completed_at' => 'datetime',
+            'archived_at' => 'datetime',
         ];
+    }
+
+    // Archived tasks vanish from every board and count; opt in with withoutGlobalScope('unarchived').
+    protected static function booted(): void
+    {
+        static::addGlobalScope('unarchived', fn (Builder $query) => $query->whereNull($query->qualifyColumn('archived_at')));
     }
 
     public static function statusLabels(): array

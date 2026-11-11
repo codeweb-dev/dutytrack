@@ -90,7 +90,7 @@ class OnboardingTours
             'intro' => 'Track your OJT activity, complete requirements, share daily accomplishments, and keep up with your work.',
             'steps' => [
                 self::step('nav-dashboard', 'Dashboard', 'Your dashboard shows your placement status, required documents, recent attendance, and evaluation. Use it to check your progress.'),
-                self::step('dashboard-metrics', 'Placement status', 'This card shows whether you are placed and your OJT type, or tells you if you are waiting for a placement.'),
+                self::step('dashboard-metrics', 'Your OJT at a glance', 'These cards show your rendered hours, approved requirements, open tasks, and placement status.'),
                 self::step('dashboard-workflow', 'Requirements and recent attendance', 'Follow the requirement checklist, download templates, and mark physical copies submitted. The attendance table shows your latest records.'),
                 self::step('dashboard-evaluation', 'Evaluation', 'Review your submitted practicum evaluation and download the official form.'),
                 self::step('nav-messages', 'Messages', 'Use conversations to contact the coordinator or supervisor connected to your OJT.'),

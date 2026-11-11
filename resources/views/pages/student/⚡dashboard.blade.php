@@ -1,9 +1,11 @@
 <?php
 
+use App\Livewire\Concerns\BuildsDashboardCharts;
 use App\Models\AttendanceLog;
 use App\Models\Evaluation;
 use App\Models\OjtAssignment;
 use App\Models\StudentRequirement;
+use App\Models\StudentTask;
 use App\Models\User;
 use Flux\Flux;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -17,6 +19,7 @@ use Livewire\WithPagination;
 
 new #[Title('Student Dashboard')] class extends Component
 {
+    use BuildsDashboardCharts;
     use WithFileUploads;
     use WithPagination;
 
@@ -27,10 +30,8 @@ new #[Title('Student Dashboard')] class extends Component
     #[Computed]
     public function title(): string
     {
-        return 'Welcome back, '.(Auth::user()?->name ?? 'Professor').' 👋';
+        return 'Welcome back, '.(Auth::user()?->name ?? 'Student').' 👋';
     }
-
-    public string $title = 'Student Dashboard';
 
     public string $description = 'A simple overview of your placement, requirements, attendance, and evaluation.';
 
@@ -54,18 +55,67 @@ new #[Title('Student Dashboard')] class extends Component
     }
 
     #[Computed]
+    public function renderedHours(): float
+    {
+        return (float) AttendanceLog::query()->where('student_id', $this->studentId())->sum('hours_rendered');
+    }
+
+    #[Computed]
     public function topCards(): array
     {
         $assignment = $this->assignment;
 
         return [
             [
+                'title' => 'Rendered Hours',
+                'value' => number_format(floor($this->renderedHours)),
+                'suffix' => '/ '.number_format($this->currentStudent->studentProfile?->ojt_required_hours ?? 0).' hrs',
+                'icon' => 'clock',
+                'href' => route('student.attendance'),
+                'link' => 'View attendance',
+            ],
+            [
+                'title' => 'Requirements',
+                'value' => number_format($this->requirementSummary['completed']),
+                'suffix' => '/ '.number_format($this->requirementSummary['total']),
+                'icon' => 'clipboard-document-check',
+                'href' => '#requirements',
+                'link' => 'View requirements',
+            ],
+            [
+                'title' => 'Open Tasks',
+                'value' => number_format(StudentTask::query()->where('student_id', $this->studentId())->where('status', '!=', 'done')->count()),
+                'icon' => 'rectangle-stack',
+                'href' => route('student.tasks'),
+                'link' => 'View tasks',
+            ],
+            [
                 'title' => 'Placement',
-                'value' => $assignment ? 'Assigned' : 'Unassigned',
+                'value' => $assignment ? ucfirst($assignment->ojt_type) : 'Unassigned',
+                'suffix' => $assignment ? 'OJT' : null,
                 'icon' => 'briefcase',
-                'footnote' => $assignment ? ucfirst($assignment->ojt_type).' OJT' : 'Waiting for placement',
+                'href' => route('student.messages'),
+                'link' => $assignment ? 'Message supervisor' : 'Message coordinator',
             ],
         ];
+    }
+
+    #[Computed]
+    public function weeklyAttendance(): array
+    {
+        return $this->weeklyAttendanceChart(AttendanceLog::query()->where('student_id', $this->studentId()));
+    }
+
+    #[Computed]
+    public function ojtProgress(): array
+    {
+        $required = (int) ($this->currentStudent->studentProfile?->ojt_required_hours ?? 0);
+        $rendered = (int) min(floor($this->renderedHours), $required);
+
+        return $this->donutChart([
+            'Rendered' => [$rendered, 'stroke-green-500', 'bg-green-500'],
+            'Remaining' => [$required - $rendered, 'stroke-zinc-400', 'bg-zinc-400'],
+        ]);
     }
 
     #[Computed]
@@ -167,33 +217,37 @@ new #[Title('Student Dashboard')] class extends Component
 <div class="flex flex-col gap-8">
     <div data-tour="dashboard-overview"><x-page-header :breadcrumbs="$breadcrumbs" :title="$this->title" :description="$description" /></div>
 
+    <section class="grid grid-cols-2 gap-4 xl:grid-cols-4" data-tour="dashboard-metrics">
+        @foreach ($this->topCards as $card)
+            <a href="{{ $card['href'] }}" @if (! str_starts_with($card['href'], '#')) wire:navigate @endif class="group text-left">
+                <flux:card size="xs" class="h-full hover:bg-zinc-50 dark:hover:bg-zinc-700">
+                    <flux:heading class="flex items-center gap-2">{{ $card['title'] }}
+                        <flux:icon :name="$card['icon']" class="ml-auto size-5 text-zinc-400" />
+                    </flux:heading>
+                    <flux:heading size="2xl" class="mt-2">{{ $card['value'] }}
+                        @if ($card['suffix'] ?? null)
+                            <span class="text-base font-normal text-zinc-400">{{ $card['suffix'] }}</span>
+                        @endif
+                    </flux:heading>
+                    <div
+                        class="mt-3 flex items-center gap-1.5 border-t border-zinc-100 pt-3 text-sm text-zinc-500 transition group-hover:text-zinc-900 dark:border-zinc-700 dark:text-zinc-400 dark:group-hover:text-white">
+                        {{ $card['link'] }}
+                        <flux:icon name="arrow-right" variant="micro" class="transition group-hover:translate-x-0.5" />
+                    </div>
+                </flux:card>
+            </a>
+        @endforeach
+    </section>
+
+    <section class="grid gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(320px,1fr)]">
+        <x-dashboard.attendance-chart :attendance="$this->weeklyAttendance"
+            description="Your attendance logs over the last 7 days." />
+        <x-dashboard.placement-mix :mix="$this->ojtProgress" title="OJT Progress" center-label="Required hours" empty-label="No hours required yet"
+            description="Your rendered hours against your required OJT hours." />
+    </section>
+
     <div class="grid items-start gap-6 lg:grid-cols-5">
         <div class="flex min-w-0 flex-col gap-6 lg:col-span-3">
-            <section class="grid gap-4" data-tour="dashboard-metrics">
-                @foreach ($this->topCards as $card)
-                    <flux:card>
-                        <div class="flex items-start justify-between gap-4">
-                            <flux:heading size="lg">
-                                {{ $card['title'] }}
-                            </flux:heading>
-
-                            <div
-                                class="rounded-2xl bg-zinc-50 p-3 text-zinc-900 ring-1 ring-zinc-200 dark:bg-zinc-800 dark:text-white dark:ring-zinc-700">
-                                <flux:icon :name="$card['icon']" class="h-5 w-5" />
-                            </div>
-                        </div>
-
-                        <div class="mt-6 text-5xl font-semibold tracking-tight text-zinc-950 dark:text-white">
-                            {{ $card['value'] }}
-                        </div>
-
-                        <flux:text class="mt-6">
-                            {{ $card['footnote'] }}
-                        </flux:text>
-                    </flux:card>
-                @endforeach
-            </section>
-
             <flux:card>
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div>
@@ -329,7 +383,7 @@ new #[Title('Student Dashboard')] class extends Component
             </section>
         </div>
 
-        <section class="grid gap-4 lg:col-span-2" data-tour="dashboard-workflow">
+        <section id="requirements" class="grid scroll-mt-6 gap-4 lg:col-span-2" data-tour="dashboard-workflow">
             <flux:card>
                 <div class="flex items-start justify-between gap-4">
                     <div>
@@ -374,7 +428,7 @@ new #[Title('Student Dashboard')] class extends Component
 
                     <div class="flex items-center gap-4 -mt-2">
                         <flux:progress :value="$this->requirementSummary['progress']" />
-                        <span class="text-sm tabular-nums ...">{{ $this->requirementSummary['progress'] }}%</span>
+                        <span class="text-sm tabular-nums whitespace-nowrap">{{ $this->requirementSummary['progress'] }}%</span>
                     </div>
                 </flux:field>
 

@@ -119,9 +119,10 @@
 
                                     <flux:menu>
                                         @if ($evaluation)
-                                            <flux:modal.trigger :name="'view-evaluation-'.$evaluation->id">
-                                                <flux:menu.item icon="eye">View</flux:menu.item>
-                                            </flux:modal.trigger>
+                                            <flux:menu.item icon="eye" target="_blank"
+                                                href="{{ route('supervisor.evaluations.view', $evaluation) }}">
+                                                View
+                                            </flux:menu.item>
 
                                             <flux:menu.item icon="arrow-down-tray" target="_blank"
                                                 href="{{ route('supervisor.evaluations.download', $evaluation) }}">
@@ -135,22 +136,6 @@
                                         @endif
                                     </flux:menu>
                                 </flux:dropdown>
-
-                                @if ($evaluation)
-                                    <flux:modal :name="'view-evaluation-'.$evaluation->id" class="w-[calc(100vw-2rem)] max-w-md!">
-                                        <div class="space-y-4 text-left">
-                                            <div>
-                                                <flux:heading size="lg">{{ $assignment->student?->display_name }}</flux:heading>
-                                                <flux:text class="mt-1">
-                                                    Rated {{ number_format((float) $evaluation->rating, 1) }} on
-                                                    {{ $evaluation->evaluation_date?->format('M d, Y') }}
-                                                </flux:text>
-                                            </div>
-
-                                            <flux:text class="whitespace-pre-line">{{ $evaluation->remarks ?: 'No comments.' }}</flux:text>
-                                        </div>
-                                    </flux:modal>
-                                @endif
                             </flux:table.cell>
                         </flux:table.row>
                     @endforeach

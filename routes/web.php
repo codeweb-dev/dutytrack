@@ -121,6 +121,11 @@ Route::group(['middleware' => ['auth', 'verified', 'role:supervisor']], function
 
         return EvaluationDocument::download($evaluation);
     })->name('supervisor.evaluations.download');
+    Route::get('/supervisor/evaluations/{evaluation}/view', function (Evaluation $evaluation) {
+        abort_unless($evaluation->evaluator_id === Auth::id() && $evaluation->evaluator_type === 'company_supervisor', 403);
+
+        return EvaluationDocument::inline($evaluation);
+    })->name('supervisor.evaluations.view');
 });
 
 Route::group(['middleware' => ['auth', 'verified', 'role:student']], function () {

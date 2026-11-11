@@ -63,3 +63,70 @@ test('students can view and download their submitted practicum evaluations', fun
         ->assertSee('data:image/jpeg;base64', false)
         ->assertSee('EULOGIO &ldquo;AMANG&rdquo; RODRIGUEZ', false);
 });
+
+test('students still see their evaluation after the coordinator reviews it', function () {
+    ensureStudentEvaluationRolesExist();
+
+    $student = User::factory()->student()->create();
+    $mentor = User::factory()->companySupervisor()->create();
+
+    $assignment = OjtAssignment::query()->create([
+        'student_id' => $student->id,
+        'ojt_type' => 'internal',
+        'company_supervisor_id' => $mentor->id,
+    ]);
+
+    Evaluation::query()->create([
+        'student_id' => $student->id,
+        'ojt_assignment_id' => $assignment->id,
+        'evaluator_id' => $mentor->id,
+        'evaluator_type' => 'company_supervisor',
+        'evaluation_date' => '2026-05-11',
+        'ratings' => PracticumEvaluationForm::defaultRatings(),
+        'rating' => 84,
+        'status' => 'reviewed',
+    ]);
+
+    $this->actingAs($student)
+        ->get(route('student.evaluations'))
+        ->assertOk()
+        ->assertSee('84.0')
+        ->assertDontSee('Submitted practicum evaluations will appear here.');
+});
+
+test('supervisors can view their evaluation in the browser and others cannot', function () {
+    ensureStudentEvaluationRolesExist();
+
+    $student = User::factory()->student()->create();
+    $mentor = User::factory()->companySupervisor()->create();
+    $otherMentor = User::factory()->companySupervisor()->create();
+
+    $assignment = OjtAssignment::query()->create([
+        'student_id' => $student->id,
+        'ojt_type' => 'internal',
+        'company_supervisor_id' => $mentor->id,
+    ]);
+
+    $evaluation = Evaluation::query()->create([
+        'student_id' => $student->id,
+        'ojt_assignment_id' => $assignment->id,
+        'evaluator_id' => $mentor->id,
+        'evaluator_type' => 'company_supervisor',
+        'evaluation_date' => '2026-05-11',
+        'ratings' => PracticumEvaluationForm::defaultRatings(),
+        'rating' => 80,
+        'remarks' => 'Very dependable and eager to learn.',
+        'status' => 'submitted',
+    ]);
+
+    $this->actingAs($mentor)
+        ->get(route('supervisor.evaluations.view', $evaluation))
+        ->assertOk()
+        ->assertHeader('content-type', 'text/html; charset=UTF-8')
+        ->assertHeaderMissing('content-disposition')
+        ->assertSee('Very dependable and eager to learn.');
+
+    $this->actingAs($otherMentor)
+        ->get(route('supervisor.evaluations.view', $evaluation))
+        ->assertForbidden();
+});

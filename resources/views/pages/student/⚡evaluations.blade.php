@@ -20,7 +20,7 @@ new #[Title('My Evaluation')] class extends Component
         return Evaluation::query()
             ->with('evaluator')
             ->where('student_id', Auth::id())
-            ->where('status', 'submitted')
+            ->whereIn('status', ['submitted', 'reviewed'])
             ->latest('evaluation_date')
             ->latest('created_at')
             ->first();

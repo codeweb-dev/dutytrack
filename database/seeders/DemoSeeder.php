@@ -9,6 +9,7 @@ use App\Models\AttendanceSubmission;
 use App\Models\Evaluation;
 use App\Models\OjtAssignment;
 use App\Models\StudentRequirement;
+use App\Models\StudentTask;
 use App\Models\User;
 use App\Support\PracticumEvaluationForm;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -17,6 +18,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use RuntimeException;
 
 /**
@@ -28,7 +30,9 @@ use RuntimeException;
  * an account; per course, 4 random ones are pending approval (fresh, no data) and 3 are
  * inactive (partial attendance). Every 3rd active student has completed the required
  * hours and has a supervisor evaluation. Requirements are a mix of complete, for
- * checking and pending. All seeded accounts use the password "password".
+ * checking and pending. Supervisors 2-5 of each type assign one task per board column
+ * (revision included) to their students, skipping every 4th; supervisor 1 of each type
+ * assigns none, so both empty states have data. All seeded accounts use the password "password".
  */
 class DemoSeeder extends Seeder
 {
@@ -87,6 +91,16 @@ class DemoSeeder extends Seeder
         'Documentation', 'Teamwork', 'SQL basics',
     ];
 
+    // One task group per entry, shared by all of a supervisor's tasked students. due = days from today.
+    private const STUDENT_TASKS = [
+        ['status' => 'pending', 'priority' => 'normal', 'due' => 7, 'title' => 'Prepare the monthly IT equipment inventory', 'description' => 'List every computer, printer and UPS in the office with its property number and condition.'],
+        ['status' => 'in_progress', 'priority' => 'high', 'due' => 3, 'title' => 'Encode the new enrollee records', 'description' => 'Encode the forms in the blue folder into the student information system. Double check the student numbers.'],
+        ['status' => 'in_review', 'priority' => 'normal', 'due' => 1, 'title' => 'Write a user guide for the office printer', 'description' => 'Short step-by-step guide on printing, scanning and clearing paper jams. Include screenshots.'],
+        ['status' => 'revision', 'priority' => 'high', 'due' => 2, 'title' => 'Test the online request form', 'description' => 'Try every field of the request form and list the bugs you find.', 'revision_note' => 'Please add the steps to reproduce each bug and a screenshot. Some items are missing the browser used.'],
+        ['status' => 'done', 'priority' => 'low', 'due' => -4, 'title' => 'Label the network cables in the server room', 'description' => 'Label both ends of each cable with the switch port number.'],
+        ['status' => 'done', 'priority' => 'normal', 'due' => -9, 'title' => 'Clean up the shared drive folders', 'description' => 'Sort the scanned documents into folders per month and remove duplicates.'],
+    ];
+
     public function run(): void
     {
         $coordinators = User::role(Role::OJTCOORDINATOR->value)->with('coordinatorProfile')->get()
@@ -113,6 +127,7 @@ class DemoSeeder extends Seeder
 
                 $prefix = strtolower($course);
                 $supervisors = $this->seedSupervisors($coordinator, $prefix, $password);
+                $taskAssignments = [];
 
                 $students = collect(config('masterlist'))
                     ->where('course', $course)
@@ -132,8 +147,12 @@ class DemoSeeder extends Seeder
                     }
 
                     $completed = $status === 'active' && $i % 3 === 0;
-                    ['user' => $supervisor, 'location' => $location] = $supervisors->random();
+                    ['user' => $supervisor, 'location' => $location, 'tasks' => $tasks] = $supervisors->random();
                     $assignment = $this->assign($student, $supervisor, $location);
+
+                    if ($tasks && $i % 4 !== 1) {
+                        $taskAssignments[$supervisor->id][] = $assignment;
+                    }
                     [$from, $to] = $this->seedAttendance($assignment, $completed ? $config['hours'] : null);
 
                     $this->seedRequirements($student, $coordinator, $completed ? 'complete' : collect(['complete', 'checking', 'pending'])->random(), $sampleFile);
@@ -141,6 +160,10 @@ class DemoSeeder extends Seeder
                     if ($completed) {
                         $this->seedEvaluation($assignment, $supervisor, $coordinator, $from, $to, $i % 2 === 0 ? 'reviewed' : 'submitted');
                     }
+                }
+
+                foreach ($taskAssignments as $supervisorId => $assignments) {
+                    $this->seedTasks($supervisorId, $assignments);
                 }
             }
         });
@@ -184,7 +207,7 @@ class DemoSeeder extends Seeder
                 ]);
 
                 if ($active) {
-                    $supervisors->push(['user' => $user, 'location' => $type === 'internal' ? self::SCHOOL : $company]);
+                    $supervisors->push(['user' => $user, 'location' => $type === 'internal' ? self::SCHOOL : $company, 'tasks' => $n !== 1]);
                 }
             }
         }
@@ -218,6 +241,7 @@ class DemoSeeder extends Seeder
             'address' => $row['address'] ?? null,
             'guardian_name' => $row['guardian_name'] ?? null,
             'guardian_address' => $row['guardian_address'] ?? null,
+            'guardian_contact_number' => $row['guardian_contact_number'] ?? null,
         ]);
 
         StudentRequirement::ensureForStudent($user);
@@ -290,6 +314,34 @@ class DemoSeeder extends Seeder
                 'completed_at' => $isApproved ? $submittedAt->copy()->addDay() : null,
                 'completed_by' => $isApproved ? $coordinator->id : null,
             ]);
+        }
+    }
+
+    private function seedTasks(int $supervisorId, array $assignments): void
+    {
+        foreach (self::STUDENT_TASKS as $task) {
+            $groupId = (string) Str::uuid();
+            $due = today()->addDays($task['due']);
+            $createdAt = today()->subDays(14)->setTime(9, 0);
+
+            foreach ($assignments as $assignment) {
+                // ponytail: sort_order left at 0; the board breaks ties by priority, then due date.
+                StudentTask::forceCreate([
+                    'student_id' => $assignment->student_id,
+                    'assigned_by' => $supervisorId,
+                    'ojt_assignment_id' => $assignment->id,
+                    'task_group_id' => $groupId,
+                    'title' => $task['title'],
+                    'description' => $task['description'],
+                    'revision_note' => $task['revision_note'] ?? null,
+                    'status' => $task['status'],
+                    'priority' => $task['priority'],
+                    'due_date' => $due->toDateString(),
+                    'completed_at' => $task['status'] === 'done' ? $due->copy()->subDay()->setTime(16, 0) : null,
+                    'created_at' => $createdAt,
+                    'updated_at' => $createdAt,
+                ]);
+            }
         }
     }
 

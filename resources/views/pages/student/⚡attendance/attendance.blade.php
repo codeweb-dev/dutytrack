@@ -3,12 +3,12 @@
 
     <section class="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(24rem,1fr)]">
         <flux:card class="p-5">
-            <div class="flex items-center justify-between gap-4">
-                <div>
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                <div class="shrink-0">
                     <flux:heading size="lg">Attendance Calendar</flux:heading>
                     <flux:text class="mt-1">{{ $this->calendar['month']->format('F Y') }}</flux:text>
                 </div>
-                <div class="flex items-center gap-1">
+                <div class="flex flex-wrap items-center gap-1">
                     <flux:modal.trigger name="attendance-holidays">
                         <flux:button type="button" size="sm" variant="ghost" icon="calendar-days">View all holidays
                         </flux:button>

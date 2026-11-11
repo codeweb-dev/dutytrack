@@ -89,14 +89,14 @@
                                 </div>
                             </flux:table.cell>
 
-                            <flux:table.cell>
+                            <flux:table.cell class="whitespace-nowrap">
                                 <div class="flex items-center gap-3">
                                     <flux:avatar size="md" :src="$student?->coordinator?->profile_photo_url"
                                         :name="$student?->coordinator?->display_name" />
 
-                                    <div class="flex min-w-0 flex-col whitespace-normal">
+                                    <div class="flex flex-col">
                                         <span class="font-medium">{{ $student?->coordinator?->display_name ?? '' }}</span>
-                                        <span class="break-words text-xs text-zinc-500 dark:text-zinc-300">{{ $student?->coordinator?->email ?? '' }}</span>
+                                        <span class="text-xs text-zinc-500 dark:text-zinc-300">{{ $student?->coordinator?->email ?? '' }}</span>
                                     </div>
                                 </div>
                             </flux:table.cell>

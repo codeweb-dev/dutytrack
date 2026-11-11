@@ -1,12 +1,13 @@
 <div class="flex min-w-0 flex-col gap-6">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+    <div class="grid grid-cols-2 gap-4 sm:grid-cols-3">
         @php($cards = ['' => ['Total Evaluations', 'total', 'document-check'], 'submitted' => ['Pending Approval', 'submitted', 'inbox-arrow-down'], 'reviewed' => ['Approved', 'reviewed', 'check-circle']])
         @foreach ($cards as $value => [$label, $key, $icon])
             <button type="button" wire:click="$set('status', '{{ $value }}')" class="group text-left"
                 aria-pressed="{{ $status === $value ? 'true' : 'false' }}">
-                <flux:card size="xs" class="hover:bg-zinc-50 dark:hover:bg-zinc-700 group-aria-pressed:border-zinc-800 group-aria-pressed:outline-1 group-aria-pressed:outline-zinc-800 dark:group-aria-pressed:border-white dark:group-aria-pressed:outline-white">
+                <flux:card size="xs"
+                    class="hover:bg-zinc-50 dark:hover:bg-zinc-700 group-aria-pressed:border-zinc-800 group-aria-pressed:outline-1 group-aria-pressed:outline-zinc-800 dark:group-aria-pressed:border-white dark:group-aria-pressed:outline-white">
                     <flux:heading class="flex items-center gap-2">{{ $label }}
                         <flux:icon :name="$icon" :variant="$status === $value ? 'solid' : 'outline'"
                             class="ml-auto size-5 {{ $status === $value ? 'text-zinc-800 dark:text-white' : 'text-zinc-400' }}" />
@@ -28,8 +29,14 @@
                     placeholder="Search evaluations..." clearable class="w-full sm:w-64" />
 
                 <x-filter-modal name="filter-coordinator-evaluations" heading="Filter Evaluations"
-                    description="Filter by status and choose how supervisor evaluations are ordered."
-                    :sorts="['' => 'Newest first', 'student' => 'Student name','supervisor' => 'Supervisor', 'date' => 'Evaluation date', 'rating' => 'Rating', 'status' => 'Status']">
+                    description="Filter by status and choose how supervisor evaluations are ordered." :sorts="[
+                        '' => 'Newest first',
+                        'student' => 'Student name',
+                        'supervisor' => 'Supervisor',
+                        'date' => 'Evaluation date',
+                        'rating' => 'Rating',
+                        'status' => 'Status',
+                    ]">
                     <flux:radio.group wire:model.live="status" label="Status" variant="pills">
                         <flux:radio value="" label="All" />
                         <flux:radio value="pending" label="Pending" />
@@ -69,30 +76,35 @@
 
                                 <div class="flex flex-col">
                                     <span class="font-medium">{{ $evaluation->student?->display_name }}</span>
-                                    <span class="text-xs text-zinc-500 dark:text-zinc-300">{{ $evaluation->student?->email }}</span>
+                                    <span
+                                        class="text-xs text-zinc-500 dark:text-zinc-300">{{ $evaluation->student?->email }}</span>
                                 </div>
                             </flux:table.cell>
 
-                            <flux:table.cell>
+                            <flux:table.cell class="whitespace-nowrap">
                                 <div class="flex items-center gap-3">
                                     <flux:avatar size="md" :src="$evaluation->evaluator?->profile_photo_url"
                                         :name="$evaluation->evaluator?->display_name" />
 
-                                    <div class="flex min-w-0 flex-col whitespace-normal">
+                                    <div class="flex flex-col">
                                         <span class="font-medium">{{ $evaluation->evaluator?->display_name }}</span>
-                                        <span class="break-words text-xs text-zinc-500 dark:text-zinc-300">{{ $evaluation->evaluator?->email }}</span>
+                                        <span
+                                            class="text-xs text-zinc-500 dark:text-zinc-300">{{ $evaluation->evaluator?->email }}</span>
                                     </div>
                                 </div>
                             </flux:table.cell>
 
-                            <flux:table.cell class="whitespace-nowrap">{{ $evaluation->evaluation_date?->format('M d, Y') }}</flux:table.cell>
-
-                            <flux:table.cell class="whitespace-nowrap">{{ number_format((float) $evaluation->rating, 1) }} / 100</flux:table.cell>
+                            <flux:table.cell class="whitespace-nowrap">
+                                {{ $evaluation->evaluation_date?->format('M d, Y') }}</flux:table.cell>
 
                             <flux:table.cell class="whitespace-nowrap">
-                                <flux:badge :color="match ($evaluation->status) { 'reviewed' => 'green', 'submitted' => 'sky', default => 'amber' }"
+                                {{ number_format((float) $evaluation->rating, 1) }} / 100</flux:table.cell>
+
+                            <flux:table.cell class="whitespace-nowrap">
+                                <flux:badge
+                                    :color="match ($evaluation->status) { 'reviewed' => 'green', 'submitted' => 'sky', default => 'amber' }"
                                     size="sm" inset="top bottom">
-                                    {{ match ($evaluation->status) { 'reviewed' => 'Approved', 'submitted' => 'Pending Approval', default => str($evaluation->status)->title() } }}
+                                    {{ match ($evaluation->status) {'reviewed' => 'Approved','submitted' => 'Pending Approval',default => str($evaluation->status)->title()} }}
                                 </flux:badge>
                             </flux:table.cell>
 
@@ -113,7 +125,8 @@
                                         </flux:menu.item>
 
                                         @if ($evaluation->status === 'submitted')
-                                            <flux:menu.item icon="check" wire:click="markReviewed({{ $evaluation->id }})">
+                                            <flux:menu.item icon="check"
+                                                wire:click="markReviewed({{ $evaluation->id }})">
                                                 Approve
                                             </flux:menu.item>
                                         @endif

@@ -181,7 +181,7 @@
                                                                     </div>
                                                                 </flux:table.cell>
                                                                 <flux:table.cell>
-                                                                    <div class="flex flex-col whitespace-normal">
+                                                                    <div class="flex flex-col whitespace-nowrap">
                                                                         <span class="font-medium">{{ $student->studentProfile?->student_id ?: '—' }}</span>
                                                                         <span class="text-xs text-zinc-500 dark:text-zinc-300">{{ $student->studentProfile?->course ?: '—' }}</span>
                                                                     </div>

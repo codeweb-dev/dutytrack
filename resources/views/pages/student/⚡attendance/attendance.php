@@ -2,6 +2,7 @@
 
 use App\Models\AttendanceLog;
 use App\Models\OjtAssignment;
+use App\Models\StudentProfile;
 use App\Support\Holidays;
 use Carbon\CarbonInterface;
 use Flux\Flux;
@@ -104,15 +105,14 @@ new #[Title('My Attendance')] class extends Component
         unset($this->todayAttendance, $this->calendar, $this->selectedAttendance, $this->summary);
     }
 
-    protected function calculateSessionMinutes(?CarbonInterface $timeIn, ?CarbonInterface $timeOut, CarbonInterface $latestEnd): int
+    protected function calculateSessionMinutes(?CarbonInterface $timeIn, ?CarbonInterface $timeOut, CarbonInterface $earliestStart, CarbonInterface $latestEnd): int
     {
         if (! $timeIn || ! $timeOut) {
             return 0;
         }
 
-        $countedStart = $timeIn->greaterThan($this->workdayStart($timeIn))
-            ? $timeIn->copy()
-            : $this->workdayStart($timeIn);
+        // Sessions only count 8–12 and 1–5, so a day maxes out at 8 hours.
+        $countedStart = $timeIn->copy()->max($earliestStart);
 
         $countedEnd = $timeOut->copy()->min($latestEnd);
 
@@ -124,17 +124,32 @@ new #[Title('My Attendance')] class extends Component
     protected function calculateHours(AttendanceLog $attendance, CarbonInterface $afternoonTimeOut): float
     {
         $morningTimeIn = $attendance->displayMorningTimeIn();
+        $afternoonTimeIn = $attendance->afternoon_time_in;
         $minutes = $this->calculateSessionMinutes(
             $morningTimeIn,
             $attendance->morning_time_out,
+            $morningTimeIn ? $this->workdayStart($morningTimeIn) : now(),
             $morningTimeIn ? $this->morningCutoff($morningTimeIn) : now(),
         ) + $this->calculateSessionMinutes(
-            $attendance->afternoon_time_in,
+            $afternoonTimeIn,
             $afternoonTimeOut,
-            $attendance->afternoon_time_in ? $this->workdayEnd($attendance->afternoon_time_in) : now(),
+            $afternoonTimeIn ? $this->afternoonStart($afternoonTimeIn) : now(),
+            $afternoonTimeIn ? $this->workdayEnd($afternoonTimeIn) : now(),
         );
 
-        return round($minutes / 60, 2);
+        return round(min($minutes, 480) / 60, 2);
+    }
+
+    // Total rendered hours never exceed the course's required hours (BSCS 300, BSIT 500).
+    protected function withinRequiredHours(AttendanceLog $attendance, float $hours): float
+    {
+        $required = (float) StudentProfile::query()->where('user_id', $this->studentId())->value('ojt_required_hours');
+        $otherDays = (float) AttendanceLog::query()
+            ->where('student_id', $this->studentId())
+            ->whereKeyNot($attendance->id)
+            ->sum('hours_rendered');
+
+        return $required > 0 ? max(min($hours, $required - $otherDays), 0) : $hours;
     }
 
     protected function workdayStart(CarbonInterface $date): Carbon
@@ -401,7 +416,7 @@ new #[Title('My Attendance')] class extends Component
             ->whereNull('afternoon_time_in')
             ->update([
                 'morning_time_out' => $timeOut,
-                'hours_rendered' => $hours,
+                'hours_rendered' => $this->withinRequiredHours($attendance, $hours),
             ]);
 
         if (! $updated) {
@@ -493,7 +508,7 @@ new #[Title('My Attendance')] class extends Component
             ->when($attendance->morning_time_in, fn ($query) => $query->whereNotNull('morning_time_out'))
             ->update([
                 'afternoon_time_out' => $timeOut,
-                'hours_rendered' => $hours,
+                'hours_rendered' => $this->withinRequiredHours($attendance, $hours),
                 'status' => $this->attendanceStatus($attendance, $hours),
             ]);
 

@@ -292,7 +292,7 @@ class DemoSeeder extends Seeder
                 $date->subDay();
             }
 
-            $total += $this->seedDay($assignment, $date->copy());
+            $total += $this->seedDay($assignment, $date->copy(), $targetHours ? $targetHours - $total : null);
             $last ??= $date->copy();
             $first = $date->copy();
             $date->subDay();
@@ -383,7 +383,7 @@ class DemoSeeder extends Seeder
         ]);
     }
 
-    private function seedDay(OjtAssignment $assignment, Carbon $date): float
+    private function seedDay(OjtAssignment $assignment, Carbon $date, ?float $remaining = null): float
     {
         $roll = random_int(1, 100);
         $status = match (true) {
@@ -403,7 +403,8 @@ class DemoSeeder extends Seeder
         };
         [$morningIn, $morningOut, $afternoonIn, $afternoonOut] = $times;
 
-        $hours = round(($this->minutes($morningIn, $morningOut, $at(12, 0)) + $this->minutes($afternoonIn, $afternoonOut, $at(17, 0))) / 60, 2);
+        $hours = round(($this->minutes($morningIn, $morningOut, $at(8, 0), $at(12, 0)) + $this->minutes($afternoonIn, $afternoonOut, $at(13, 0), $at(17, 0))) / 60, 2);
+        $hours = $remaining === null ? $hours : min($hours, round($remaining, 2));
         $stamp = $morningOut ?? $date->copy()->setTime(17, 0);
 
         $log = AttendanceLog::forceCreate([
@@ -439,14 +440,14 @@ class DemoSeeder extends Seeder
         return $hours;
     }
 
-    // Same rule as the student attendance page: count from 8:00 at the earliest, cap at the session end.
-    private function minutes(?Carbon $in, ?Carbon $out, Carbon $latestEnd): int
+    // Same rule as the student attendance page: count 8–12 and 1–5 only (8 hrs max a day).
+    private function minutes(?Carbon $in, ?Carbon $out, Carbon $earliestStart, Carbon $latestEnd): int
     {
         if (! $in || ! $out) {
             return 0;
         }
 
-        $start = $in->copy()->max($in->copy()->setTime(8, 0));
+        $start = $in->copy()->max($earliestStart);
         $end = $out->copy()->min($latestEnd);
 
         return $end->greaterThan($start) ? (int) $start->diffInMinutes($end) : 0;

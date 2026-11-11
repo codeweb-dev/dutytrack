@@ -580,3 +580,26 @@ test('students can download their monthly DTR with holidays marked', function ()
         ->assertHeader('Content-Type', 'application/pdf')
         ->assertHeader('Content-Disposition', 'inline; filename="DTR-'.\Illuminate\Support\Str::slug($student->name).'-2026-11.pdf"');
 });
+
+test('daily hours cap at 8 and total hours cap at the required hours', function () {
+    $student = createStudentWithAssignment();
+    $student->studentProfile()->update(['ojt_required_hours' => 300]);
+    AttendanceLog::create(['student_id' => $student->id, 'ojt_assignment_id' => OjtAssignment::where('student_id', $student->id)->value('id'), 'attendance_date' => '2026-04-29', 'hours_rendered' => 295, 'status' => 'present']);
+    $this->actingAs($student);
+
+    foreach (['07:30' => 'morning_time_in', '12:05' => 'morning_time_out', '13:00' => 'afternoon_time_in', '17:10' => 'afternoon_time_out'] as $time => $punch) {
+        Carbon::setTestNow(Carbon::parse("2026-04-30 {$time}:00"));
+        Livewire::test('pages::student.attendance')
+            ->set('time_in_latitude', 14.599512)
+            ->set('time_in_longitude', 120.984222)
+            ->call('recordNextPunch', $punch)
+            ->assertHasNoErrors();
+    }
+
+    $attendance = AttendanceLog::query()->where('student_id', $student->id)->whereDate('attendance_date', '2026-04-30')->first();
+
+    // Worked a full 8 hours, but only 5 remained of the 300.
+    expect((float) $attendance->hours_rendered)->toBe(5.0);
+    expect($attendance->status)->toBe('present');
+    expect((float) AttendanceLog::where('student_id', $student->id)->sum('hours_rendered'))->toBe(300.0);
+});

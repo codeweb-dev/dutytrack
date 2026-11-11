@@ -2,6 +2,7 @@
 
 use App\Models\AttendanceLog;
 use App\Models\User;
+use App\Support\Holidays;
 use Flux\Flux;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -116,9 +117,12 @@ new #[Title('Attendance')] class extends Component
         $end = $month->copy()->endOfMonth()->endOfWeek(Carbon::SUNDAY);
         $counts = $this->applyStatus($this->attendanceQuery())
             ->whereBetween('attendance_date', [$start->toDateString(), $end->toDateString()])
-            ->selectRaw('DATE(attendance_date) as day_key, COUNT(*) as total')
-            ->groupByRaw('DATE(attendance_date)')
-            ->pluck('total', 'day_key');
+            ->selectRaw('DATE(attendance_date) as day_key, status, COUNT(*) as total')
+            ->groupByRaw('DATE(attendance_date), status')
+            ->get()
+            ->groupBy('day_key')
+            ->map(fn ($rows) => $rows->pluck('total', 'status')->map(fn ($total) => (int) $total)->all());
+        $holidaysByDate = collect($this->holidays)->keyBy('date');
 
         $days = [];
 
@@ -128,7 +132,10 @@ new #[Title('Attendance')] class extends Component
                 'date' => $date->copy(),
                 'is_current_month' => $date->format('Y-m') === $month->format('Y-m'),
                 'is_today' => $date->isToday(),
-                'count' => (int) ($counts[$key] ?? 0),
+                'is_weekend' => $date->isWeekend(),
+                'holiday' => $holidaysByDate->get($key)['name'] ?? null,
+                'statuses' => $counts[$key] ?? [],
+                'count' => array_sum($counts[$key] ?? []),
             ];
         }
 
@@ -169,6 +176,29 @@ new #[Title('Attendance')] class extends Component
             ->orderBy(User::select('name')->whereColumn('users.id', 'attendance_logs.student_id'))
             ->orderBy('attendance_logs.id')
             ->paginate(10);
+    }
+
+    #[Computed]
+    public function holidays(): array
+    {
+        return Holidays::forYear(Carbon::createFromFormat('!Y-m', $this->calendarMonth)->year)['holidays'];
+    }
+
+    #[Computed]
+    public function holidaysAvailable(): bool
+    {
+        return Holidays::forYear(Carbon::createFromFormat('!Y-m', $this->calendarMonth)->year)['available'];
+    }
+
+    #[Computed]
+    public function selectedHoliday(): ?array
+    {
+        if (! $this->selectedCalendarDate) {
+            return null;
+        }
+
+        return collect(Holidays::forYear((int) substr($this->selectedCalendarDate, 0, 4))['holidays'])
+            ->firstWhere('date', $this->selectedCalendarDate);
     }
 };
 ?>

@@ -22,7 +22,7 @@ new class extends Component {};
     </flux:sidebar.item>
 
     <flux:sidebar.group expandable icon="calendar-days" heading="Daily Logs" data-tour="nav-group-daily-logs">
-        <flux:sidebar.item icon="clipboard-document-list" data-tour="nav-attendance" :href="route('student.attendance')" :current="request()->routeIs('student.attendance')"
+        <flux:sidebar.item icon="calendar-days" data-tour="nav-attendance" :href="route('student.attendance')" :current="request()->routeIs('student.attendance')"
             wire:navigate>
             Attendance
         </flux:sidebar.item>

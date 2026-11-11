@@ -1,13 +1,15 @@
 <?php
 
-use App\Livewire\Concerns\WithSorting;
-use App\Models\StudentProfile;
 use App\Models\AttendanceLog;
 use App\Models\User;
+use App\Support\Holidays;
+use Flux\Flux;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -15,7 +17,6 @@ use Livewire\WithPagination;
 new #[Title('Attendance Monitoring')] class extends Component
 {
     use WithPagination;
-    use WithSorting;
 
     public array $breadcrumbs = [
         ['logo' => 'logo.png', 'href' => '/dashboard'],
@@ -28,66 +29,74 @@ new #[Title('Attendance Monitoring')] class extends Component
 
     public string $description = 'Track attendance logs for the students assigned to your coordinator account.';
 
-    public string $search = '';
-
-    public string $ojt_type = '';
-
     public string $status = '';
 
-    public string $supervisor_id = '';
+    #[Locked]
+    public string $calendarMonth;
 
-    public ?string $from_date = null;
+    #[Locked]
+    public ?string $selectedCalendarDate = null;
 
-    public ?string $to_date = null;
-
-    public function updatedSearch(): void
+    public function mount(): void
     {
-        $this->resetPage();
-        unset($this->attendanceLogs);
+        $this->calendarMonth = now()->format('Y-m');
     }
 
-    public function updatedOjtType(): void
+    public function previousCalendarMonth(): void
     {
-        $this->resetPage();
-        unset($this->attendanceLogs, $this->summary);
+        $this->calendarMonth = Carbon::createFromFormat('!Y-m', $this->calendarMonth)
+            ->subMonthNoOverflow()
+            ->format('Y-m');
     }
 
-    public function updatedStatus(): void
+    public function nextCalendarMonth(): void
     {
-        $this->resetPage();
-        unset($this->attendanceLogs);
+        $this->calendarMonth = Carbon::createFromFormat('!Y-m', $this->calendarMonth)
+            ->addMonthNoOverflow()
+            ->format('Y-m');
     }
 
-    public function updatedSupervisorId(): void
+    public function showAttendanceDay(mixed $date): void
     {
+        if (! is_string($date) || ! preg_match('/\A\d{4}-\d{2}-\d{2}\z/', $date)) {
+            return;
+        }
+
+        try {
+            $selectedDate = Carbon::createFromFormat('!Y-m-d', $date);
+        } catch (\Throwable) {
+            return;
+        }
+
+        if (! $selectedDate || $selectedDate->format('Y-m-d') !== $date) {
+            return;
+        }
+
+        $this->selectedCalendarDate = $date;
         $this->resetPage();
-        unset($this->attendanceLogs);
+
+        Flux::modal('attendance-day-details')->show();
     }
 
-    public function updatedFromDate(): void
+    protected function attendanceQuery(): Builder
     {
-        $this->resetPage();
-        unset($this->attendanceLogs, $this->summary);
+        return AttendanceLog::query()
+            ->whereHas('student', fn (Builder $query) => $query->where('coordinator_id', Auth::id()));
     }
 
-    public function updatedToDate(): void
+    // Same status rules as the coordinator attendance page.
+    protected function applyStatus(Builder $query): Builder
     {
-        $this->resetPage();
-        unset($this->attendanceLogs, $this->summary);
-    }
-
-    public function clearFilters(): void
-    {
-        $this->reset('sortBy', 'sortDirection');
-        $this->search = '';
-        $this->ojt_type = '';
-        $this->status = '';
-        $this->supervisor_id = '';
-        $this->from_date = null;
-        $this->to_date = null;
-
-        $this->resetPage();
-        unset($this->attendanceLogs, $this->summary);
+        return match ($this->status) {
+            'incomplete' => $query->where(fn (Builder $query) => $query
+                ->whereNull('afternoon_time_out')
+                ->orWhere('status', 'incomplete')),
+            'late' => $query->where(fn (Builder $query) => $query
+                ->where('status', 'late')
+                ->orWhereTime('morning_time_in', '>', '08:00:00')),
+            'present', 'absent' => $query->where('status', $this->status),
+            default => $query,
+        };
     }
 
     public function badgeColor(?string $status): string
@@ -96,86 +105,48 @@ new #[Title('Attendance Monitoring')] class extends Component
             'present' => 'lime',
             'late' => 'amber',
             'absent' => 'red',
-            'incomplete' => 'zinc',
+            'incomplete' => 'orange',
             default => 'zinc',
         };
     }
 
-    protected function baseAttendanceQuery(): Builder
-    {
-        return AttendanceLog::query()
-            ->with(['student.studentProfile', 'assignment.companySupervisor'])
-            ->whereHas('student', function (Builder $query) {
-                $query->where('coordinator_id', Auth::id());
-            });
-    }
-
-    protected function applyFilters(Builder $query, bool $includeSearch = true, bool $includeStatus = true): Builder
-    {
-        return $query
-            ->when($includeSearch && $this->search !== '', function (Builder $query) {
-                $search = '%'.$this->search.'%';
-
-                $query->whereHas('student', function (Builder $studentQuery) use ($search) {
-                    $studentQuery
-                        ->where(function (Builder $nested) use ($search) {
-                            $nested->where('users.name', 'like', $search)
-                                ->orWhere('users.first_name', 'like', $search)
-                                ->orWhere('users.last_name', 'like', $search)
-                                ->orWhere('users.email', 'like', $search);
-                        })
-                        ->orWhereHas('studentProfile', function (Builder $profileQuery) use ($search) {
-                            $profileQuery->where('student_id', 'like', $search)
-                                ->orWhere('course', 'like', $search);
-                        });
-                });
-            })
-            ->when($this->ojt_type !== '', function (Builder $query) {
-                $query->whereHas('assignment', function (Builder $assignmentQuery) {
-                    $assignmentQuery->where('ojt_type', $this->ojt_type);
-                });
-            })
-            ->when($this->supervisor_id !== '', function (Builder $query) {
-                $query->whereHas('assignment', function (Builder $assignmentQuery) {
-                    $assignmentQuery
-                        ->where('company_supervisor_id', $this->supervisor_id);
-                });
-            })
-            ->when($includeStatus && $this->status !== '', function (Builder $query) {
-                $this->status === 'incomplete'
-                    ? $query->where(fn (Builder $query) => $query
-                        ->whereNull('afternoon_time_out')
-                        ->orWhere('status', 'incomplete'))
-                    : ($this->status === 'late'
-                        ? $query->where(fn (Builder $query) => $query
-                            ->where('status', 'late')
-                            ->orWhereTime('morning_time_in', '>', '08:00:00'))
-                        : $query->where('status', $this->status));
-            })
-            ->when($this->from_date, fn (Builder $query) => $query->whereDate('attendance_date', '>=', $this->from_date))
-            ->when($this->to_date, fn (Builder $query) => $query->whereDate('attendance_date', '<=', $this->to_date));
-    }
-
     #[Computed]
-    public function attendanceLogs(): LengthAwarePaginator
+    public function calendar(): array
     {
-        return $this->applySorting($this->applyFilters($this->baseAttendanceQuery()), [
-            'student' => User::select('name')->whereColumn('users.id', 'attendance_logs.student_id'),
-            'student_id' => StudentProfile::select('student_id')->whereColumn('student_profiles.user_id', 'attendance_logs.student_id'),
-            'date' => 'attendance_date',
-            'hours' => 'hours_rendered',
-            'status' => 'status',
-        ])
-            ->latest('attendance_date')
-            ->latest('morning_time_in')
-            ->paginate(10);
+        $month = Carbon::createFromFormat('!Y-m', $this->calendarMonth);
+        $start = $month->copy()->startOfWeek(Carbon::MONDAY);
+        $end = $month->copy()->endOfMonth()->endOfWeek(Carbon::SUNDAY);
+        $counts = $this->applyStatus($this->attendanceQuery())
+            ->whereBetween('attendance_date', [$start->toDateString(), $end->toDateString()])
+            ->selectRaw('DATE(attendance_date) as day_key, status, COUNT(*) as total')
+            ->groupByRaw('DATE(attendance_date), status')
+            ->get()
+            ->groupBy('day_key')
+            ->map(fn ($rows) => $rows->pluck('total', 'status')->map(fn ($total) => (int) $total)->all());
+        $holidaysByDate = collect($this->holidays)->keyBy('date');
+
+        $days = [];
+
+        for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
+            $key = $date->toDateString();
+            $days[] = [
+                'date' => $date->copy(),
+                'is_current_month' => $date->format('Y-m') === $month->format('Y-m'),
+                'is_today' => $date->isToday(),
+                'is_weekend' => $date->isWeekend(),
+                'holiday' => $holidaysByDate->get($key)['name'] ?? null,
+                'statuses' => $counts[$key] ?? [],
+                'count' => array_sum($counts[$key] ?? []),
+            ];
+        }
+
+        return ['month' => $month, 'days' => $days];
     }
 
     #[Computed]
     public function summary(): array
     {
-        // Status is left out so each card keeps its count while one is selected.
-        $query = $this->applyFilters($this->baseAttendanceQuery(), includeSearch: false, includeStatus: false);
+        $query = $this->attendanceQuery();
 
         return [
             'total' => (clone $query)->count(),
@@ -189,20 +160,46 @@ new #[Title('Attendance Monitoring')] class extends Component
                 ->whereNull('afternoon_time_out')
                 ->orWhere('status', 'incomplete'))
                 ->count(),
+            'hours' => (float) (clone $query)->sum('hours_rendered'),
         ];
     }
 
     #[Computed]
-    public function supervisors()
+    public function selectedAttendance(): LengthAwarePaginator
     {
-        return User::query()
-            ->where(function (Builder $query) {
-                $query
-                    ->whereHas('companySupervisorAssignments.student', function (Builder $studentQuery) {
-                        $studentQuery->where('coordinator_id', Auth::id());
-                    });
-            })
-            ->orderBy('name')
-            ->get();
+        if (! $this->selectedCalendarDate) {
+            return new LengthAwarePaginator([], 0, 10);
+        }
+
+        return $this->applyStatus($this->attendanceQuery())
+            ->with(['student.studentProfile', 'assignment.companySupervisor'])
+            ->whereDate('attendance_date', $this->selectedCalendarDate)
+            ->orderBy(User::select('name')->whereColumn('users.id', 'attendance_logs.student_id'))
+            ->orderBy('attendance_logs.id')
+            ->paginate(10);
+    }
+
+    #[Computed]
+    public function holidays(): array
+    {
+        return Holidays::forYear(Carbon::createFromFormat('!Y-m', $this->calendarMonth)->year)['holidays'];
+    }
+
+    #[Computed]
+    public function holidaysAvailable(): bool
+    {
+        return Holidays::forYear(Carbon::createFromFormat('!Y-m', $this->calendarMonth)->year)['available'];
+    }
+
+    #[Computed]
+    public function selectedHoliday(): ?array
+    {
+        if (! $this->selectedCalendarDate) {
+            return null;
+        }
+
+        return collect(Holidays::forYear((int) substr($this->selectedCalendarDate, 0, 4))['holidays'])
+            ->firstWhere('date', $this->selectedCalendarDate);
     }
 };
+?>

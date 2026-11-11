@@ -3,7 +3,8 @@
 
     <div class="grid grid-cols-2 gap-4 xl:grid-cols-5">
         @php
-            $cards = ['' => ['Total Records', 'total', 'clipboard-document-list'], 'present' => ['Present', 'present', 'check-circle'], 'late' => ['Late', 'late', 'clock'], 'absent' => ['Absent', 'absent', 'x-circle'], 'incomplete' => ['Incomplete', 'incomplete', 'exclamation-circle']];
+            $legend = ['present' => ['Present', 'bg-emerald-600'], 'late' => ['Late', 'bg-amber-500'], 'incomplete' => ['Incomplete', 'bg-orange-500'], 'absent' => ['Absent', 'bg-red-500']];
+            $cards = ['' =>['Total Records', 'total', 'clipboard-document-list'], 'present' => ['Present', 'present', 'check-circle'], 'late' => ['Late', 'late', 'clock'], 'absent' => ['Absent', 'absent', 'x-circle'], 'incomplete' => ['Incomplete', 'incomplete', 'exclamation-circle']];
         @endphp
         @foreach ($cards as $value => [$label, $key, $icon])
             <button type="button" wire:click="$set('status', '{{ $value }}')" class="group text-left"
@@ -29,7 +30,11 @@
                         {{ \App\Support\HourFormatter::format($this->summary['hours']) }} rendered in total
                     </flux:text>
                 </div>
-                <div class="flex items-center gap-1">
+                <div class="flex flex-wrap items-center gap-1">
+                    <flux:modal.trigger name="attendance-holidays">
+                        <flux:button type="button" size="sm" variant="ghost" icon="calendar-days">View all holidays
+                        </flux:button>
+                    </flux:modal.trigger>
                     <flux:button type="button" variant="ghost" icon="chevron-left" aria-label="Previous month"
                         wire:click="previousCalendarMonth" />
                     <flux:button type="button" variant="ghost" icon="chevron-right" aria-label="Next month"
@@ -46,19 +51,34 @@
             <div class="grid grid-cols-7 gap-1">
                 @foreach ($this->calendar['days'] as $day)
                     <button type="button" wire:key="supervisor-calendar-day-{{ $day['date']->format('Y-m-d') }}"
-                        wire:click="showAttendanceDay('{{ $day['date']->format('Y-m-d') }}')" @class([
-                            'flex min-h-14 w-full cursor-pointer flex-col items-center rounded-xl border py-2 text-sm transition-colors hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest dark:hover:bg-zinc-800/50',
-                            'text-zinc-900 dark:text-white' => $day['is_current_month'],
+                        wire:click="showAttendanceDay('{{ $day['date']->format('Y-m-d') }}')"
+                        @disabled($day['is_weekend']) @class([
+                            'flex min-h-14 w-full flex-col items-center rounded-xl border py-2 text-sm',
+                            'cursor-pointer transition-colors hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest dark:hover:bg-zinc-800/50' => ! $day['is_weekend'],
+                            'cursor-not-allowed bg-zinc-100 text-zinc-400 dark:bg-zinc-800/40 dark:text-zinc-600' => $day['is_weekend'],
+                            'text-zinc-900 dark:text-white' => $day['is_current_month'] && ! $day['is_weekend'],
                             'text-zinc-400 dark:text-zinc-600' => ! $day['is_current_month'],
-                            'border-transparent' => ! $day['is_today'],
+                            'border-transparent' => ! $day['is_today'] && ! $day['holiday'],
+                            'border-amber-300 bg-amber-50 dark:bg-amber-950/30' => $day['holiday'] && ! $day['is_today'],
                             'border-red-500 bg-red-50 font-semibold dark:bg-red-950/30' => $day['is_today'],
                         ])
-                        aria-label="View attendance for {{ $day['date']->format('F j, Y') }}: {{ $day['count'] }} {{ \Illuminate\Support\Str::plural('record', $day['count']) }}"
-                        title="{{ $day['date']->format('F j, Y') }} · {{ $day['count'] }} {{ \Illuminate\Support\Str::plural('record', $day['count']) }}">
+                        aria-label="View attendance for {{ $day['date']->format('F j, Y') }}{{ $day['holiday'] ? ': Holiday, ' . $day['holiday'] : '' }}: {{ $day['count'] }} {{ \Illuminate\Support\Str::plural('record', $day['count']) }}"
+                        title="{{ $day['date']->format('F j, Y') }}{{ $day['holiday'] ? ' · ' . $day['holiday'] : '' }} · {{ $day['count'] }} {{ \Illuminate\Support\Str::plural('record', $day['count']) }}">
                         <time datetime="{{ $day['date']->toDateString() }}">{{ $day['date']->format('j') }}</time>
+                        @if ($day['holiday'])
+                            <span class="sr-only">Holiday: {{ $day['holiday'] }}</span>
+                            <span class="mt-1 h-2 w-2 rounded-full bg-amber-500"></span>
+                        @endif
                         @if ($day['count'] > 0)
-                            <span class="mt-1 inline-flex min-w-5 items-center justify-center rounded-full bg-emerald-100 px-1.5 text-[10px] font-semibold leading-5 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-100">
-                                {{ $day['count'] }}
+                            <span class="mt-1 flex flex-wrap justify-center gap-1">
+                                @foreach ($legend as $key => [$label, $color])
+                                    @if ($day['statuses'][$key] ?? 0)
+                                        <span class="inline-flex min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-semibold leading-5 text-white {{ $color }}"
+                                            title="{{ $label }}">
+                                            {{ $day['statuses'][$key] }}<span class="sr-only"> {{ $label }}</span>
+                                        </span>
+                                    @endif
+                                @endforeach
                             </span>
                         @endif
                     </button>
@@ -66,8 +86,13 @@
             </div>
 
             <div class="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-xs text-zinc-600 dark:text-zinc-400">
+                @foreach ($legend as [$label, $color])
+                    <span class="inline-flex items-center gap-2">
+                        <span class="h-2 w-2 rounded-full {{ $color }}"></span>{{ $label }}
+                    </span>
+                @endforeach
                 <span class="inline-flex items-center gap-2">
-                    <span class="h-2 w-2 rounded-full bg-emerald-600"></span>{{ $status === '' ? 'Attendance records' : $cards[$status][0].' records' }}
+                    <span class="h-2 w-2 rounded-full bg-amber-500"></span>Holiday
                 </span>
             </div>
         </flux:card>
@@ -83,7 +108,12 @@
                 <flux:text class="mt-2">{{ $this->selectedAttendance->total() }} {{ $status === '' ? 'attendance' : strtolower($cards[$status][0]) }} records from your assigned students.</flux:text>
             </div>
 
-            @if ($this->selectedAttendance->isEmpty())
+            @if ($this->selectedAttendance->isEmpty() && ($selectedHoliday = $this->selectedHoliday))
+                <flux:callout icon="calendar-days" color="amber">
+                    <flux:callout.heading>Public holiday</flux:callout.heading>
+                    <flux:callout.text>{{ $selectedHoliday['name'] }}. Students cannot time in on holidays.</flux:callout.text>
+                </flux:callout>
+            @elseif ($this->selectedAttendance->isEmpty())
                 <flux:callout icon="information-circle">
                     <flux:callout.text>No attendance records for this date.</flux:callout.text>
                 </flux:callout>
@@ -122,6 +152,41 @@
                         @endforeach
                     </flux:table.rows>
                 </flux:table>
+            @endif
+
+            <div class="flex justify-end">
+                <flux:modal.close>
+                    <flux:button type="button" variant="ghost">Close</flux:button>
+                </flux:modal.close>
+            </div>
+        </div>
+    </flux:modal>
+
+    <flux:modal name="attendance-holidays" class="md:w-2xl">
+        <div class="space-y-6">
+            <div>
+                <flux:heading size="lg">Public holidays {{ $this->calendar['month']->format('Y') }}</flux:heading>
+                <flux:text class="mt-2">Philippines public holidays for the selected calendar year.</flux:text>
+            </div>
+
+            @if ($this->holidays)
+                <ul class="divide-y divide-zinc-200 dark:divide-zinc-700">
+                    @foreach ($this->holidays as $holiday)
+                        <li wire:key="holiday-{{ $holiday['date'] }}" class="flex justify-between gap-4 py-3">
+                            <span>{{ $holiday['name'] }}</span>
+                            <time datetime="{{ $holiday['date'] }}"
+                                class="shrink-0 text-zinc-500">{{ \Illuminate\Support\Carbon::parse($holiday['date'])->format('M j, Y') }}</time>
+                        </li>
+                    @endforeach
+                </ul>
+            @elseif (! $this->holidaysAvailable)
+                <flux:callout icon="exclamation-triangle" color="amber">
+                    <flux:callout.text>Public holidays could not be loaded.</flux:callout.text>
+                </flux:callout>
+            @else
+                <flux:callout icon="information-circle">
+                    <flux:callout.text>No public holidays are available for this year.</flux:callout.text>
+                </flux:callout>
             @endif
 
             <div class="flex justify-end">

@@ -372,8 +372,12 @@ test('coordinators can monitor attendance for their own students', function () {
     $this->actingAs($coordinatorA)
         ->get(route('coordinator.attendance'))
         ->assertOk()
-        ->assertSee('Attendance Monitoring')
+        ->assertSee('Attendance Monitoring');
+
+    Livewire::test('pages::coordinator.attendance')
+        ->call('showAttendanceDay', '2026-05-01')
         ->assertSee($ownedStudent->display_name)
+        ->assertSee($mentor->display_name)
         ->assertDontSee($otherStudent->display_name);
 });
 

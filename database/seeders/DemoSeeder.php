@@ -106,7 +106,8 @@ class DemoSeeder extends Seeder
         $coordinators = User::role(Role::OJTCOORDINATOR->value)->with('coordinatorProfile')->get()
             ->keyBy(fn (User $user) => $user->coordinatorProfile?->program);
 
-        if (User::where('email', 'bscs.internal1@dutytrack.test')->exists()) {
+        // Only this seeder creates supervisors.
+        if (User::role(Role::SUPERVISOR->value)->exists()) {
             $this->command?->warn('Demo data already seeded; run migrate:fresh --seed first to reseed.');
 
             return;
@@ -125,8 +126,7 @@ class DemoSeeder extends Seeder
                 $coordinator = $coordinators->get($config['program'])
                     ?? throw new RuntimeException("No coordinator for {$config['program']}. Run CoordinatorSeeder first.");
 
-                $prefix = strtolower($course);
-                $supervisors = $this->seedSupervisors($coordinator, $prefix, $password);
+                $supervisors = $this->seedSupervisors($coordinator, $password);
                 $taskAssignments = [];
 
                 $students = collect(config('masterlist'))
@@ -169,7 +169,7 @@ class DemoSeeder extends Seeder
         });
     }
 
-    private function seedSupervisors(User $coordinator, string $prefix, string $password)
+    private function seedSupervisors(User $coordinator, string $password)
     {
         $supervisors = collect();
 
@@ -187,7 +187,7 @@ class DemoSeeder extends Seeder
                     'first_name' => $first,
                     'last_name' => $last,
                     'contact_number' => '09'.fake()->numerify('#########'),
-                    'email' => "{$prefix}.{$type}{$n}@dutytrack.test",
+                    'email' => $this->demoEmail($last, '###'),
                     'password' => $password,
                     'status' => $active ? 'active' : 'inactive',
                 ]);
@@ -215,6 +215,12 @@ class DemoSeeder extends Seeder
         return $supervisors;
     }
 
+    // e.g. "De Ramos" + '##' -> deramos42@dutytrack.test; unique() avoids clashes on shared last names.
+    private function demoEmail(string $lastName, string $digits): string
+    {
+        return fake()->unique()->numerify(Str::slug($lastName, '').$digits).'@dutytrack.test';
+    }
+
     private function seedStudent(User $coordinator, int $hours, string $studentId, array $row, string $password, string $status): User
     {
         $user = User::create([
@@ -225,7 +231,7 @@ class DemoSeeder extends Seeder
             'last_name' => $row['last_name'],
             'contact_number' => isset($row['contact_number']) ? '0'.$row['contact_number'] : null,
             // BSIT rows (and a few BSCS) have no email in the masterlist.
-            'email' => $row['email'] ?? strtolower($studentId).'@dutytrack.test',
+            'email' => $row['email'] ?? $this->demoEmail($row['last_name'], '##'),
             'password' => $password,
             'status' => $status,
         ]);

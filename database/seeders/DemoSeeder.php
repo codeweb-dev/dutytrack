@@ -11,6 +11,7 @@ use App\Models\OjtAssignment;
 use App\Models\StudentRequirement;
 use App\Models\StudentTask;
 use App\Models\User;
+use App\Support\Holidays;
 use App\Support\PracticumEvaluationForm;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -288,7 +289,7 @@ class DemoSeeder extends Seeder
         $first = $last = null;
 
         for ($count = 0; $count < $days && (! $targetHours || round($total, 2) < $targetHours); $count++) {
-            while ($date->isWeekend()) {
+            while ($date->isWeekend() || collect(Holidays::forYear($date->year)['holidays'])->contains('date', $date->toDateString())) {
                 $date->subDay();
             }
 

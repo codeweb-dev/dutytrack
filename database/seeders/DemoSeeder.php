@@ -15,6 +15,7 @@ use App\Support\PracticumEvaluationForm;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
+use Illuminate\Http\File;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -188,6 +189,7 @@ class DemoSeeder extends Seeder
                     'last_name' => $last,
                     'contact_number' => '09'.fake()->numerify('#########'),
                     'email' => $this->demoEmail($last, '###'),
+                    'profile_photo_path' => $this->demoPhoto('supervisor'),
                     'password' => $password,
                     'status' => $active ? 'active' : 'inactive',
                 ]);
@@ -221,6 +223,12 @@ class DemoSeeder extends Seeder
         return fake()->unique()->numerify(Str::slug($lastName, '').$digits).'@gmail.com';
     }
 
+    // Own copy per user: replacing a photo deletes the old file, so seeded users can't share one.
+    private function demoPhoto(string $role): string
+    {
+        return Storage::disk('public')->putFile("{$role}s/photos", new File(collect(glob(public_path("{$role}/*.png")))->random()));
+    }
+
     private function seedStudent(User $coordinator, int $hours, string $studentId, array $row, string $password, string $status): User
     {
         $user = User::create([
@@ -232,6 +240,7 @@ class DemoSeeder extends Seeder
             'contact_number' => isset($row['contact_number']) ? '0'.$row['contact_number'] : null,
             // BSIT rows (and a few BSCS) have no email in the masterlist.
             'email' => $row['email'] ?? $this->demoEmail($row['last_name'], '##'),
+            'profile_photo_path' => $this->demoPhoto('student'),
             'password' => $password,
             'status' => $status,
         ]);

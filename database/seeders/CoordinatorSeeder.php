@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use App\Enums\Role;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Http\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use RuntimeException;
 
@@ -17,8 +19,8 @@ class CoordinatorSeeder extends Seeder
     public function run(): void
     {
         $coordinators = [
-            [...config('app.coordinator_accounts.bscs'), 'program' => 'Computer Science'],
-            [...config('app.coordinator_accounts.bsit'), 'program' => 'Information Technology'],
+            [...config('app.coordinator_accounts.bscs'), 'program' => 'Computer Science', 'photo' => 'coordinator1.png'],
+            [...config('app.coordinator_accounts.bsit'), 'program' => 'Information Technology', 'photo' => 'coordinator2.png'],
         ];
 
         Validator::make($coordinators, [
@@ -43,6 +45,10 @@ class CoordinatorSeeder extends Seeder
             }
 
             $user->assignRole(Role::OJTCOORDINATOR->value);
+
+            if (! $user->profile_photo_path) {
+                $user->update(['profile_photo_path' => Storage::disk('public')->putFile('coordinators/photos', new File(public_path("coordinator/{$coordinator['photo']}")))]);
+            }
 
             $user->coordinatorProfile()->updateOrCreate([], [
                 'department' => 'Computer Studies',

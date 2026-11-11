@@ -478,6 +478,11 @@
                         @endif
                     </div>
                 </div>
+            @elseif ($selectedHoliday = $this->selectedHoliday)
+                <flux:callout icon="calendar-days" color="amber">
+                    <flux:callout.heading>Public holiday</flux:callout.heading>
+                    <flux:callout.text>{{ $selectedHoliday['name'] }}. Attendance time in is unavailable on holidays.</flux:callout.text>
+                </flux:callout>
             @else
                 <flux:callout icon="information-circle">
                     <flux:callout.text>No attendance record for this date.</flux:callout.text>

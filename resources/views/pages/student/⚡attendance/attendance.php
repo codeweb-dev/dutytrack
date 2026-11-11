@@ -665,6 +665,17 @@ new #[Title('My Attendance')] class extends Component
     }
 
     #[Computed]
+    public function selectedHoliday(): ?array
+    {
+        if (! $this->selectedCalendarDate) {
+            return null;
+        }
+
+        return collect($this->holidayDataForYear((int) substr($this->selectedCalendarDate, 0, 4))['holidays'])
+            ->firstWhere('date', $this->selectedCalendarDate);
+    }
+
+    #[Computed]
     public function summary(): array
     {
         $query = AttendanceLog::query()->where('student_id', $this->studentId());

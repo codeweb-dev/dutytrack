@@ -17,6 +17,7 @@
 
         @php
             $user = auth()->user();
+            $supervisor = $user->hasRole('student') ? $user->ojtAssignment?->companySupervisor : null;
         @endphp
 
         @if ($user->hasRole('ojt_coordinator'))
@@ -57,6 +58,21 @@
             </div>
         @endif
 
+        @if ($supervisor)
+            <div class="lg:hidden flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-800">
+                <flux:avatar size="sm" :name="$supervisor->display_name"
+                    :src="$supervisor->profile_photo_path ? $supervisor->profilePhotoUrl() : null"
+                    :initials="$supervisor->initials()" />
+                <div class="min-w-0 leading-tight">
+                    <flux:text size="sm" class="text-zinc-500 dark:text-zinc-400">{{ __('Your supervisor') }}</flux:text>
+                    <flux:heading class="truncate">{{ $supervisor->display_name }}</flux:heading>
+                    @if ($supervisor->supervisorProfile?->company_name)
+                        <flux:text size="sm" class="truncate">{{ $supervisor->supervisorProfile->company_name }}</flux:text>
+                    @endif
+                </div>
+            </div>
+        @endif
+
         <flux:sidebar.nav>
             <flux:sidebar.item icon="information-circle" x-data x-on:click="$dispatch('onboarding-replay')">
                 {{ __('Help') }}
@@ -71,6 +87,23 @@
         <div class="flex items-center justify-between gap-4">
             <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" aria-label="Open navigation"
                 data-tour="mobile-navigation-toggle" />
+
+            @if ($supervisor)
+                <div class="hidden lg:flex items-center gap-3 min-w-0">
+                    <flux:avatar size="sm" :name="$supervisor->display_name"
+                        :src="$supervisor->profile_photo_path ? $supervisor->profilePhotoUrl() : null"
+                        :initials="$supervisor->initials()" />
+                    <div class="min-w-0 leading-tight">
+                        <flux:text size="sm" class="text-zinc-500 dark:text-zinc-400">{{ __('Your supervisor') }}</flux:text>
+                        <flux:heading class="truncate">
+                            {{ $supervisor->display_name }}
+                            @if ($supervisor->supervisorProfile?->company_name)
+                                <span class="font-normal text-zinc-500 dark:text-zinc-400">· {{ $supervisor->supervisorProfile->company_name }}</span>
+                            @endif
+                        </flux:heading>
+                    </div>
+                </div>
+            @endif
 
             <div class="ml-auto flex items-center gap-3">
                 <flux:button icon="megaphone" variant="subtle" :href="route('announcements')" aria-label="Announcements"

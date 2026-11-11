@@ -365,3 +365,108 @@ test('mentors can submit multiple practicum evaluations for one assigned student
         'Second evaluation period.',
     ]);
 });
+
+test('mentors can request a revision and students can redo the task', function () {
+    $coordinator = createMentorAssignedStudentCoordinator();
+    $mentor = createMentorAssignedStudentUser(['name' => 'Mentor Revision']);
+    $student = createMentorAssignedStudent($coordinator, ['name' => 'Student Revision']);
+
+    $assignment = OjtAssignment::query()->create([
+        'student_id' => $student->id,
+        'ojt_type' => 'internal',
+        'company_supervisor_id' => $mentor->id,
+    ]);
+
+    $task = StudentTask::query()->create([
+        'student_id' => $student->id,
+        'assigned_by' => $mentor->id,
+        'ojt_assignment_id' => $assignment->id,
+        'title' => 'Revisable task',
+        'priority' => 'normal',
+        'status' => 'in_review',
+    ]);
+
+    $this->actingAs($mentor);
+
+    Livewire::test('pages::supervisor.tasks')
+        ->call('openRevision', 'task-'.$task->id)
+        ->call('requestRevision')
+        ->assertHasErrors('revision_note')
+        ->set('revision_note', 'Add the missing screenshots.')
+        ->call('requestRevision')
+        ->assertHasNoErrors();
+
+    expect($task->refresh()->status)->toBe('revision');
+    expect($task->revision_note)->toBe('Add the missing screenshots.');
+
+    $this->actingAs($student)
+        ->get(route('student.tasks'))
+        ->assertSee('Add the missing screenshots.');
+
+    Livewire::test('pages::student.tasks')
+        ->call('sortTask', (string) $task->id, 0, 'in_review')
+        ->assertHasNoErrors();
+
+    expect($task->refresh()->status)->toBe('in_review');
+
+    Livewire::test('pages::student.tasks')
+        ->call('sortTask', (string) $task->id, 0, 'revision')
+        ->assertForbidden();
+});
+
+test('mentors can edit a grouped task for every trainee on it', function () {
+    $coordinator = createMentorAssignedStudentCoordinator();
+    $mentor = createMentorAssignedStudentUser(['name' => 'Mentor Edit']);
+    $outsider = createMentorAssignedStudentUser(['name' => 'Mentor Outsider']);
+    $students = collect([
+        createMentorAssignedStudent($coordinator, ['name' => 'Student Edit One']),
+        createMentorAssignedStudent($coordinator, ['name' => 'Student Edit Two']),
+    ]);
+
+    $tasks = $students->map(function ($student) use ($mentor) {
+        $assignment = OjtAssignment::query()->create([
+            'student_id' => $student->id,
+            'ojt_type' => 'internal',
+            'company_supervisor_id' => $mentor->id,
+        ]);
+
+        return StudentTask::query()->create([
+            'student_id' => $student->id,
+            'assigned_by' => $mentor->id,
+            'ojt_assignment_id' => $assignment->id,
+            'task_group_id' => 'edit-group',
+            'title' => 'Old title',
+            'priority' => 'normal',
+            'status' => 'in_progress',
+        ]);
+    });
+
+    $this->actingAs($mentor);
+
+    Livewire::test('pages::supervisor.tasks')
+        ->call('editTask', 'edit-group')
+        ->assertSet('task_title', 'Old title')
+        ->set('task_title', 'New title')
+        ->set('priority', 'high')
+        ->set('due_date', '2026-12-01')
+        ->call('saveTask')
+        ->assertHasNoErrors()
+        ->assertSet('editing_task_key', null);
+
+    $tasks->each(function (StudentTask $task) {
+        $task->refresh();
+
+        expect($task->title)->toBe('New title')
+            ->and($task->priority)->toBe('high')
+            ->and($task->due_date->toDateString())->toBe('2026-12-01')
+            ->and($task->status)->toBe('in_progress');
+    });
+
+    expect(StudentTask::query()->count())->toBe(2);
+
+    $this->actingAs($outsider);
+
+    Livewire::test('pages::supervisor.tasks')
+        ->call('editTask', 'edit-group')
+        ->assertNotFound();
+});

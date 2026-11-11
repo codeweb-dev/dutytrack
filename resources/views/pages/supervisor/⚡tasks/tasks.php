@@ -39,6 +39,12 @@ new #[Title('Tasks')] class extends Component
 
     public ?string $due_date = null;
 
+    public ?string $editing_task_key = null;
+
+    public ?string $revision_task_key = null;
+
+    public string $revision_note = '';
+
     public function updatedSearch(): void
     {
         unset($this->tasks);
@@ -57,11 +63,35 @@ new #[Title('Tasks')] class extends Component
         unset($this->tasks, $this->summary, $this->columns);
     }
 
+    public function editTask(string $taskCardKey): void
+    {
+        $task = $this->taskCardQuery($taskCardKey)->firstOrFail();
+
+        $this->resetTaskForm();
+        $this->editing_task_key = $taskCardKey;
+        $this->task_title = $task->title;
+        $this->task_description = (string) $task->description;
+        $this->priority = $task->priority;
+        $this->due_date = $task->due_date?->toDateString();
+
+        Flux::modal('create-supervisor-task')->show();
+    }
+
+    // Closing an edit discards it; a half-written new task is kept for next time.
+    public function closeTaskForm(): void
+    {
+        if ($this->editing_task_key !== null) {
+            $this->resetTaskForm();
+        }
+    }
+
     public function saveTask(): void
     {
         $this->validate([
-            'student_ids' => ['required', 'array', 'min:1'],
-            'student_ids.*' => ['integer', 'distinct'],
+            ...($this->editing_task_key === null ? [
+                'student_ids' => ['required', 'array', 'min:1'],
+                'student_ids.*' => ['integer', 'distinct'],
+            ] : []),
             'task_title' => ['required', 'string', 'max:255'],
             'task_description' => ['nullable', 'string', 'max:5000'],
             'priority' => ['required', Rule::in(['low', 'normal', 'high'])],
@@ -73,6 +103,12 @@ new #[Title('Tasks')] class extends Component
             'task_description' => 'task description',
             'due_date' => 'due date',
         ]);
+
+        if ($this->editing_task_key !== null) {
+            $this->updateTask();
+
+            return;
+        }
 
         $assignments = $this->assignedStudentAssignments($this->student_ids);
         $taskGroupId = (string) Str::uuid();
@@ -106,8 +142,29 @@ new #[Title('Tasks')] class extends Component
         );
     }
 
+    protected function updateTask(): void
+    {
+        $tasks = $this->taskCardQuery($this->editing_task_key)->get();
+
+        abort_if($tasks->isEmpty(), 404);
+
+        $tasks->each->update([
+            'title' => $this->task_title,
+            'description' => $this->task_description ?: null,
+            'priority' => $this->priority,
+            'due_date' => $this->due_date ?: null,
+        ]);
+
+        $this->resetTaskForm();
+        unset($this->tasks, $this->columns);
+
+        Flux::modal('create-supervisor-task')->close();
+        Flux::toast(variant: 'success', heading: 'Task updated.', text: 'Your trainees will see the changes right away.');
+    }
+
     public function resetTaskForm(): void
     {
+        $this->editing_task_key = null;
         $this->student_ids = [];
         $this->task_title = '';
         $this->task_description = '';
@@ -196,6 +253,49 @@ new #[Title('Tasks')] class extends Component
         });
 
         unset($this->tasks, $this->summary, $this->columns);
+
+        // Dragging into Revision asks for the comment; skipped when requestRevision() is the caller.
+        if ($status === 'revision' && $previousStatuses->isNotEmpty() && $this->revision_task_key !== $taskCardKey) {
+            $this->openRevision($taskCardKey);
+        }
+    }
+
+    public function openRevision(string $taskCardKey): void
+    {
+        $task = $this->taskCardQuery($taskCardKey)->firstOrFail();
+
+        $this->revision_task_key = $taskCardKey;
+        $this->revision_note = (string) $task->revision_note;
+        $this->resetValidation();
+
+        Flux::modal('request-revision')->show();
+    }
+
+    public function requestRevision(): void
+    {
+        $this->validate([
+            'revision_task_key' => ['required', 'string'],
+            'revision_note' => ['required', 'string', 'max:5000'],
+        ], [], [
+            'revision_note' => 'revision comment',
+        ]);
+
+        $tasks = $this->taskCardQuery($this->revision_task_key)->get();
+
+        abort_if($tasks->isEmpty(), 404);
+
+        $tasks->each->update(['revision_note' => $this->revision_note]);
+
+        if ($tasks->contains(fn (StudentTask $task): bool => $task->status !== 'revision')) {
+            $this->sortTaskCard($this->revision_task_key, 0, 'revision');
+        }
+
+        $this->revision_task_key = null;
+        $this->revision_note = '';
+        unset($this->tasks, $this->columns);
+
+        Flux::modal('request-revision')->close();
+        Flux::toast(variant: 'success', heading: 'Revision requested.', text: 'The trainee can now redo the task.');
     }
 
     protected function taskCardQuery(string $taskCardKey): Builder
@@ -282,16 +382,8 @@ new #[Title('Tasks')] class extends Component
         return match ($status) {
             'done' => 'green',
             'in_review' => 'blue',
+            'revision' => 'orange',
             'in_progress' => 'amber',
-            default => 'zinc',
-        };
-    }
-
-    public function priorityColor(?string $priority): string
-    {
-        return match ($priority) {
-            'high' => 'red',
-            'low' => 'sky',
             default => 'zinc',
         };
     }
@@ -360,7 +452,7 @@ new #[Title('Tasks')] class extends Component
     {
         $columns = collect($this->columns)->keyBy('status');
 
-        return collect(['pending', 'in_progress', 'in_review', 'done'])
+        return collect(['pending', 'in_progress', 'in_review', 'revision', 'done'])
             ->map(fn (string $status): array => $columns->get($status))
             ->filter()
             ->values()

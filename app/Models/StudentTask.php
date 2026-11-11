@@ -13,6 +13,7 @@ class StudentTask extends Model
         'task_group_id',
         'title',
         'description',
+        'revision_note',
         'status',
         'sort_order',
         'priority',
@@ -34,6 +35,7 @@ class StudentTask extends Model
             'pending' => 'Pending',
             'in_progress' => 'In Progress',
             'in_review' => 'In Review',
+            'revision' => 'Revision',
             'done' => 'Done',
         ];
     }

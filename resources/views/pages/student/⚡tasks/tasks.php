@@ -19,20 +19,12 @@ new class extends Component
 
     public string $description = 'Track tasks assigned by your supervisor and update their progress as you work.';
 
-    public function priorityColor(?string $priority): string
-    {
-        return match ($priority) {
-            'high' => 'red',
-            'low' => 'sky',
-            default => 'zinc',
-        };
-    }
-
     public function statusColor(?string $status): string
     {
         return match ($status) {
             'done' => 'green',
             'in_review' => 'blue',
+            'revision' => 'orange',
             'in_progress' => 'amber',
             default => 'zinc',
         };
@@ -42,7 +34,7 @@ new class extends Component
     {
         $columns = collect($this->columns)->keyBy('status');
 
-        return collect(['pending', 'in_progress', 'in_review', 'done'])
+        return collect(['pending', 'in_progress', 'in_review', 'revision', 'done'])
             ->map(fn (string $status): array => $columns->get($status))
             ->filter()
             ->values()
@@ -58,6 +50,9 @@ new class extends Component
             ->findOrFail((int) $taskId);
 
         $previousStatus = $task->status;
+
+        // Only the supervisor can send a task back for revision.
+        abort_if($status === 'revision' && $previousStatus !== 'revision', 403);
 
         DB::transaction(function () use ($task, $position, $status, $previousStatus): void {
             $task->update([

@@ -48,11 +48,9 @@ test('students can view and download their submitted practicum evaluations', fun
     $this->actingAs($student)
         ->get(route('student.evaluations'))
         ->assertOk()
-        ->assertSee('My Evaluation Records')
-        ->assertSee('EVALUATION MENTOR')
-        ->assertSee('Student Evaluation Coordinator')
-        ->assertSee('100.0')
-        ->assertSee('Docs');
+        ->assertSee(route('student.evaluations.view', $evaluation), false)
+        ->assertSee(route('student.evaluations.download', $evaluation), false)
+        ->assertSee('Download Evaluation');
 
     $this->actingAs($student)
         ->get(route('student.evaluations.view', $evaluation))
@@ -82,7 +80,7 @@ test('students still see their evaluation after the coordinator reviews it', fun
         'company_supervisor_id' => $mentor->id,
     ]);
 
-    Evaluation::query()->create([
+    $evaluation = Evaluation::query()->create([
         'student_id' => $student->id,
         'ojt_assignment_id' => $assignment->id,
         'evaluator_id' => $mentor->id,
@@ -96,8 +94,8 @@ test('students still see their evaluation after the coordinator reviews it', fun
     $this->actingAs($student)
         ->get(route('student.evaluations'))
         ->assertOk()
-        ->assertSee('84.0')
-        ->assertDontSee('Submitted practicum evaluations will appear here.');
+        ->assertSee(route('student.evaluations.view', $evaluation), false)
+        ->assertDontSee('No evaluation yet');
 });
 
 test('supervisors can view their evaluation in the browser and others cannot', function () {

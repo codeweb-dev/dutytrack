@@ -12,7 +12,7 @@ new #[Title('My Evaluation')] class extends Component
 
     public string $title = 'My Evaluation';
 
-    public string $description = 'Review your submitted practicum evaluation and download the official form.';
+    public string $description = 'View and download your practicum evaluation once your supervisor submits it.';
 
     #[Computed]
     public function evaluation(): ?Evaluation
@@ -31,64 +31,20 @@ new #[Title('My Evaluation')] class extends Component
 <div class="flex flex-col gap-6">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
-    <flux:card>
-        <flux:heading size="lg">My Evaluation Records</flux:heading>
+    @if ($evaluation = $this->evaluation)
+        <iframe src="{{ route('student.evaluations.view', $evaluation) }}" title="Practicum Student Evaluation Form"
+            class="mx-auto aspect-[17/22] w-full max-w-4xl rounded-xl border border-zinc-200 bg-white dark:border-zinc-700"></iframe>
 
-        @if ($evaluation = $this->evaluation)
-            <div class="mt-6 overflow-x-auto">
-                <flux:table>
-                    <flux:table.columns>
-                        <flux:table.column>Evaluator</flux:table.column>
-                        <flux:table.column>Inclusive Dates</flux:table.column>
-                        <flux:table.column>Cooperating Program</flux:table.column>
-                        <flux:table.column>Rating</flux:table.column>
-                        <flux:table.column>Comments</flux:table.column>
-                        <flux:table.column>Actions</flux:table.column>
-                    </flux:table.columns>
-
-                    <flux:table.rows>
-                        <flux:table.row :key="$evaluation->id">
-                            <flux:table.cell>
-                                {{ $evaluation->evaluator?->display_name ?? 'Supervisor' }}
-                            </flux:table.cell>
-                            <flux:table.cell>
-                                {{ $evaluation->inclusive_from?->format('M d, Y') ?? '' }}
-                                @if ($evaluation->inclusive_to)
-                                    to {{ $evaluation->inclusive_to->format('M d, Y') }}
-                                @endif
-                            </flux:table.cell>
-                            <flux:table.cell>{{ $evaluation->cooperating_program ?? '' }}</flux:table.cell>
-                            <flux:table.cell>
-                                <div class="flex flex-col">
-                                    <span class="font-medium">
-                                        {{ number_format((float) $evaluation->rating, 1) }}
-                                    </span>
-                                    <span class="text-xs text-zinc-500 dark:text-zinc-300">
-                                        {{ $evaluation->evaluation_date?->format('M d, Y') }}
-                                    </span>
-                                </div>
-                            </flux:table.cell>
-                            <flux:table.cell>
-                                {{ \Illuminate\Support\Str::limit($evaluation->remarks ?? '', 80) }}
-                            </flux:table.cell>
-                            <flux:table.cell>
-                                <div class="flex gap-2">
-                                    <flux:button size="sm" icon="eye"
-                                        href="{{ route('student.evaluations.view', $evaluation) }}" target="_blank">
-                                        View
-                                    </flux:button>
-                                    <flux:button size="sm" icon="arrow-down-tray"
-                                        href="{{ route('student.evaluations.download', $evaluation) }}" target="_blank">
-                                        Docs
-                                    </flux:button>
-                                </div>
-                            </flux:table.cell>
-                        </flux:table.row>
-                    </flux:table.rows>
-                </flux:table>
+        <div class="flex justify-center">
+            <flux:button variant="primary" icon="arrow-down-tray" :href="route('student.evaluations.download', $evaluation)">Download Evaluation</flux:button>
+        </div>
+    @else
+        <flux:card class="flex flex-col items-center px-6 py-12 text-center">
+            <div class="flex size-16 items-center justify-center rounded-full bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
+                <flux:icon.document-text class="size-8" />
             </div>
-        @else
-            <flux:text class="mt-6">Submitted practicum evaluations will appear here.</flux:text>
-        @endif
-    </flux:card>
+            <flux:heading size="lg" class="mt-6">No evaluation yet</flux:heading>
+            <flux:text class="mt-2 max-w-md">Your practicum evaluation will appear here once your supervisor submits it.</flux:text>
+        </flux:card>
+    @endif
 </div>

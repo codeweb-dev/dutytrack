@@ -188,13 +188,13 @@ Route::group(['middleware' => ['auth', 'verified', 'role:student']], function ()
     })->name('student.requirements.file');
 
     Route::get('/student/evaluations/{evaluation}/download', function (Evaluation $evaluation) {
-        abort_unless($evaluation->student_id === Auth::id(), 403);
+        abort_unless($evaluation->student_id === Auth::id() && $evaluation->status === 'reviewed', 403);
 
         return EvaluationDocument::download($evaluation);
     })->name('student.evaluations.download');
 
     Route::get('/student/evaluations/{evaluation}/view', function (Evaluation $evaluation) {
-        abort_unless($evaluation->student_id === Auth::id(), 403);
+        abort_unless($evaluation->student_id === Auth::id() && $evaluation->status === 'reviewed', 403);
 
         return EvaluationDocument::inline($evaluation);
     })->name('student.evaluations.view');

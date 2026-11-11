@@ -2,7 +2,7 @@
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        @php($cards = ['' => ['Total Evaluations', 'total', 'document-check'], 'submitted' => ['Submitted', 'submitted', 'inbox-arrow-down'], 'reviewed' => ['Reviewed', 'reviewed', 'check-circle']])
+        @php($cards = ['' => ['Total Evaluations', 'total', 'document-check'], 'submitted' => ['Pending Approval', 'submitted', 'inbox-arrow-down'], 'reviewed' => ['Approved', 'reviewed', 'check-circle']])
         @foreach ($cards as $value => [$label, $key, $icon])
             <button type="button" wire:click="$set('status', '{{ $value }}')" class="group text-left"
                 aria-pressed="{{ $status === $value ? 'true' : 'false' }}">
@@ -33,8 +33,8 @@
                     <flux:radio.group wire:model.live="status" label="Status" variant="pills">
                         <flux:radio value="" label="All" />
                         <flux:radio value="pending" label="Pending" />
-                        <flux:radio value="submitted" label="Submitted" />
-                        <flux:radio value="reviewed" label="Reviewed" />
+                        <flux:radio value="submitted" label="Pending Approval" />
+                        <flux:radio value="reviewed" label="Approved" />
                     </flux:radio.group>
                 </x-filter-modal>
             </div>
@@ -92,7 +92,7 @@
                             <flux:table.cell class="whitespace-nowrap">
                                 <flux:badge :color="match ($evaluation->status) { 'reviewed' => 'green', 'submitted' => 'sky', default => 'amber' }"
                                     size="sm" inset="top bottom">
-                                    {{ str($evaluation->status)->replace('_', ' ')->title() }}
+                                    {{ match ($evaluation->status) { 'reviewed' => 'Approved', 'submitted' => 'Pending Approval', default => str($evaluation->status)->title() } }}
                                 </flux:badge>
                             </flux:table.cell>
 
@@ -114,7 +114,7 @@
 
                                         @if ($evaluation->status === 'submitted')
                                             <flux:menu.item icon="check" wire:click="markReviewed({{ $evaluation->id }})">
-                                                Mark Reviewed
+                                                Approve
                                             </flux:menu.item>
                                         @endif
                                     </flux:menu>

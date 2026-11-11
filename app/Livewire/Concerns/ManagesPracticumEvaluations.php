@@ -112,7 +112,7 @@ trait ManagesPracticumEvaluations
         unset($this->assignments, $this->evaluations, $this->summary);
 
         Flux::modal($this->evaluationModalName())->close();
-        Flux::toast(variant: 'success', heading: 'Evaluation submitted.', text: 'The practicum evaluation is now visible to the student.');
+        Flux::toast(variant: 'success', heading: 'Evaluation submitted.', text: 'The student can view it once the coordinator approves it.');
     }
 
     public function selectedEvaluationAssignment(): ?OjtAssignment

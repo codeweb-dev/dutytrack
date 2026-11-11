@@ -12,7 +12,7 @@ new #[Title('My Evaluation')] class extends Component
 
     public string $title = 'My Evaluation';
 
-    public string $description = 'View and download your practicum evaluation once your supervisor submits it.';
+    public string $description = 'View and download your practicum evaluation once your coordinator approves it.';
 
     #[Computed]
     public function evaluation(): ?Evaluation
@@ -20,7 +20,7 @@ new #[Title('My Evaluation')] class extends Component
         return Evaluation::query()
             ->with('evaluator')
             ->where('student_id', Auth::id())
-            ->whereIn('status', ['submitted', 'reviewed'])
+            ->where('status', 'reviewed')
             ->latest('evaluation_date')
             ->latest('created_at')
             ->first();
@@ -44,7 +44,7 @@ new #[Title('My Evaluation')] class extends Component
                 <flux:icon.document-text class="size-8" />
             </div>
             <flux:heading size="lg" class="mt-6">No evaluation yet</flux:heading>
-            <flux:text class="mt-2 max-w-md">Your practicum evaluation will appear here once your supervisor submits it.</flux:text>
+            <flux:text class="mt-2 max-w-md">Your practicum evaluation will appear here once your coordinator approves it.</flux:text>
         </flux:card>
     @endif
 </div>

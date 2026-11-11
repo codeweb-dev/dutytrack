@@ -29,7 +29,7 @@ new #[Title('Evaluation Review')] class extends Component
 
     public string $title = 'Evaluation Review';
 
-    public string $description = 'Review evaluations submitted by your students’ supervisors.';
+    public string $description = 'Approve evaluations submitted by your students’ supervisors before students can view them.';
 
     public string $search = '';
 
@@ -77,14 +77,14 @@ new #[Title('Evaluation Review')] class extends Component
                 action: 'reviewed',
                 target: $evaluation,
                 targetLabel: $evaluation->student?->display_name,
-                description: 'Marked a supervisor evaluation as reviewed.',
+                description: 'Approved a supervisor evaluation and released it to the student.',
                 oldValues: $oldValues,
                 newValues: ['status' => $evaluation->status],
             );
         });
 
         unset($this->evaluations, $this->summary);
-        Flux::toast(variant: 'success', text: 'Evaluation reviewed.');
+        Flux::toast(variant: 'success', text: 'Evaluation approved. The student can now view it.');
     }
 
     #[Computed]

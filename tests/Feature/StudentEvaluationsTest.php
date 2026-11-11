@@ -14,7 +14,7 @@ function ensureStudentEvaluationRolesExist(): void
     }
 }
 
-test('students can view and download their submitted practicum evaluations', function () {
+test('students can view and download their approved practicum evaluations', function () {
     ensureStudentEvaluationRolesExist();
 
     $coordinator = User::factory()->coordinator()->create(['name' => 'Student Evaluation Coordinator']);
@@ -42,7 +42,7 @@ test('students can view and download their submitted practicum evaluations', fun
         'ratings' => PracticumEvaluationForm::defaultRatings(),
         'rating' => 100,
         'remarks' => 'Excellent practicum performance.',
-        'status' => 'submitted',
+        'status' => 'reviewed',
     ]);
 
     $this->actingAs($student)
@@ -66,6 +66,39 @@ test('students can view and download their submitted practicum evaluations', fun
         ->assertSee('(Practicum-Student Evaluation Form)', false)
         ->assertSee('data:image/jpeg;base64', false)
         ->assertSee('EULOGIO &ldquo;AMANG&rdquo; RODRIGUEZ', false);
+});
+
+test('students cannot see an evaluation until the coordinator approves it', function () {
+    ensureStudentEvaluationRolesExist();
+
+    $student = User::factory()->student()->create();
+    $mentor = User::factory()->companySupervisor()->create();
+
+    $assignment = OjtAssignment::query()->create([
+        'student_id' => $student->id,
+        'ojt_type' => 'internal',
+        'company_supervisor_id' => $mentor->id,
+    ]);
+
+    $evaluation = Evaluation::query()->create([
+        'student_id' => $student->id,
+        'ojt_assignment_id' => $assignment->id,
+        'evaluator_id' => $mentor->id,
+        'evaluator_type' => 'company_supervisor',
+        'evaluation_date' => '2026-05-11',
+        'ratings' => PracticumEvaluationForm::defaultRatings(),
+        'rating' => 84,
+        'status' => 'submitted',
+    ]);
+
+    $this->actingAs($student)
+        ->get(route('student.evaluations'))
+        ->assertOk()
+        ->assertSee('No evaluation yet')
+        ->assertDontSee(route('student.evaluations.view', $evaluation), false);
+
+    $this->actingAs($student)->get(route('student.evaluations.view', $evaluation))->assertForbidden();
+    $this->actingAs($student)->get(route('student.evaluations.download', $evaluation))->assertForbidden();
 });
 
 test('students still see their evaluation after the coordinator reviews it', function () {

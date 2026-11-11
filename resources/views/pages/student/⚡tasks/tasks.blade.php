@@ -1,4 +1,4 @@
-<div class="flex flex-col gap-6">
+<div wire:poll.3s class="flex flex-col gap-6">
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
     @if (collect($this->columns)->every(fn($column) => $column['tasks']->isEmpty()))

@@ -14,6 +14,8 @@ new #[Title('OJT Requirements')] class extends Component
 
     public array $requirementFiles = [];
 
+    public string $status = '';
+
     public array $breadcrumbs = [['logo' => 'logo.png', 'href' => '/dashboard'], ['label' => 'OJT Requirements']];
 
     public string $title = 'OJT Student Requirements';
@@ -79,6 +81,20 @@ new #[Title('OJT Requirements')] class extends Component
             ->all();
     }
 
+    #[Computed]
+    public function checklistSteps(): array
+    {
+        return collect($this->requirementSteps)
+            ->map(fn (array $step): array => ['items' => $step['items']->filter(fn (StudentRequirement $requirement): bool => match ($this->status) {
+                'approved' => $requirement->is_completed,
+                'for_checking' => ! $requirement->is_completed && $requirement->submitted_at !== null,
+                'missing' => ! $requirement->is_completed && $requirement->submitted_at === null,
+                default => true,
+            })] + $step)
+            ->filter(fn (array $step): bool => $step['items']->isNotEmpty())
+            ->all();
+    }
+
     public function updatedRequirementFiles($file, string $key): void
     {
         $this->submitRequirement($key);
@@ -97,7 +113,7 @@ new #[Title('OJT Requirements')] class extends Component
 
         $requirement->submitFile($this->requirementFiles[$key]->store('student-requirements/'.Auth::id(), 'local'));
 
-        unset($this->requirementFiles[$key], $this->requirements, $this->requirementSummary, $this->requirementSteps);
+        unset($this->requirementFiles[$key], $this->requirements, $this->requirementSummary, $this->requirementSteps, $this->checklistSteps);
 
         Flux::toast(variant: 'success', heading: 'Requirement submitted.', text: 'Your coordinator can now review the attached file.');
     }
@@ -108,23 +124,22 @@ new #[Title('OJT Requirements')] class extends Component
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
     <section class="grid grid-cols-2 gap-4 xl:grid-cols-4">
-        @foreach ([['Approved', 'approved', 'check-circle'], ['For Checking', 'for_checking', 'document-magnifying-glass'], ['Missing', 'missing', 'exclamation-circle']] as [$label, $key, $icon])
-            <flux:card size="xs">
-                <flux:heading class="flex items-center gap-2">{{ $label }}
-                    <flux:icon :name="$icon" class="ml-auto size-5 text-zinc-400" />
-                </flux:heading>
-                <flux:heading size="2xl" class="mt-2">{{ $this->requirementSummary[$key] }}
-                    <span class="text-base font-normal text-zinc-400">/ {{ $this->requirementSummary['total'] }}</span>
-                </flux:heading>
-            </flux:card>
+        @foreach (['' => ['All Requirements', 'clipboard-document-list', 'total'], 'approved' => ['Approved', 'check-circle', 'approved'], 'for_checking' => ['For Checking', 'document-magnifying-glass', 'for_checking'], 'missing' => ['Missing', 'exclamation-circle', 'missing']] as $value => [$label, $icon, $key])
+            <button type="button" wire:click="$set('status', '{{ $value }}')" class="group text-left"
+                aria-pressed="{{ $status === $value ? 'true' : 'false' }}">
+                <flux:card size="xs" class="h-full hover:bg-zinc-50 dark:hover:bg-zinc-700 group-aria-pressed:border-zinc-800 group-aria-pressed:outline-1 group-aria-pressed:outline-zinc-800 dark:group-aria-pressed:border-white dark:group-aria-pressed:outline-white">
+                    <flux:heading class="flex items-center gap-2">{{ $label }}
+                        <flux:icon :name="$icon" :variant="$status === $value ? 'solid' : 'outline'"
+                            class="ml-auto size-5 {{ $status === $value ? 'text-zinc-800 dark:text-white' : 'text-zinc-400' }}" />
+                    </flux:heading>
+                    <flux:heading size="2xl" class="mt-2">{{ $this->requirementSummary[$key] }}
+                        @if ($value !== '')
+                            <span class="text-base font-normal text-zinc-400">/ {{ $this->requirementSummary['total'] }}</span>
+                        @endif
+                    </flux:heading>
+                </flux:card>
+            </button>
         @endforeach
-
-        <flux:card size="xs">
-            <flux:heading class="flex items-center gap-2">Progress
-                <flux:icon name="chart-pie" class="ml-auto size-5 text-zinc-400" />
-            </flux:heading>
-            <flux:heading size="2xl" class="mt-2">{{ $this->requirementSummary['progress'] }}%</flux:heading>
-        </flux:card>
     </section>
 
     <section class="grid items-start gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(20rem,1fr)]">
@@ -133,7 +148,7 @@ new #[Title('OJT Requirements')] class extends Component
             <flux:text class="mt-2">Fill out each form, or upload a file. You can resubmit until your coordinator approves it.</flux:text>
 
             <div class="mt-6 space-y-6">
-                @foreach ($this->requirementSteps as $step)
+                @forelse ($this->checklistSteps as $step)
                     <div wire:key="step-{{ $step['key'] }}">
                         <div class="mb-3 flex items-center justify-between gap-3">
                             <div class="font-medium text-zinc-900 dark:text-white">{{ $step['label'] }}</div>
@@ -235,7 +250,9 @@ new #[Title('OJT Requirements')] class extends Component
                             @endforeach
                         </div>
                     </div>
-                @endforeach
+                @empty
+                    <flux:text>No requirements match this filter.</flux:text>
+                @endforelse
             </div>
         </flux:card>
 

@@ -59,3 +59,18 @@ test('every redesigned page renders for each card filter', function (string $pag
     ['audit-logs', 'period', ['today', 'week', 'month', '']],
     ['archive', 'type', ['assignments', 'announcements', 'logs', 'users']],
 ]);
+
+test('student requirement cards filter the checklist', function () {
+    $requirements = StudentRequirement::ensureForStudent($this->done);
+    $requirements[0]->update(['is_completed' => true]);
+    $requirements[1]->update(['submitted_at' => now()]);
+    $this->actingAs($this->done);
+
+    $keys = fn ($component) => collect($component->instance()->checklistSteps)->flatMap(fn ($step) => $step['items']->pluck('key'))->all();
+
+    $component = Livewire::test('pages::student.requirements');
+    expect($keys($component->set('status', 'approved')))->toBe([$requirements[0]->key])
+        ->and($keys($component->set('status', 'for_checking')))->toBe([$requirements[1]->key])
+        ->and($keys($component->set('status', 'missing')))->toHaveCount($requirements->count() - 2)
+        ->and($keys($component->set('status', '')))->toHaveCount($requirements->count());
+});

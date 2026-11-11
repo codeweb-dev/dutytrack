@@ -58,6 +58,16 @@ class DtrDocument
 
     public static function download(User $student, ?string $month): Response
     {
+        return self::response($student, $month, 'attachment');
+    }
+
+    public static function inline(User $student, ?string $month): Response
+    {
+        return self::response($student, $month, 'inline');
+    }
+
+    protected static function response(User $student, ?string $month, string $disposition): Response
+    {
         $month = is_string($month) && preg_match('/\A\d{4}-(0[1-9]|1[0-2])\z/', $month)
             ? Carbon::createFromFormat('!Y-m', $month)
             : now()->startOfMonth();
@@ -68,7 +78,7 @@ class DtrDocument
 
         return response($pdf, 200, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="DTR-'.Str::slug($student->name).'-'.$month->format('Y-m').'.pdf"',
+            'Content-Disposition' => $disposition.'; filename="DTR-'.Str::slug($student->name).'-'.$month->format('Y-m').'.pdf"',
             'Cache-Control' => 'no-store, private',
         ]);
     }

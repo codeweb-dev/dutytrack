@@ -102,6 +102,11 @@
                                         inset="top bottom" />
 
                                     <flux:menu>
+                                        <flux:menu.item icon="eye" target="_blank"
+                                            href="{{ route('coordinator.evaluations.view', $evaluation) }}">
+                                            View
+                                        </flux:menu.item>
+
                                         <flux:menu.item icon="arrow-down-tray"
                                             href="{{ route('coordinator.evaluations.download', $evaluation) }}">
                                             Download Form

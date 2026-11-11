@@ -71,6 +71,15 @@ Route::group(['middleware' => ['auth', 'verified', 'role:ojt_coordinator']], fun
 
         return EvaluationDocument::download($evaluation);
     })->name('coordinator.evaluations.download');
+    Route::get('/coordinator/evaluations/{evaluation}/view', function (Evaluation $evaluation) {
+        abort_unless(
+            $evaluation->evaluator_type === 'company_supervisor'
+                && $evaluation->student()->where('coordinator_id', Auth::id())->exists(),
+            404,
+        );
+
+        return EvaluationDocument::inline($evaluation);
+    })->name('coordinator.evaluations.view');
     Route::get('/coordinator/requirements/{requirement}/file', function (StudentRequirement $requirement) {
         $student = $requirement->student()
             ->where('coordinator_id', Auth::id())
@@ -137,6 +146,7 @@ Route::group(['middleware' => ['auth', 'verified', 'role:student']], function ()
         ->name('student.requirements.form');
     Route::livewire('/student/attendance', 'pages::student.attendance')->name('student.attendance');
     Route::get('/student/attendance/dtr', fn () => DtrDocument::download(Auth::user(), Request::query('month')))->name('student.attendance.dtr');
+    Route::get('/student/attendance/dtr/view', fn () => DtrDocument::inline(Auth::user(), Request::query('month')))->name('student.attendance.dtr.view');
     Route::livewire('/student/evaluations', 'pages::student.evaluations')->name('student.evaluations');
     Route::livewire('/student/reports-submissions', 'pages::student.reports-submissions')->name('student.reports-submissions');
     Route::livewire('/student/tasks', 'pages::student.tasks')->name('student.tasks');
@@ -182,6 +192,12 @@ Route::group(['middleware' => ['auth', 'verified', 'role:student']], function ()
 
         return EvaluationDocument::download($evaluation);
     })->name('student.evaluations.download');
+
+    Route::get('/student/evaluations/{evaluation}/view', function (Evaluation $evaluation) {
+        abort_unless($evaluation->student_id === Auth::id(), 403);
+
+        return EvaluationDocument::inline($evaluation);
+    })->name('student.evaluations.view');
 
     Route::get('/student/reports-submissions/download', function () {
         return AccomplishmentReportDocument::download(

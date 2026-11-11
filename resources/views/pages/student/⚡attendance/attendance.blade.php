@@ -12,6 +12,8 @@
                     <flux:modal.trigger name="attendance-holidays">
                         <flux:button type="button" size="sm" variant="ghost" icon="calendar-days">View all holidays</flux:button>
                     </flux:modal.trigger>
+                    <flux:button size="sm" variant="ghost" icon="eye" target="_blank"
+                        :href="route('student.attendance.dtr.view', ['month' => $calendarMonth])">View DTR</flux:button>
                     <flux:button size="sm" variant="ghost" icon="arrow-down-tray"
                         :href="route('student.attendance.dtr', ['month' => $calendarMonth])">Download DTR</flux:button>
                     <flux:button type="button" variant="ghost" icon="chevron-left" aria-label="Previous month"

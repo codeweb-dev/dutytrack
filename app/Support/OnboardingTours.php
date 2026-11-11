@@ -89,9 +89,9 @@ class OnboardingTours
             'role' => 'student',
             'intro' => 'Track your OJT activity, complete requirements, share daily accomplishments, and keep up with your work.',
             'steps' => [
-                self::step('nav-dashboard', 'Dashboard', 'Your dashboard shows your placement status and recent attendance. Use it to check your progress.'),
+                self::step('nav-dashboard', 'Dashboard', 'Your dashboard shows your placement status, weekly attendance, and OJT progress. Use it to check your progress.'),
                 self::step('dashboard-metrics', 'Your OJT at a glance', 'These cards show your rendered hours, approved requirements, open tasks, and placement status.'),
-                self::step('dashboard-workflow', 'Recent attendance', 'The attendance table shows your latest records, including rendered hours and flagged entries.'),
+                self::step('dashboard-workflow', 'Attendance and progress', 'The chart shows your attendance over the last 7 days, and the ring shows your rendered hours against your required OJT hours.'),
                 self::step('nav-requirements', 'Requirements', 'Follow the requirement checklist, download templates, and submit each file for coordinator approval.'),
                 self::step('nav-messages', 'Messages', 'Use conversations to contact the coordinator or supervisor connected to your OJT.'),
                 self::step('nav-group-daily-logs', 'Daily Logs', 'Open this group to record your attendance and daily accomplishments.'),

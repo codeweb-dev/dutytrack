@@ -55,6 +55,12 @@ test('students can view and download their submitted practicum evaluations', fun
         ->assertSee('Docs');
 
     $this->actingAs($student)
+        ->get(route('student.evaluations.view', $evaluation))
+        ->assertOk()
+        ->assertHeader('content-type', 'text/html; charset=UTF-8')
+        ->assertSee('Excellent practicum performance.');
+
+    $this->actingAs($student)
         ->get(route('student.evaluations.download', $evaluation))
         ->assertOk()
         ->assertHeader('content-type', 'application/msword; charset=UTF-8')

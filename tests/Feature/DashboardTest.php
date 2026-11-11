@@ -53,7 +53,8 @@ test('students can view the student dashboard', function () {
     $this->actingAs($student)
         ->get(route('student.dashboard'))
         ->assertOk()
-        ->assertSee('Recent Attendance')
+        ->assertSee('OJT Progress')
+        ->assertDontSee('Recent Attendance')
         ->assertDontSee('Weekly Logged Hours')
         ->assertDontSee('Approved Hours');
 });

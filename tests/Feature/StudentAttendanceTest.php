@@ -560,7 +560,8 @@ test('students can download their monthly DTR with holidays marked', function ()
     ]);
 
     $this->actingAs($student)->get(route('student.attendance'))
-        ->assertSee(route('student.attendance.dtr', ['month' => '2026-11']), false);
+        ->assertSee(route('student.attendance.dtr', ['month' => '2026-11']), false)
+        ->assertSee(route('student.attendance.dtr.view', ['month' => '2026-11']), false);
 
     $data = \App\Support\DtrDocument::data($student, Carbon::parse('2026-11-01'));
     expect($data['rows'][2])->toMatchArray(['arrival' => '8:15 AM', 'departure' => '5:00 PM', 'late' => 15, 'hours' => 7.75])
@@ -573,4 +574,9 @@ test('students can download their monthly DTR with holidays marked', function ()
         ->assertOk()
         ->assertHeader('Content-Type', 'application/pdf')
         ->assertHeader('Content-Disposition', 'attachment; filename="DTR-'.\Illuminate\Support\Str::slug($student->name).'-2026-11.pdf"');
+
+    $this->get(route('student.attendance.dtr.view', ['month' => '2026-11']))
+        ->assertOk()
+        ->assertHeader('Content-Type', 'application/pdf')
+        ->assertHeader('Content-Disposition', 'inline; filename="DTR-'.\Illuminate\Support\Str::slug($student->name).'-2026-11.pdf"');
 });

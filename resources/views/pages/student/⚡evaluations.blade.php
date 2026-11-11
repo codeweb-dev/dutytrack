@@ -43,7 +43,7 @@ new #[Title('My Evaluation')] class extends Component
                         <flux:table.column>Cooperating Program</flux:table.column>
                         <flux:table.column>Rating</flux:table.column>
                         <flux:table.column>Comments</flux:table.column>
-                        <flux:table.column>Download</flux:table.column>
+                        <flux:table.column>Actions</flux:table.column>
                     </flux:table.columns>
 
                     <flux:table.rows>
@@ -72,10 +72,16 @@ new #[Title('My Evaluation')] class extends Component
                                 {{ \Illuminate\Support\Str::limit($evaluation->remarks ?? '', 80) }}
                             </flux:table.cell>
                             <flux:table.cell>
-                                <flux:button size="sm" icon="arrow-down-tray"
-                                    href="{{ route('student.evaluations.download', $evaluation) }}" target="_blank">
-                                    Docs
-                                </flux:button>
+                                <div class="flex gap-2">
+                                    <flux:button size="sm" icon="eye"
+                                        href="{{ route('student.evaluations.view', $evaluation) }}" target="_blank">
+                                        View
+                                    </flux:button>
+                                    <flux:button size="sm" icon="arrow-down-tray"
+                                        href="{{ route('student.evaluations.download', $evaluation) }}" target="_blank">
+                                        Docs
+                                    </flux:button>
+                                </div>
                             </flux:table.cell>
                         </flux:table.row>
                     </flux:table.rows>

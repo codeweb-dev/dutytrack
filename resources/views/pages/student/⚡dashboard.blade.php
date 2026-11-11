@@ -6,17 +6,14 @@ use App\Models\OjtAssignment;
 use App\Models\StudentRequirement;
 use App\Models\StudentTask;
 use App\Models\User;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
-use Livewire\WithPagination;
 
 new #[Title('Student Dashboard')] class extends Component
 {
     use BuildsDashboardCharts;
-    use WithPagination;
 
     public array $breadcrumbs = [['logo' => 'logo.png', 'href' => '/dashboard'], ['label' => 'Student Dashboard']];
 
@@ -112,12 +109,6 @@ new #[Title('Student Dashboard')] class extends Component
     }
 
     #[Computed]
-    public function recentAttendance(): LengthAwarePaginator
-    {
-        return AttendanceLog::query()->where('student_id', $this->studentId())->latest('attendance_date')->latest('created_at')->paginate(10);
-    }
-
-    #[Computed]
     public function requirements()
     {
         return StudentRequirement::ensureForStudent($this->currentStudent);
@@ -158,88 +149,10 @@ new #[Title('Student Dashboard')] class extends Component
         @endforeach
     </section>
 
-    <section class="grid gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(320px,1fr)]">
+    <section data-tour="dashboard-workflow" class="grid gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(320px,1fr)]">
         <x-dashboard.attendance-chart :attendance="$this->weeklyAttendance"
             description="Your attendance logs over the last 7 days." />
         <x-dashboard.placement-mix :mix="$this->ojtProgress" title="OJT Progress" center-label="Required hours" empty-label="No hours required yet"
             description="Your rendered hours against your required OJT hours." />
     </section>
-
-    <div class="grid items-start gap-6">
-        <div class="flex min-w-0 flex-col gap-6">
-            <flux:card data-tour="dashboard-workflow">
-                <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                    <div>
-                        <flux:heading size="lg">Recent Attendance</flux:heading>
-                        <flux:text class="mt-2">
-                            Your latest attendance entries, including rendered hours and flagged records.
-                        </flux:text>
-                    </div>
-                </div>
-
-                <div class="mt-6">
-                    <flux:table :paginate="$this->recentAttendance">
-                        <flux:table.columns>
-                            <flux:table.column>Date</flux:table.column>
-                            <flux:table.column>Morning In</flux:table.column>
-                            <flux:table.column>Morning Out</flux:table.column>
-                            <flux:table.column>Afternoon In</flux:table.column>
-                            <flux:table.column>Afternoon Out</flux:table.column>
-                            <flux:table.column>Status</flux:table.column>
-                            <flux:table.column>Hours</flux:table.column>
-                        </flux:table.columns>
-
-                        <flux:table.rows>
-                            @forelse ($this->recentAttendance as $log)
-                                <flux:table.row :key="$log->id">
-                                    <flux:table.cell>
-                                        {{ $log->attendance_date?->format('M d, Y') ?? '' }}
-                                    </flux:table.cell>
-
-                                    <flux:table.cell>
-                                        {{ $log->displayMorningTimeIn()?->format('h:i A') ?? '' }}
-                                    </flux:table.cell>
-
-                                    <flux:table.cell>
-                                        {{ $log->displayMorningTimeOut()?->format('h:i A') ?? '' }}
-                                    </flux:table.cell>
-
-                                    <flux:table.cell>
-                                        {{ $log->displayAfternoonTimeIn()?->format('h:i A') ?? '' }}
-                                    </flux:table.cell>
-
-                                    <flux:table.cell>
-                                        {{ $log->displayAfternoonTimeOut()?->format('h:i A') ?? '' }}
-                                    </flux:table.cell>
-
-                                    <flux:table.cell>
-                                        <div class="flex items-center gap-2">
-                                            <flux:badge size="sm" color="sky" inset="top bottom">
-                                                {{ ucfirst($log->status ?? 'recorded') }}
-                                            </flux:badge>
-                                            @if ($log->isLate() && $log->status !== 'late')
-                                                <flux:badge size="sm" color="amber" inset="top bottom">Late</flux:badge>
-                                            @endif
-                                        </div>
-                                    </flux:table.cell>
-
-                                    <flux:table.cell>
-                                        {{ \App\Support\HourFormatter::format($log->hours_rendered ?? 0) }}
-                                    </flux:table.cell>
-                                </flux:table.row>
-                            @empty
-                                <flux:table.row>
-                                    <flux:table.cell colspan="7" class="py-8 text-center text-zinc-500">
-                                        No attendance records found.
-                                    </flux:table.cell>
-                                </flux:table.row>
-                            @endforelse
-                        </flux:table.rows>
-                    </flux:table>
-                </div>
-            </flux:card>
-
-        </div>
-
-    </div>
 </div>

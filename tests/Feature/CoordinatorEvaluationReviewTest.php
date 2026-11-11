@@ -64,3 +64,19 @@ test('coordinator cannot review another coordinator’s student evaluation', fun
 
     expect($evaluation->fresh()->status)->toBe('submitted');
 });
+
+test('coordinator can view their student evaluation in the browser but not another coordinator’s', function () {
+    $this->seed(Database\Seeders\RoleSeeder::class);
+    $coordinator = User::factory()->coordinator()->create();
+    $evaluation = createEvaluationReviewFixture($coordinator);
+
+    $this->actingAs($coordinator)
+        ->get(route('coordinator.evaluations.view', $evaluation))
+        ->assertOk()
+        ->assertHeader('content-type', 'text/html; charset=UTF-8')
+        ->assertHeaderMissing('content-disposition');
+
+    $this->actingAs(User::factory()->coordinator()->create())
+        ->get(route('coordinator.evaluations.view', $evaluation))
+        ->assertNotFound();
+});

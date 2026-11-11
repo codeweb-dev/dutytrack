@@ -49,7 +49,7 @@ test('students can view and download their submitted practicum evaluations', fun
         ->get(route('student.evaluations'))
         ->assertOk()
         ->assertSee('My Evaluation Records')
-        ->assertSee('Evaluation Mentor')
+        ->assertSee('EVALUATION MENTOR')
         ->assertSee('Student Evaluation Coordinator')
         ->assertSee('100.0')
         ->assertSee('Docs');

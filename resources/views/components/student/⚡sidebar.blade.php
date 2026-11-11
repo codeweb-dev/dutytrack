@@ -54,9 +54,14 @@ new class extends Component {};
             Resume Builder
         </flux:sidebar.item>
 
+        <flux:sidebar.item icon="star" data-tour="nav-evaluations" href="{{ route('student.evaluations') }}" :current="request()->routeIs('student.evaluations')"
+            wire:navigate>
+            My Evaluation
+        </flux:sidebar.item>
+
         <flux:sidebar.item icon="academic-cap" data-tour="nav-certificate" href="{{ route('student.certificate') }}" :current="request()->routeIs('student.certificate')"
             wire:navigate>
-            OJT Certificate
+            Certificate
         </flux:sidebar.item>
     </flux:sidebar.group>
 </flux:sidebar.nav>

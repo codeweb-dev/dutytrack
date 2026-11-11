@@ -132,7 +132,7 @@ Route::group(['middleware' => ['auth', 'verified', 'role:student']], function ()
         ->name('student.requirements.form');
     Route::livewire('/student/attendance', 'pages::student.attendance')->name('student.attendance');
     Route::get('/student/attendance/dtr', fn () => DtrDocument::download(Auth::user(), Request::query('month')))->name('student.attendance.dtr');
-    Route::redirect('/student/evaluations', '/student/dashboard#evaluations')->name('student.evaluations');
+    Route::livewire('/student/evaluations', 'pages::student.evaluations')->name('student.evaluations');
     Route::livewire('/student/reports-submissions', 'pages::student.reports-submissions')->name('student.reports-submissions');
     Route::livewire('/student/tasks', 'pages::student.tasks')->name('student.tasks');
     Route::livewire('/student/notes', 'pages::student.notes')->name('student.notes');

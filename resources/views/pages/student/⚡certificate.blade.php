@@ -32,28 +32,12 @@ new #[Title('OJT Certificate')] class extends Component
     <x-page-header :breadcrumbs="$breadcrumbs" :title="$title" :description="$description" />
 
     @if ($certificate['eligible'])
-        <flux:card class="flex flex-col gap-6 sm:flex-row sm:items-center">
-            <div class="flex size-16 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400">
-                <flux:icon.academic-cap class="size-8" />
-            </div>
+        <iframe src="{{ route('student.certificate.view') }}#toolbar=0&navpanes=0&view=Fit" title="Certificate of Completion"
+            class="aspect-[297/210] w-full rounded-xl border border-zinc-200 bg-white dark:border-zinc-700"></iframe>
 
-            <div class="min-w-0 flex-1">
-                <div class="flex flex-wrap items-center gap-2">
-                    <flux:heading size="lg">Certificate of Completion</flux:heading>
-                    <flux:badge color="green" size="sm" icon="check-badge">Completed</flux:badge>
-                </div>
-                <flux:text class="mt-1">
-                    Congratulations, {{ $certificate['name'] }}! You rendered {{ HourFormatter::format($certificate['rendered']) }}
-                    @if ($certificate['company']) at {{ $certificate['company'] }}@endif
-                    @if ($certificate['from']) from {{ $certificate['from'] }} to {{ $certificate['to'] }}@endif.
-                </flux:text>
-            </div>
-
-            <div class="flex shrink-0 flex-wrap gap-2">
-                <flux:button icon="eye" :href="route('student.certificate.view')" target="_blank">View</flux:button>
-                <flux:button variant="primary" icon="arrow-down-tray" :href="route('student.certificate.download')">Download PDF</flux:button>
-            </div>
-        </flux:card>
+        <div class="flex justify-center">
+            <flux:button variant="primary" icon="arrow-down-tray" :href="route('student.certificate.download')">Download Certificate</flux:button>
+        </div>
     @else
         <flux:card class="flex flex-col items-center px-6 py-12 text-center">
             <div class="flex size-16 items-center justify-center rounded-full bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">

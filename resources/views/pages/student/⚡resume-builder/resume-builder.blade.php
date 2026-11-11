@@ -12,6 +12,7 @@
         <flux:breadcrumbs.item href="/dashboard">
             <img src="{{ asset('logo.png') }}" alt="logo" class="h-4 w-4 object-cover" />
         </flux:breadcrumbs.item>
+        <flux:breadcrumbs.item href="#">Documents</flux:breadcrumbs.item>
         <flux:breadcrumbs.item :href="route('student.resumes')" wire:navigate>Resume Builder</flux:breadcrumbs.item>
         <flux:breadcrumbs.item>{{ $title ?: 'Untitled' }}</flux:breadcrumbs.item>
     </flux:breadcrumbs>

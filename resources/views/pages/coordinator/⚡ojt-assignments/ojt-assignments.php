@@ -20,7 +20,7 @@ new #[Title('OJT Assignments')] class extends Component
 
     public array $breadcrumbs = [
         ['logo' => 'logo.png', 'href' => '/dashboard'],
-        ['label' => 'Coordinator Workspace', 'href' => '#'],
+        ['label' => 'People', 'href' => '#'],
         ['label' => 'OJT Assignments'],
     ];
 

@@ -21,6 +21,7 @@ new #[Title('Accomplishment Report')] class extends Component
 
     public array $breadcrumbs = [
         ['logo' => 'logo.png', 'href' => '/dashboard'],
+        ['label' => 'Daily Logs', 'href' => '#'],
         ['label' => 'Accomplishment Report'],
     ];
 

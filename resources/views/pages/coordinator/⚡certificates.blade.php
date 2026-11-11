@@ -15,7 +15,7 @@ use Livewire\WithPagination;
 new #[Title('OJT Certificates')] class extends Component {
     use WithPagination;
 
-    public array $breadcrumbs = [['logo' => 'logo.png', 'href' => '/dashboard'], ['label' => 'Coordinator Workspace', 'href' => '#'], ['label' => 'Monitoring', 'href' => '#'], ['label' => 'Certificates']];
+    public array $breadcrumbs = [['logo' => 'logo.png', 'href' => '/dashboard'], ['label' => 'Monitoring', 'href' => '#'], ['label' => 'Certificates']];
 
     public string $title = 'OJT Certificates';
 

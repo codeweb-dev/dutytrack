@@ -21,7 +21,7 @@ new #[Title('Students')] class extends Component
 
     public array $breadcrumbs = [
         ['logo' => 'logo.png', 'href' => '/dashboard'],
-        ['label' => 'Coordinator Workspace', 'href' => '#'],
+        ['label' => 'People', 'href' => '#'],
         ['label' => 'Student Management'],
     ];
 

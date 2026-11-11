@@ -17,6 +17,7 @@ new #[Title('My Attendance')] class extends Component
 {
     public array $breadcrumbs = [
         ['logo' => 'logo.png', 'href' => '/dashboard'],
+        ['label' => 'Daily Logs', 'href' => '#'],
         ['label' => 'Attendance'],
     ];
 

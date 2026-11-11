@@ -9,7 +9,7 @@ use Livewire\Component;
 
 new #[Title('OJT Certificate')] class extends Component
 {
-    public array $breadcrumbs = [['logo' => 'logo.png', 'href' => '/dashboard'], ['label' => 'OJT Certificate']];
+    public array $breadcrumbs = [['logo' => 'logo.png', 'href' => '/dashboard'], ['label' => 'Documents', 'href' => '#'], ['label' => 'OJT Certificate']];
 
     public string $title = 'OJT Certificate';
 

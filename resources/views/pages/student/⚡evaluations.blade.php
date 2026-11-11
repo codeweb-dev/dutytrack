@@ -8,7 +8,7 @@ use Livewire\Component;
 
 new #[Title('My Evaluation')] class extends Component
 {
-    public array $breadcrumbs = [['logo' => 'logo.png', 'href' => '/dashboard'], ['label' => 'My Evaluation']];
+    public array $breadcrumbs = [['logo' => 'logo.png', 'href' => '/dashboard'], ['label' => 'Documents', 'href' => '#'], ['label' => 'My Evaluation']];
 
     public string $title = 'My Evaluation';
 

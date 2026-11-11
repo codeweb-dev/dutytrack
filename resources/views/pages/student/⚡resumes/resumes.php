@@ -13,6 +13,7 @@ new #[Title('Resume Builder')] class extends Component
 {
     public array $breadcrumbs = [
         ['logo' => 'logo.png', 'href' => '/dashboard'],
+        ['label' => 'Documents', 'href' => '#'],
         ['label' => 'Resume Builder'],
     ];
 

@@ -22,7 +22,7 @@ new #[Title('Evaluations')] class extends Component
 
     public array $breadcrumbs = [
         ['logo' => 'logo.png', 'href' => '/dashboard'],
-        ['label' => 'Supervisor Workspace', 'href' => '#'],
+        ['label' => 'Reviews', 'href' => '#'],
         ['label' => 'Evaluations'],
     ];
 

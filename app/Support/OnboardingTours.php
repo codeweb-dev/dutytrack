@@ -26,7 +26,7 @@ class OnboardingTours
         };
 
         return [
-            ['target' => 'main-navigation', 'title' => 'Your '.$tour['role'].' workspace', 'text' => $tour['intro']],
+            ['target' => 'main-navigation', 'title' => 'Your ' . $tour['role'] . ' workspace', 'text' => $tour['intro']],
             ...$tour['steps'],
             ['target' => 'dashboard-overview', 'title' => 'You’re ready to get started', 'text' => 'Begin with your dashboard, then open the section that matches what you need to do. Your role controls which tools are available.'],
         ];
@@ -48,7 +48,7 @@ class OnboardingTours
                 self::step('nav-group-monitoring', 'Monitoring', 'This group brings together student requirements, attendance, evaluations, and certificates.'),
                 self::step('nav-requirements', 'Requirements', 'Review requirement completion and check submitted physical documents for students you coordinate.'),
                 self::step('nav-attendance', 'Attendance', 'Monitor attendance logs for your students and use the available filters to narrow the records.'),
-                self::step('nav-evaluations', 'Evaluations', 'Review practicum evaluations submitted by immediate supervisors.'),
+                self::step('nav-evaluations', 'Evaluations', 'Review practicum evaluations submitted by supervisors.'),
                 self::step('nav-certificates', 'Certificates', 'See which students have completed their required OJT hours, then view their completion certificates.'),
                 self::step('nav-group-system', 'System Management', 'This group contains tools for application announcements and accountability history.'),
                 self::step('nav-announcements', 'Announcements', 'Create and manage system-wide announcements so everyone sees important updates.'),

@@ -137,6 +137,16 @@ test('student id lookup returns masterlist details for prefilling sign up', func
     ];
     config(['masterlist' => ['2316-00001C' => $student]]);
 
-    $this->getJson(route('register.lookup', ['student_id' => ' 2316-00001c ']))->assertOk()->assertExactJson($student);
+    $this->getJson(route('register.lookup', ['student_id' => ' 2316-00001c ']))->assertOk()
+        ->assertJson($student)
+        ->assertJsonPath('photo_url', fn ($url) => str_contains($url, '/student/student'));
     $this->getJson(route('register.lookup', ['student_id' => 'NOT-AN-ID']))->assertNotFound();
+});
+
+test('masterlist students get a default profile photo when they skip the upload', function () {
+    config(['masterlist' => ['2026-0001' => ['course' => 'BSIT']]]);
+
+    $this->post(route('register.store'), studentSignup(['photo' => null]))->assertSessionHasNoErrors();
+
+    Storage::disk('public')->assertExists(User::where('email', 'jamie@example.com')->value('profile_photo_path'));
 });

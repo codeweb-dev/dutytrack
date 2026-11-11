@@ -29,7 +29,7 @@ new #[Title('Evaluation Review')] class extends Component
 
     public string $title = 'Evaluation Review';
 
-    public string $description = 'Review evaluations submitted by your students’ immediate supervisors.';
+    public string $description = 'Review evaluations submitted by your students’ supervisors.';
 
     public string $search = '';
 
@@ -59,7 +59,7 @@ new #[Title('Evaluation Review')] class extends Component
         return Evaluation::query()
             ->with(['student.studentProfile', 'evaluator'])
             ->where('evaluator_type', 'company_supervisor')
-            ->whereHas('student', fn (Builder $query) => $query->where('coordinator_id', Auth::id()));
+            ->whereHas('student', fn(Builder $query) => $query->where('coordinator_id', Auth::id()));
     }
 
     public function markReviewed(int $evaluationId): void
@@ -104,9 +104,9 @@ new #[Title('Evaluation Review')] class extends Component
     public function evaluations(): LengthAwarePaginator
     {
         $query = $this->evaluationQuery()
-            ->when($this->status !== '', fn (Builder $query) => $query->where('status', $this->status))
+            ->when($this->status !== '', fn(Builder $query) => $query->where('status', $this->status))
             ->when($this->search !== '', function (Builder $query): void {
-                $search = '%'.$this->search.'%';
+                $search = '%' . $this->search . '%';
 
                 $query->where(function (Builder $query) use ($search): void {
                     $query->where('status', 'like', $search)
@@ -115,9 +115,9 @@ new #[Title('Evaluation Review')] class extends Component
                             $student->where('name', 'like', $search)
                                 ->orWhere('first_name', 'like', $search)
                                 ->orWhere('last_name', 'like', $search)
-                                ->orWhereHas('studentProfile', fn (Builder $profile) => $profile->where('student_id', 'like', $search));
+                                ->orWhereHas('studentProfile', fn(Builder $profile) => $profile->where('student_id', 'like', $search));
                         })
-                        ->orWhereHas('evaluator', fn (Builder $evaluator) => $evaluator->where('name', 'like', $search));
+                        ->orWhereHas('evaluator', fn(Builder $evaluator) => $evaluator->where('name', 'like', $search));
                 });
             });
 

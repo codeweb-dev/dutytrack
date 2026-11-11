@@ -9,7 +9,8 @@
             @csrf
 
             <!-- Profile Photo -->
-            <div x-data="{ preview: null, tooBig: false }" class="flex flex-col items-center gap-3">
+            <div x-data="{ preview: null, prefilled: false, tooBig: false }" class="flex flex-col items-center gap-3"
+                x-on:photo-prefill.window="if (!$refs.photo.files.length) { preview = $event.detail; prefilled = !!$event.detail }">
                 <label for="photo" class="group relative cursor-pointer">
                     <div
                         class="flex size-24 items-center justify-center overflow-hidden rounded-full bg-zinc-100 ring-4 ring-white transition group-hover:ring-zinc-200 dark:bg-zinc-800 dark:ring-zinc-900 dark:group-hover:ring-zinc-700">
@@ -23,14 +24,15 @@
                         <flux:icon.camera variant="micro" />
                     </span>
                 </label>
-                <input id="photo" name="photo" type="file" accept="image/*" class="sr-only" required
+                <input id="photo" name="photo" type="file" accept="image/*" class="sr-only" required x-ref="photo" :required="!prefilled"
                     x-on:change="
                         const file = $event.target.files[0];
                         tooBig = !!file && file.size > 2 * 1024 * 1024;
                         if (tooBig) $event.target.value = '';
-                        preview = file && !tooBig ? URL.createObjectURL(file) : null;
+                        if (file && !tooBig) { preview = URL.createObjectURL(file); prefilled = false; }
+                        else if (!prefilled) preview = null;
                     " />
-                <flux:text class="text-xs">{{ __('Upload a profile photo (max 2MB)') }}</flux:text>
+                <flux:text class="text-xs" x-text="prefilled ? '{{ __('Default photo set. Tap to upload your own (max 2MB)') }}' : '{{ __('Upload a profile photo (max 2MB)') }}'">{{ __('Upload a profile photo (max 2MB)') }}</flux:text>
                 <flux:text x-show="tooBig" x-cloak class="text-xs !text-red-500">{{ __('That photo is larger than 2MB. Please choose a smaller one.') }}</flux:text>
                 <flux:error name="photo" />
             </div>
@@ -42,7 +44,9 @@
                     x-on:input.debounce.400ms="
                         const res = await fetch('{{ route('register.lookup') }}?student_id=' + encodeURIComponent($el.value));
                         found = res.ok;
-                        if (res.ok) for (const [field, value] of Object.entries(await res.json())) $el.form.elements[field].value = value ?? '';
+                        const { photo_url, ...fields } = res.ok ? await res.json() : {};
+                        for (const [field, value] of Object.entries(fields)) $el.form.elements[field].value = value ?? '';
+                        $dispatch('photo-prefill', photo_url ?? null);
                     " />
                 <flux:text x-show="found" x-cloak class="text-xs !text-emerald-600 dark:!text-emerald-400">
                     {{ __('Found you on the class list. Check your details below.') }}

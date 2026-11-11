@@ -9,7 +9,9 @@ use App\Models\CoordinatorProfile;
 use App\Models\StudentRequirement;
 use App\Models\User;
 use App\Support\AuditLogger;
+use Illuminate\Http\File;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
@@ -27,6 +29,22 @@ class CreateNewUser implements CreatesNewUsers
     ];
 
     /**
+     * Default avatar for a masterlist student (stable per ID), or null if they're not on the list.
+     */
+    public static function defaultPhoto(string $studentId): ?string
+    {
+        $studentId = strtoupper(trim($studentId));
+
+        if (! isset(config('masterlist')[$studentId])) {
+            return null;
+        }
+
+        $photos = glob(public_path('student/*.png'));
+
+        return $photos[crc32($studentId) % count($photos)];
+    }
+
+    /**
      * Validate and create a newly registered student.
      *
      * @param  array<string, mixed>  $input
@@ -34,7 +52,7 @@ class CreateNewUser implements CreatesNewUsers
     public function create(array $input): User
     {
         Validator::make($input, [
-            'photo' => ['required', 'image', 'max:2048'],
+            'photo' => [Rule::requiredIf(! self::defaultPhoto((string) ($input['student_id'] ?? ''))), 'nullable', 'image', 'max:2048'],
             'student_id' => ['required', 'string', 'max:255', Rule::unique('student_profiles', 'student_id')],
             'birthdate' => ['required', 'date', 'before:today'],
             'first_name' => ['required', 'string', 'max:255'],
@@ -70,7 +88,10 @@ class CreateNewUser implements CreatesNewUsers
                 'contact_number' => $input['contact_number'],
                 'email' => $input['email'],
                 'password' => $input['password'],
-                'profile_photo_path' => $input['photo']->store('students/photos', 'public'),
+                // Own copy of the default: replacing a photo deletes the old file.
+                'profile_photo_path' => isset($input['photo'])
+                    ? $input['photo']->store('students/photos', 'public')
+                    : Storage::disk('public')->putFile('students/photos', new File(self::defaultPhoto($input['student_id']))),
                 'status' => 'pending',
             ]);
 

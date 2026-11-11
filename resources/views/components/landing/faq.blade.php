@@ -31,9 +31,9 @@
                             'Students time in and out through the platform. DutyTrack automatically logs timestamps, calculates hours, and flags any discrepancies — no manual entry needed from supervisors.',
                     ],
                     [
-                        'q' => 'Do OJT coordinators and immediate supervisors need to install anything?',
+                        'q' => 'Do OJT coordinators and supervisors need to install anything?',
                         'a' =>
-                            'No. DutyTrack runs in a web browser. Coordinators, immediate supervisors, and students can sign in from a supported device.',
+                            'No. DutyTrack runs in a web browser. Coordinators, supervisors, and students can sign in from a supported device.',
                     ],
                     [
                         'q' => 'How are OJT duty hours calculated?',
@@ -67,8 +67,7 @@
                             class="shrink-0 w-7 h-7 rounded-full border flex items-center justify-center transition-all duration-300"
                             :class="isOpen ? 'bg-red-600 border-red-600' :
                                 'bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-700'">
-                            <svg class="size-3.5"
-                                :class="isOpen ? 'text-white' : 'text-gray-400 dark:text-zinc-500'"
+                            <svg class="size-3.5" :class="isOpen ? 'text-white' : 'text-gray-400 dark:text-zinc-500'"
                                 viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round">
                                 <path d="M7 1v12" class="transition-opacity duration-300"

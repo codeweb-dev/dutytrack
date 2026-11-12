@@ -372,7 +372,8 @@ new #[Title('Messages')] class extends Component
         $search = mb_strtolower(trim($this->search));
 
         return $this->allConversations
-            ->when($this->roleFilter !== 'all', fn ($conversations) => $conversations->filter(fn (ChatConversation $conversation) => $this->roleLabelFor($conversation) === $this->roleFilter))
+            ->when($this->roleFilter === 'unread', fn ($conversations) => $conversations->filter(fn (ChatConversation $conversation) => $conversation->unread_count > 0))
+            ->when(! in_array($this->roleFilter, ['all', 'unread'], true), fn ($conversations) => $conversations->filter(fn (ChatConversation $conversation) => $this->roleLabelFor($conversation) === $this->roleFilter))
             ->when($search !== '', fn ($conversations) => $conversations->filter(fn (ChatConversation $conversation) => str_contains(mb_strtolower($this->peerFor($conversation)?->name ?? ''), $search)))
             ->values();
     }
@@ -412,7 +413,7 @@ new #[Title('Messages')] class extends Component
         </flux:modal.trigger>
     </div>
 
-    <div class="grid min-h-0 flex-1 overflow-hidden rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 lg:grid-cols-[20rem_1fr]">
+    <div class="grid min-h-0 flex-1 overflow-hidden rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 lg:grid-cols-[24rem_1fr]">
         <aside class="hidden min-h-0 flex-col border-b border-zinc-200 dark:border-zinc-800 lg:flex lg:border-b-0 lg:border-r">
             <div class="shrink-0 border-b border-zinc-200 p-4 dark:border-zinc-800">
                 <flux:heading size="lg">Conversations</flux:heading>
@@ -422,6 +423,7 @@ new #[Title('Messages')] class extends Component
                 @if (count($this->contactRoles) > 1)
                     <flux:radio.group wire:model.live="roleFilter" variant="segmented" size="sm" aria-label="Filter contacts by role" class="mt-3">
                         <flux:radio value="all" label="All" />
+                        <flux:radio value="unread" label="Unread" />
                         @foreach ($this->contactRoles as $role)
                             <flux:radio :value="$role" :label="$role" />
                         @endforeach
@@ -638,6 +640,7 @@ new #[Title('Messages')] class extends Component
             @if (count($this->contactRoles) > 1)
                 <flux:radio.group wire:model.live="roleFilter" variant="segmented" size="sm" aria-label="Filter contacts by role" class="mt-3">
                     <flux:radio value="all" label="All" />
+                    <flux:radio value="unread" label="Unread" />
                     @foreach ($this->contactRoles as $role)
                         <flux:radio :value="$role" :label="$role" />
                     @endforeach

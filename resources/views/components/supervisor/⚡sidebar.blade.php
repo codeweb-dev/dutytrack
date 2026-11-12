@@ -1,8 +1,43 @@
 <?php
 
+use App\Models\ChatMessage;
+use App\Models\OjtAssignment;
+use App\Models\StudentTask;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Computed;
 use Livewire\Component;
 
-new class extends Component {};
+new class extends Component {
+    // Counts of items waiting on the supervisor.
+    #[Computed]
+    public function badges(): array
+    {
+        return array_map(fn (int $count) => $count ?: null, [
+            // Supervisors chat with trainees as the participant and with their coordinator as the "student" side.
+            'messages' => ChatMessage::query()
+                ->whereHas('conversation', fn (Builder $query) => $query
+                    ->where(fn (Builder $query) => $query->where('participant_id', Auth::id())->where('participant_role', 'supervisor'))
+                    ->orWhere(fn (Builder $query) => $query->where('student_id', Auth::id())->where('participant_role', 'coordinator')))
+                ->where('sender_id', '!=', Auth::id())
+                ->whereNull('read_at')
+                ->count(),
+            'tasks' => StudentTask::query()
+                ->where('assigned_by', Auth::id())
+                ->where('status', 'in_review')
+                ->whereHas('assignment', fn (Builder $query) => $query->where('company_supervisor_id', Auth::id()))
+                ->count(),
+            // Only trainees who finished their required hours, since the rest can't be evaluated yet.
+            'evaluations' => OjtAssignment::query()
+                ->where('company_supervisor_id', Auth::id())
+                ->whereRaw('(select coalesce(max(ojt_required_hours), 0) from student_profiles where student_profiles.user_id = ojt_assignments.student_id) > 0')
+                ->whereRaw('(select coalesce(sum(hours_rendered), 0) from attendance_logs where attendance_logs.student_id = ojt_assignments.student_id)
+                    >= (select coalesce(max(ojt_required_hours), 0) from student_profiles where student_profiles.user_id = ojt_assignments.student_id)')
+                ->whereDoesntHave('student.evaluations', fn (Builder $query) => $query->where('evaluator_type', 'company_supervisor'))
+                ->count(),
+        ]);
+    }
+};
 ?>
 
 <flux:sidebar.nav data-tour="main-navigation">
@@ -16,7 +51,7 @@ new class extends Component {};
         Assigned Students
     </flux:sidebar.item>
 
-    <flux:sidebar.item icon="chat-bubble-left-right" data-tour="nav-messages" href="{{ route('supervisor.messages') }}"
+    <flux:sidebar.item icon="chat-bubble-left-right" data-tour="nav-messages" href="{{ route('supervisor.messages') }}" :badge="$this->badges['messages']" badgeColor="red"
         :current="request()->routeIs('supervisor.messages')" wire:navigate>
         Messages
     </flux:sidebar.item>
@@ -27,7 +62,7 @@ new class extends Component {};
             Attendance
         </flux:sidebar.item>
 
-        <flux:sidebar.item icon="rectangle-stack" data-tour="nav-tasks" href="{{ route('supervisor.tasks') }}"
+        <flux:sidebar.item icon="rectangle-stack" data-tour="nav-tasks" href="{{ route('supervisor.tasks') }}" :badge="$this->badges['tasks']" badgeColor="red"
             :current="request()->routeIs('supervisor.tasks')" wire:navigate>
             Tasks
         </flux:sidebar.item>
@@ -39,7 +74,7 @@ new class extends Component {};
             Accomplishment Reports
         </flux:sidebar.item>
 
-        <flux:sidebar.item icon="check-badge" data-tour="nav-evaluations" href="{{ route('supervisor.evaluations') }}"
+        <flux:sidebar.item icon="check-badge" data-tour="nav-evaluations" href="{{ route('supervisor.evaluations') }}" :badge="$this->badges['evaluations']" badgeColor="red"
             :current="request()->routeIs('supervisor.evaluations')" wire:navigate>
             Evaluations
         </flux:sidebar.item>

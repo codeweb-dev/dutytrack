@@ -3,6 +3,7 @@
 use App\Livewire\Concerns\WithSorting;
 use App\Models\StudentProfile;
 use App\Livewire\Concerns\ManagesPracticumEvaluations;
+use App\Models\AttendanceLog;
 use App\Models\Evaluation;
 use App\Models\OjtAssignment;
 use Illuminate\Database\Eloquent\Builder;
@@ -59,6 +60,9 @@ new #[Title('Evaluations')] class extends Component
                 'student.evaluations' => fn ($query) => $query
                     ->where('evaluator_type', $this->evaluatorType()),
             ])
+            ->addSelect(['rendered_hours' => AttendanceLog::query()
+                ->selectRaw('coalesce(sum(hours_rendered), 0)')
+                ->whereColumn('student_id', 'ojt_assignments.student_id')])
             ->where('company_supervisor_id', Auth::id());
     }
 

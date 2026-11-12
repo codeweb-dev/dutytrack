@@ -132,11 +132,21 @@
                                                 href="{{ route('supervisor.evaluations.download', $evaluation) }}">
                                                 Download
                                             </flux:menu.item>
-                                        @else
+                                        @elseif ($this->hasCompletedHours($assignment))
                                             <flux:menu.item icon="check-badge"
                                                 wire:click="openEvaluationModal({{ $assignment->id }})">
                                                 Evaluate
                                             </flux:menu.item>
+                                        @else
+                                            <flux:menu.item icon="check-badge" disabled>
+                                                Evaluate
+                                            </flux:menu.item>
+                                            <flux:menu.separator />
+                                            <flux:text class="px-2 py-1.5 text-xs">
+                                                Hours not completed:
+                                                {{ \App\Support\HourFormatter::format($assignment->rendered_hours) }} /
+                                                {{ \App\Support\HourFormatter::format($assignment->student?->studentProfile?->ojt_required_hours) }}
+                                            </flux:text>
                                         @endif
                                     </flux:menu>
                                 </flux:dropdown>

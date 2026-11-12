@@ -44,6 +44,12 @@ trait ManagesPracticumEvaluations
             return;
         }
 
+        if (! $this->hasCompletedHours($assignment)) {
+            Flux::toast(variant: 'warning', heading: 'Hours not completed.', text: $assignment->student->display_name.' has not rendered the required OJT hours yet.');
+
+            return;
+        }
+
         $this->evaluation_assignment_id = $assignment->id;
         $this->inclusive_from = '';
         $this->inclusive_to = '';
@@ -65,7 +71,7 @@ trait ManagesPracticumEvaluations
 
         $rating = PracticumEvaluationForm::total($this->evaluation_ratings);
 
-        $alreadyEvaluated = DB::transaction(function () use ($rating): bool {
+        $blocked = DB::transaction(function () use ($rating): ?string {
             $assignment = $this->assignmentQuery()
                 ->with(['student.coordinator'])
                 ->whereKey($this->evaluation_assignment_id)
@@ -79,7 +85,11 @@ trait ManagesPracticumEvaluations
                 ->where('evaluator_type', $this->evaluatorType())
                 ->lockForUpdate()
                 ->first()) {
-                return true;
+                return 'evaluated';
+            }
+
+            if (! $this->hasCompletedHours($assignment)) {
+                return 'hours';
             }
 
             Evaluation::query()->create([
@@ -101,14 +111,16 @@ trait ManagesPracticumEvaluations
                 'Evaluation awaiting approval', Auth::user()->display_name.' evaluated '.$assignment->student->display_name.'.', route('coordinator.evaluations'), 'check-badge',
             ));
 
-            return false;
+            return null;
         });
 
-        if ($alreadyEvaluated) {
+        if ($blocked) {
             $this->resetEvaluationForm();
             unset($this->assignments);
             Flux::modal($this->evaluationModalName())->close();
-            Flux::toast(variant: 'warning', heading: 'Already evaluated.', text: 'You can submit only one evaluation per student.');
+            $blocked === 'evaluated'
+                ? Flux::toast(variant: 'warning', heading: 'Already evaluated.', text: 'You can submit only one evaluation per student.')
+                : Flux::toast(variant: 'warning', heading: 'Hours not completed.', text: 'The student has not rendered the required OJT hours yet.');
 
             return;
         }
@@ -130,6 +142,14 @@ trait ManagesPracticumEvaluations
             ->with(['student.studentProfile', 'student.coordinator'])
             ->whereKey($this->evaluation_assignment_id)
             ->first();
+    }
+
+    // Same rule as certificates: required hours set and rendered hours reached. Needs the rendered_hours column from assignmentQuery().
+    public function hasCompletedHours(OjtAssignment $assignment): bool
+    {
+        $required = (float) $assignment->student?->studentProfile?->ojt_required_hours;
+
+        return $required > 0 && (float) $assignment->rendered_hours >= $required;
     }
 
     public function evaluationAreas(): array

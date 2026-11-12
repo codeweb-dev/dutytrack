@@ -45,8 +45,8 @@ new class extends Component {
             @endif
         </div>
 
-        <flux:menu class="w-80 max-w-[calc(100vw-2rem)] p-0!">
-            <div class="flex items-center justify-between border-b border-zinc-200 px-4 py-3 dark:border-zinc-700">
+        <flux:menu class="w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl! p-0! shadow-xl! shadow-zinc-900/10 dark:shadow-black/40">
+            <div class="flex items-center justify-between border-b border-zinc-200 px-4 py-3 dark:border-zinc-600">
                 <flux:heading>{{ __('Notifications') }}</flux:heading>
                 @if ($this->unreadCount)
                     <flux:button size="xs" variant="ghost" wire:click="markAllRead">{{ __('Mark all read') }}</flux:button>
@@ -64,7 +64,7 @@ new class extends Component {
             </div>
 
             <a href="{{ route('notifications') }}" wire:navigate
-                class="block border-t border-zinc-200 px-4 py-3 text-center text-sm font-medium hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-700/50">
+                class="block border-t border-zinc-200 px-4 py-3 text-center text-sm font-medium hover:bg-zinc-50 dark:border-zinc-600 dark:hover:bg-zinc-600/50">
                 {{ __('See all') }}
             </a>
         </flux:menu>

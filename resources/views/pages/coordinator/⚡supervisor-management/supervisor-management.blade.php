@@ -164,7 +164,7 @@
                                                         <flux:table.column>Student</flux:table.column>
                                                         <flux:table.column>Student ID / Course</flux:table.column>
                                                         <flux:table.column>Contact</flux:table.column>
-                                                        <flux:table.column>Required Hours</flux:table.column>
+                                                        <flux:table.column>Hours Rendered / Required</flux:table.column>
                                                     </flux:table.columns>
 
                                                     <flux:table.rows>
@@ -190,7 +190,7 @@
                                                                     {{ $student->contact_number ? '+63 '.$student->contact_number : '—' }}
                                                                 </flux:table.cell>
                                                                 <flux:table.cell class="whitespace-nowrap">
-                                                                    {{ $student->studentProfile?->ojt_required_hours ? $student->studentProfile->ojt_required_hours.' hrs' : '—' }}
+                                                                    {{ \App\Support\HourFormatter::format($student->rendered_hours) }} / {{ $student->studentProfile?->ojt_required_hours ? \App\Support\HourFormatter::format($student->studentProfile->ojt_required_hours) : '—' }}
                                                                 </flux:table.cell>
                                                             </flux:table.row>
                                                         @endforeach

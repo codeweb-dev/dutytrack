@@ -2,6 +2,7 @@
 
 use App\Notifications\SystemNotification;
 use App\Enums\Role as EnumsRole;
+use App\Models\AttendanceLog;
 use App\Models\User;
 use App\Support\AuditLogger;
 use Flux\Flux;
@@ -164,7 +165,10 @@ new #[Title('Supervisor Management')] class extends Component
             ->where('coordinator_id', Auth::id()));
 
         $query->withCount(['companySupervisorAssignments as assigned_students_count' => $ownStudents])
-            ->with(['companySupervisorAssignments' => fn ($query) => $ownStudents($query)->with('student.studentProfile')]);
+            ->with(['companySupervisorAssignments' => fn ($query) => $ownStudents($query)->with(['student' => fn ($studentQuery) => $studentQuery
+                ->with('studentProfile')
+                ->select('users.*')
+                ->selectSub(AttendanceLog::query()->selectRaw('coalesce(sum(hours_rendered), 0)')->whereColumn('student_id', 'users.id'), 'rendered_hours')])]);
 
         if ($this->search !== '') {
             $search = '%'.$this->search.'%';

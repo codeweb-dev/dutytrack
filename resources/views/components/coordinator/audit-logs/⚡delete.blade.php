@@ -2,6 +2,7 @@
 
 use App\Models\AuditLog;
 use Flux\Flux;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 new class extends Component {
@@ -10,6 +11,8 @@ new class extends Component {
     public function delete(): void
     {
         $logId = $this->log->id;
+
+        abort_unless(AuditLog::query()->visibleTo(Auth::id())->whereKey($logId)->exists(), 403);
 
         $this->log->delete();
 

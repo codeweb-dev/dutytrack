@@ -16,14 +16,13 @@ new class extends Component {
         return array_map(fn (int $count) => $count ?: null, [
             // Supervisors chat with trainees as the participant and with their coordinator as the "student" side.
             'messages' => ChatMessage::query()
-                ->whereHas('conversation', fn (Builder $query) => $query
+                ->whereHas('conversation', fn (Builder $query) => $query->current()
                     ->where(fn (Builder $query) => $query->where('participant_id', Auth::id())->where('participant_role', 'supervisor'))
                     ->orWhere(fn (Builder $query) => $query->where('student_id', Auth::id())->where('participant_role', 'coordinator')))
                 ->where('sender_id', '!=', Auth::id())
                 ->whereNull('read_at')
                 ->count(),
             'tasks' => StudentTask::query()
-                ->where('assigned_by', Auth::id())
                 ->where('status', 'in_review')
                 ->whereHas('assignment', fn (Builder $query) => $query->where('company_supervisor_id', Auth::id()))
                 ->count(),

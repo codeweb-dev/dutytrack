@@ -3,7 +3,6 @@
 use App\Livewire\Forms\Coordinator\OjtAssignmentForm;
 use App\Models\OjtAssignment;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
@@ -26,23 +25,9 @@ new class extends Component {
     }
 
     #[Computed]
-    public function students()
-    {
-        return User::query()
-            ->with(['studentProfile', 'ojtAssignment'])
-            ->where('coordinator_id', auth()->id())
-            ->role('student')
-            ->where(function (Builder $query) {
-                $query->whereDoesntHave('ojtAssignment')->orWhere('id', $this->assignment->student_id);
-            })
-            ->orderBy('first_name')
-            ->get();
-    }
-
-    #[Computed]
     public function companySupervisors()
     {
-        return User::query()->with('supervisorProfile')->availableToCoordinator(auth()->id())->role('supervisor')->whereHas('supervisorProfile', fn($query) => $query->where('supervisor_type', $this->form->ojt_type))->orderBy('first_name')->get();
+        return User::query()->with('supervisorProfile')->availableToCoordinator(auth()->id())->active()->role('supervisor')->whereHas('supervisorProfile', fn($query) => $query->where('supervisor_type', $this->form->ojt_type))->orderBy('first_name')->get();
     }
 
     public function save(): void
@@ -60,14 +45,9 @@ new class extends Component {
     </div>
 
     <div class="grid gap-6">
-        <flux:select wire:model.live="form.student_id" label="Student" required>
-            <option value="">Select student</option>
-            @foreach ($this->students as $student)
-                <option value="{{ $student->id }}">
-                    {{ $student->display_name }}{{ $student->studentProfile?->student_id ? ' - ' . $student->studentProfile->student_id : '' }}
-                </option>
-            @endforeach
-        </flux:select>
+        {{-- The student is fixed: logs, reports, tasks and chat hang off this assignment. To move a student, archive and create a new one. --}}
+        <flux:input label="Student" disabled
+            :value="$assignment->student?->display_name . ($assignment->student?->studentProfile?->student_id ? ' - ' . $assignment->student->studentProfile->student_id : '')" />
 
         <flux:radio.group wire:model.live="form.ojt_type" label="OJT Type" variant="cards" :indicator="false"
             class="max-sm:flex-col" required>

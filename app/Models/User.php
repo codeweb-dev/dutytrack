@@ -18,6 +18,13 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, HasRoles, Notifiable, SoftDeletes, TwoFactorAuthenticatable;
 
+    // Pending sign-ups and inactive accounts can't log in, so they can't take part in an assignment.
+    public function scopeActive(Builder $query): Builder
+    {
+        // Same rule as setInactive(): anything that isn't pending or inactive counts as active (seeds use "Active").
+        return $query->where(fn (Builder $query) => $query->whereNull('status')->orWhereNotIn('status', ['pending', 'inactive']));
+    }
+
     public function scopeAvailableToCoordinator(Builder $query, int $coordinatorId): Builder
     {
         return $query->where(fn (Builder $query) => $query

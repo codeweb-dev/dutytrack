@@ -3,6 +3,7 @@
 namespace App\Livewire\Forms\Coordinator;
 
 use App\Models\OjtAssignment;
+use App\Models\StudentTask;
 use App\Models\User;
 use App\Notifications\SystemNotification;
 use App\Support\AuditLogger;
@@ -115,6 +116,7 @@ class OjtAssignmentForm extends Form
 
         $supervisor = User::query()
             ->availableToCoordinator($this->coordinator()->id)
+            ->active()
             ->findOrFail($supervisorId);
 
         abort_unless($supervisor->hasRole('supervisor'), 403);
@@ -177,6 +179,9 @@ class OjtAssignmentForm extends Form
 
         $student = $this->ensureManagedStudent();
 
+        // Pending sign-ups and inactive students can't log in to record attendance.
+        abort_unless(User::query()->active()->whereKey($student->id)->exists(), 403);
+
         $this->ensureCompanySupervisor();
 
         DB::transaction(function () use ($student) {
@@ -190,6 +195,12 @@ class OjtAssignmentForm extends Form
                 'geofence_longitude' => $this->geofence_longitude,
                 'geofence_radius' => $this->geofence_radius,
             ]);
+
+            // Unfinished tasks from an archived assignment carry over to the new supervisor.
+            StudentTask::withoutGlobalScope('unarchived')
+                ->where('student_id', $student->id)
+                ->where('status', '!=', 'done')
+                ->update(['ojt_assignment_id' => $assignment->id]);
 
             $assignment = $assignment->fresh([
                 'student.studentProfile',
@@ -231,6 +242,9 @@ class OjtAssignmentForm extends Form
         }
 
         $this->ensureManagedStudent($this->assignment->student_id);
+
+        // The student can't change on an existing assignment; everything attached to it would follow.
+        $this->student_id = $this->assignment->student_id;
 
         $this->validate();
 
@@ -278,6 +292,12 @@ class OjtAssignmentForm extends Form
             $assignment->companySupervisor?->notify(new SystemNotification(
                 'Trainee assignment updated', $assignment->student?->display_name, route('supervisor.assigned-students'), 'user-group',
             ));
+
+            if ($oldValues['company_supervisor_id'] !== $assignment->company_supervisor_id) {
+                User::find($oldValues['company_supervisor_id'])?->notify(new SystemNotification(
+                    'Trainee reassigned', $assignment->student?->display_name.' now reports to another supervisor.', route('supervisor.assigned-students'), 'user-group',
+                ));
+            }
         });
 
         Flux::toast(

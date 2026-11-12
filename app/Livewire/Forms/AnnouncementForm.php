@@ -81,7 +81,7 @@ class AnnouncementForm extends Form
 
         // ponytail: sync fan-out to every user; queue it if the user count grows into the thousands.
         Notification::send(
-            User::query()->whereKeyNot(Auth::id())->get(),
+            User::query()->active()->whereKeyNot(Auth::id())->get(),
             new SystemNotification('New announcement', $announcement->title, route('announcements'), 'megaphone'),
         );
 

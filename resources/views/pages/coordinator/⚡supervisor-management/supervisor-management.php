@@ -87,6 +87,14 @@ new #[Title('Supervisor Management')] class extends Component
             ->where(fn (Builder $query) => $query->whereNull('status')->orWhereNotIn('status', ['pending', 'inactive']))
             ->findOrFail($supervisorId);
 
+        // Same rule as archiving: their trainees would be stuck with a supervisor who can't log in.
+        if ($count = $supervisor->companySupervisorAssignments()->count()) {
+            Flux::modal('inactive-supervisor-'.$supervisor->id)->close();
+            Flux::toast(variant: 'warning', heading: 'Supervisor still has trainees.', text: "Reassign or archive their {$count} OJT assignment(s) first.");
+
+            return;
+        }
+
         $supervisor->forceFill(['status' => 'inactive', 'remember_token' => Str::random(60)])->save();
 
         // Sign out any open sessions too; relies on the database session driver.

@@ -263,7 +263,7 @@ new #[Title('Tasks')] class extends Component
 
         return $query
             ->with(['student.studentProfile', 'assignment', 'assignedBy'])
-            ->where('assigned_by', Auth::id())
+            // Owned through the assignment, not assigned_by, so tasks follow the trainee when they're reassigned.
             ->whereHas('assignment', fn (Builder $query) => $query->where('company_supervisor_id', Auth::id()));
     }
 

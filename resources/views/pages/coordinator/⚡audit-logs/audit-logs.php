@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\AuditLog;
+use Illuminate\Support\Facades\Auth;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -50,7 +51,7 @@ new #[Title('Audit Logs')] class extends Component
     public function summary(): array
     {
         return collect(['total' => '', 'today' => 'today', 'week' => 'week', 'month' => 'month'])
-            ->map(fn (string $period) => AuditLog::query()
+            ->map(fn (string $period) => AuditLog::query()->visibleTo(Auth::id())
                 ->when($this->periodStart($period), fn (Builder $query, CarbonInterface $start) => $query->where('created_at', '>=', $start))
                 ->count())
             ->all();
@@ -97,7 +98,7 @@ new #[Title('Audit Logs')] class extends Component
     #[Computed]
     public function modules(): array
     {
-        return AuditLog::query()
+        return AuditLog::query()->visibleTo(Auth::id())
             ->whereNotNull('module')
             ->distinct()
             ->orderBy('module')
@@ -110,7 +111,7 @@ new #[Title('Audit Logs')] class extends Component
     #[Computed]
     public function actions(): array
     {
-        return AuditLog::query()
+        return AuditLog::query()->visibleTo(Auth::id())
             ->whereNotNull('action')
             ->distinct()
             ->orderBy('action')
@@ -123,7 +124,7 @@ new #[Title('Audit Logs')] class extends Component
     #[Computed]
     public function auditLogs(): LengthAwarePaginator
     {
-        $query = AuditLog::query();
+        $query = AuditLog::query()->visibleTo(Auth::id());
 
         if ($this->search !== '') {
             $search = '%' . $this->search . '%';

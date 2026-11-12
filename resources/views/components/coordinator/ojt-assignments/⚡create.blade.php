@@ -20,6 +20,7 @@ new class extends Component {
             ->with(['studentProfile', 'ojtAssignment'])
             ->where('coordinator_id', auth()->id())
             ->role('student')
+            ->active()
             ->whereDoesntHave('ojtAssignment')
             ->orderBy('first_name')
             ->get();
@@ -28,7 +29,7 @@ new class extends Component {
     #[Computed]
     public function companySupervisors()
     {
-        return User::query()->with('supervisorProfile')->availableToCoordinator(auth()->id())->role('supervisor')->whereHas('supervisorProfile', fn($query) => $query->where('supervisor_type', $this->form->ojt_type))->orderBy('first_name')->get();
+        return User::query()->with('supervisorProfile')->availableToCoordinator(auth()->id())->active()->role('supervisor')->whereHas('supervisorProfile', fn($query) => $query->where('supervisor_type', $this->form->ojt_type))->orderBy('first_name')->get();
     }
 
     public function save(): void

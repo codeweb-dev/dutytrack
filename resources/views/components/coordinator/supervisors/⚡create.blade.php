@@ -19,11 +19,6 @@ new class extends Component {
     {
         $this->form->applySupervisorType();
     }
-
-    public function updatedFormLastName(): void
-    {
-        $this->form->fillPasswordFromLastName();
-    }
 };
 ?>
 
@@ -54,8 +49,9 @@ new class extends Component {
                         <flux:input wire:model="form.first_name" label="First Name" placeholder="John" required />
                         <flux:input wire:model="form.middle_name" label="Middle Name" badge="Optional"
                             placeholder="Doe" />
-                        <flux:input wire:model.live.debounce.300ms="form.last_name" label="Last Name"
-                            placeholder="Smith" required />
+                        <flux:input wire:model="form.last_name" label="Last Name"
+                            placeholder="Smith" required
+                            x-on:input="const pw = $el.value.replace(/\s+/g, '').toUpperCase().slice(0, 12); $wire.$set('form.password', pw, false); $wire.$set('form.password_confirmation', pw, false)" />
                         <flux:select wire:model="form.extension_name" label="Extension name" badge="Optional">
                             <option value="">None</option>
                             @foreach (['Jr.', 'Sr.', 'II', 'III', 'IV', 'V'] as $extension)

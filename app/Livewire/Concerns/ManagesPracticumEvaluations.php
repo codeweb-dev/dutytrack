@@ -45,7 +45,7 @@ trait ManagesPracticumEvaluations
         }
 
         if (! $this->hasCompletedHours($assignment)) {
-            Flux::toast(variant: 'warning', heading: 'Hours not completed.', text: $assignment->student->display_name.' has not rendered the required OJT hours yet.');
+            Flux::toast(variant: 'warning', heading: 'Hours not completed.', text: ($assignment->student?->display_name ?? 'The student').' has not rendered the required OJT hours yet.');
 
             return;
         }

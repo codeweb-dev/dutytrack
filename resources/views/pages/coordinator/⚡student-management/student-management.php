@@ -91,7 +91,7 @@ new #[Title('Students')] class extends Component
             'pending' => (clone $students)->where('status', 'pending')->count(),
             'active' => (clone $students)->where(fn (Builder $query) => $query->whereNull('status')->orWhereNotIn('status', ['pending', 'inactive']))->count(),
             'inactive' => (clone $students)->where('status', 'inactive')->count(),
-            'assigned' => (clone $students)->whereHas('ojtAssignment', fn (Builder $query) => $query->whereNotNull('company_supervisor_id'))->count(),
+            'assigned' => (clone $students)->whereHas('ojtAssignment.companySupervisor')->count(),
         ];
     }
 
@@ -243,7 +243,7 @@ new #[Title('Students')] class extends Component
         } elseif ($this->status === 'inactive') {
             $query->where('users.status', 'inactive');
         } elseif ($this->status === 'assigned') {
-            $query->whereHas('ojtAssignment', fn (Builder $query) => $query->whereNotNull('company_supervisor_id'));
+            $query->whereHas('ojtAssignment.companySupervisor');
         }
 
         $allowedSorts = [
@@ -253,7 +253,8 @@ new #[Title('Students')] class extends Component
         ];
 
         if ($this->sortBy === 'assigned_supervisor') {
-            $query->leftJoin('ojt_assignments', 'users.id', '=', 'ojt_assignments.student_id')
+            // Archived assignments would add a second row per student.
+            $query->leftJoin('ojt_assignments', fn ($join) => $join->on('users.id', '=', 'ojt_assignments.student_id')->whereNull('ojt_assignments.deleted_at'))
                 ->leftJoin('users as assigned_supervisors', 'ojt_assignments.company_supervisor_id', '=', 'assigned_supervisors.id');
         }
 

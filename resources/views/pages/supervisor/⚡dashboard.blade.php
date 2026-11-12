@@ -64,7 +64,7 @@ new #[Title('Supervisor Dashboard')] class extends Component {
             ],
             [
                 'title' => 'Tasks to Review',
-                'value' => StudentTask::query()->where('assigned_by', $this->supervisorId())->where('status', 'in_review')->whereHas('assignment', fn(Builder $query) => $query->where('company_supervisor_id', $this->supervisorId()))->count(),
+                'value' => StudentTask::query()->where('status', 'in_review')->whereHas('assignment', fn(Builder $query) => $query->where('company_supervisor_id', $this->supervisorId()))->count(),
                 'icon' => 'rectangle-stack',
                 'href' => route('supervisor.tasks'),
                 'link' => 'Review tasks',

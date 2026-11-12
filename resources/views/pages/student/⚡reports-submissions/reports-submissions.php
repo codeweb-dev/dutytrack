@@ -146,9 +146,7 @@ new #[Title('Accomplishment Reports')] class extends Component
         return AttendanceLog::query()
             ->with('submission')
             ->where('student_id', Auth::id())
-            ->whereNotNull('morning_time_in')
-            ->whereNotNull('morning_time_out')
-            ->whereNotNull('afternoon_time_in')
+            // Same "completed day" rule as the supervisor's list and the weekly report, so afternoon-only days count.
             ->whereNotNull('afternoon_time_out');
     }
 

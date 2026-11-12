@@ -112,7 +112,7 @@ class NarrativeReport
     public static function rules(User $student, bool $submitting = false): array
     {
         $text = fn (int $max, bool $required = false) => [$submitting && $required ? 'required' : 'nullable', 'string', 'max:'.$max];
-        $image = ['nullable', 'string', 'starts_with:'.self::folder($student)];
+        $image = ['nullable', 'string', 'starts_with:'.self::folder($student), 'not_regex:/\.\./'];
 
         return [
             ...collect(self::DETAILS)->mapWithKeys(fn ($label, $name) => [

@@ -50,9 +50,7 @@ new #[Title('Archive')] class extends Component
                 Role::SUPERVISOR->value,
                 Role::STUDENT->value,
             ]))
-            ->where(fn (Builder $query) => $query
-                ->where('coordinator_id', Auth::id())
-                ->orWhereHas('roles', fn (Builder $roles) => $roles->where('name', Role::OJTCOORDINATOR->value)));
+            ->where('coordinator_id', Auth::id());
     }
 
     protected function archivedAssignmentsQuery(): Builder
@@ -73,7 +71,7 @@ new #[Title('Archive')] class extends Component
             'users' => $this->archivedUsersQuery()->count(),
             'assignments' => $this->archivedAssignmentsQuery()->count(),
             'announcements' => Announcement::onlyTrashed()->count(),
-            'logs' => AuditLog::onlyTrashed()->count(),
+            'logs' => AuditLog::onlyTrashed()->visibleTo(Auth::id())->count(),
         ];
     }
 
@@ -127,7 +125,7 @@ new #[Title('Archive')] class extends Component
     #[Computed]
     public function archivedAuditLogs(): LengthAwarePaginator
     {
-        return AuditLog::onlyTrashed()
+        return AuditLog::onlyTrashed()->visibleTo(Auth::id())
             ->when($this->search !== '', fn (Builder $query) => $query->where(fn (Builder $query) => $query
                 ->where('actor_name', 'like', $this->searchTerm())
                 ->orWhere('module', 'like', $this->searchTerm())
@@ -165,6 +163,13 @@ new #[Title('Archive')] class extends Component
             return;
         }
 
+        // An archived student or supervisor would bring back a trainee nobody can work with.
+        if (User::query()->active()->whereKey([$assignment->student_id, $assignment->company_supervisor_id])->count() !== 2) {
+            Flux::toast(variant: 'warning', heading: 'Cannot restore yet.', text: 'The student or supervisor is archived or inactive. Restore them first, or create a new assignment.');
+
+            return;
+        }
+
         $assignment->restore();
         unset($this->archivedAssignments, $this->summary);
 
@@ -173,7 +178,7 @@ new #[Title('Archive')] class extends Component
 
     public function restoreAuditLog(int $logId): void
     {
-        AuditLog::onlyTrashed()->findOrFail($logId)->restore();
+        AuditLog::onlyTrashed()->visibleTo(Auth::id())->findOrFail($logId)->restore();
         unset($this->archivedAuditLogs, $this->summary);
 
         Flux::toast(variant: 'success', text: 'Audit log restored.');

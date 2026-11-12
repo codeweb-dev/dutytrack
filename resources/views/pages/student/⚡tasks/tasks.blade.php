@@ -28,8 +28,9 @@
 
                     <div class="flex min-h-32 flex-1 flex-col gap-2" wire:sort="sortTask"
                         wire:sort:group="student-tasks" wire:sort:group-id="{{ $column['status'] }}"
-                        @if ($column['status'] === 'revision') {{-- ponytail: must sit after wire:sort:group, Livewire stops scanning wire:sort* attrs there --}}
-                            wire:sort:config="{ group: { name: 'student-tasks', put: false } }" @endif>
+                        {{-- Revision and Done accept drops so sortTask() can explain why it refuses them; approved cards can't be dragged out. --}}
+                        @if ($column['status'] === 'done') {{-- ponytail: must sit after wire:sort:group, Livewire stops scanning wire:sort* attrs there --}}
+                            wire:sort:config="{ group: { name: 'student-tasks', pull: false } }" @endif>
                         @foreach ($column['tasks'] as $task)
                             <x-task-card :task="$task" wire:key="student-task-{{ $task->id }}"
                                 wire:sort:item="{{ $task->id }}">

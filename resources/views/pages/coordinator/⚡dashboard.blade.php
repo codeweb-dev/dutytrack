@@ -62,7 +62,7 @@ new #[Title('Coordinator Dashboard')] class extends Component
             ],
             [
                 'title' => 'Assigned Students',
-                'value' => $this->managedStudentsQuery()->whereHas('ojtAssignment', fn (Builder $query) => $query->whereNotNull('company_supervisor_id'))->count(),
+                'value' => $this->managedStudentsQuery()->whereHas('ojtAssignment.companySupervisor')->count(),
                 'icon' => 'briefcase',
                 'href' => route('coordinator.ojt-assignments'),
                 'link' => 'View assignments',

@@ -2,6 +2,8 @@
 
 use App\Concerns\PasswordValidationRules;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -29,9 +31,13 @@ new #[Title('Password settings')] class extends Component {
             throw $e;
         }
 
-        Auth::user()->update([
+        Auth::user()->forceFill([
             'password' => $validated['password'],
-        ]);
+            'remember_token' => Str::random(60),
+        ])->save();
+
+        // Sign out every other device; relies on the database session driver, like set-inactive does.
+        DB::table('sessions')->where('user_id', Auth::id())->where('id', '!=', session()->getId())->delete();
 
         $this->reset('current_password', 'password', 'password_confirmation');
 

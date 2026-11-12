@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 use Livewire\Form;
 use Livewire\WithFileUploads;
 
@@ -83,7 +84,7 @@ class StudentForm extends Form
             'guardian_name' => ['required', 'string', 'max:255'],
             'guardian_address' => ['required', 'string', 'max:255'],
             'guardian_contact_number' => ['required', 'string', 'max:20'],
-            'password' => [$this->student ? 'nullable' : 'required', 'string', 'min:3', 'confirmed'],
+            'password' => [$this->student ? 'nullable' : 'required', 'string', Password::default(), 'confirmed'],
         ];
     }
 
@@ -208,7 +209,9 @@ class StudentForm extends Form
                 $newPhotoPath = $this->photo->store('students/photos', 'public');
 
                 if ($photoPath) {
-                    Storage::disk('public')->delete($photoPath);
+                    // After commit, so a failed save doesn't leave the account pointing at a deleted file.
+                    $oldPhotoPath = $photoPath;
+                    DB::afterCommit(fn () => Storage::disk('public')->delete($oldPhotoPath));
                 }
 
                 $photoPath = $newPhotoPath;

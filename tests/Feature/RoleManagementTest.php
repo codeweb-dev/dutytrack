@@ -50,8 +50,8 @@ test('coordinators can create supervisors owned by their account', function () {
         ->set('form.first_name', 'Maria')
         ->set('form.last_name', 'Santos')
         ->set('form.email', 'maria.santos@example.com')
-        ->set('form.password', 'Santos')
-        ->set('form.password_confirmation', 'Santos')
+        ->set('form.password', 'Santos-2026!')
+        ->set('form.password_confirmation', 'Santos-2026!')
         ->set('form.company_name', 'Acme Corp')
         ->set('form.photo', \Illuminate\Http\UploadedFile::fake()->image('maria.jpg'))
         ->call('save')
@@ -75,9 +75,31 @@ test('supervisor photo is required on create', function () {
         ->set('form.first_name', 'Maria')
         ->set('form.last_name', 'Santos')
         ->set('form.email', 'maria.santos@example.com')
-        ->set('form.password', 'Santos')
-        ->set('form.password_confirmation', 'Santos')
+        ->set('form.password', 'Santos-2026!')
+        ->set('form.password_confirmation', 'Santos-2026!')
         ->set('form.company_name', 'Acme Corp')
         ->call('save')
         ->assertHasErrors(['form.photo' => 'required']);
+});
+
+test('supervisor accounts cannot get a short or last-name password', function () {
+    $this->seed(RoleSeeder::class);
+
+    $coordinator = User::factory()->create();
+    $coordinator->assignRole(Role::OJTCOORDINATOR->value);
+
+    \Livewire\Livewire::actingAs($coordinator)
+        ->test('coordinator.supervisors.create')
+        ->set('form.last_name', 'Santos')
+        ->assertSet('form.password', '')
+        ->set('form.first_name', 'Maria')
+        ->set('form.email', 'maria.santos@example.com')
+        ->set('form.password', 'Sa')
+        ->set('form.password_confirmation', 'Sa')
+        ->set('form.company_name', 'Acme Corp')
+        ->set('form.photo', \Illuminate\Http\UploadedFile::fake()->image('maria.jpg'))
+        ->call('save')
+        ->assertHasErrors(['form.password']);
+
+    expect(User::query()->where('email', 'maria.santos@example.com')->exists())->toBeFalse();
 });

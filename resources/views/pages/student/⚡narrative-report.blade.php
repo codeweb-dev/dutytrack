@@ -100,7 +100,8 @@ new #[Title('Narrative Report')] class extends Component
     {
         $path = $this->data[$type] ?? null;
 
-        if (is_string($path) && str_starts_with($path, NarrativeReport::folder(Auth::user()))) {
+        // $data is client-editable; "../" would let the prefix check reach other students' files.
+        if (is_string($path) && str_starts_with($path, NarrativeReport::folder(Auth::user())) && ! str_contains($path, '..')) {
             Storage::disk('local')->delete($path);
         }
     }

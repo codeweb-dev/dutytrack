@@ -30,6 +30,13 @@ new class extends Component {
     {
         $this->authorizeSupervisor();
 
+        // Archiving would strand their trainees on an account nobody can log into.
+        if ($count = $this->supervisor->companySupervisorAssignments()->count()) {
+            Flux::toast(variant: 'warning', heading: 'Supervisor still has trainees.', text: "Reassign or archive their {$count} OJT assignment(s) first.");
+
+            return;
+        }
+
         DB::transaction(function () {
             $supervisor = $this->supervisor->load('supervisorProfile');
 

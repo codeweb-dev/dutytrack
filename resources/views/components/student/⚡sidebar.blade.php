@@ -23,7 +23,7 @@ new class extends Component {
 
         return array_map(fn (int $count) => $count ?: null, [
             'messages' => ChatMessage::query()
-                ->whereHas('conversation', fn (Builder $query) => $query->where('student_id', Auth::id()))
+                ->whereHas('conversation', fn (Builder $query) => $query->current()->where('student_id', Auth::id()))
                 ->where('sender_id', '!=', Auth::id())
                 ->whereNull('read_at')
                 ->count(),

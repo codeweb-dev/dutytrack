@@ -63,6 +63,7 @@ new #[Title('Evaluations')] class extends Component
             ->addSelect(['rendered_hours' => AttendanceLog::query()
                 ->selectRaw('coalesce(sum(hours_rendered), 0)')
                 ->whereColumn('student_id', 'ojt_assignments.student_id')])
+            ->whereHas('student')
             ->where('company_supervisor_id', Auth::id());
     }
 

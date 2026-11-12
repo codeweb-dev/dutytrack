@@ -2,6 +2,7 @@
 
 use App\Models\StudentTask;
 use App\Notifications\SystemNotification;
+use Flux\Flux;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -42,8 +43,19 @@ new class extends Component
 
         $previousStatus = $task->status;
 
-        // Only the supervisor can send a task back for revision.
-        abort_if($status === 'revision' && $previousStatus !== 'revision', 403);
+        // Only the supervisor can send a task back for revision, or approve one (and approval is final for the student).
+        // A toast instead of a 403: the columns accept the drop, and the re-render puts the card back.
+        if (($status === 'revision' && $previousStatus !== 'revision') || ($status === 'done') !== ($previousStatus === 'done')) {
+            unset($this->columns);
+
+            Flux::toast(variant: 'warning', heading: 'Only your supervisor can do that.', text: match ($status) {
+                'revision' => 'Your supervisor moves a task to Revision when it needs changes.',
+                'done' => 'Move it to In Review and your supervisor will approve it.',
+                default => 'Approved tasks stay in Done.',
+            });
+
+            return;
+        }
 
         DB::transaction(function () use ($task, $position, $status, $previousStatus): void {
             $task->update([
@@ -60,7 +72,8 @@ new class extends Component
         });
 
         if ($previousStatus !== $status) {
-            $task->assignedBy?->notify(new SystemNotification(
+            // The current supervisor, not assignedBy: the trainee may have been reassigned since.
+            $task->assignment?->companySupervisor?->notify(new SystemNotification(
                 $status === 'in_review' ? 'Task submitted for review' : 'Task moved to '.StudentTask::statusLabels()[$status],
                 Auth::user()->display_name.': '.$task->title, route('supervisor.tasks'), 'rectangle-stack',
             ));

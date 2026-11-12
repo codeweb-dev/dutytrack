@@ -78,7 +78,8 @@ new class extends Component
         <div class="grid gap-5 sm:grid-cols-2">
             <flux:input class="sm:order-1" wire:model="form.first_name" label="First name" placeholder="Juan" required />
             <flux:input class="sm:order-3" wire:model="form.middle_name" label="Middle name" badge="Optional" placeholder="Santos" />
-            <flux:input class="sm:order-2" wire:model="form.last_name" label="Last name" placeholder="Dela Cruz" required />
+            <flux:input class="sm:order-2" wire:model="form.last_name" label="Last name" placeholder="Dela Cruz" required
+                x-on:input="const pw = $el.value.replace(/\s+/g, '').toUpperCase().slice(0, 12); $wire.$set('form.password', pw, false); $wire.$set('form.password_confirmation', pw, false)" />
             <flux:select class="sm:order-4" wire:model="form.extension_name" label="Extension name" badge="Optional">
                 <option value="">None</option>
                 @foreach (['Jr.', 'Sr.', 'II', 'III', 'IV', 'V'] as $extension)

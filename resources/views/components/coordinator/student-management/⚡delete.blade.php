@@ -24,6 +24,9 @@ new class extends Component
 
             abort_unless((int) $student->coordinator_id === (int) Auth::id(), 403);
 
+            // Archive the assignment too, so the supervisor stops seeing (and counting) this trainee.
+            // ponytail: restoring the student doesn't bring it back; restore it from Archive > Assignments.
+            $student->ojtAssignment?->delete();
             $student->delete();
             DB::table('sessions')->where('user_id', $student->id)->delete();
         });

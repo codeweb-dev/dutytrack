@@ -20,6 +20,8 @@ new #[Title('Messages')] class extends Component
 
     public string $description = 'Chat with the students and OJT contacts connected to your account.';
 
+    // Only selectConversation() may change it; it's authorized there.
+    #[Locked]
     public ?int $selectedConversationId = null;
 
     public string $search = '';
@@ -176,6 +178,11 @@ new #[Title('Messages')] class extends Component
 
     public function pollMessages(): void
     {
+        // Closed under the user (e.g. trainee reassigned): drop it instead of erroring on every poll.
+        if ($this->selectedConversationId && ! $this->conversationQuery()->whereKey($this->selectedConversationId)->exists()) {
+            $this->selectedConversationId = null;
+        }
+
         if ($this->selectedConversationId) {
             $this->markConversationRead($this->selectedConversationId);
         }
@@ -273,7 +280,7 @@ new #[Title('Messages')] class extends Component
     {
         $user = Auth::user();
 
-        return ChatConversation::query()->when($user->hasRole('student'), fn (Builder $query) => $query->where('student_id', $user->id))->when($user->hasRole('ojt_coordinator'), fn (Builder $query) => $query->where('participant_id', $user->id)->where('participant_role', 'coordinator'))->when($user->hasRole('supervisor'), fn (Builder $query) => $query->where(fn (Builder $query) => $query
+        return ChatConversation::query()->current()->when($user->hasRole('student'), fn (Builder $query) => $query->where('student_id', $user->id))->when($user->hasRole('ojt_coordinator'), fn (Builder $query) => $query->where('participant_id', $user->id)->where('participant_role', 'coordinator'))->when($user->hasRole('supervisor'), fn (Builder $query) => $query->where(fn (Builder $query) => $query
             ->where(fn (Builder $query) => $query->where('participant_id', $user->id)->where('participant_role', 'supervisor'))
             ->orWhere(fn (Builder $query) => $query->where('student_id', $user->id)->where('participant_role', 'coordinator'))));
     }

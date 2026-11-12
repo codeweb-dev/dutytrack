@@ -37,14 +37,7 @@ class AppServiceProvider extends ServiceProvider
             app()->isProduction(),
         );
 
-        Password::defaults(fn (): ?Password => app()->isProduction()
-            ? Password::min(12)
-                ->mixedCase()
-                ->letters()
-                ->numbers()
-                ->symbols()
-                ->uncompromised()
-            : null,
-        );
+        // Simple by request: any characters, 3-12 long. Students default to their last name.
+        Password::defaults(fn (): Password => Password::min(3)->max(12));
     }
 }

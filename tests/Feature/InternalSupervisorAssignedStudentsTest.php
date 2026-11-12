@@ -205,26 +205,26 @@ test('students can drag tasks between kanban columns', function () {
         'sort_order' => 0,
     ]);
 
-    $doneTask = StudentTask::query()->create([
+    // Students submit for review; only the mentor can move a task to Done.
+    $reviewTask = StudentTask::query()->create([
         'student_id' => $student->id,
         'assigned_by' => $mentor->id,
         'ojt_assignment_id' => $assignment->id,
-        'title' => 'Done task',
+        'title' => 'Review task',
         'priority' => 'normal',
-        'status' => 'done',
+        'status' => 'in_review',
         'sort_order' => 0,
     ]);
 
     $this->actingAs($student);
 
     Livewire::test('pages::student.tasks')
-        ->call('sortTask', (string) $pendingTask->id, 0, 'done')
+        ->call('sortTask', (string) $pendingTask->id, 0, 'in_review')
         ->assertHasNoErrors();
 
-    expect($pendingTask->refresh()->status)->toBe('done');
+    expect($pendingTask->refresh()->status)->toBe('in_review');
     expect($pendingTask->sort_order)->toBe(0);
-    expect($pendingTask->completed_at)->not->toBeNull();
-    expect($doneTask->refresh()->sort_order)->toBe(1);
+    expect($reviewTask->refresh()->sort_order)->toBe(1);
 });
 
 test('mentors can drag grouped task cards between columns', function () {
@@ -453,7 +453,7 @@ test('mentors can request a revision and students can redo the task', function (
 
     Livewire::test('pages::student.tasks')
         ->call('sortTask', (string) $task->id, 0, 'revision')
-        ->assertForbidden();
+        ->assertDispatched('toast-show');
 });
 
 test('mentors can edit a grouped task for every trainee on it', function () {

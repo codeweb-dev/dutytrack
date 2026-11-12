@@ -238,3 +238,27 @@ test('coordinator can only view their own students assignments', function () {
     $this->actingAs($otherCoordinator);
     Livewire::test('coordinator.ojt-assignments.view', ['assignment' => $assignment])->assertForbidden();
 });
+
+test('editing an assignment cannot swap its student', function () {
+    $coordinator = createCoordinatorForAssignments();
+    $student = createManagedStudent($coordinator);
+    $otherStudent = createManagedStudent($coordinator);
+    $supervisor = createCompanySupervisor();
+    $assignment = OjtAssignment::create([
+        'student_id' => $student->id,
+        'ojt_type' => 'internal',
+        'company_supervisor_id' => $supervisor->id,
+        'geofence_latitude' => 14.599512,
+        'geofence_longitude' => 120.984222,
+        'geofence_radius' => 100,
+    ]);
+
+    $this->actingAs($coordinator);
+
+    Livewire::test('coordinator.ojt-assignments.edit', ['assignment' => $assignment])
+        ->set('form.student_id', $otherStudent->id)
+        ->call('save')
+        ->assertHasNoErrors();
+
+    expect($assignment->fresh()->student_id)->toBe($student->id);
+});

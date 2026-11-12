@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\ValidationException;
 use Livewire\Form;
 use Livewire\WithFileUploads;
 
@@ -56,6 +58,7 @@ class SupervisorForm extends Form
     public function rules(): array
     {
         $userId = $this->supervisor?->id;
+
         return [
             'photo' => [$this->supervisor && $this->existing_photo_path ? 'nullable' : 'required', 'image', 'max:2048'],
             'first_name' => ['required', 'string', 'max:255'],
@@ -70,7 +73,8 @@ class SupervisorForm extends Form
                 Rule::unique('users', 'email')->ignore($userId),
             ],
             'contact_number' => ['nullable', 'string', 'max:20'],
-            'password' => [$this->supervisor ? 'nullable' : 'required', 'string', 'min:2', 'confirmed'],
+            // Same strength as self sign-up; a last-name default was guessable from the supervisor's profile.
+            'password' => [$this->supervisor ? 'nullable' : 'required', 'string', Password::default(), 'confirmed'],
             'supervisor_type' => ['required', Rule::in(['internal', 'external'])],
             'company_name' => ['required', 'string', 'max:255'],
             'company_address' => ['nullable', 'string', 'max:1000'],
@@ -109,16 +113,6 @@ class SupervisorForm extends Form
         if ($this->company_address === self::INTERNAL_ADDRESS) {
             $this->company_address = '';
         }
-    }
-
-    public function fillPasswordFromLastName(): void
-    {
-        if ($this->supervisor) {
-            return;
-        }
-
-        $this->password = trim($this->last_name);
-        $this->password_confirmation = trim($this->last_name);
     }
 
     protected function fullName(): string
@@ -247,6 +241,14 @@ class SupervisorForm extends Form
 
         $this->validate();
 
+        // Assignments must match their supervisor's type, so a switch would leave them unmatched.
+        if ($this->supervisor_type !== $this->supervisor->supervisorProfile?->supervisor_type
+            && $this->supervisor->companySupervisorAssignments()->exists()) {
+            throw ValidationException::withMessages([
+                'form.supervisor_type' => 'Reassign this supervisor\'s trainees before changing their type.',
+            ]);
+        }
+
         DB::transaction(function () {
             $user = $this->supervisor->load('supervisorProfile');
 
@@ -258,7 +260,9 @@ class SupervisorForm extends Form
                 $newPhotoPath = $this->photo->store('supervisors/photos', 'public');
 
                 if ($photoPath) {
-                    Storage::disk('public')->delete($photoPath);
+                    // After commit, so a failed save doesn't leave the account pointing at a deleted file.
+                    $oldPhotoPath = $photoPath;
+                    DB::afterCommit(fn () => Storage::disk('public')->delete($oldPhotoPath));
                 }
 
                 $photoPath = $newPhotoPath;

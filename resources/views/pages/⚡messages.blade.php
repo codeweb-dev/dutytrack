@@ -38,12 +38,6 @@ new #[Title('Messages')] class extends Component
     public function mount(): void
     {
         $this->syncConversations();
-
-        $this->selectedConversationId = $this->conversations->first()?->id;
-
-        if ($this->selectedConversationId) {
-            $this->markConversationRead($this->selectedConversationId);
-        }
     }
 
     public function selectConversation(int $conversationId): void

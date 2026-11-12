@@ -7,6 +7,8 @@ use App\Models\Announcement;
 use App\Models\AttendanceLog;
 use App\Models\AttendanceSubmission;
 use App\Models\AuditLog;
+use App\Models\ChatConversation;
+use App\Models\ChatMessage;
 use App\Models\Evaluation;
 use App\Models\OjtAssignment;
 use App\Models\StudentRequirement;
@@ -37,7 +39,10 @@ use RuntimeException;
  * hours and has a supervisor evaluation. Requirements are a mix of complete, for
  * checking and pending. Supervisors 2-5 of each type assign one task per board column
  * (revision included) to their students, skipping every 4th; supervisor 1 of each type
- * assigns none, so both empty states have data. Audit logs are backdated to match: sign-ups,
+ * assigns none, so both empty states have data. Two of every three non-pending students get a
+ * scripted chat with their supervisor and coordinator, and odd-numbered active supervisors one with
+ * their coordinator; about half the threads end on an unread message, and each has an edited or
+ * archived message. Audit logs are backdated to match: sign-ups,
  * approvals, assignments, supervisors and announcements. All seeded accounts use the password "password".
  */
 class DemoSeeder extends Seeder
@@ -95,6 +100,67 @@ class DemoSeeder extends Seeder
         'Data entry accuracy', 'Basic hardware troubleshooting', 'Network cabling',
         'Spreadsheet formulas', 'Software testing', 'Customer service', 'Time management',
         'Documentation', 'Teamwork', 'SQL basics',
+    ];
+
+    // Scripted chat threads. s = the student_id side (student, or supervisor in staff chats), p = the participant.
+    // Optional third item marks the message as edited or archived (soft deleted), like the messages page does.
+    private const CHATS = [
+        'supervisor' => [
+            [
+                ['s', 'Good morning po! I am already here at the office. Where should I start today?'],
+                ['p', 'Good morning! Please continue encoding the records in the blue folder.'],
+                ['s', 'Noted po. Should I also double check the student numbers?', 'edited'],
+                ['p', 'Yes, please. Some forms have unclear handwriting, set those aside for me.'],
+                ['s', 'Okay po, I will put them on your table before lunch.'],
+            ],
+            [
+                ['s', 'Hello po, I will be absent tomorrow.', 'archived'],
+                ['s', 'Hello po, I might be late tomorrow because of the transport strike.'],
+                ['p', 'Thanks for letting me know. Just time in once you get here.'],
+                ['s', 'Thank you po. I will extend my time out to make up for it.'],
+                ['p', 'That is fine. Be safe on the way.'],
+            ],
+            [
+                ['p', 'I checked your bug list for the request form. Nice work.'],
+                ['p', 'Can you add screenshots for items 3 and 5?'],
+                ['s', 'Yes po, I will update it this afternoon.'],
+                ['s', 'Done po, I uploaded the revised list.', 'edited'],
+            ],
+        ],
+        'coordinator' => [
+            [
+                ['p', 'Hi! Reminder that your MOA and parent consent are still not uploaded.', 'edited'],
+                ['s', 'Good afternoon po. I will have the consent signed this weekend.'],
+                ['p', 'Okay. Please upload it before the end of the month.'],
+                ['s', 'Noted po, thank you!'],
+            ],
+            [
+                ['s', 'Good morning po, are Saturdays counted?', 'archived'],
+                ['s', 'Good morning po. Can I ask if my rendered hours on Saturday will be counted?'],
+                ['p', 'Only if your supervisor approved the Saturday duty. Did they?'],
+                ['s', 'Yes po, they asked me to help with the inventory.'],
+                ['p', 'Then it is fine. Make sure your accomplishment report mentions it.'],
+            ],
+            [
+                ['s', 'Hello po, my time in failed earlier. It says I am outside the location.'],
+                ['p', 'Is your location turned on? Try again near the building entrance.', 'edited'],
+                ['s', 'It worked now po. Thank you!'],
+            ],
+        ],
+        'staff' => [
+            [
+                ['p', 'Good day! Just checking in on our trainees assigned to your office.'],
+                ['s', 'Good day! They are doing well. Very punctual so far.', 'edited'],
+                ['p', 'Glad to hear. The evaluation forms will open once they finish their hours.'],
+                ['s', 'Noted. I will fill those out as soon as they are available.'],
+            ],
+            [
+                ['s', 'Hello, one of the trainees has been absent for three days without notice.'],
+                ['p', 'Which trainee is it?', 'archived'],
+                ['p', 'Thank you for telling me. I will contact the student today.'],
+                ['s', 'Appreciated. Let me know if they need to adjust their schedule.'],
+            ],
+        ],
     ];
 
     // One task group per entry, shared by all of a supervisor's tasked students. due = days from today.
@@ -171,6 +237,11 @@ class DemoSeeder extends Seeder
                         $this->audit($coordinator, 'Students', 'set_inactive', $student, $student->name, 'Set a Student account to inactive.', now()->subMinutes(random_int(10, 600)));
                     }
 
+                    if ($i % 3 !== 2) {
+                        $this->seedChat(['ojt_assignment_id' => $assignment->id, 'student_id' => $student->id, 'participant_id' => $supervisor->id, 'participant_role' => 'supervisor'], 'supervisor');
+                        $this->seedChat(['student_id' => $student->id, 'participant_id' => $coordinator->id, 'participant_role' => 'coordinator'], 'coordinator');
+                    }
+
                     $this->seedRequirements($student, $coordinator, $completed ? 'complete' : collect(['complete', 'checking', 'pending'])->random(), $sampleFile);
 
                     if ($completed) {
@@ -226,6 +297,10 @@ class DemoSeeder extends Seeder
                     'position_department' => 'IT Supervisor',
                 ]);
 
+                if ($active && $n % 2) {
+                    $this->seedChat(['student_id' => $user->id, 'participant_id' => $coordinator->id, 'participant_role' => 'coordinator'], 'staff');
+                }
+
                 if ($active) {
                     $supervisors->push(['user' => $user, 'location' => $type === 'internal' ? self::SCHOOL : $company, 'tasks' => $n !== 1]);
                 }
@@ -233,6 +308,34 @@ class DemoSeeder extends Seeder
         }
 
         return $supervisors;
+    }
+
+    // Same rows the messages page writes, backdated over the last week; ~half end on an unread message.
+    private function seedChat(array $conversation, string $type): void
+    {
+        $conversation = ChatConversation::create($conversation);
+        $lines = fake()->randomElement(self::CHATS[$type]);
+        $leaveUnread = (bool) random_int(0, 1);
+        $at = $start = now()->subDays(random_int(1, 6))->setTime(random_int(8, 10), random_int(0, 59));
+
+        foreach ($lines as $n => $line) {
+            [$side, $body] = $line;
+            $flag = $line[2] ?? null;
+            $at = $at->copy()->addMinutes(random_int(2, 60));
+
+            ChatMessage::forceCreate([
+                'chat_conversation_id' => $conversation->id,
+                'sender_id' => $side === 's' ? $conversation->student_id : $conversation->participant_id,
+                'body' => $body,
+                'read_at' => $leaveUnread && $n === count($lines) - 1 ? null : $at->copy()->addMinutes(random_int(1, 30)),
+                'edited_at' => $flag === 'edited' ? $at->copy()->addMinutes(random_int(1, 5)) : null,
+                'deleted_at' => $flag === 'archived' ? $at->copy()->addMinutes(random_int(1, 5)) : null,
+                'created_at' => $at,
+                'updated_at' => $at,
+            ]);
+        }
+
+        $conversation->forceFill(['created_at' => $start, 'updated_at' => $at])->save();
     }
 
     // Same row AuditLogger::log writes, but with an explicit actor and time (no auth or request while seeding).

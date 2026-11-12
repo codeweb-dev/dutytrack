@@ -54,7 +54,7 @@ new class extends Component {
     @endphp
 
     <div class="flex items-center gap-3 border-b border-zinc-200 pb-4 dark:border-zinc-800">
-        <flux:avatar size="lg" :name="$log->actor_name ?: 'System'" />
+        <flux:avatar size="lg" :src="$log->actor?->profile_photo_url" :name="$log->actor_name ?: 'System'" />
         <div class="min-w-0 flex-1">
             <h3 class="truncate text-lg font-semibold text-zinc-900 dark:text-white">{{ $log->actor_name ?: 'System' }}</h3>
         </div>

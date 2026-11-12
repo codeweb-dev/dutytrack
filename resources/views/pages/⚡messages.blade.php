@@ -332,11 +332,7 @@ new #[Title('Messages')] class extends Component
 
     public function roleColorFor(ChatConversation $conversation): string
     {
-        return match ($this->roleLabelFor($conversation)) {
-            'Supervisor' => 'amber',
-            'Coordinator' => 'red',
-            default => 'zinc',
-        };
+        return \App\Support\BadgeColor::for($this->roleLabelFor($conversation));
     }
 
     public function chatBadgeFor(ChatConversation $conversation): string
@@ -449,7 +445,7 @@ new #[Title('Messages')] class extends Component
                                 </span>
 
                                 @if ($conversation->unread_count > 0)
-                                    <flux:badge color="red" size="sm" class="shrink-0">
+                                    <flux:badge :color="\App\Support\BadgeColor::for('unread')" size="sm" class="shrink-0">
                                         {{ $conversation->unread_count }}</flux:badge>
                                 @endif
                             </span>
@@ -666,7 +662,7 @@ new #[Title('Messages')] class extends Component
                             {{ $this->roleLabelFor($conversation) }}
                         </flux:badge>
                         @if ($conversation->unread_count > 0)
-                            <flux:badge color="red" size="sm" class="shrink-0">
+                            <flux:badge :color="\App\Support\BadgeColor::for('unread')" size="sm" class="shrink-0">
                                 {{ $conversation->unread_count }}</flux:badge>
                         @endif
                     </button>

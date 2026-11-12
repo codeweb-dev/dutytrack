@@ -107,12 +107,12 @@
                             <flux:table.cell class="whitespace-nowrap">
                                 @if ($evaluation)
                                     @if ($evaluation->status === 'reviewed')
-                                        <flux:badge size="sm" color="green" inset="top bottom">Approved</flux:badge>
+                                        <flux:badge size="sm" :color="\App\Support\BadgeColor::for('approved')" inset="top bottom">Approved</flux:badge>
                                     @else
-                                        <flux:badge size="sm" color="sky" inset="top bottom">Awaiting Approval</flux:badge>
+                                        <flux:badge size="sm" :color="\App\Support\BadgeColor::for('awaiting_approval')" inset="top bottom">Awaiting Approval</flux:badge>
                                     @endif
                                 @else
-                                    <flux:badge size="sm" color="amber" inset="top bottom">Pending</flux:badge>
+                                    <flux:badge size="sm" :color="\App\Support\BadgeColor::for('pending')" inset="top bottom">Pending</flux:badge>
                                 @endif
                             </flux:table.cell>
 

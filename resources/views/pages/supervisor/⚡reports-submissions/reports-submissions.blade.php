@@ -120,9 +120,9 @@
 
                             <flux:table.cell class="whitespace-nowrap">
                                 @if ($accomplishment !== '')
-                                    <flux:badge size="sm" color="green" inset="top bottom">Submitted</flux:badge>
+                                    <flux:badge size="sm" :color="\App\Support\BadgeColor::for('submitted')" inset="top bottom">Submitted</flux:badge>
                                 @else
-                                    <flux:badge size="sm" color="amber" inset="top bottom">Missing</flux:badge>
+                                    <flux:badge size="sm" :color="\App\Support\BadgeColor::for('missing')" inset="top bottom">Missing</flux:badge>
                                 @endif
                             </flux:table.cell>
                         </flux:table.row>

@@ -118,7 +118,7 @@
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                <flux:badge size="sm" inset="top bottom" :color="$this->badgeColor($log->action)">
+                                <flux:badge size="sm" inset="top bottom" :color="\App\Support\BadgeColor::for($log->action)">
                                     {{ str($log->action)->replace('_', ' ')->title() }}
                                 </flux:badge>
                             </flux:table.cell>

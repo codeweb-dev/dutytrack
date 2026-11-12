@@ -20,16 +20,6 @@ new class extends Component
 
     public string $description = 'Track tasks assigned by your supervisor and update their progress as you work.';
 
-    public function statusColor(?string $status): string
-    {
-        return match ($status) {
-            'done' => 'green',
-            'in_review' => 'blue',
-            'revision' => 'orange',
-            'in_progress' => 'amber',
-            default => 'zinc',
-        };
-    }
 
     public function displayColumns(): array
     {

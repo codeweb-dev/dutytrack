@@ -119,7 +119,7 @@ new class extends Component
             <div>
                 <div class="mb-3 flex items-center justify-between gap-3">
                     <div class="font-medium text-zinc-900 dark:text-white">{{ $step['label'] }}</div>
-                    <flux:badge size="sm" :color="$step['is_completed'] ? 'green' : null" inset="top bottom">
+                    <flux:badge size="sm" :color="$step['is_completed'] ? \App\Support\BadgeColor::for('completed') : null" inset="top bottom">
                         {{ $step['completed'] }}/{{ $step['total'] }}
                     </flux:badge>
                 </div>
@@ -146,11 +146,11 @@ new class extends Component
 
                             <div class="flex flex-wrap items-center gap-2 sm:justify-end">
                                 @if ($requirement->is_completed)
-                                    <flux:badge color="green" size="sm" inset="top bottom">Approved</flux:badge>
+                                    <flux:badge :color="\App\Support\BadgeColor::for('approved')" size="sm" inset="top bottom">Approved</flux:badge>
                                 @elseif ($requirement->submitted_at)
-                                    <flux:badge color="sky" size="sm" inset="top bottom">For checking</flux:badge>
+                                    <flux:badge :color="\App\Support\BadgeColor::for('for_checking')" size="sm" inset="top bottom">For checking</flux:badge>
                                 @else
-                                    <flux:badge color="amber" size="sm" inset="top bottom">Missing</flux:badge>
+                                    <flux:badge :color="\App\Support\BadgeColor::for('missing')" size="sm" inset="top bottom">Missing</flux:badge>
                                 @endif
 
                                 @if ($requirement->file_path)

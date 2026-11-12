@@ -50,16 +50,6 @@ new #[Title('Announcements')] class extends Component {
             ->simplePaginate($this->perPage, page: 1);
     }
 
-    public function badgeColor(string $type): string
-    {
-        return match ($type) {
-            'warning' => 'amber',
-            'urgent' => 'red',
-            'maintenance' => 'sky',
-            default => 'zinc',
-        };
-    }
-
     public function iconName(string $type): string
     {
         return match ($type) {
@@ -120,7 +110,7 @@ new #[Title('Announcements')] class extends Component {
                         </flux:text>
                     </div>
 
-                    <flux:badge size="sm" :color="$this->badgeColor($announcement->type)"
+                    <flux:badge size="sm" :color="\App\Support\BadgeColor::for($announcement->type)"
                         :icon="$this->iconName($announcement->type)">
                         {{ ucfirst($announcement->type) }}
                     </flux:badge>

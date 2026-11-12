@@ -7,7 +7,7 @@
             <flux:text class="mt-2">{{ $description }}</flux:text>
         </div>
 
-        <flux:badge color="red" inset="top bottom">Overview</flux:badge>
+        <flux:badge color="zinc" inset="top bottom">Overview</flux:badge>
     </div>
 
     <div class="relative mx-auto mt-6 size-56" x-data="{ active: null, tip: { x: 0, y: 0 }, segments: @js($mix['segments']) }"

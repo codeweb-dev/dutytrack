@@ -102,7 +102,7 @@
 
                             <flux:table.cell class="whitespace-nowrap">
                                 <flux:badge
-                                    :color="match ($evaluation->status) { 'reviewed' => 'green', 'submitted' => 'sky', default => 'amber' }"
+                                    :color="\App\Support\BadgeColor::for(match ($evaluation->status) { 'reviewed' => 'approved', 'submitted' => 'awaiting_approval', default => 'pending' })"
                                     size="sm" inset="top bottom">
                                     {{ match ($evaluation->status) {'reviewed' => 'Approved','submitted' => 'Pending Approval',default => str($evaluation->status)->title()} }}
                                 </flux:badge>

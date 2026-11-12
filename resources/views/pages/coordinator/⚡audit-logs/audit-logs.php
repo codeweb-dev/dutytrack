@@ -172,21 +172,4 @@ new #[Title('Audit Logs')] class extends Component
         $this->resetPage();
         unset($this->auditLogs, $this->summary);
     }
-
-    public function badgeColor(string $action): string
-    {
-        return match ($action) {
-            'created' => 'green',
-            'updated' => 'blue',
-            'deleted' => 'red',
-            'deactivated' => 'zinc',
-            'activated' => 'green',
-            'reset_password' => 'amber',
-            'assigned' => 'sky',
-            'reassigned' => 'purple',
-            'published' => 'green',
-            'archived' => 'zinc',
-            default => 'zinc',
-        };
-    }
 };

@@ -7,7 +7,7 @@
             <flux:text class="mt-2">{{ $description }}</flux:text>
         </div>
 
-        <flux:badge color="red" inset="top bottom">Last 7 Days</flux:badge>
+        <flux:badge color="zinc" inset="top bottom">Last 7 Days</flux:badge>
     </div>
 
     <div class="mt-8 flex gap-3" x-data="{ active: null, points: @js($attendance['points']) }">

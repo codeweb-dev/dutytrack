@@ -169,7 +169,7 @@ new #[Title('OJT Certificates')] class extends Component {
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                <flux:badge :color="$eligible ? 'green' : 'amber'" size="sm" inset="top bottom">
+                                <flux:badge :color="\App\Support\BadgeColor::for($eligible ? 'completed' : 'in_progress')" size="sm" inset="top bottom">
                                     {{ $eligible ? 'Completed' : 'In Progress' }}
                                 </flux:badge>
                             </flux:table.cell>

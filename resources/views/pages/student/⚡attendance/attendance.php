@@ -554,17 +554,6 @@ new #[Title('My Attendance')] class extends Component
         $this->resetAttendanceState();
     }
 
-    public function badgeColor(string $status): string
-    {
-        return match ($status) {
-            'present' => 'lime',
-            'late' => 'amber',
-            'absent' => 'red',
-            'incomplete' => 'zinc',
-            default => 'zinc',
-        };
-    }
-
     #[Computed]
     public function holidays(): array
     {

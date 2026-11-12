@@ -19,23 +19,6 @@ new class extends Component {
 
         $this->dispatch('audit-log-deleted');
     }
-
-    public function badgeColor(string $action): string
-    {
-        return match ($action) {
-            'created' => 'green',
-            'updated' => 'blue',
-            'deleted' => 'red',
-            'deactivated' => 'zinc',
-            'activated' => 'green',
-            'reset_password' => 'amber',
-            'assigned' => 'sky',
-            'reassigned' => 'purple',
-            'published' => 'green',
-            'archived' => 'zinc',
-            default => 'zinc',
-        };
-    }
 };
 ?>
 
@@ -59,7 +42,7 @@ new class extends Component {
                     </div>
                 </div>
 
-                <flux:badge :color="$this->badgeColor($log->action)" inset="top bottom">
+                <flux:badge :color="\App\Support\BadgeColor::for($log->action)" inset="top bottom">
                     {{ str($log->action)->replace('_', ' ')->title() }}
                 </flux:badge>
             </div>

@@ -70,13 +70,13 @@
                                 @if ($log->submission?->accomplishment)
                                     {{ \Illuminate\Support\Str::limit($log->submission->accomplishment, 80) }}
                                 @else
-                                    <flux:badge size="sm" color="amber" inset="top bottom">Not submitted</flux:badge>
+                                    <flux:badge size="sm" :color="\App\Support\BadgeColor::for('not_submitted')" inset="top bottom">Not submitted</flux:badge>
                                 @endif
                             </flux:table.cell>
 
                             <flux:table.cell>
                                 <flux:badge size="sm"
-                                    color="{{ count($log->submission?->photo_paths ?? []) ? 'lime' : 'zinc' }}"
+                                    :color="\App\Support\BadgeColor::for(count($log->submission?->photo_paths ?? []) ? 'attached' : null)"
                                     inset="top bottom">
                                     {{ count($log->submission?->photo_paths ?? []) }}
                                 </flux:badge>

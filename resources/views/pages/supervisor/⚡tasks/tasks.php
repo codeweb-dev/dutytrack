@@ -457,17 +457,6 @@ new #[Title('Tasks')] class extends Component
             ->max('sort_order')) + 1;
     }
 
-    public function statusColor(?string $status): string
-    {
-        return match ($status) {
-            'done' => 'green',
-            'in_review' => 'blue',
-            'revision' => 'orange',
-            'in_progress' => 'amber',
-            default => 'zinc',
-        };
-    }
-
     #[Computed]
     public function assignableStudents()
     {

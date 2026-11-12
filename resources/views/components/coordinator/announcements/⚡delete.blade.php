@@ -17,16 +17,6 @@ new class extends Component {
 
         $this->dispatch('announcement-saved');
     }
-
-    public function badgeColor(string $type): string
-    {
-        return match ($type) {
-            'warning' => 'amber',
-            'urgent' => 'red',
-            'maintenance' => 'sky',
-            default => 'zinc',
-        };
-    }
 };
 ?>
 
@@ -49,7 +39,7 @@ new class extends Component {
                 </div>
             </div>
 
-            <flux:badge :color="$this->badgeColor($announcement->type)" inset="top bottom">
+            <flux:badge :color="\App\Support\BadgeColor::for($announcement->type)" inset="top bottom">
                 {{ ucfirst($announcement->type) }}
             </flux:badge>
         </div>

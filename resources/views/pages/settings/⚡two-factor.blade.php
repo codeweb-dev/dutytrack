@@ -61,7 +61,7 @@ new #[Title('Two-factor authentication')] class extends Component {
             @if ($twoFactorEnabled)
                 <div class="space-y-4">
                     <div class="flex items-center gap-3">
-                        <flux:badge color="green">{{ __('Enabled') }}</flux:badge>
+                        <flux:badge :color="\App\Support\BadgeColor::for('enabled')">{{ __('Enabled') }}</flux:badge>
                     </div>
 
                     <flux:text>
@@ -84,7 +84,7 @@ new #[Title('Two-factor authentication')] class extends Component {
             @else
                 <div class="space-y-4">
                     <div class="flex items-center gap-3">
-                        <flux:badge color="red">{{ __('Disabled') }}</flux:badge>
+                        <flux:badge :color="\App\Support\BadgeColor::for('disabled')">{{ __('Disabled') }}</flux:badge>
                     </div>
 
                     <flux:text variant="subtle">

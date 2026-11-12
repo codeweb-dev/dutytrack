@@ -100,12 +100,12 @@
 
                             <flux:table.cell class="whitespace-nowrap">
                                 @if ($student->status === 'pending')
-                                    <flux:badge size="sm" color="amber" inset="top bottom">Pending Approval
+                                    <flux:badge size="sm" :color="\App\Support\BadgeColor::for('pending_approval')" inset="top bottom">Pending Approval
                                     </flux:badge>
                                 @elseif ($student->status === 'inactive')
-                                    <flux:badge size="sm" color="zinc" inset="top bottom">Inactive</flux:badge>
+                                    <flux:badge size="sm" :color="\App\Support\BadgeColor::for('inactive')" inset="top bottom">Inactive</flux:badge>
                                 @else
-                                    <flux:badge size="sm" color="green" inset="top bottom">Active</flux:badge>
+                                    <flux:badge size="sm" :color="\App\Support\BadgeColor::for('active')" inset="top bottom">Active</flux:badge>
                                 @endif
                             </flux:table.cell>
 

@@ -5,16 +5,6 @@ use Livewire\Component;
 
 new class extends Component {
     public Announcement $announcement;
-
-    public function badgeColor(string $type): string
-    {
-        return match ($type) {
-            'warning' => 'amber',
-            'urgent' => 'red',
-            'maintenance' => 'sky',
-            default => 'zinc',
-        };
-    }
 };
 ?>
 
@@ -24,7 +14,7 @@ new class extends Component {
         <div class="min-w-0 flex-1">
             <h3 class="truncate text-lg font-semibold text-zinc-900 dark:text-white">{{ $announcement->title }}</h3>
         </div>
-        <flux:badge :color="$this->badgeColor($announcement->type)" size="sm">{{ ucfirst($announcement->type) }}</flux:badge>
+        <flux:badge :color="\App\Support\BadgeColor::for($announcement->type)" size="sm">{{ ucfirst($announcement->type) }}</flux:badge>
     </div>
 
     <div class="grid gap-4 sm:grid-cols-2">

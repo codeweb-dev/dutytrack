@@ -127,11 +127,11 @@
 
                             <flux:table.cell class="whitespace-nowrap">
                                 @if ($required > 0 && $rendered >= $required)
-                                    <flux:badge size="sm" color="green" inset="top bottom">Completed</flux:badge>
+                                    <flux:badge size="sm" :color="\App\Support\BadgeColor::for('completed')" inset="top bottom">Completed</flux:badge>
                                 @elseif ($rendered > 0)
-                                    <flux:badge size="sm" color="amber" inset="top bottom">In Progress</flux:badge>
+                                    <flux:badge size="sm" :color="\App\Support\BadgeColor::for('in_progress')" inset="top bottom">In Progress</flux:badge>
                                 @else
-                                    <flux:badge size="sm" color="zinc" inset="top bottom">Not Started</flux:badge>
+                                    <flux:badge size="sm" :color="\App\Support\BadgeColor::for('not_started')" inset="top bottom">Not Started</flux:badge>
                                 @endif
                             </flux:table.cell>
                         </flux:table.row>

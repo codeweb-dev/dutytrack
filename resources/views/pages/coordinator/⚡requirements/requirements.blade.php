@@ -90,13 +90,13 @@
                             <flux:table.cell>
                                 <div class="flex flex-col gap-2">
                                     <div class="flex flex-wrap items-center gap-2">
-                                        <flux:badge :color="$isComplete ? 'green' : 'red'" size="sm"
+                                        <flux:badge :color="\App\Support\BadgeColor::for($isComplete ? 'complete' : 'missing')" size="sm"
                                             inset="top bottom">
                                             {{ $completedRequirements }}/{{ $totalRequirements }} received
                                         </flux:badge>
 
                                         @if ($submittedRequirements > 0)
-                                            <flux:badge color="sky" size="sm" inset="top bottom">
+                                            <flux:badge :color="\App\Support\BadgeColor::for('for_checking')" size="sm" inset="top bottom">
                                                 {{ $submittedRequirements }} for checking
                                             </flux:badge>
                                         @endif
@@ -105,7 +105,7 @@
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                <flux:badge :color="$isComplete ? 'green' : 'amber'" size="sm" inset="top bottom">
+                                <flux:badge :color="\App\Support\BadgeColor::for($isComplete ? 'complete' : 'pending')" size="sm" inset="top bottom">
                                     {{ $isComplete ? 'Complete' : 'Pending' }}
                                 </flux:badge>
                             </flux:table.cell>

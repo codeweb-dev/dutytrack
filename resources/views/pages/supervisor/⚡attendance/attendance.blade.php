@@ -148,11 +148,11 @@
                                 <flux:table.cell>{{ $attendance->student?->display_name ?? 'Unknown student' }}</flux:table.cell>
                                 <flux:table.cell class="whitespace-nowrap font-medium">{{ $attendance->student?->studentProfile?->student_id ?? '—' }}</flux:table.cell>
                                 <flux:table.cell>
-                                    <flux:badge size="sm" :color="$this->badgeColor($attendance->status)" inset="top bottom">
+                                    <flux:badge size="sm" :color="\App\Support\BadgeColor::for($attendance->status)" inset="top bottom">
                                         {{ ucfirst($attendance->status ?? 'recorded') }}
                                     </flux:badge>
                                     @if ($attendance->isLate() && $attendance->status !== 'late')
-                                        <flux:badge size="sm" color="amber" inset="top bottom">Late</flux:badge>
+                                        <flux:badge size="sm" :color="\App\Support\BadgeColor::for('late')" inset="top bottom">Late</flux:badge>
                                     @endif
                                 </flux:table.cell>
                                 <flux:table.cell>{{ $attendance->displayMorningTimeIn()?->format('h:i A') ?? '—' }}</flux:table.cell>

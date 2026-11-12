@@ -104,7 +104,7 @@
                     <flux:card wire:key="archived-task-{{ $taskCard['key'] }}" class="flex flex-col gap-3 p-4">
                         <div class="flex items-start justify-between gap-2">
                             <flux:heading class="min-w-0 break-words">{{ $taskCard['task']->title }}</flux:heading>
-                            <flux:badge size="sm" :color="$this->statusColor($taskCard['task']->status)">
+                            <flux:badge size="sm" :color="\App\Support\BadgeColor::for($taskCard['task']->status)">
                                 {{ \App\Models\StudentTask::statusLabels()[$taskCard['task']->status] ?? $taskCard['task']->status }}
                             </flux:badge>
                         </div>
@@ -133,7 +133,7 @@
                     class="flex w-72 shrink-0 snap-start flex-col rounded-xl bg-zinc-100 p-2 sm:w-80 dark:bg-zinc-900">
                     <header class="flex items-center gap-2 px-2 pb-3 pt-2">
                         <flux:heading>{{ $column['title'] }}</flux:heading>
-                        <flux:badge size="sm" :color="$this->statusColor($column['status'])">
+                        <flux:badge size="sm" :color="\App\Support\BadgeColor::for($column['status'])">
                             {{ count($column['tasks']) }}
                         </flux:badge>
                     </header>

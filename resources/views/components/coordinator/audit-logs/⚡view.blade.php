@@ -6,22 +6,6 @@ use Livewire\Component;
 new class extends Component {
     public AuditLog $log;
 
-    public function badgeColor(string $action): string
-    {
-        return match ($action) {
-            'created' => 'green',
-            'updated' => 'blue',
-            'deleted' => 'red',
-            'deactivated' => 'zinc',
-            'activated' => 'green',
-            'reset_password' => 'amber',
-            'assigned' => 'sky',
-            'reassigned' => 'purple',
-            'published' => 'green',
-            'archived' => 'zinc',
-            default => 'zinc',
-        };
-    }
 
     public function formatValue(mixed $value): string
     {
@@ -58,7 +42,7 @@ new class extends Component {
         <div class="min-w-0 flex-1">
             <h3 class="truncate text-lg font-semibold text-zinc-900 dark:text-white">{{ $log->actor_name ?: 'System' }}</h3>
         </div>
-        <flux:badge :color="$this->badgeColor($log->action)" size="sm">{{ str($log->action)->replace('_', ' ')->title() }}</flux:badge>
+        <flux:badge :color="\App\Support\BadgeColor::for($log->action)" size="sm">{{ str($log->action)->replace('_', ' ')->title() }}</flux:badge>
     </div>
 
     <div class="grid gap-4 sm:grid-cols-2">

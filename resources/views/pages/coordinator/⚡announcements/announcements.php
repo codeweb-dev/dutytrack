@@ -108,14 +108,4 @@ new #[Title('System Announcements')] class extends Component
 
         return $query->paginate(10);
     }
-
-    public function badgeColor(string $type): string
-    {
-        return match ($type) {
-            'warning' => 'amber',
-            'urgent' => 'red',
-            'maintenance' => 'sky',
-            default => 'zinc',
-        };
-    }
 };

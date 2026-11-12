@@ -125,11 +125,11 @@
                 </div>
 
                 @if ($this->todayAttendance)
-                    <flux:badge :color="$this->badgeColor($this->todayAttendance->status)" inset="top bottom">
+                    <flux:badge :color="\App\Support\BadgeColor::for($this->todayAttendance->status)" inset="top bottom">
                         {{ ucfirst($this->todayAttendance->status) }}
                     </flux:badge>
                     @if ($this->todayAttendance->isLate() && $this->todayAttendance->status !== 'late')
-                        <flux:badge color="amber" inset="top bottom">Late</flux:badge>
+                        <flux:badge :color="\App\Support\BadgeColor::for('late')" inset="top bottom">Late</flux:badge>
                     @endif
                 @else
                     <flux:badge color="zinc" inset="top bottom">Not recorded</flux:badge>
@@ -432,11 +432,11 @@
 
             @if ($this->selectedAttendance)
                 <div class="flex flex-wrap items-center gap-2">
-                    <flux:badge :color="$this->badgeColor($this->selectedAttendance->status)" inset="top bottom">
+                    <flux:badge :color="\App\Support\BadgeColor::for($this->selectedAttendance->status)" inset="top bottom">
                         {{ ucfirst($this->selectedAttendance->status) }}
                     </flux:badge>
                     @if ($this->selectedAttendance->isLate() && $this->selectedAttendance->status !== 'late')
-                        <flux:badge color="amber" inset="top bottom">Late</flux:badge>
+                        <flux:badge :color="\App\Support\BadgeColor::for('late')" inset="top bottom">Late</flux:badge>
                     @endif
                 </div>
 

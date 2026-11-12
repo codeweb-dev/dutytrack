@@ -43,13 +43,13 @@
     @if ($task->priority !== 'normal' || $dueLabel)
         <div class="mt-3 flex flex-wrap items-center gap-1.5">
             @if ($task->priority === 'high')
-                <flux:badge size="sm" color="red" icon="arrow-up">High priority</flux:badge>
+                <flux:badge size="sm" :color="\App\Support\BadgeColor::for('high')" icon="arrow-up">High priority</flux:badge>
             @elseif ($task->priority === 'low')
-                <flux:badge size="sm" color="sky" icon="arrow-down">Low priority</flux:badge>
+                <flux:badge size="sm" color="zinc" icon="arrow-down">Low priority</flux:badge>
             @endif
 
             @if ($dueLabel)
-                <flux:badge size="sm" icon="calendar" :color="$overdue ? 'red' : ($dueSoon ? 'amber' : 'zinc')">
+                <flux:badge size="sm" icon="calendar" :color="\App\Support\BadgeColor::for($overdue ? 'overdue' : ($dueSoon ? 'due_soon' : null))">
                     {{ $dueLabel }}
                 </flux:badge>
             @endif

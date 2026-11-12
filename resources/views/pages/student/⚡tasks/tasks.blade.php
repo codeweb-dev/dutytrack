@@ -21,7 +21,7 @@
                     class="flex w-72 shrink-0 snap-start flex-col rounded-xl bg-zinc-100 p-2 sm:w-80 dark:bg-zinc-900">
                     <header class="flex items-center gap-2 px-2 pb-3 pt-2">
                         <flux:heading>{{ $column['title'] }}</flux:heading>
-                        <flux:badge size="sm" :color="$this->statusColor($column['status'])">
+                        <flux:badge size="sm" :color="\App\Support\BadgeColor::for($column['status'])">
                             {{ count($column['tasks']) }}
                         </flux:badge>
                     </header>

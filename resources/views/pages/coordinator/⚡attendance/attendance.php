@@ -108,17 +108,6 @@ new #[Title('Attendance Monitoring')] class extends Component
         };
     }
 
-    public function badgeColor(?string $status): string
-    {
-        return match ($status) {
-            'present' => 'lime',
-            'late' => 'amber',
-            'absent' => 'red',
-            'incomplete' => 'orange',
-            default => 'zinc',
-        };
-    }
-
     #[Computed]
     public function calendar(): array
     {

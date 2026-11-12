@@ -72,7 +72,7 @@
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                <flux:badge size="sm" :color="$this->badgeColor($announcement->type)" inset="top bottom">
+                                <flux:badge size="sm" :color="\App\Support\BadgeColor::for($announcement->type)" inset="top bottom">
                                     {{ ucfirst($announcement->type) }}
                                 </flux:badge>
                             </flux:table.cell>

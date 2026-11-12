@@ -21,7 +21,7 @@
 
                         @unless ($showArchivedNotes)
                             <flux:tooltip content="New note">
-                                <flux:button type="button" size="sm" variant="ghost" icon="pencil-square" wire:click="createNote" aria-label="New note" />
+                                <flux:button type="button" size="sm" variant="ghost" icon="pencil-square" wire:click="createNote" aria-label="New note" tooltip="New note" />
                             </flux:tooltip>
                         @endunless
                     </div>
@@ -33,7 +33,7 @@
                         <flux:tooltip :content="$showArchivedNotes ? 'Back to notes' : 'Archived notes'">
                             <flux:button type="button" size="sm" icon="archive-box" wire:click="$toggle('showArchivedNotes')"
                                 :variant="$showArchivedNotes ? 'primary' : 'ghost'"
-                                :aria-label="$showArchivedNotes ? 'Back to notes' : 'Show archived notes'"
+                                :aria-label="$showArchivedNotes ? 'Back to notes' : 'Show archived notes'" :tooltip="$showArchivedNotes ? 'Back to notes' : 'Show archived notes'"
                                 :aria-pressed="$showArchivedNotes ? 'true' : 'false'" />
                         </flux:tooltip>
                     </div>
@@ -53,7 +53,7 @@
                                 </div>
                                 <flux:tooltip content="Restore">
                                     <flux:button type="button" size="xs" variant="ghost" icon="arrow-uturn-left"
-                                        wire:click="restoreNote({{ $note->id }})" aria-label="Restore {{ $note->title }}" />
+                                        wire:click="restoreNote({{ $note->id }})" aria-label="Restore {{ $note->title }}" tooltip="Restore {{ $note->title }}" />
                                 </flux:tooltip>
                             </div>
                         @empty

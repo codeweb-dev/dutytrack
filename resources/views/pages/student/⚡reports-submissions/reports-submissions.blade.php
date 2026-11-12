@@ -84,7 +84,7 @@
 
                             <flux:table.cell align="end">
                                 <flux:dropdown>
-                                    <flux:button variant="ghost" size="sm" icon="ellipsis-horizontal"
+                                    <flux:button variant="ghost" size="sm" icon="ellipsis-horizontal" tooltip="Actions" aria-label="Actions"
                                         inset="top bottom" />
 
                                     <flux:menu>

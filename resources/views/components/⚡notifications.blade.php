@@ -37,7 +37,7 @@ new class extends Component {
 <div wire:poll.3s>
     <flux:dropdown position="bottom" align="end">
         <div class="relative">
-            <flux:button icon="bell" variant="subtle" aria-label="Notifications" />
+            <flux:button icon="bell" variant="subtle" aria-label="Notifications" tooltip="Notifications" />
             @if ($this->unreadCount)
                 <span class="pointer-events-none absolute -top-0.5 -right-0.5 flex min-w-4 h-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold text-white">
                     {{ $this->unreadCount > 99 ? '99+' : $this->unreadCount }}

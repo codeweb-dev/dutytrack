@@ -65,7 +65,7 @@ new #[Title('Fill Out Requirement')] class extends Component
 
     {{-- Toolbar --}}
     <header class="flex flex-wrap items-center gap-2 rounded-lg border border-zinc-200 bg-white p-2 shadow-sm sm:gap-3 sm:p-3 dark:border-zinc-800 dark:bg-zinc-900">
-        <flux:button icon="arrow-left" variant="ghost" size="sm" :href="route('student.requirements')" wire:navigate aria-label="Back to requirements" />
+        <flux:button icon="arrow-left" variant="ghost" size="sm" :href="route('student.requirements')" wire:navigate aria-label="Back to requirements" tooltip="Back to requirements" />
 
         <div class="min-w-0 flex-1 basis-48 px-1">
             <h1 class="truncate text-base font-semibold text-zinc-950 dark:text-white">{{ $this->requirement->label }}</h1>

@@ -11,12 +11,12 @@
             <flux:spacer />
 
             <div class="flex items-center gap-3">
-                <flux:button icon="megaphone" variant="subtle" :href="route('announcements')" wire:navigate />
+                <flux:button icon="megaphone" tooltip="Announcements" aria-label="Announcements" variant="subtle" :href="route('announcements')" wire:navigate />
 
                 <flux:button x-data x-on:click="$flux.dark = ! $flux.dark" icon="moon" variant="subtle"
-                    aria-label="Toggle dark mode" />
+                    aria-label="Toggle dark mode" tooltip="Toggle dark mode" />
 
-                <flux:button icon="cog-6-tooth" variant="subtle" :href="route('user-password.edit')" />
+                <flux:button icon="cog-6-tooth" tooltip="Settings" aria-label="Settings" variant="subtle" :href="route('user-password.edit')" />
 
                 <flux:separator vertical class="my-5" />
 

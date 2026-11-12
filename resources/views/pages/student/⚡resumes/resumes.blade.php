@@ -57,9 +57,9 @@
                             <flux:button size="sm" variant="primary" icon="pencil-square" :href="route('student.resumes.edit', $resume)" wire:navigate>
                                 Edit
                             </flux:button>
-                            <flux:button size="sm" variant="ghost" icon="arrow-down-tray" :href="route('student.resumes.download', $resume)" aria-label="Download {{ $resume->title }} as PDF" />
-                            <flux:button size="sm" variant="ghost" icon="document-duplicate" wire:click="duplicate({{ $resume->id }})" :disabled="$atLimit" aria-label="Duplicate {{ $resume->title }}" />
-                            <flux:button size="sm" variant="ghost" icon="trash" wire:click="confirmDelete({{ $resume->id }})" aria-label="Delete {{ $resume->title }}" />
+                            <flux:button size="sm" variant="ghost" icon="arrow-down-tray" :href="route('student.resumes.download', $resume)" aria-label="Download {{ $resume->title }} as PDF" tooltip="Download {{ $resume->title }} as PDF" />
+                            <flux:button size="sm" variant="ghost" icon="document-duplicate" wire:click="duplicate({{ $resume->id }})" :disabled="$atLimit" aria-label="Duplicate {{ $resume->title }}" tooltip="Duplicate {{ $resume->title }}" />
+                            <flux:button size="sm" variant="ghost" icon="trash" wire:click="confirmDelete({{ $resume->id }})" aria-label="Delete {{ $resume->title }}" tooltip="Delete {{ $resume->title }}" />
                         </div>
                     </div>
                 </article>

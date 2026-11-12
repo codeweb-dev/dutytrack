@@ -155,7 +155,7 @@ new #[Title('Narrative Report')] class extends Component
 
     {{-- Toolbar --}}
     <header class="flex flex-wrap items-center gap-2 rounded-lg border border-zinc-200 bg-white p-2 shadow-sm sm:gap-3 sm:p-3 dark:border-zinc-800 dark:bg-zinc-900">
-        <flux:button icon="arrow-left" variant="ghost" size="sm" :href="route('student.requirements')" wire:navigate aria-label="Back to requirements" />
+        <flux:button icon="arrow-left" variant="ghost" size="sm" :href="route('student.requirements')" wire:navigate aria-label="Back to requirements" tooltip="Back to requirements" />
 
         <div class="min-w-0 flex-1 basis-40 px-1">
             <h1 class="truncate text-base font-semibold text-zinc-950 dark:text-white">Narrative Report</h1>
@@ -256,7 +256,7 @@ new #[Title('Narrative Report')] class extends Component
                                     <input type="file" class="sr-only" x-ref="file" wire:model="uploads.{{ $type }}" accept="image/png,image/jpeg" tabindex="-1" aria-label="Upload {{ $label }}" />
                                     <flux:button type="button" size="xs" icon="arrow-up-tray" x-on:click="$refs.file.click()">{{ $data[$type] ? 'Replace' : 'Upload' }}</flux:button>
                                     @if ($data[$type])
-                                        <flux:button type="button" size="xs" variant="ghost" icon="trash" wire:click="removeImage('{{ $type }}')" aria-label="Remove {{ $label }}" />
+                                        <flux:button type="button" size="xs" variant="ghost" icon="trash" wire:click="removeImage('{{ $type }}')" aria-label="Remove {{ $label }}" tooltip="Remove {{ $label }}" />
                                     @endif
                                 </div>
                             </div>

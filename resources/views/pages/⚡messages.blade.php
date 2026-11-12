@@ -551,11 +551,11 @@ new #[Title('Messages')] class extends Component
                                     @if ($mine && ! $message->deleted_at && $editingMessageId !== $message->id)
                                         <div class="flex shrink-0 items-center gap-1">
                                             <flux:button type="button" size="sm" variant="ghost"
-                                                icon="pencil-square" title="Edit message"
+                                                icon="pencil-square" tooltip="Edit message" aria-label="Edit message"
                                                 wire:click="startEditingMessage({{ $message->id }})" />
                                             <flux:modal.trigger name="delete-message-{{ $message->id }}">
                                                 <flux:button type="button" size="sm" variant="ghost"
-                                                    icon="archive-box" title="Archive message" />
+                                                    icon="archive-box" tooltip="Archive message" aria-label="Archive message" />
                                             </flux:modal.trigger>
                                         </div>
                                     @endif
@@ -615,7 +615,7 @@ new #[Title('Messages')] class extends Component
                         <div class="flex items-center gap-3">
                             <flux:textarea wire:model="body" rows="auto" required placeholder="Type your message..." class="min-w-0 flex-1"
                                 x-on:keydown.enter="if (!$event.shiftKey && !$event.isComposing) { $event.preventDefault(); $el.closest('form').requestSubmit() }" />
-                            <flux:button type="submit" variant="primary" icon="paper-airplane" />
+                            <flux:button type="submit" variant="primary" icon="paper-airplane" tooltip="Send message" aria-label="Send message" />
                         </div>
                         <flux:error name="body" />
                     </flux:field>

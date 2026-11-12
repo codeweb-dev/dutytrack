@@ -17,9 +17,9 @@
                         :href="route('student.attendance.dtr.view', ['month' => $calendarMonth])">View DTR</flux:button>
                     <flux:button size="sm" variant="ghost" icon="arrow-down-tray"
                         :href="route('student.attendance.dtr', ['month' => $calendarMonth])">Download DTR</flux:button>
-                    <flux:button type="button" variant="ghost" icon="chevron-left" aria-label="Previous month"
+                    <flux:button type="button" variant="ghost" icon="chevron-left" aria-label="Previous month" tooltip="Previous month"
                         wire:click="previousCalendarMonth" />
-                    <flux:button type="button" variant="ghost" icon="chevron-right" aria-label="Next month"
+                    <flux:button type="button" variant="ghost" icon="chevron-right" aria-label="Next month" tooltip="Next month"
                         wire:click="nextCalendarMonth" />
                 </div>
             </div>

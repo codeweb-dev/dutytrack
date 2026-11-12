@@ -66,7 +66,7 @@ new class extends Component
                 </div>
 
                 <div class="mt-8 flex items-center justify-center gap-3">
-                    <flux:button x-on:click="$store.pomodoro.adjustTime(-60)" variant="ghost" icon="minus" aria-label="Remove one minute" />
+                    <flux:button x-on:click="$store.pomodoro.adjustTime(-60)" variant="ghost" icon="minus" aria-label="Remove one minute" tooltip="Remove one minute" />
 
                     <flux:button x-on:click="$store.pomodoro.toggleTimer()" variant="primary" class="min-w-36">
                         <flux:icon name="play" x-show="!$store.pomodoro.isRunning" class="size-4" />
@@ -74,7 +74,7 @@ new class extends Component
                         <span x-text="$store.pomodoro.isRunning ? 'Pause' : 'Start'"></span>
                     </flux:button>
 
-                    <flux:button x-on:click="$store.pomodoro.adjustTime(60)" variant="ghost" icon="plus" aria-label="Add one minute" />
+                    <flux:button x-on:click="$store.pomodoro.adjustTime(60)" variant="ghost" icon="plus" aria-label="Add one minute" tooltip="Add one minute" />
                 </div>
 
                 <div class="mt-3 flex justify-center gap-2">

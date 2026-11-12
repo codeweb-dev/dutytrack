@@ -10,9 +10,9 @@
         <flux:icon name="arrow-path" class="size-4 animate-spin text-zinc-400" x-show="loading" aria-label="Updating preview" />
 
         <div class="ml-auto flex items-center gap-0.5">
-            <flux:button size="xs" variant="subtle" icon="minus" x-on:click="setZoom(scale - 0.1)" aria-label="Zoom out" />
+            <flux:button size="xs" variant="subtle" icon="minus" x-on:click="setZoom(scale - 0.1)" aria-label="Zoom out" tooltip="Zoom out" />
             <span class="w-11 text-center text-xs tabular-nums text-zinc-600 dark:text-zinc-300" x-text="`${Math.round(scale * 100)}%`" aria-live="polite">100%</span>
-            <flux:button size="xs" variant="subtle" icon="plus" x-on:click="setZoom(scale + 0.1)" aria-label="Zoom in" />
+            <flux:button size="xs" variant="subtle" icon="plus" x-on:click="setZoom(scale + 0.1)" aria-label="Zoom in" tooltip="Zoom in" />
             <flux:button size="xs" variant="subtle" icon="arrows-pointing-out" x-on:click="setZoom('fit')"
                 x-bind:aria-pressed="zoom === 'fit'" x-bind:class="zoom === 'fit' && 'text-red-600! dark:text-red-400!'">
                 Fit width

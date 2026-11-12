@@ -19,7 +19,7 @@
 
     {{-- Toolbar --}}
     <header class="flex flex-wrap items-center gap-2 rounded-lg border border-zinc-200 bg-white p-2 shadow-sm sm:gap-3 sm:p-3 dark:border-zinc-800 dark:bg-zinc-900">
-        <flux:button icon="arrow-left" variant="ghost" size="sm" :href="route('student.resumes')" wire:navigate aria-label="Back to my resumes" />
+        <flux:button icon="arrow-left" variant="ghost" size="sm" :href="route('student.resumes')" wire:navigate aria-label="Back to my resumes" tooltip="Back to my resumes" />
 
         <div class="min-w-0 flex-1 basis-40">
             <label for="resume-title" class="sr-only">Resume title</label>

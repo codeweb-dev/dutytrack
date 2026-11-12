@@ -149,7 +149,7 @@
                                     <div wire:sort:ignore>
                                         <flux:dropdown position="bottom" align="end">
                                             <flux:button size="xs" variant="subtle" icon="ellipsis-horizontal"
-                                                aria-label="Task actions" />
+                                                aria-label="Task actions" tooltip="Task actions" />
 
                                             <flux:menu>
                                                 <flux:menu.item icon="pencil-square"

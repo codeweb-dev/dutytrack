@@ -108,13 +108,13 @@
             <div class="ml-auto flex items-center gap-3">
                 <livewire:notifications />
 
-                <flux:button icon="megaphone" variant="subtle" :href="route('announcements')" aria-label="Announcements"
+                <flux:button icon="megaphone" variant="subtle" :href="route('announcements')" aria-label="Announcements" tooltip="Announcements"
                     wire:navigate data-tour="topbar-announcements" />
 
                 <flux:button x-data x-on:click="$flux.dark = ! $flux.dark" icon="moon" variant="subtle"
-                    aria-label="Toggle dark mode" />
+                    aria-label="Toggle dark mode" tooltip="Toggle dark mode" />
 
-                <flux:button icon="cog-6-tooth" variant="subtle" :href="route('user-password.edit')" aria-label="Settings"
+                <flux:button icon="cog-6-tooth" variant="subtle" :href="route('user-password.edit')" aria-label="Settings" tooltip="Settings"
                     wire:navigate data-tour="account-settings" />
 
                 <flux:navbar>

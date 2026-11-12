@@ -101,7 +101,7 @@
 
                             <flux:table.cell align="end">
                                 <flux:dropdown>
-                                    <flux:button variant="ghost" size="sm" icon="ellipsis-horizontal" inset="top bottom" />
+                                    <flux:button variant="ghost" size="sm" icon="ellipsis-horizontal" tooltip="Actions" aria-label="Actions" inset="top bottom" />
 
                                     <flux:menu>
                                         <flux:modal.trigger :name="'view-supervisor-'.$supervisor->id">

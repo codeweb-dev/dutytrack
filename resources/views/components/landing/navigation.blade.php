@@ -32,7 +32,7 @@
 
             <div class="flex items-center gap-3">
                 <flux:button x-data x-on:click="$flux.dark = ! $flux.dark" icon="moon" variant="subtle"
-                    aria-label="Toggle dark mode" />
+                    aria-label="Toggle dark mode" tooltip="Toggle dark mode" />
 
                 @if (Route::has('login'))
                     <div class="flex items-center gap-3">

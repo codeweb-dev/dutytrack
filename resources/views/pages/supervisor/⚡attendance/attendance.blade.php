@@ -35,9 +35,9 @@
                         <flux:button type="button" size="sm" variant="ghost" icon="calendar-days">View all holidays
                         </flux:button>
                     </flux:modal.trigger>
-                    <flux:button type="button" variant="ghost" icon="chevron-left" aria-label="Previous month"
+                    <flux:button type="button" variant="ghost" icon="chevron-left" aria-label="Previous month" tooltip="Previous month"
                         wire:click="previousCalendarMonth" />
-                    <flux:button type="button" variant="ghost" icon="chevron-right" aria-label="Next month"
+                    <flux:button type="button" variant="ghost" icon="chevron-right" aria-label="Next month" tooltip="Next month"
                         wire:click="nextCalendarMonth" />
                 </div>
             </div>

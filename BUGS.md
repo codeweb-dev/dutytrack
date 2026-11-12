@@ -1,9 +1,10 @@
 # Bug Report: DutyTrack
 
-Audited 2026-11-12. Found by tracing the code, not reproduced in the running app.
+Audited 2026-11-12. Covers every PHP file in `app/`, `routes/` and every Livewire page and component. Blade markup was checked for unescaped output. Bugs were found by tracing the code; #22 was confirmed by running the path normalizer. The test suite was also run.
 
 | # | Severity | Area | Summary |
 |---|---|---|---|
+| 22 | **Critical** | Security | A student can delete other students' uploaded files |
 | 1 | High | Archive | Archiving a supervisor leaves their students attached to a dead account |
 | 2 | Low | Archive | "Assigned" counts include students whose supervisor is archived |
 | 3 | High | Tasks | Tasks are orphaned after reassignment |
@@ -25,6 +26,9 @@ Audited 2026-11-12. Found by tracing the code, not reproduced in the running app
 | 19 | Medium | Announcements | Announcements go to every user and have no owner |
 | 20 | Low | Messages | Polling marks messages read before checking access |
 | 21 | Low | Photos | Old photo is deleted before the database save commits |
+| 23 | Low | Security | Changing your password doesn't sign out your other sessions |
+
+The bugs in the table are fixes. There is also one problem with the test suite: 25 tests are outdated. See the last section.
 
 ## Scenario 1: Supervisor archived while students are still assigned
 
@@ -113,7 +117,8 @@ Audited 2026-11-12. Found by tracing the code, not reproduced in the running app
   - `resources/views/pages/coordinator/⚡audit-logs/audit-logs.php:126`
   - `resources/views/pages/coordinator/⚡archive/archive.php:130`, `:176`
 - **What happens:** `AuditLog::query()` has no filter, even though `audit_logs` has an `actor_id` column. The logs include student names, student numbers and supervisor names from other coordinators. Restoring logs on the Archive page isn't filtered either. This only matters if you have more than one coordinator.
-- **Fix:** Filter by `actor_id = Auth::id()` on the audit logs page and on the Archive page's logs tab and restore action.
+- **Also:** `components/coordinator/audit-logs/⚡delete.blade.php` lets a coordinator archive any log entry, including one that records their own action. That weakens the audit trail.
+- **Fix:** Filter by `actor_id = Auth::id()` on the audit logs page and on the Archive page's logs tab and restore action. Consider removing archiving for audit logs altogether.
 
 ### 11. Any coordinator can restore any archived coordinator
 - **Where:** `resources/views/pages/coordinator/⚡archive/archive.php:55`
@@ -126,6 +131,21 @@ Audited 2026-11-12. Found by tracing the code, not reproduced in the running app
 - **Fix:** Refuse the restore, with a toast, when `companySupervisor` is null.
 
 ## Rest of the system
+
+### 22. A student can delete other students' uploaded files (CRITICAL)
+- **Where:**
+  - `resources/views/pages/student/⚡narrative-report.blade.php:18` (`public array $data`)
+  - `:89-106` (`removeImage` / `deleteImage`)
+- **What happens:** `$data` is a public Livewire property, so the browser can change it. `deleteImage()` only checks that the path **starts with** the student's own folder, then deletes it. A student can set `data.org_chart` to `student-requirements/5/narrative/../../6/acceptance_letter-....pdf` and call `removeImage('org_chart')`. The delete runs before any validation.
+  - **Verified:** the storage library (Flysystem) resolves the path to `student-requirements/6/acceptance_letter-....pdf`, which is **another student's file**.
+  - **Exposure:** any file on the local disk can be deleted, including requirement uploads, accomplishment report photos and resume images. Paths that escape the storage root are blocked.
+  - **Rendering is safe:** `NarrativeReport::upload()` already rejects `..`. Only the delete path is missing that check.
+- **Fix:** In `deleteImage`, also require `! str_contains($path, '..')`. Better still, delete only the path saved in the database (`requirement()->form_data[$type]`), not the one sent by the browser. Also add `not_regex:/\.\./` to the `data.org_chart` / `data.sketch` rules in `NarrativeReport::rules`.
+
+### 23. Changing your password doesn't sign out your other sessions
+- **Where:** `resources/views/pages/settings/⚡password.blade.php:32-34`
+- **What happens:** The password is updated, but other logged-in sessions and remember-me tokens stay valid. If someone has already logged into a supervisor account (see #18), changing the password doesn't kick them out.
+- **Fix:** After the update, call `Auth::logoutOtherDevices($validated['password'])`. Alternatively, delete the user's other rows in `sessions` and rotate `remember_token`, the same way set-inactive already does.
 
 ### 13. One failed holiday-API call blocks time-in for everyone for 24 hours
 - **Where:**
@@ -205,3 +225,23 @@ Audited 2026-11-12. Found by tracing the code, not reproduced in the running app
 - Deleted chat messages hide their text from the other person.
 - Certificate, DTR and accomplishment report: inputs are validated, and the files are generated only for the logged-in student or the coordinator who owns them.
 - Hours carry over when a student changes supervisor, because they're summed by `student_id`.
+- **Escaping in generated documents:** every `{!! !!}` in `resources/views/exports/` goes through a helper that escapes its input first (`e()`): `$blank`, `$run`, `$v`, `$text`, and `nl2br(e(...))` in resumes. Requirement letters reuse the same escaped views. No HTML or XML injection.
+- **Resume images:** `$type` is a protected property and `resumeId` is `#[Locked]`. Image paths come only from the database.
+- **Coordinator pages are scoped to their own students:** attendance, dashboard, OJT assignments, evaluations, certificates and the sidebar badges.
+- **Registration and password reset:** both use `Password::default()`, which requires 12 characters with mixed case, numbers and symbols, checked against known leaks, in production.
+- **Onboarding tour, PWA manifest and service worker, pomodoro:** nothing here can be exploited.
+- **Announcement and audit-log delete components:** they have no check of their own, but they are only rendered on coordinator pages. Livewire's snapshot checksum stops anyone else from calling them. The cross-coordinator problem is covered in #10 and #19.
+
+## Test suite: 25 of 173 tests fail
+`php artisan test` gives **141 passed, 25 failed, 7 skipped**. I looked closely at four of the failing groups. All four are outdated tests, not app bugs:
+
+| Failing test(s) | Cause |
+|---|---|
+| `DashboardTest` coordinator dashboard (500) | The test doesn't seed the `supervisor` role, so it throws `RoleDoesNotExist` |
+| `CoordinatorOjtAssignmentTest` "cannot assign a student account as supervisor" | The test sends no geofence, so validation fails before the 403 check; no assignment is created either way |
+| `MessagingTest` "edit and delete own messages" | The test expects a deleted message's text to be wiped, but the code now keeps it so the message can be restored |
+| Evaluation tests in `SupervisorAssignedStudentsTest` / `InternalSupervisorAssignedStudentsTest` | They submit without calling `openEvaluationModal()` first, which the current flow requires |
+
+The other failures check for page text or session errors that have since changed: `MessagingTest` page text, `AuthenticationTest` and `RegistrationTest` (new login fields: role and birthdate), and the `StudentAttendanceTest` holiday text. Going by their failure messages, these are also outdated, but **I haven't checked each one line by line**.
+
+**Fix:** Update the tests along with the bug fixes, so the suite can catch regressions again.

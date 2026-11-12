@@ -7,11 +7,11 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-new #[Title('OJT Certificate')] class extends Component
+new #[Title('OJT Certificates')] class extends Component
 {
-    public array $breadcrumbs = [['logo' => 'logo.png', 'href' => '/dashboard'], ['label' => 'Documents', 'href' => '#'], ['label' => 'OJT Certificate']];
+    public array $breadcrumbs = [['logo' => 'logo.png', 'href' => '/dashboard'], ['label' => 'Documents', 'href' => '#'], ['label' => 'Certificates']];
 
-    public string $title = 'OJT Certificate';
+    public string $title = 'OJT Certificates';
 
     public string $description = 'View and download your Certificate of Completion once your required OJT hours are rendered.';
 

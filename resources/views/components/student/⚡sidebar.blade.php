@@ -29,7 +29,7 @@ new class extends Component {};
 
         <flux:sidebar.item icon="document-text" data-tour="nav-reports" href="{{ route('student.reports-submissions') }}" :current="request()->routeIs('student.reports-submissions')"
             wire:navigate>
-            Accomplishment Report
+            Accomplishment Reports
         </flux:sidebar.item>
     </flux:sidebar.group>
 
@@ -56,12 +56,12 @@ new class extends Component {};
 
         <flux:sidebar.item icon="check-badge" data-tour="nav-evaluations" href="{{ route('student.evaluations') }}" :current="request()->routeIs('student.evaluations')"
             wire:navigate>
-            My Evaluation
+            Evaluations
         </flux:sidebar.item>
 
         <flux:sidebar.item icon="trophy" data-tour="nav-certificate" href="{{ route('student.certificate') }}" :current="request()->routeIs('student.certificate')"
             wire:navigate>
-            Certificate
+            Certificates
         </flux:sidebar.item>
     </flux:sidebar.group>
 </flux:sidebar.nav>

@@ -6,11 +6,11 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-new #[Title('My Evaluation')] class extends Component
+new #[Title('Evaluations')] class extends Component
 {
-    public array $breadcrumbs = [['logo' => 'logo.png', 'href' => '/dashboard'], ['label' => 'Documents', 'href' => '#'], ['label' => 'My Evaluation']];
+    public array $breadcrumbs = [['logo' => 'logo.png', 'href' => '/dashboard'], ['label' => 'Documents', 'href' => '#'], ['label' => 'Evaluations']];
 
-    public string $title = 'My Evaluation';
+    public string $title = 'Evaluations';
 
     public string $description = 'View and download your practicum evaluation once your coordinator approves it.';
 

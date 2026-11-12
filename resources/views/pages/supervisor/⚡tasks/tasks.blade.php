@@ -15,8 +15,8 @@
             @if ($editing_task_key)
                 {{-- ponytail: trainees are fixed once assigned; assign a new task to add someone --}}
             @elseif ($this->assignableStudents->isEmpty())
-                <flux:callout variant="secondary" icon="user-group" heading="No trainees assigned to you yet."
-                    text="Tasks can be assigned once a coordinator assigns trainees to you." />
+                <flux:callout variant="secondary" icon="user-group" heading="No trainees to assign tasks to."
+                    text="Tasks can be assigned to your trainees who are still rendering their required hours." />
             @else
                 <flux:checkbox.group wire:model="student_ids" label="Trainees" variant="cards" class="-m-1 max-h-80 flex-wrap overflow-y-auto p-1 *:grow-0 *:basis-full sm:*:basis-[calc(50%-0.375rem)]" required>
                     @foreach ($this->assignableStudents as $student)

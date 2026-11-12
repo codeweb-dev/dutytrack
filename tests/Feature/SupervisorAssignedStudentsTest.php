@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Role as AppRole;
+use App\Models\AttendanceLog;
 use App\Models\Evaluation;
 use App\Models\OjtAssignment;
 use App\Models\StudentTask;
@@ -157,6 +158,37 @@ test('supervisors cannot assign tasks to trainees not assigned to them', functio
         ->call('saveTask')
         ->assertForbidden();
 
+    expect(StudentTask::query()->where('student_id', $student->id)->exists())->toBeFalse();
+});
+
+test('supervisors cannot assign tasks to trainees who rendered all required hours', function () {
+    $coordinator = createSupervisorAssignedStudentCoordinator();
+    $supervisor = createSupervisorAssignedStudentUser();
+    $student = createSupervisorAssignedStudent($coordinator, ['name' => 'Completed Hours Student']);
+    $student->studentProfile->update(['ojt_required_hours' => 8]);
+
+    $assignment = OjtAssignment::query()->create([
+        'student_id' => $student->id,
+        'ojt_type' => 'external',
+        'company_supervisor_id' => $supervisor->id,
+    ]);
+
+    AttendanceLog::query()->create([
+        'student_id' => $student->id,
+        'ojt_assignment_id' => $assignment->id,
+        'attendance_date' => '2026-05-15',
+        'hours_rendered' => 8,
+    ]);
+
+    $this->actingAs($supervisor);
+
+    $component = Livewire::test('pages::supervisor.tasks')
+        ->set('student_ids', [$student->id])
+        ->set('task_title', 'Should not be assigned')
+        ->call('saveTask')
+        ->assertHasErrors('student_ids');
+
+    expect($component->instance()->assignableStudents)->toBeEmpty();
     expect(StudentTask::query()->where('student_id', $student->id)->exists())->toBeFalse();
 });
 

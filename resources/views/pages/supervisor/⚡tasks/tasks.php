@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -114,6 +115,13 @@ new #[Title('Tasks')] class extends Component
         }
 
         $assignments = $this->assignedStudentAssignments($this->student_ids);
+
+        if ($this->stillRendering(OjtAssignment::query()->whereKey($assignments->modelKeys()))->count() !== $assignments->count()) {
+            throw ValidationException::withMessages([
+                'student_ids' => 'Trainees who have rendered all their required hours can no longer be given tasks.',
+            ]);
+        }
+
         $taskGroupId = (string) Str::uuid();
         $sortOrder = $this->nextSupervisorTaskSortOrder('pending');
 
@@ -234,6 +242,17 @@ new #[Title('Tasks')] class extends Component
         abort_unless($assignments->count() === $studentIds->count(), 403);
 
         return $assignments;
+    }
+
+    // Same completion rule as the certificate: required hours set and rendered hours reached.
+    protected function stillRendering(Builder $query): Builder
+    {
+        return $query->whereRaw('not coalesce((
+            select sp.ojt_required_hours > 0 and (
+                select coalesce(sum(al.hours_rendered), 0) from attendance_logs al where al.student_id = ojt_assignments.student_id
+            ) >= sp.ojt_required_hours
+            from student_profiles sp where sp.user_id = ojt_assignments.student_id
+        ), false)');
     }
 
     protected function taskQuery(bool $archived = false): Builder
@@ -452,7 +471,7 @@ new #[Title('Tasks')] class extends Component
     #[Computed]
     public function assignableStudents()
     {
-        return OjtAssignment::query()
+        return $this->stillRendering(OjtAssignment::query())
             ->with('student.studentProfile')
             ->where('company_supervisor_id', Auth::id())
             ->orderBy('created_at', 'desc')

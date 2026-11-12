@@ -3,7 +3,6 @@
 use App\Livewire\Concerns\BuildsDashboardCharts;
 use App\Livewire\Concerns\WithSorting;
 use App\Models\AttendanceLog;
-use App\Models\User;
 use App\Models\StudentProfile;
 use App\Models\OjtAssignment;
 use Illuminate\Database\Eloquent\Builder;
@@ -105,12 +104,14 @@ new #[Title('Assigned Students')] class extends Component
     #[Computed]
     public function assignments(): LengthAwarePaginator
     {
-        return $this->applySorting($this->applyFilters($this->assignmentQuery()), [
-            'student' => User::select('name')->whereColumn('users.id', 'ojt_assignments.student_id'),
+        $query = $this->applySorting($this->applyFilters($this->assignmentQuery()), [
+            'student' => $this->lastNameSubquery('ojt_assignments.student_id'),
             'student_id' => StudentProfile::select('student_id')->whereColumn('student_profiles.user_id', 'ojt_assignments.student_id'),
             'course' => StudentProfile::select('course')->whereColumn('student_profiles.user_id', 'ojt_assignments.student_id'),
             'hours' => AttendanceLog::selectRaw('coalesce(sum(hours_rendered), 0)')->whereColumn('attendance_logs.student_id', 'ojt_assignments.student_id'),
-        ])
+        ]);
+
+        return $this->orderByLastName($query, 'ojt_assignments.student_id')
             ->select('ojt_assignments.*')
             ->selectRaw(self::RENDERED.' as rendered_hours')
             ->latest('created_at')

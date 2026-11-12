@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Concerns;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 
 trait WithSorting
@@ -31,5 +32,23 @@ trait WithSorting
         }
 
         return $query;
+    }
+
+    /**
+     * Last name of the user referenced by $userColumn; legacy users without split names fall back to the stored name.
+     */
+    protected function lastNameSubquery(string $userColumn): Builder
+    {
+        return User::withTrashed()->selectRaw("coalesce(nullif(last_name, ''), name)")->whereColumn('users.id', $userColumn);
+    }
+
+    /**
+     * Default table order: last name A-Z, then first name.
+     */
+    protected function orderByLastName(Builder $query, string $userColumn): Builder
+    {
+        return $query
+            ->orderBy($this->lastNameSubquery($userColumn))
+            ->orderBy(User::withTrashed()->select('first_name')->whereColumn('users.id', $userColumn));
     }
 }

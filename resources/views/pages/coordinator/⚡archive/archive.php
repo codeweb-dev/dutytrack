@@ -87,7 +87,8 @@ new #[Title('Archive')] class extends Component
                 ->orWhere('first_name', 'like', $this->searchTerm())
                 ->orWhere('last_name', 'like', $this->searchTerm())
                 ->orWhere('email', 'like', $this->searchTerm())))
-            ->latest('deleted_at')
+            ->orderByRaw("coalesce(nullif(last_name, ''), name)")
+            ->orderBy('first_name')
             ->paginate(10);
     }
 
@@ -118,7 +119,8 @@ new #[Title('Archive')] class extends Component
             ->when($this->search !== '', fn (Builder $query) => $query->where(fn (Builder $query) => $query
                 ->whereHas('student', $matchesName)
                 ->orWhereHas('companySupervisor', $matchesName)))
-            ->latest('deleted_at')
+            ->orderBy(User::withTrashed()->selectRaw("coalesce(nullif(last_name, ''), name)")->whereColumn('users.id', 'ojt_assignments.student_id'))
+            ->orderBy(User::withTrashed()->select('first_name')->whereColumn('users.id', 'ojt_assignments.student_id'))
             ->paginate(10);
     }
 

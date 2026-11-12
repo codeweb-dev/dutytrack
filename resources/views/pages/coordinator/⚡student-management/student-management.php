@@ -260,7 +260,7 @@ new #[Title('Students')] class extends Component
         $sortColumn = $allowedSorts[$this->sortBy] ?? 'users.last_name';
         $sortDirection = $this->sortDirection === 'desc' ? 'desc' : 'asc';
 
-        $query->orderByRaw("users.status = 'pending' desc")->orderBy($sortColumn, $sortDirection);
+        $query->orderBy($sortColumn, $sortDirection)->orderBy('users.last_name')->orderBy('users.first_name');
 
         return $query->paginate(10);
     }

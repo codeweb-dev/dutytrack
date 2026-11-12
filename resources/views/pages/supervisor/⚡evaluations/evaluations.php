@@ -1,7 +1,6 @@
 <?php
 
 use App\Livewire\Concerns\WithSorting;
-use App\Models\User;
 use App\Models\StudentProfile;
 use App\Livewire\Concerns\ManagesPracticumEvaluations;
 use App\Models\Evaluation;
@@ -94,14 +93,16 @@ new #[Title('Evaluations')] class extends Component
                 });
             });
 
-        return $this->applySorting($query, [
-            'student' => User::select('name')->whereColumn('users.id', 'ojt_assignments.student_id'),
+        $query = $this->applySorting($query, [
+            'student' => $this->lastNameSubquery('ojt_assignments.student_id'),
             'student_id' => StudentProfile::select('student_id')->whereColumn('student_profiles.user_id', 'ojt_assignments.student_id'),
             'course' => StudentProfile::select('course')->whereColumn('student_profiles.user_id', 'ojt_assignments.student_id'),
             'rating' => Evaluation::selectRaw('max(rating)')
                 ->whereColumn('evaluations.student_id', 'ojt_assignments.student_id')
                 ->where('evaluator_type', $this->evaluatorType()),
-        ])
+        ]);
+
+        return $this->orderByLastName($query, 'ojt_assignments.student_id')
             ->latest('created_at')
             ->paginate(10);
     }

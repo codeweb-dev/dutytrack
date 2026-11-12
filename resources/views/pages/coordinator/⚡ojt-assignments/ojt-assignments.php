@@ -95,12 +95,14 @@ new #[Title('OJT Assignments')] class extends Component
             })
             ->when($this->ojt_type !== '', fn (Builder $query) => $query->where('ojt_type', $this->ojt_type));
 
-        return $this->applySorting($query, [
-            'student' => User::select('last_name')->whereColumn('users.id', 'ojt_assignments.student_id'),
+        $query = $this->applySorting($query, [
+            'student' => $this->lastNameSubquery('ojt_assignments.student_id'),
             'student_id' => StudentProfile::select('student_id')->whereColumn('student_profiles.user_id', 'ojt_assignments.student_id'),
             'type' => 'ojt_type',
-            'supervisor' => User::select('last_name')->whereColumn('users.id', 'ojt_assignments.company_supervisor_id'),
-        ])
+            'supervisor' => $this->lastNameSubquery('ojt_assignments.company_supervisor_id'),
+        ]);
+
+        return $this->orderByLastName($query, 'ojt_assignments.student_id')
             ->latest('created_at')
             ->paginate(10);
     }
@@ -126,6 +128,7 @@ new #[Title('OJT Assignments')] class extends Component
             ->with(['studentProfile', 'ojtAssignment'])
             ->where('coordinator_id', Auth::id())
             ->role('student')
+            ->orderBy('last_name')
             ->orderBy('first_name')
             ->get();
     }

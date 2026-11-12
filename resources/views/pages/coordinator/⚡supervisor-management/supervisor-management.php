@@ -191,7 +191,7 @@ new #[Title('Supervisor Management')] class extends Component
             'company_name' => 'supervisor_profiles.company_name',
         ][$this->sortBy] ?? 'users.last_name';
 
-        $query->orderBy($sortColumn, $this->sortDirection === 'desc' ? 'desc' : 'asc');
+        $query->orderBy($sortColumn, $this->sortDirection === 'desc' ? 'desc' : 'asc')->orderBy('users.last_name')->orderBy('users.first_name');
 
         return $query->paginate(10);
     }

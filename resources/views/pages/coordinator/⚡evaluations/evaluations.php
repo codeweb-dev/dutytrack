@@ -4,7 +4,6 @@ use App\Notifications\SystemNotification;
 use App\Livewire\Concerns\WithSorting;
 use App\Models\Evaluation;
 use App\Models\StudentProfile;
-use App\Models\User;
 use App\Support\AuditLogger;
 use Flux\Flux;
 use Illuminate\Database\Eloquent\Builder;
@@ -128,14 +127,16 @@ new #[Title('Evaluation Review')] class extends Component
                 });
             });
 
-        return $this->applySorting($query, [
-            'student' => User::select('name')->whereColumn('users.id', 'evaluations.student_id'),
+        $query = $this->applySorting($query, [
+            'student' => $this->lastNameSubquery('evaluations.student_id'),
             'student_id' => StudentProfile::select('student_id')->whereColumn('student_profiles.user_id', 'evaluations.student_id'),
-            'supervisor' => User::select('name')->whereColumn('users.id', 'evaluations.evaluator_id'),
+            'supervisor' => $this->lastNameSubquery('evaluations.evaluator_id'),
             'date' => 'evaluation_date',
             'rating' => 'rating',
             'status' => 'status',
-        ])
+        ]);
+
+        return $this->orderByLastName($query, 'evaluations.student_id')
             ->latest('evaluation_date')
             ->latest('created_at')
             ->paginate(10);

@@ -1,7 +1,6 @@
 <?php
 
 use App\Livewire\Concerns\WithSorting;
-use App\Models\User;
 use App\Models\StudentProfile;
 use App\Models\AttendanceLog;
 use Illuminate\Database\Eloquent\Builder;
@@ -97,12 +96,14 @@ new #[Title('Accomplishment Reports')] class extends Component
             ->when($this->from_date !== '', fn (Builder $query) => $query->whereDate('attendance_date', '>=', $this->from_date))
             ->when($this->to_date !== '', fn (Builder $query) => $query->whereDate('attendance_date', '<=', $this->to_date));
 
-        return $this->applySorting($query, [
-            'student' => User::select('name')->whereColumn('users.id', 'attendance_logs.student_id'),
+        $query = $this->applySorting($query, [
+            'student' => $this->lastNameSubquery('attendance_logs.student_id'),
             'student_id' => StudentProfile::select('student_id')->whereColumn('student_profiles.user_id', 'attendance_logs.student_id'),
             'date' => 'attendance_date',
             'hours' => 'hours_rendered',
-        ])
+        ]);
+
+        return $this->orderByLastName($query, 'attendance_logs.student_id')
             ->latest('attendance_date')
             ->paginate(10);
     }

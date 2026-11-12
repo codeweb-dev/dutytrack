@@ -340,11 +340,12 @@ test('supervisors can submit multiple practicum evaluations for one assigned tra
     ]);
 });
 
-test('supervisors can sort assigned students by student name', function () {
+test('supervisors can sort assigned students by last name', function () {
     $coordinator = createSupervisorAssignedStudentCoordinator();
     $supervisor = createSupervisorAssignedStudentUser();
-    $zed = createSupervisorAssignedStudent($coordinator, ['name' => 'Zed Sorted Trainee']);
-    $abe = createSupervisorAssignedStudent($coordinator, ['name' => 'Abe Sorted Trainee']);
+    // First names are reversed so only last-name ordering passes; abe is created first so newest-first would fail the default.
+    $abe = createSupervisorAssignedStudent($coordinator, ['name' => 'Zed Abe', 'first_name' => 'Zed', 'last_name' => 'Abe']);
+    $zed = createSupervisorAssignedStudent($coordinator, ['name' => 'Abe Zed', 'first_name' => 'Abe', 'last_name' => 'Zed']);
 
     foreach ([$abe, $zed] as $student) {
         OjtAssignment::query()->create([
@@ -357,11 +358,13 @@ test('supervisors can sort assigned students by student name', function () {
     $this->actingAs($supervisor);
 
     Livewire::test('pages::supervisor.assigned-students')
+        ->assertSeeInOrder([$abe->display_name, $zed->display_name])
         ->set('sortBy', 'student')
-        ->assertSeeInOrder([$abe->name, $zed->name])
+        ->assertSeeInOrder([$abe->display_name, $zed->display_name])
         ->set('sortDirection', 'desc')
-        ->assertSeeInOrder([$zed->name, $abe->name])
+        ->assertSeeInOrder([$zed->display_name, $abe->display_name])
         ->call('clearFilters')
         ->assertSet('sortBy', '')
-        ->assertSet('sortDirection', 'asc');
+        ->assertSet('sortDirection', 'asc')
+        ->assertSeeInOrder([$abe->display_name, $zed->display_name]);
 });

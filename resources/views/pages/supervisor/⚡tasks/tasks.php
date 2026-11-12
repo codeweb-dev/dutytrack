@@ -474,10 +474,11 @@ new #[Title('Tasks')] class extends Component
         return $this->stillRendering(OjtAssignment::query())
             ->with('student.studentProfile')
             ->where('company_supervisor_id', Auth::id())
-            ->orderBy('created_at', 'desc')
             ->get()
             ->pluck('student')
-            ->filter();
+            ->filter()
+            ->sortBy([['last_name', 'asc'], ['first_name', 'asc']])
+            ->values();
     }
 
     #[Computed]

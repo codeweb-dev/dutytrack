@@ -64,8 +64,8 @@ class FortifyServiceProvider extends ServiceProvider
 
             $user = (clone $query)->first();
 
-            // Rejected sign-ups are archived; tell the student why instead of "invalid credentials".
-            $user ??= $query->onlyTrashed()->whereNotNull('rejection_reason')->latest('deleted_at')->first();
+            // Archived accounts (incl. rejected sign-ups) get told why instead of "invalid credentials".
+            $user ??= $query->onlyTrashed()->latest('deleted_at')->first();
 
             if (! $user || ! Hash::check($request->input('password'), $user->password)) {
                 return null;
@@ -73,7 +73,9 @@ class FortifyServiceProvider extends ServiceProvider
 
             if ($user->trashed()) {
                 throw ValidationException::withMessages([
-                    'account' => __('Your sign-up was rejected by your OJT coordinator. Reason: :reason', ['reason' => $user->rejection_reason]),
+                    'account' => $user->rejection_reason
+                        ? __('Your sign-up was rejected by your OJT coordinator. Reason: :reason', ['reason' => $user->rejection_reason])
+                        : __('Your account has been archived by your OJT coordinator.'),
                 ]);
             }
 

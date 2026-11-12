@@ -34,6 +34,7 @@ new class extends Component {
             $supervisor = $this->supervisor->load('supervisorProfile');
 
             $supervisor->delete();
+            DB::table('sessions')->where('user_id', $supervisor->id)->delete();
         });
 
         Flux::toast(variant: 'success', heading: 'Supervisor archived.', text: 'The supervisor can be restored from the Archive.');

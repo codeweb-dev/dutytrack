@@ -25,6 +25,7 @@ new class extends Component
             abort_unless((int) $student->coordinator_id === (int) Auth::id(), 403);
 
             $student->delete();
+            DB::table('sessions')->where('user_id', $student->id)->delete();
         });
 
         Flux::toast(variant: 'success', heading: 'Student archived.', text: 'The student can be restored from the Archive.');

@@ -490,3 +490,36 @@ test('each supervisor row has its own assigned students modal', function () {
     expect($supervisors[$supervisorA->id]->companySupervisorAssignments->pluck('student.first_name')->all())->toBe(['TraineeA'])
         ->and($supervisors[$supervisorB->id]->companySupervisorAssignments->pluck('student.first_name')->all())->toBe(['TraineeB']);
 });
+
+test('archived students and supervisors are told why they cannot log in until restored', function () {
+    $coordinator = createCoordinator();
+    $student = createStudentForCoordinator($coordinator, ['status' => 'active']);
+    $student->studentProfile->update(['birthdate' => '2004-01-01']);
+    $supervisor = User::factory()->create(['coordinator_id' => $coordinator->id, 'status' => 'active']);
+    $supervisor->assignRole(AppRole::SUPERVISOR->value);
+    $error = ['account' => 'Your account has been archived by your OJT coordinator.'];
+    $loginStudent = fn () => $this->post(route('login.store'), [
+        'role' => AppRole::STUDENT->value,
+        'email' => $student->studentProfile->student_id,
+        'birthdate' => '2004-01-01',
+        'password' => 'password',
+    ]);
+    $loginSupervisor = fn () => $this->post(route('login.store'), [
+        'role' => AppRole::SUPERVISOR->value,
+        'email' => $supervisor->email,
+        'password' => 'password',
+    ]);
+
+    $this->actingAs($coordinator);
+    Livewire::test('coordinator.student-management.delete', ['student' => $student])->call('delete');
+    Livewire::test('coordinator.supervisors.delete', ['supervisor' => $supervisor])->call('delete');
+    auth()->logout();
+
+    $loginStudent()->assertSessionHasErrors($error);
+    $loginSupervisor()->assertSessionHasErrors($error);
+    $this->assertGuest();
+
+    $supervisor->restore();
+    $loginSupervisor()->assertSessionHasNoErrors();
+    $this->assertAuthenticatedAs($supervisor);
+});

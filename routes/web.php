@@ -40,6 +40,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     Route::livewire('/announcements', 'pages::announcement')->name('announcements');
+    Route::livewire('/notifications', 'pages::notifications')->name('notifications');
 
     Route::get('/reports/{submission}/photos/{index}', function (AttendanceSubmission $submission, int $index) {
         $user = Auth::user();

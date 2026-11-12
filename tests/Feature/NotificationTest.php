@@ -26,6 +26,19 @@ test('the header bell shows unread notifications and marks them read', function 
     expect($user->unreadNotifications()->count())->toBe(0);
 });
 
+test('the bell shows only the 5 latest while the notifications page shows all', function () {
+    $user = User::factory()->create();
+    foreach (range(1, 6) as $i) {
+        $user->notify(new SystemNotification("Notice {$i}"));
+    }
+
+    expect(Livewire::actingAs($user)->test('notifications')->instance()->items)->toHaveCount(5);
+
+    $this->actingAs($user)->get(route('notifications'))
+        ->assertOk()
+        ->assertSee(array_map(fn ($i) => "Notice {$i}", range(1, 6)));
+});
+
 test('approving an evaluation notifies that student and the supervisor', function () {
     $this->seed(Database\Seeders\RoleSeeder::class);
     $coordinator = User::factory()->coordinator()->create();

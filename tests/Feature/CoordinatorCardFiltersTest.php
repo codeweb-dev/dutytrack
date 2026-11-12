@@ -74,3 +74,21 @@ test('student requirement cards filter the checklist', function () {
         ->and($keys($component->set('status', 'missing')))->toHaveCount($requirements->count() - 2)
         ->and($keys($component->set('status', '')))->toHaveCount($requirements->count());
 });
+
+test('attendance day details search students and sort by last name', function () {
+    $this->done->update(['first_name' => 'Zed', 'middle_name' => null, 'last_name' => 'Abad', 'name' => 'Zed Abad']);
+    $this->ongoing->update(['first_name' => 'Amy', 'middle_name' => null, 'last_name' => 'Zamora', 'name' => 'Amy Zamora']);
+
+    foreach ([$this->ongoing, $this->done] as $student) {
+        $assignment = OjtAssignment::create(['student_id' => $student->id, 'ojt_type' => 'internal', 'company_supervisor_id' => User::factory()->companySupervisor()->create()->id]);
+        AttendanceLog::create(['student_id' => $student->id, 'ojt_assignment_id' => $assignment->id, 'attendance_date' => '2026-11-05', 'hours_rendered' => 8, 'status' => 'present']);
+    }
+
+    $component = Livewire::test('pages::coordinator.attendance')->call('showAttendanceDay', '2026-11-05');
+
+    expect($component->instance()->selectedAttendance->pluck('student_id')->all())->toBe([$this->done->id, $this->ongoing->id]);
+
+    $component->set('search', 'zamo');
+
+    expect($component->instance()->selectedAttendance->pluck('student_id')->all())->toBe([$this->ongoing->id]);
+});

@@ -30,6 +30,8 @@ new #[Title('Attendance Monitoring')] class extends Component
 
     public string $status = '';
 
+    public string $search = '';
+
     #[Locked]
     public string $calendarMonth;
 
@@ -39,6 +41,13 @@ new #[Title('Attendance Monitoring')] class extends Component
     public function mount(): void
     {
         $this->calendarMonth = now()->format('Y-m');
+    }
+
+    public function updated(string $property): void
+    {
+        if (in_array($property, ['search', 'status'], true)) {
+            $this->resetPage();
+        }
     }
 
     public function previousCalendarMonth(): void
@@ -72,6 +81,7 @@ new #[Title('Attendance Monitoring')] class extends Component
         }
 
         $this->selectedCalendarDate = $date;
+        $this->search = '';
         $this->resetPage();
 
         Flux::modal('attendance-day-details')->show();
@@ -173,7 +183,19 @@ new #[Title('Attendance Monitoring')] class extends Component
         return $this->applyStatus($this->attendanceQuery())
             ->with(['student.studentProfile', 'assignment.companySupervisor'])
             ->whereDate('attendance_date', $this->selectedCalendarDate)
-            ->orderBy(User::select('name')->whereColumn('users.id', 'attendance_logs.student_id'))
+            ->when(trim($this->search) !== '', function (Builder $query) {
+                $search = '%'.trim($this->search).'%';
+
+                $query->whereHas('student', fn (Builder $query) => $query
+                    ->where(fn (Builder $query) => $query
+                        ->where('users.name', 'like', $search)
+                        ->orWhere('users.first_name', 'like', $search)
+                        ->orWhere('users.last_name', 'like', $search)
+                        ->orWhereHas('studentProfile', fn (Builder $query) => $query->where('student_id', 'like', $search))));
+            })
+            // Last name A-Z; legacy users without split names fall back to the stored name.
+            ->orderBy(User::selectRaw("coalesce(nullif(last_name, ''), name)")->whereColumn('users.id', 'attendance_logs.student_id'))
+            ->orderBy(User::select('first_name')->whereColumn('users.id', 'attendance_logs.student_id'))
             ->orderBy('attendance_logs.id')
             ->paginate(10);
     }

@@ -108,14 +108,26 @@
                 <flux:text class="mt-2">{{ $this->selectedAttendance->total() }} {{ $status === '' ? 'attendance' : strtolower($cards[$status][0]) }} records from your assigned students.</flux:text>
             </div>
 
-            @if ($this->selectedAttendance->isEmpty() && ($selectedHoliday = $this->selectedHoliday))
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <flux:radio.group wire:model.live="status" aria-label="Filter by status" variant="segmented" size="sm">
+                    <flux:radio value="" label="All" />
+                    @foreach ($legend as $value => [$label])
+                        <flux:radio :value="$value" :label="$label" />
+                    @endforeach
+                </flux:radio.group>
+
+                <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass" size="sm"
+                    placeholder="Search students..." aria-label="Search students" clearable class="w-full sm:w-64" />
+            </div>
+
+            @if ($search === '' && $this->selectedAttendance->isEmpty() && ($selectedHoliday = $this->selectedHoliday))
                 <flux:callout icon="calendar-days" color="amber">
                     <flux:callout.heading>Public holiday</flux:callout.heading>
                     <flux:callout.text>{{ $selectedHoliday['name'] }}. Students cannot time in on holidays.</flux:callout.text>
                 </flux:callout>
             @elseif ($this->selectedAttendance->isEmpty())
                 <flux:callout icon="information-circle">
-                    <flux:callout.text>No attendance records for this date.</flux:callout.text>
+                    <flux:callout.text>{{ $search === '' ? 'No attendance records for this date.' : 'No students match your search.' }}</flux:callout.text>
                 </flux:callout>
             @else
                 <flux:table :paginate="$this->selectedAttendance">
